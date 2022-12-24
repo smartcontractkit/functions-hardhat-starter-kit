@@ -1,4 +1,7 @@
+const ethers = require("ethers")
+const { networkConfig } = require("./helper-hardhat-config")
 require("@nomicfoundation/hardhat-toolbox")
+require("hardhat-contract-sizer")
 require("./tasks")
 require("dotenv").config()
 
@@ -8,16 +11,19 @@ const MAINNET_RPC_URL =
     "https://eth-mainnet.alchemyapi.io/v2/your-api-key"
 const POLYGON_MAINNET_RPC_URL =
     process.env.POLYGON_MAINNET_RPC_URL || "https://polygon-mainnet.alchemyapi.io/v2/your-api-key"
+MUMBAI_RPC_URL = 
+    process.env.MUMBAI_RPC_URL || "https://polygon-mumbai.g.alchemy.com/v2/v2/your-api-key"
 const GOERLI_RPC_URL =
     process.env.GOERLI_RPC_URL || "https://eth-goerli.alchemyapi.io/v2/your-api-key"
 const PRIVATE_KEY = process.env.PRIVATE_KEY
 // optional
 const MNEMONIC = process.env.MNEMONIC || "Your mnemonic"
-const FORKING_BLOCK_NUMBER = parseInt(process.env.FORKING_BLOCK_NUMBER) || 0
+const FORKING_BLOCK_NUMBER = process.env.FORKING_BLOCK_NUMBER
 
 // Your API key for Etherscan, obtain one at https://etherscan.io/
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "Your etherscan API key"
 const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY || "Your polygonscan API key"
+
 const REPORT_GAS = process.env.REPORT_GAS || false
 
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -26,17 +32,36 @@ module.exports = {
         compilers: [
             {
                 version: "0.8.7",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 100_000_000,
+                    },
+                },
             },
             {
                 version: "0.6.6",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 100_000_000,
+                    },
+                },
             },
             {
                 version: "0.4.24",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 100_000_000,
+                    },
+                },
             },
         ],
     },
     networks: {
         hardhat: {
+            allowUnlimitedContractSize: true,
             hardfork: "merge",
             // If you want to do some forking set `enabled` to true
             forking: {
@@ -45,6 +70,13 @@ module.exports = {
                 enabled: false,
             },
             chainId: 31337,
+            accounts: [
+                {
+                    privateKey: ethers.Wallet.fromMnemonic(networkConfig[31337].deployerMnemonic)
+                        .privateKey,
+                    balance: "10000000000000000000000",
+                },
+            ],
         },
         localhost: {
             chainId: 31337,
@@ -52,26 +84,35 @@ module.exports = {
         goerli: {
             url: GOERLI_RPC_URL,
             accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-            //   accounts: {
-            //     mnemonic: MNEMONIC,
-            //   },
             chainId: 5,
         },
         mainnet: {
             url: MAINNET_RPC_URL,
             accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-            //   accounts: {
-            //     mnemonic: MNEMONIC,
-            //   },
+            accounts: MNEMONIC !== undefined ? {
+                mnemonic: MNEMONIC,
+            } : undefined,
             chainId: 1,
         },
         polygon: {
             url: POLYGON_MAINNET_RPC_URL,
             accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
+            accounts: MNEMONIC !== undefined ? {
+                mnemonic: MNEMONIC,
+            } : undefined,
             chainId: 137,
         },
+        mumbai: {
+            url: MUMBAI_RPC_URL,
+            accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
+            accounts: MNEMONIC !== undefined ? {
+                mnemonic: MNEMONIC,
+            } : undefined,
+            gas: 3_000_000,
+            chainId: 80001,
+        },
     },
-    defaultNetwork: "hardhat",
+    defaultNetwork: "goerli",
     etherscan: {
         // yarn hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_PARAMETERS>
         apiKey: {
@@ -87,13 +128,14 @@ module.exports = {
         // coinmarketcap: process.env.COINMARKETCAP_API_KEY,
     },
     contractSizer: {
-        runOnCompile: false,
+        runOnCompile: true,
         only: [
             "APIConsumer",
             "AutomationCounter",
             "NFTFloorPriceConsumerV3",
             "PriceConsumerV3",
             "RandomNumberConsumerV2",
+            "OCR2DRRegistry",
         ],
     },
     paths: {

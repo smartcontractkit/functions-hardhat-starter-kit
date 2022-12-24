@@ -1,0 +1,392 @@
+######################## DIFF for OCR2DRClient.sol
+45c45
+<     uint56 gasPrice
+---
+>     uint256 gasPrice
+61c61
+<     uint56 gasPrice
+---
+>     uint256 gasPrice
+
+
+######################## DIFF for OCR2DROracle.sol
+90c90
+<     uint56 gasPrice
+---
+>     uint256 gasPrice
+110,113c110,111
+<     uint56 gasPrice
+<   // ??? Do we need to check if registry is set for every single call?
+<   ) external override registryIsSet validateAuthorizedSender returns (bytes32) {
+<     // ??? What is the reason for adding this null check? If it isn't necessary, is it worth the gas cost?
+---
+>     uint256 gasPrice
+>   ) external override registryIsSet returns (bytes32) {
+
+
+######################## DIFF for OCR2DRRegistry.sol
+31d30
+<   error TimeoutExeeded();
+48d46
+<     uint32 pendingRequestCount; // pendingRequestCount used to prevent a subscription with pending requests from being deleted
+62,65c60,62
+< 
+<   // Use contract-wide nonce instead
+<   uint256 private s_nonce;
+< 
+---
+>   // Note a nonce of 0 indicates an the consumer is not assigned to that subscription.
+>   mapping(address => mapping(uint64 => uint64)) /* consumer */ /* subscriptionId */ /* nonce */
+>     private s_consumers;
+70,71d66
+<   mapping(uint64 => mapping(address => bool)) /* subscriptionId */ /* consumer */ /* isAuthorized */
+<     private s_isAuthorizedConsumer;
+96d90
+<   // The modified sizes below reduce commitment storage size by 1 slot (2 slots if we remove DON address)
+98,109c92,100
+<     uint64 subscriptionId;  // 8 bytes
+<     address client;         // 20 bytes
+<     uint32 gasLimit;        // 4 bytes 
+<     uint56 gasPrice;        // 7 bytes (good for >100,000 gwei gas price)
+<     // Do we need to store the DON address? It appears we don't use it at all.
+<     // If we remove this, the commitment size goes from 100 bytes to 80, saving a full slot of storage
+<     // address don;            // 20 bytes?
+<     uint96 donFee;          // 12 bytes
+<     uint96 registryFee;     // 12 bytes
+<     uint96 estimatedCost;   // 12 bytes
+<     uint40 timestamp;       // 5 bytes (good for >1000 years)
+<     
+---
+>     uint64 subscriptionId;
+>     address client;
+>     uint32 gasLimit;
+>     uint256 gasPrice;
+>     address don;
+>     uint96 donFee;
+>     uint96 registryFee;
+>     uint96 estimatedCost;
+>     uint256 timestamp;
+143c134
+<     uint16 requestTimeoutSeconds;
+---
+>     uint32 requestTimeoutSeconds;
+175c166
+<     uint16 requestTimeoutSeconds
+---
+>     uint32 requestTimeoutSeconds
+286c277
+<     uint56 gasPrice,
+---
+>     uint256 gasPrice,
+297c288
+<     uint256 paymentNoFee = (1e18 * uint256(gasPrice) * executionGas) / uint256(weiPerUnitLink);
+---
+>     uint256 paymentNoFee = (1e18 * gasPrice * executionGas) / uint256(weiPerUnitLink);
+316,317d306
+<     SubscriptionConfig memory subscriptionConfig = s_subscriptionConfigs[billing.subscriptionId];
+< 
+319c308
+<     if (subscriptionConfig.owner == address(0)) {
+---
+>     if (s_subscriptionConfigs[billing.subscriptionId].owner == address(0)) {
+322,334c311,315
+< 
+<     // // It's important to ensure that the consumer is in fact who they say they
+<     // // are, otherwise they could use someone else's subscription balance.
+<     // // A nonce of 0 indicates consumer is not allocated to the sub.
+<     // // uint64 currentNonce = s_consumers[billing.client][billing.subscriptionId];
+<     // // if (currentNonce == 0) {
+<     // //   revert InvalidConsumer(billing.subscriptionId, billing.client);
+<     // // }
+< 
+<     // ??? Is storing the nonce per subscription & consumer really necessary?  It uses an extra slot of storage and doesn't appear to be essential.
+<     // We can use a single nonce for the entire registry contract instead of per subscription
+<     // Instead, do this to validate if a consumer is authorized:
+<     if (!s_isAuthorizedConsumer[billing.subscriptionId][billing.client]) {
+---
+>     // It's important to ensure that the consumer is in fact who they say they
+>     // are, otherwise they could use someone else's subscription balance.
+>     // A nonce of 0 indicates consumer is not allocated to the sub.
+>     uint64 currentNonce = s_consumers[billing.client][billing.subscriptionId];
+>     if (currentNonce == 0) {
+337d317
+< 
+354,358c334,335
+<     // ??? Use contract-wide nonce instead?
+<     // uint64 nonce = currentNonce + 1;
+<     bytes32 requestId = computeRequestId(billing.subscriptionId, s_nonce);
+<     s_subscriptions[billing.subscriptionId].pendingRequestCount++;
+<     s_nonce++;
+---
+>     uint64 nonce = currentNonce + 1;
+>     bytes32 requestId = computeRequestId(msg.sender, billing.client, billing.subscriptionId, nonce);
+365c342
+<       // msg.sender,
+---
+>       msg.sender,
+369c346
+<       uint40(block.timestamp)
+---
+>       block.timestamp
+374,378c351,352
+<     // Do we really need to emit this if we are already emitting an oracle request?
+<     // Is it worth the gas?
+<     // emit BillingStart(requestId, commitment);
+<     // s_consumers[billing.client][billing.subscriptionId] = nonce; *This is not needed
+< 
+---
+>     emit BillingStart(requestId, commitment);
+>     s_consumers[billing.client][billing.subscriptionId] = nonce;
+382a357,358
+>     address don,
+>     address client,
+384,386c360,362
+<     uint256 nonce
+<   ) private view returns (bytes32) {
+<     return keccak256(abi.encode(address(this), subscriptionId, nonce));
+---
+>     uint64 nonce
+>   ) private pure returns (bytes32) {
+>     return keccak256(abi.encode(don, client, subscriptionId, nonce));
+442,453c418
+<     // We should strictly enforce timeouts to set clear & explicit SLAs with customers
+<     // confirming if they SHOULD or SHOULD NOT retry initiating a request.  This could be
+<     // CRUCIAL for how a user might use this product
+<     // (Example: uApp escrow service: https://youtu.be/Ar4WobMZLy0
+<     //  If this timeout is not enforced, there could be a "double redeem" when a customer retries and both requests are fulfilled.
+<     //  I know this could be resolved by the client, but as a dApp dev myself, I perfer enforced explicit timeouts & retry conditions.)
+<    
+<     // If a request has timed out, the commitment is deleted and the pending request count for the subscription is decremented
+<     if (timeoutRequest(requestId)) {
+<       return true;
+<     }
+<     if (commitment.client == address(0)) {
+---
+>     if (commitment.don == address(0)) {
+457d421
+<     s_subscriptions[commitment.subscriptionId].pendingRequestCount--;
+641,645c605
+<     s_subscriptions[currentsubscriptionId] = Subscription({
+<       balance: 0,
+<       blockedBalance: 0,
+<       pendingRequestCount: 0
+<     });
+---
+>     s_subscriptions[currentsubscriptionId] = Subscription({balance: 0, blockedBalance: 0});
+697d656
+<    * @return success - returns true if removal was successful, else returns false
+704d662
+<     returns (bool)
+706,707c664
+<     // Note bounded by MAX_CONSUMERS
+<     if (!s_isAuthorizedConsumer[subscriptionId][consumer]) {
+---
+>     if (s_consumers[consumer][subscriptionId] == 0) {
+710c667
+<     delete s_isAuthorizedConsumer[subscriptionId][consumer];
+---
+>     // Note bounded by MAX_CONSUMERS
+720,721c677
+<         emit SubscriptionConsumerRemoved(subscriptionId, consumer);
+<         return true;
+---
+>         break;
+724c680,681
+<     return false;
+---
+>     delete s_consumers[consumer][subscriptionId];
+>     emit SubscriptionConsumerRemoved(subscriptionId, consumer);
+741a699,705
+>     if (s_consumers[consumer][subscriptionId] != 0) {
+>       // Idempotence - do nothing if already added.
+>       // Ensures uniqueness in s_subscriptions[subscriptionId].consumers.
+>       return;
+>     }
+>     // Initialize the nonce to 1, indicating the consumer is allocated.
+>     s_consumers[consumer][subscriptionId] = 1;
+743c707
+<     s_isAuthorizedConsumer[subscriptionId][consumer] = true;
+---
+> 
+758,763c722
+<     // We CANNOT use this current logic for checking for pending requests as it relies upon iterating through the AuthorizedSenders array.
+<     // if (pendingRequestExists(subscriptionId)) {
+<     //   revert PendingRequestExists();
+<     // }
+<     // Instead, keep an active count of pending requests
+<     if (uint256(s_subscriptions[subscriptionId].pendingRequestCount) > 0) {
+---
+>     if (pendingRequestExists(subscriptionId)) {
+766d724
+< 
+770a729
+>     SubscriptionConfig memory subConfig = s_subscriptionConfigs[subscriptionId];
+772d730
+<     address[] memory consumers = s_subscriptionConfigs[subscriptionId].consumers;
+775,776c733,734
+<     for (uint256 i = 0; i < consumers.length; i++) {
+<       delete s_isAuthorizedConsumer[subscriptionId][consumers[i]];
+---
+>     for (uint256 i = 0; i < subConfig.consumers.length; i++) {
+>       delete s_consumers[subConfig.consumers[i]][subscriptionId];
+787,825d744
+< 
+<   // This function CANNOT be used it its current form.  It has O(n^2) gas usage as the
+<   // authorized consumer array grows
+< 
+<   // My suggestion: we need a mapping to an array of pending requestIds for each subId
+<   // mapping(bytes32 => uint64[]) pendingRequestIds;
+< 
+<   // /**
+<   //  * @notice Check to see if there exists a request commitment for all consumers for a given sub.
+<   //  * @param subscriptionId - ID of the subscription
+<   //  * @return true if there exists at least one unfulfilled request for the subscription, false
+<   //  * otherwise.
+<   //  * @dev Looping is bounded to MAX_CONSUMERS*(number of DONs). (incorrect)
+<   //  * @dev Used to disable subscription canceling while outstanding request are present.
+<   //  */
+< 
+<   // function pendingRequestExists(uint64 subscriptionId) public view returns (bool) {
+<   //   address[] memory consumers = s_subscriptionConfigs[subscriptionId].consumers;
+<   //   address[] memory authorizedSendersList = getAuthorizedSenders();
+<   //   for (uint256 i = 0; i < consumers.length; i++) {
+<   //     for (uint256 j = 0; j < authorizedSendersList.length; j++) {
+<   //       bytes32 requestId = computeRequestId(
+<   //         authorizedSendersList[j],
+<   //         consumers[i],
+<   //         subscriptionId,
+<   //         s_consumers[consumers[i]][subscriptionId]
+<   //       );
+<   //       if (s_requestCommitments[requestId].subscriptionId == 0) {
+<   //         return true;
+<   //       }
+<   //     }
+<   //   }
+<   //   return false;
+<   // }
+< 
+<   function getPendingRequestCount(uint64 subscriptionId) external view returns (uint32) {
+<     return s_subscriptions[subscriptionId].pendingRequestCount;
+<   }
+< 
+827,833c746,751
+<    * @notice Search for all expired requestIds for a given subscriptionId.
+<    * Start & end nonce should be specified in case the nonce search space
+<    * becomes to large & exceeds the virtual gas limit for view functions
+<    * @param subscriptionId SubscriptionId to search
+<    * @param startNonce Nonce to start search 
+<    * @param endNonce Nonce to end search
+<    * @return timedOutRequestIds requestIds which must be passed to the timeoutRequests() function
+---
+>    * @notice Check to see if there exists a request commitment for all consumers for a given sub.
+>    * @param subscriptionId - ID of the subscription
+>    * @return true if there exists at least one unfulfilled request for the subscription, false
+>    * otherwise.
+>    * @dev Looping is bounded to MAX_CONSUMERS*(number of DONs).
+>    * @dev Used to disable subscription canceling while outstanding request are present.
+835,850c753,767
+<   function getRequestsToTimeOut(uint64 subscriptionId, uint256 startNonce, uint256 endNonce)
+<     external
+<     view
+<     returns (bytes32[] memory)
+<   {
+<     bytes32[] memory timedOutRequestIds = new bytes32[](s_subscriptions[subscriptionId].pendingRequestCount);
+<     uint256 i = 0;
+<     for (; startNonce < endNonce; startNonce++) {
+<       bytes32 requestId = computeRequestId(subscriptionId, startNonce);
+<       if (
+<         s_requestCommitments[requestId].timestamp != uint40(0)
+<         && block.timestamp >
+<         (uint256(s_requestCommitments[requestId].timestamp) + s_config.requestTimeoutSeconds)
+<       ) {
+<         timedOutRequestIds[i] = requestId;
+<         i++;
+---
+> 
+>   function pendingRequestExists(uint64 subscriptionId) public view returns (bool) {
+>     address[] memory consumers = s_subscriptionConfigs[subscriptionId].consumers;
+>     address[] memory authorizedSendersList = getAuthorizedSenders();
+>     for (uint256 i = 0; i < consumers.length; i++) {
+>       for (uint256 j = 0; j < authorizedSendersList.length; j++) {
+>         bytes32 requestId = computeRequestId(
+>           authorizedSendersList[j],
+>           consumers[i],
+>           subscriptionId,
+>           s_consumers[consumers[i]][subscriptionId]
+>         );
+>         if (s_requestCommitments[requestId].don == address(0)) {
+>           return true;
+>         }
+853c770
+<     return timedOutRequestIds;
+---
+>     return false;
+857,858c774
+<    * @notice Time out all provided requests if they are expired:
+<    * unlocks funds, deletes request commitment, and decrements number of pending requests for the subscription
+---
+>    * @notice Time out all expired requests: unlocks funds and removes the ability for the request to be fulfilled
+864,866c780,781
+<       timeoutRequest(requestIdsToTimeout[i]);
+<     }
+<   }
+---
+>       bytes32 requestId = requestIdsToTimeout[i];
+>       Commitment memory commitment = s_requestCommitments[requestId];
+868,875c783,786
+<   /**
+<    * @notice Times out a request if it is expired:
+<    * unlocks funds, deletes request commitment, and decrements number of pending requests for the subscription
+<    * @param requestIdToTimeout - A list of request IDs to time out
+<    * @return If the request is not expired, returns false, else returns true
+<    */
+<   function timeoutRequest(bytes32 requestIdToTimeout) internal returns(bool) {
+<     Commitment memory commitment = s_requestCommitments[requestIdToTimeout];
+---
+>       // Check that the message sender is the subscription owner
+>       if (msg.sender != s_subscriptionConfigs[commitment.subscriptionId].owner) {
+>         revert MustBeSubOwner(s_subscriptionConfigs[commitment.subscriptionId].owner);
+>       }
+877,887c788,794
+<     if (
+<       (uint256(commitment.timestamp) + uint256(s_config.requestTimeoutSeconds))
+<       > block.timestamp
+<     ) {
+<       // Decrement blocked balance
+<       s_subscriptions[commitment.subscriptionId].blockedBalance -= commitment.estimatedCost;
+<       // Delete commitment
+<       delete s_requestCommitments[requestIdToTimeout];
+<       s_subscriptions[commitment.subscriptionId].pendingRequestCount--;
+<       emit RequestTimedOut(requestIdToTimeout);
+<       return true;
+---
+>       if (commitment.timestamp + s_config.requestTimeoutSeconds > block.timestamp) {
+>         // Decrement blocked balance
+>         s_subscriptions[commitment.subscriptionId].blockedBalance -= commitment.estimatedCost;
+>         // Delete commitment
+>         delete s_requestCommitments[requestId];
+>         emit RequestTimedOut(requestId);
+>       }
+889d795
+<     return false;
+
+######################## DIFF for OCR2DROracleInterface.sol
+60c60
+<     uint56 gasPrice
+---
+>     uint256 gasPrice
+75c75
+<     uint56 gasPrice
+---
+>     uint256 gasPrice
+
+
+######################## DIFF for OCR2DRRegistryInterface.sol
+17c17
+<     uint56 gasPrice;
+---
+>     uint256 gasPrice;
+48c48
+<     uint56 gasPrice,
+---
+>     uint256 gasPrice,
