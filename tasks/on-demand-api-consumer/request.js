@@ -31,11 +31,8 @@ task('on-demand-request', 'Calls an On Demand API consumer contract to request e
         }
 
         console.log('Simulating on demand request locally...')
-
         const { success, resultLog } = await simulateRequest('../../on-demand-request-config.js')
-
         console.log(`\n${resultLog}`)
-
         if (!success) {
             return
         }

@@ -10,7 +10,7 @@ import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
  * @notice This contract is a demonstration of using OCR2DR.
  * @notice NOT FOR PRODUCTION USE
  */
-contract OnDemandAPIConsumer is OCR2DRClient, ConfirmedOwner {
+contract OnDemandClient is OCR2DRClient, ConfirmedOwner {
     using OCR2DR for OCR2DR.Request;
 
     bytes32 public latestRequestId;

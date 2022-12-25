@@ -58,7 +58,7 @@ class Validator {
         };
         this.encodeResponse = (result) => {
             if (result.length === 0) {
-                return '0x00';
+                return '0x0';
             }
             return '0x' + result.toString('hex');
         };

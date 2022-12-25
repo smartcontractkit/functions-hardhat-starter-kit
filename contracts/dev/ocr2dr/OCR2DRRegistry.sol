@@ -413,8 +413,6 @@ contract OCR2DRRegistry is
     uint8 signerCount,
     uint256 reportValidationGas,
     uint256 initialGas
-    // !!! This function does not need the validateAuthorizedSender modifier!!!
-    // It instead must have an onlyOracle modifier
   ) external override validateAuthorizedSender nonReentrant whenNotPaused returns (bool success) {
     Commitment memory commitment = s_requestCommitments[requestId];
     if (commitment.don == address(0)) {

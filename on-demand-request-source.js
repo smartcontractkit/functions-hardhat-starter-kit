@@ -63,8 +63,8 @@ if (!badApiResponse.error) {
   console.log('Bad API request failed. (This message is expected and just for demonstration purposes.)')
 }
   
-// At least 2 out of 4 prices are needed to aggregate the median price
-if (prices.length < 2) {
+// At least 3 out of 4 prices are needed to aggregate the median price
+if (prices.length < 3) {
   // If an error is thrown, it will be returned back to the smart contract
   throw Error('More than 1 API failed');
 }
@@ -72,7 +72,8 @@ if (prices.length < 2) {
 const medianPrice = prices.sort((a, b) => a - b)[Math.round(prices.length / 2)];
 console.log(`Median Bitcoin price: $${medianPrice.toFixed(2)}`);
 
-// Use the following functions to encode a single value:
+// Use one of the following functions to convert the returned value to a Buffer
+// representing the bytes that are returned to the client smart contract:
 // - OCR2DR.encodeUint256
 // - OCR2DR.encodeInt256
 // - OCR2DR.encodeString

@@ -1,13 +1,11 @@
 const { simulateRequest, buildRequest } = require('../utils/onDemandRequestSimulator')
 const { getDecodedResultLog } = require('../utils/onDemandRequestSimulator/simulateRequest')
-const { VERIFICATION_BLOCK_CONFIRMATIONS, developmentChains } = require('../../helper-hardhat-config')
 const { getNetworkConfig } = require('../utils/utils')
-const readline = require('readline')
 
 task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally')
     .addOptionalParam(
       'name',
-      'Name of the contract to test (defaults to OnDemandAPIConsumer)'
+      'Name of the contract to test (defaults to OnDemandClient)'
     )
     .addOptionalParam(
         'gaslimit',
@@ -18,17 +16,15 @@ task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally')
           throw Error('Simulated requests can only be conducted using --network "hardhat"')
         }
 
-        const contractName = taskArgs.name ?? 'OnDemandAPIConsumer'
+        const contractName = taskArgs.name ?? 'OnDemandClient'
         const gasLimit = parseInt(taskArgs.gaslimit ?? '100000')
         if (gasLimit >= 400000) {
           throw Error('Gas limit must be less than 400,000')
         }
 
         console.log('Simulating on demand request locally...')
-        const { success, resultLog } = await simulateRequest('../../on-demand-request-config.js')
-        if (!success) {
-            return
-        }
+        const { success, result, resultLog } = await simulateRequest('../../on-demand-request-config.js')
+        console.log(`\n${resultLog}`)
 
         const request = await buildRequest('../../on-demand-request-config.js')
 
@@ -57,6 +53,30 @@ task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally')
           )
           const requestTxReceipt = await requestTx.wait(1)
           const requestId = requestTxReceipt.events[2].args.id
+
+          const accounts = await ethers.getSigners()
+          const deployer = accounts[0]
+          const ocrConfig = require('../../OCR2DROracleConfig.json')
+          const transmitter = ocrConfig.transmitters[0]
+          const signers = Array(ocrConfig.transmitters.length).fill(deployer.address)
+
+          let i = 0
+          for (const t of ocrConfig.transmitters) {
+            signers[i] = t
+            i ++
+          }
+
+          await registry.fulfillAndBill(
+            requestId,
+            success ? result : '0x0',
+            success ? '0x0' : result,
+            ocrConfig.transmitters[0],
+            signers,
+            ocrConfig.transmitters.length,
+            // TODO: these 2 values below must be accurate to provide accurate gas estimation
+            1_000_000,
+            0,
+          )
 
           client.on('OCRResponse', async (result, err) => {
             console.log(`Request ${requestId} fulfilled!`)
@@ -140,7 +160,8 @@ const deployMockOracle = async () => {
   await oracle.setDONPublicKey(
     ethers.utils.toUtf8Bytes(networkConfig["ocr2odPublicKey"])
   )
-  await registry.setAuthorizedSenders([oracle.address])
+  // Set the current account as an authorized sender on the oracle in order to simulate a fulfillment locally
+  await registry.setAuthorizedSenders([oracle.address, deployer.address])
   await oracle.setRegistry(registry.address)
 
   const ocrConfig = require('../../OCR2DROracleConfig.json')
