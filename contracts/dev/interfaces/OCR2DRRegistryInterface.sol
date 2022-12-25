@@ -14,7 +14,7 @@ interface OCR2DRRegistryInterface {
     // customer specified gas limit for the fulfillment callback
     uint32 gasLimit;
     // the expected gas price used to execute the transaction
-    uint56 gasPrice;
+    uint256 gasPrice;
   }
 
   /**
@@ -45,7 +45,7 @@ interface OCR2DRRegistryInterface {
    */
   function estimateCost(
     uint32 gasLimit,
-    uint56 gasPrice,
+    uint256 gasPrice,
     uint96 donFee,
     uint96 registryFee
   ) external view returns (uint96);

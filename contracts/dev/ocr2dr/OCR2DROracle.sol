@@ -87,7 +87,7 @@ contract OCR2DROracle is OCR2DROracleInterface, OCR2Base, AuthorizedOriginReceiv
     uint64 subscriptionId,
     bytes calldata data,
     uint32 gasLimit,
-    uint56 gasPrice
+    uint256 gasPrice
   ) external view override registryIsSet returns (uint96) {
     OCR2DRRegistryInterface.RequestBilling memory billing = OCR2DRRegistryInterface.RequestBilling(
       subscriptionId,
@@ -107,10 +107,8 @@ contract OCR2DROracle is OCR2DROracleInterface, OCR2Base, AuthorizedOriginReceiv
     uint64 subscriptionId,
     bytes calldata data,
     uint32 gasLimit,
-    uint56 gasPrice
-  // ??? Do we need to check if registry is set for every single call?
+    uint256 gasPrice
   ) external override registryIsSet validateAuthorizedSender returns (bytes32) {
-    // ??? What is the reason for adding this null check? If it isn't necessary, is it worth the gas cost?
     if (data.length == 0) {
       revert EmptyRequestData();
     }

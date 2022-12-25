@@ -57,7 +57,7 @@ interface OCR2DROracleInterface {
     uint64 subscriptionId,
     bytes calldata data,
     uint32 gasLimit,
-    uint56 gasPrice
+    uint256 gasPrice
   ) external view returns (uint96);
 
   /**
@@ -72,6 +72,6 @@ interface OCR2DROracleInterface {
     uint64 subscriptionId,
     bytes calldata data,
     uint32 gasLimit,
-    uint56 gasPrice
+    uint256 gasPrice
   ) external returns (bytes32);
 }

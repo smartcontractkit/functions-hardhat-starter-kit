@@ -6,7 +6,7 @@
 // global scope, and execute the script.
 const { network, run } = require("hardhat")
 
-const { deployAutomatedApiConsumer } = require("./deployAutomatedApiConsumer")
+// const { deployAutomatedApiConsumer } = require("./deployAutomatedApiConsumer")
 const { deployOnDemandApiConsumer } = require("./deployOnDemandApiConsumer")
 const { deployOcr2odOracle } = require("./deployOcr2odOracle")
 const { deployAutomationCounter } = require("./deployAutomationCounter")

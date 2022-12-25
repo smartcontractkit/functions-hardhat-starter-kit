@@ -56,7 +56,7 @@ contract OnDemandAPIConsumer is OCR2DRClient, ConfirmedOwner {
             req,
             subscriptionId,
             gasLimit,
-            uint56(tx.gasprice)
+            tx.gasprice
         );
         latestRequestId = assignedReqID;
         return assignedReqID;

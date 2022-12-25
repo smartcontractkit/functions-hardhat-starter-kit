@@ -107,7 +107,7 @@ contract AutomatedAPIConsumer is
             request,
             MY_SUBSCRIPTION_ID,
             MY_GAS_LIMIT,
-            uint56(tx.gasprice)
+            tx.gasprice
         );
         reqInFlight = true;
         emit ExecuteRequestInvoked(assignedReqID);

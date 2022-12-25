@@ -19,7 +19,7 @@ const networkConfig = {
             "repair craft aspect trophy height matrix pool basket category west boat solar",
         ocr2odPublicKey:
             "971f006163a12ee3383a00d7743334480d6b1c83fdf60497e0c520b16d1a4ee421cc61375679b63466156fee6f2f1da5a7e630ba0b1cddb2704ef907ead223db",
-        ocr2odPrivateKey: "0x09768a19def4dce2b6793d7dc807828ef47b681709cf1005627a93f0da9c8065",
+        mockOcr2odPrivateKey: "0x09768a19def4dce2b6793d7dc807828ef47b681709cf1005627a93f0da9c8065",
     },
     1: {
         name: "mainnet",
@@ -35,7 +35,6 @@ const networkConfig = {
         linkEthPriceFeed: "0xb4c4a493AB6356497713A78FFA6c60FB53517c63", // TODO remove me
         keyHash: "0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15",
         vrfCoordinator: "0x2Ca8E0C643bDe4C2E08ab1fA0da3401AdAD7734D",
-        oracle: "0xCC79157eb46F5624204f47AB42b3906cAA40eaB7",
         ocr2odOracle: "0xBAE17CF0694dF955F715D2eDC6cF0C86246Ed7Af",
         ocr2odOracleFactory: "0x5b2E2a078c6CF99c7Aa61555034CaD28cA08a54f",
         ocr2odOracleRegistry: "0x70511301892257bbD0071043E41385dF40Cd99f5",
@@ -50,7 +49,6 @@ const networkConfig = {
         name: "polygon",
         linkToken: "0xb0897686c545045afc77cf20ec7a532e3120e0f1",
         ethUsdPriceFeed: "0xF9680D99D6C9589e2a93a78A04A279e509205945",
-        oracle: "0x0a31078cd57d23bf9e8e8f1ba78356ca2090569e",
         jobId: "12b86114fa9e46bab3ca436f88e1a912",
         fee: "100000000000000",
         fundAmount: "100000000000000",

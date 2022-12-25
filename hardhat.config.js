@@ -61,13 +61,11 @@ module.exports = {
     },
     networks: {
         hardhat: {
-            allowUnlimitedContractSize: true,
             hardfork: "merge",
-            // If you want to do some forking set `enabled` to true
             forking: {
-                url: MAINNET_RPC_URL,
+                url: MAINNET_RPC_URL ?? GOERLI_RPC_URL ?? MUMBAI_RPC_URL,
                 blockNumber: FORKING_BLOCK_NUMBER,
-                enabled: false,
+                enabled: !!(MAINNET_RPC_URL ?? GOERLI_RPC_URL ?? MUMBAI_RPC_URL),
             },
             chainId: 31337,
             accounts: [
