@@ -94,6 +94,8 @@ contract OCR2DRRegistry is
   mapping(address => uint96) /* oracle */ /* LINK balance */
     private s_withdrawableTokens;
   // The modified sizes below reduce commitment storage size by 1 slot (2 slots if we remove DON address)
+  // To futher improve gas usage, only the commitment hash should be stored on-chain and the
+  // rest of the commit data should be provided on fulfillment (verified using the hash)
   struct Commitment {
     uint64 subscriptionId;  // 8 bytes
     address client;         // 20 bytes
