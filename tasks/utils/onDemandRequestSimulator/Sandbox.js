@@ -60,7 +60,6 @@ class Sandbox {
     }
     clearTmpDirectory() {
         if (this.disableTmpClearing) {
-            Log_1.Log.warn('Clearing of ephemeral storage between requests has been disabled. This should only occur when running a simulated request or while testing.');
             return;
         }
         fs_1.default.readdirSync(os_1.default.tmpdir()).forEach((dirent) => {

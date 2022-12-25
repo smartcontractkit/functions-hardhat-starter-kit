@@ -6,7 +6,7 @@ const {
 } = require("../../helper-hardhat-config")
 
 async function deployOcr2odOracle(chainId = network.config.chainId) {
-    const ethLinkFeedAddress = networkConfig[chainId]["linkEthPriceFeed"]
+    const ethLinkFeedAddress = networkConfig[chainId]["linkNativePriceFeed"]
     const linkTokenAddress = networkConfig[chainId]["linkToken"]
 
     console.log("Deploying OCR2DR registry")

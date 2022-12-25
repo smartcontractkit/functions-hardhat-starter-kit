@@ -75,6 +75,7 @@ contract OnDemandConsumer is OCR2DRClient, ConfirmedOwner {
         bytes memory response,
         bytes memory err
     ) internal override {
+        // revert('test');
         latestResponse = response;
         latestError = err;
         emit OCRResponse(response, err);

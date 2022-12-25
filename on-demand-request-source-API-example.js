@@ -42,19 +42,16 @@ if (!coinMarketCapResponse.error) {
 }
 else {
   console.log('CoinMarketCap Error');
-  console.log({ ...coinMarketCapResponse });
 }
 if (!coinGeckoResponse.error) {
   prices.push(coinGeckoResponse.data[coinGeckoCoinId].usd);
 } else {
   console.log('CoinGecko Error');
-  console.log({ ...coinGeckoResponse });
 }
 if (!coinPaprikaResponse.error) {
   prices.push(coinPaprikaResponse.data.quotes.USD.price);
 } else {
   console.log('CoinPaprika Error');
-  console.log({ ...coinPaprikaResponse });
 }
   
 // A single failed API request does not cause the whole request to fail
@@ -67,7 +64,7 @@ if (!badApiResponse.error) {
 // At least 3 out of 4 prices are needed to aggregate the median price
 if (prices.length < 3) {
   // If an error is thrown, it will be returned back to the smart contract
-  throw Error('More than 1 API failed');
+  throw Error('More than 1 API failed This needs to be a suuuuper long error message to test gas usage limits for a function and stuff');
 }
 
 const medianPrice = prices.sort((a, b) => a - b)[Math.round(prices.length / 2)];

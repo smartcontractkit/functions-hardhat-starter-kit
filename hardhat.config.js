@@ -16,9 +16,37 @@ MUMBAI_RPC_URL =
 const GOERLI_RPC_URL =
     process.env.GOERLI_RPC_URL || "https://eth-goerli.alchemyapi.io/v2/your-api-key"
 const PRIVATE_KEY = process.env.PRIVATE_KEY
+
+let setRpcUrlCount = 0
+if (MAINNET_RPC_URL !== "https://eth-mainnet.alchemyapi.io/v2/your-api-key") setRpcUrlCount++
+if (POLYGON_MAINNET_RPC_URL !== "https://polygon-mainnet.alchemyapi.io/v2/your-api-key") setRpcUrlCount++
+if (GOERLI_RPC_URL !== "https://eth-goerli.alchemyapi.io/v2/your-api-key") setRpcUrlCount++
+if (MUMBAI_RPC_URL !== "https://polygon-mumbai.g.alchemy.com/v2/v2/your-api-key") setRpcUrlCount++
+if (setRpcUrlCount > 1) {
+    throw Error(
+        'Only 1 of the following environment variables can be set: ALCHEMY_MAINNET_RPC_URL, MAINNET_RPC_URL, GOERLI_RPC_URL, POLYGON_MAINNET_RPC_URL, or MUMBAI_RPC_URL'
+    )
+}
+if (setRpcUrlCount === 0) {
+    throw Error(
+        '1 of the following environment variables must be set: ALCHEMY_MAINNET_RPC_URL, MAINNET_RPC_URL, GOERLI_RPC_URL, POLYGON_MAINNET_RPC_URL, or MUMBAI_RPC_URL'
+    )
+}
+
 // optional
 const MNEMONIC = process.env.MNEMONIC || "Your mnemonic"
-const FORKING_BLOCK_NUMBER = parseInt(process.env.FORKING_BLOCK_NUMBER ?? '8199753')
+const FORKING_BLOCK_NUMBER = parseInt(
+    process.env.FORKING_BLOCK_NUMBER ??
+    `${
+        GOERLI_RPC_URL !== "https://eth-goerli.alchemyapi.io/v2/your-api-key" ? '8200306' : ''
+    }${
+        MUMBAI_RPC_URL !== "https://polygon-mumbai.g.alchemy.com/v2/v2/your-api-key" ? '30145064' : ''
+    }${
+        MAINNET_RPC_URL !== "https://eth-mainnet.alchemyapi.io/v2/your-api-key" ? '16264649' : ''
+    }${
+        POLYGON_MAINNET_RPC_URL !== "https://polygon-mainnet.alchemyapi.io/v2/your-api-key" ? '37274458' : ''
+    }`
+)
 
 // Your API key for Etherscan, obtain one at https://etherscan.io/
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "Your etherscan API key"

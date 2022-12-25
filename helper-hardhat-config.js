@@ -16,6 +16,7 @@ const networkConfig = {
             }${
                 process.env.MAINNET_RPC_URL ? '0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419' : ''
             }`,
+        // TODO: for networks other than mainnet, gas costs should be calculated the native token, not ETH
         linkEthPriceFeed:
             `${
                 process.env.MUMBAI_RPC_URL ? '0x12162c3E810393dEC01362aBf156D7ecf6159528' : ''

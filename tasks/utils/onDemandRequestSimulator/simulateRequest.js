@@ -34,7 +34,7 @@ const simulateRequest = async (pathToRequestConfig) => {
         };
     }
     const { name, message, details } = result.error;
-    const errorString = `${name}${message}`.slice(0, config.maxResponseBytes);
+    const errorString = `${name} ${message}`.slice(0, config.maxResponseBytes);
     return {
         success: false,
         result: `0x${Buffer.from(errorString).toString('hex')}`,
@@ -61,7 +61,7 @@ const getDecodedResultLog = (config, successResult) => {
                 throw new Error(`unused expectedReturnType ${end}`);
         }
         const decodedOutputLog = `Decoded as a ${config.expectedReturnType}: ${decodedOutput}`;
-        resultLog += decodedOutputLog;
+        resultLog += `${decodedOutputLog}\n`;
     }
     return resultLog;
 };

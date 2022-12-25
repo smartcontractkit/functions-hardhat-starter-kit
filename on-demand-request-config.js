@@ -31,7 +31,7 @@ const requestConfig = {
   codeLanguage: CodeLanguage.JavaScript,
   // string containing the source code to be executed
   source: fs.readFileSync('./on-demand-request-source-calculation-example.js').toString(),
-  // source: fs.readFileSync('./on-demand-request-source-API-example.js').toString(),
+  //source: fs.readFileSync('./on-demand-request-source-API-example.js').toString(),
   // number of HTTP queries the source code is allowed to make
   numAllowedQueries: 4,
   // secrets can be accessed within the source code with `secrets.varName` (ie: secrets.apiKey)
