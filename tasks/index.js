@@ -1,7 +1,7 @@
 exports.randomNumberConsumer = require("./random-number-consumer")
 exports.priceConsumer = require("./price-consumer")
 exports.keepers = require("./automation")
-exports.onDemandApiConsumer = require("./on-demand-api-consumer")
+exports.onDemandClient = require("./on-demand-client")
 exports.onDemandBilling = require("./on-demand-billing")
 exports.accounts = require("./accounts")
 exports.balance = require("./balance")

@@ -6,6 +6,29 @@ const networkConfig = {
         jobId: "29fa9aa13bf1468788b7cc4a500a45b8",
         fundAmount: "1000000000000000000",
         automationUpdateInterval: "30",
+        ethUsdPriceFeed: 
+            `${
+                process.env.MUMBAI_RPC_URL ? '0x0715A7794a1dc8e42615F059dD6e406A6594651A' : ''
+            }${
+                process.env.GOERLI_RPC_URL ? '0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e' : ''
+            }${
+                process.env.POLYGON_MAINNET_RPC_URL ? '0xf9680d99d6c9589e2a93a78a04a279e509205945' : ''
+            }${
+                process.env.MAINNET_RPC_URL ? '0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419' : ''
+            }`,
+        linkEthPriceFeed:
+            `${
+                process.env.MUMBAI_RPC_URL ? '0x12162c3E810393dEC01362aBf156D7ecf6159528' : ''
+            }${
+                process.env.GOERLI_RPC_URL ? '0xb4c4a493AB6356497713A78FFA6c60FB53517c63' : ''
+            }${
+                process.env.POLYGON_MAINNET_RPC_URL ? '0xb77fa460604b9c6435a235d057f7d319ac83cb53' : ''
+            }${
+                process.env.MAINNET_RPC_URL ? '0xdc530d9457755926550b59e8eccdae7624181557' : ''
+            }`,
+        ocr2odPublicKey:
+            "971f006163a12ee3383a00d7743334480d6b1c83fdf60497e0c520b16d1a4ee421cc61375679b63466156fee6f2f1da5a7e630ba0b1cddb2704ef907ead223db",
+        mockOcr2odPrivateKey: "0x09768a19def4dce2b6793d7dc807828ef47b681709cf1005627a93f0da9c8065",
     },
     31337: {
         name: "localhost",
@@ -14,12 +37,8 @@ const networkConfig = {
         jobId: "29fa9aa13bf1468788b7cc4a500a45b8",
         fundAmount: "1000000000000000000",
         automationUpdateInterval: "30",
-        ethUsdPriceFeed: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
         deployerMnemonic:
             "repair craft aspect trophy height matrix pool basket category west boat solar",
-        ocr2odPublicKey:
-            "971f006163a12ee3383a00d7743334480d6b1c83fdf60497e0c520b16d1a4ee421cc61375679b63466156fee6f2f1da5a7e630ba0b1cddb2704ef907ead223db",
-        mockOcr2odPrivateKey: "0x09768a19def4dce2b6793d7dc807828ef47b681709cf1005627a93f0da9c8065",
     },
     1: {
         name: "mainnet",

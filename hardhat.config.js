@@ -18,7 +18,7 @@ const GOERLI_RPC_URL =
 const PRIVATE_KEY = process.env.PRIVATE_KEY
 // optional
 const MNEMONIC = process.env.MNEMONIC || "Your mnemonic"
-const FORKING_BLOCK_NUMBER = process.env.FORKING_BLOCK_NUMBER
+const FORKING_BLOCK_NUMBER = parseInt(process.env.FORKING_BLOCK_NUMBER ?? '8199753')
 
 // Your API key for Etherscan, obtain one at https://etherscan.io/
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "Your etherscan API key"
@@ -61,11 +61,23 @@ module.exports = {
     },
     networks: {
         hardhat: {
+            allowUnlimitedContractSize: true,
             hardfork: "merge",
+            // If you want to do some forking set `enabled` to true
+            // TODO: fix this so the fork is correct
             forking: {
-                url: MAINNET_RPC_URL ?? GOERLI_RPC_URL ?? MUMBAI_RPC_URL,
+                url:
+                    `${
+                        GOERLI_RPC_URL != 'https://eth-goerli.alchemyapi.io/v2/your-api-key' ? GOERLI_RPC_URL : ''
+                    }${
+                        MUMBAI_RPC_URL != 'https://polygon-mumbai.g.alchemy.com/v2/v2/your-api-key' ? MUMBAI_RPC_URL : ''
+                    }${
+                        POLYGON_MAINNET_RPC_URL != 'https://polygon-mainnet.alchemyapi.io/v2/your-api-key' ? POLYGON_MAINNET_RPC_URL : ''
+                    }${
+                        MAINNET_RPC_URL != 'https://eth-mainnet.alchemyapi.io/v2/your-api-key' ? MAINNET_RPC_URL : ''
+                    }`,
                 blockNumber: FORKING_BLOCK_NUMBER,
-                enabled: !!(MAINNET_RPC_URL ?? GOERLI_RPC_URL ?? MUMBAI_RPC_URL),
+                enabled: true,
             },
             chainId: 31337,
             accounts: [
@@ -110,7 +122,7 @@ module.exports = {
             chainId: 80001,
         },
     },
-    defaultNetwork: "goerli",
+    defaultNetwork: "hardhat",
     etherscan: {
         // yarn hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_PARAMETERS>
         apiKey: {
