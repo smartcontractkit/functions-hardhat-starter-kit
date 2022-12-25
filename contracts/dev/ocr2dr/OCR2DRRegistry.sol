@@ -460,7 +460,7 @@ contract OCR2DRRegistry is
       OCR2DRClientInterface.handleOracleFulfillment.selector,
       requestId,
       response,
-      err
+      string(err)
     );
     // Call with explicitly the amount of callback gas requested
     // Important to not let them exhaust the gas budget and avoid payment.

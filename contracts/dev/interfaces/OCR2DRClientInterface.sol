@@ -23,6 +23,6 @@ interface OCR2DRClientInterface {
   function handleOracleFulfillment(
     bytes32 requestId,
     bytes memory response,
-    bytes memory err
+    string memory err
   ) external;
 }

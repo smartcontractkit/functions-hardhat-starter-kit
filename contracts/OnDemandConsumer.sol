@@ -10,14 +10,14 @@ import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
  * @notice This contract is a demonstration of using OCR2DR.
  * @notice NOT FOR PRODUCTION USE
  */
-contract OnDemandAPIConsumer is OCR2DRClient, ConfirmedOwner {
+contract OnDemandConsumer is OCR2DRClient, ConfirmedOwner {
     using OCR2DR for OCR2DR.Request;
 
     bytes32 public latestRequestId;
     bytes public latestResponse;
-    bytes public latestError;
+    string public latestError;
 
-    event OCRResponse(bytes result, bytes err);
+    event OCRResponse(bytes result, string err);
 
     /**
      * @notice Executes once when a contract is created to initialize state variables
@@ -73,7 +73,7 @@ contract OnDemandAPIConsumer is OCR2DRClient, ConfirmedOwner {
     function fulfillRequest(
         bytes32 requestId,
         bytes memory response,
-        bytes memory err
+        string memory err
     ) internal override {
         latestResponse = response;
         latestError = err;

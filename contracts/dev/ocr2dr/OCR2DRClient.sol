@@ -76,7 +76,7 @@ abstract contract OCR2DRClient is OCR2DRClientInterface {
   function fulfillRequest(
     bytes32 requestId,
     bytes memory response,
-    bytes memory err
+    string memory err
   ) internal virtual;
 
   /**
@@ -85,7 +85,7 @@ abstract contract OCR2DRClient is OCR2DRClientInterface {
   function handleOracleFulfillment(
     bytes32 requestId,
     bytes memory response,
-    bytes memory err
+    string memory err
   ) external override recordChainlinkFulfillment(requestId) {
     fulfillRequest(requestId, response, err);
   }
