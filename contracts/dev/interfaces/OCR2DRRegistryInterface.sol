@@ -5,6 +5,36 @@ pragma solidity ^0.8.6;
  * @title OCR2DR billing subscription registry interface.
  */
 interface OCR2DRRegistryInterface {
+  // The modified sizes below reduce commitment storage size by 1 slot (2 slots if we remove DON address)
+  // To futher improve gas usage, only the commitment hash should be stored on-chain and the
+  // rest of the commit data should be provided on fulfillment (verified using the hash)
+  struct Commitment {
+    uint64 subscriptionId;  // 8 bytes
+    address client;         // 20 bytes
+    uint32 gasLimit;        // 4 bytes 
+    uint56 gasPrice;        // 7 bytes (good for >100,000 gwei gas price)
+    // Do we need to store the DON address? It appears we don't use it at all.
+    // If we remove this, the commitment size goes from 100 bytes to 80, saving a full slot of storage
+    // address don;            // 20 bytes?
+    uint96 donFee;          // 12 bytes
+    uint96 registryFee;     // 12 bytes
+    uint96 estimatedCost;   // 12 bytes
+    uint40 timestamp;       // 5 bytes (good for >1000 years)
+  }
+
+  struct ItemizedBill {
+    uint96 signerPayment;
+    uint96 transmitterPayment;
+    uint96 totalCost;
+  }
+
+  struct Subscription {
+    // There are only 1e9*1e18 = 1e27 juels in existence, so the balance can fit in uint96 (2^96 ~ 7e28)
+    uint96 balance; // Common LINK balance that is controlled by the Registry to be used for all consumer requests.
+    uint96 blockedBalance; // LINK balance that is reserved to pay for pending consumer requests.
+    uint32 pendingRequestCount; // pendingRequestCount used to prevent a subscription with pending requests from being deleted
+  }
+
   struct RequestBilling {
     // a unique subscription ID allocated by billing system,
     uint64 subscriptionId;
@@ -15,6 +45,19 @@ interface OCR2DRRegistryInterface {
     uint32 gasLimit;
     // the expected gas price used to execute the transaction
     uint56 gasPrice;
+  }
+
+  // We use the config for the mgmt APIs
+  struct SubscriptionConfig {
+    address owner; // Owner can fund/withdraw/cancel the sub.
+    address requestedOwner; // For safely transferring sub ownership.
+    // Maintains the list of keys in s_consumers.
+    // We do this for 2 reasons:
+    // 1. To be able to clean up all keys from s_consumers when canceling a subscription.
+    // 2. To be able to return the list of all consumers in getSubscription.
+    // Note that we need the s_consumers map to be able to directly check if a
+    // consumer is valid without reading all the consumers from storage.
+    address[] consumers;
   }
 
   /**
@@ -57,7 +100,7 @@ interface OCR2DRRegistryInterface {
    * @return requestId - A unique identifier of the request. Can be used to match a request to a response in fulfillRequest.
    * @dev Only callable by an OCR2DROracle that has been approved on the Registry
    */
-  function startBilling(bytes calldata data, RequestBilling calldata billing) external returns (bytes32);
+  function startBilling(bytes calldata data, RequestBilling calldata billing) external returns (bytes32, Commitment memory);
 
   /**
    * @notice Finalize billing process for an OCR2DR request by sending a callback to the Client contract and then charging the subscription

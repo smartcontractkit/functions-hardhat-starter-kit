@@ -12,10 +12,7 @@ library OCR2DR {
 
   using CBORChainlink for BufferChainlink.buffer;
 
-  enum Location {
-    Inline
-    // In future version we will add Remote location
-  }
+  enum Location { Inline, Remote }
 
   enum CodeLanguage {
     JavaScript
@@ -26,8 +23,8 @@ library OCR2DR {
     Location codeLocation;
     Location secretsLocation;
     CodeLanguage language;
-    string source; // Source code for Location.Inline or url for Location.Remote
-    bytes secrets; // Encrypted secrets blob for Location.Inline or url for Location.Remote
+    string source; // Source code for Location.Inline or comma-separated URL(s) for Location.Remote
+    bytes secrets; // Encrypted secrets blob for Location.Inline or encrypted comma-separated URL(s) for Location.Remote
     string[] args;
   }
 
@@ -77,31 +74,21 @@ library OCR2DR {
    * @notice Initializes a OCR2DR Request
    * @dev Sets the codeLocation and code on the request
    * @param self The uninitialized request
-   * @param location The user provided source code location
+   * @param codeLocation The user provided source code location
    * @param language The programming language of the user code
-   * @param source The user provided source code or a url
+   * @param source The user provided source code or comma-separated URL(s)
    */
   function initializeRequest(
     Request memory self,
-    Location location,
+    Location codeLocation,
     CodeLanguage language,
     string memory source
   ) internal pure {
     if (bytes(source).length == 0) revert EmptySource();
 
-    self.codeLocation = location;
+    self.codeLocation = codeLocation;
     self.language = language;
     self.source = source;
-  }
-
-  /**
-   * @notice Initializes a OCR2DR Request
-   * @dev Simplified version of initializeRequest for PoC
-   * @param self The uninitialized request
-   * @param javaScriptSource The user provided JS code (must not be empty)
-   */
-  function initializeRequestForInlineJavaScript(Request memory self, string memory javaScriptSource) internal pure {
-    initializeRequest(self, Location.Inline, CodeLanguage.JavaScript, javaScriptSource);
   }
 
   /**
@@ -109,10 +96,14 @@ library OCR2DR {
    * @param self The initialized request
    * @param secrets The user encrypted secrets (must not be empty)
    */
-  function addInlineSecrets(Request memory self, bytes memory secrets) internal pure {
+  function addSecrets(
+    Request memory self,
+    Location secretsLocation,
+    bytes memory secrets
+  ) internal pure {
     if (secrets.length == 0) revert EmptySecrets();
 
-    self.secretsLocation = Location.Inline;
+    self.secretsLocation = secretsLocation;
     self.secrets = secrets;
   }
 

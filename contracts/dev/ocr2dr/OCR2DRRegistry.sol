@@ -39,85 +39,12 @@ contract OCR2DRRegistry is
   error PendingRequestExists();
   error MustBeRequestedOwner(address proposedOwner);
   error BalanceInvariantViolated(uint256 internalBalance, uint256 externalBalance); // Should never happen
-  event FundsRecovered(address to, uint256 amount);
-
-  struct Subscription {
-    // There are only 1e9*1e18 = 1e27 juels in existence, so the balance can fit in uint96 (2^96 ~ 7e28)
-    uint96 balance; // Common LINK balance that is controlled by the Registry to be used for all consumer requests.
-    uint96 blockedBalance; // LINK balance that is reserved to pay for pending consumer requests.
-    uint32 pendingRequestCount; // pendingRequestCount used to prevent a subscription with pending requests from being deleted
-  }
-  // We use the config for the mgmt APIs
-  struct SubscriptionConfig {
-    address owner; // Owner can fund/withdraw/cancel the sub.
-    address requestedOwner; // For safely transferring sub ownership.
-    // Maintains the list of keys in s_consumers.
-    // We do this for 2 reasons:
-    // 1. To be able to clean up all keys from s_consumers when canceling a subscription.
-    // 2. To be able to return the list of all consumers in getSubscription.
-    // Note that we need the s_consumers map to be able to directly check if a
-    // consumer is valid without reading all the consumers from storage.
-    address[] consumers;
-  }
-
-  // Use contract-wide nonce instead
-  uint256 private s_nonce;
-
-  mapping(uint64 => SubscriptionConfig) /* subscriptionId */ /* subscriptionConfig */
-    private s_subscriptionConfigs;
-  mapping(uint64 => Subscription) /* subscriptionId */ /* subscription */
-    private s_subscriptions;
-  mapping(uint64 => mapping(address => bool)) /* subscriptionId */ /* consumer */ /* isAuthorized */
-    private s_isAuthorizedConsumer;
-  // We make the sub count public so that its possible to
-  // get all the current subscriptions via getSubscription.
-  uint64 private s_currentsubscriptionId;
-  // s_totalBalance tracks the total link sent to/from
-  // this contract through onTokenTransfer, cancelSubscription and oracleWithdraw.
-  // A discrepancy with this contract's link balance indicates someone
-  // sent tokens using transfer and so we may need to use recoverFunds.
-  uint96 private s_totalBalance;
-  event SubscriptionCreated(uint64 indexed subscriptionId, address owner);
-  event SubscriptionFunded(uint64 indexed subscriptionId, uint256 oldBalance, uint256 newBalance);
-  event SubscriptionConsumerAdded(uint64 indexed subscriptionId, address consumer);
-  event SubscriptionConsumerRemoved(uint64 indexed subscriptionId, address consumer);
-  event SubscriptionCanceled(uint64 indexed subscriptionId, address to, uint256 amount);
-  event SubscriptionOwnerTransferRequested(uint64 indexed subscriptionId, address from, address to);
-  event SubscriptionOwnerTransferred(uint64 indexed subscriptionId, address from, address to);
-
   error GasLimitTooBig(uint32 have, uint32 want);
   error InvalidLinkWeiPrice(int256 linkWei);
   error IncorrectRequestID();
   error PaymentTooLarge();
   error Reentrant();
 
-  mapping(address => uint96) /* oracle */ /* LINK balance */
-    private s_withdrawableTokens;
-  // The modified sizes below reduce commitment storage size by 1 slot (2 slots if we remove DON address)
-  // To futher improve gas usage, only the commitment hash should be stored on-chain and the
-  // rest of the commit data should be provided on fulfillment (verified using the hash)
-  struct Commitment {
-    uint64 subscriptionId;  // 8 bytes
-    address client;         // 20 bytes
-    uint32 gasLimit;        // 4 bytes 
-    uint56 gasPrice;        // 7 bytes (good for >100,000 gwei gas price)
-    // Do we need to store the DON address? It appears we don't use it at all.
-    // If we remove this, the commitment size goes from 100 bytes to 80, saving a full slot of storage
-    // address don;            // 20 bytes?
-    uint96 donFee;          // 12 bytes
-    uint96 registryFee;     // 12 bytes
-    uint96 estimatedCost;   // 12 bytes
-    uint40 timestamp;       // 5 bytes (good for >1000 years)
-    
-  }
-  mapping(bytes32 => Commitment) /* requestID */ /* Commitment */
-    private s_requestCommitments;
-  event BillingStart(bytes32 requestId, Commitment commitment);
-  struct ItemizedBill {
-    uint96 signerPayment;
-    uint96 transmitterPayment;
-    uint96 totalCost;
-  }
   event BillingEnd(
     uint64 subscriptionId,
     bytes32 indexed requestId,
@@ -127,6 +54,39 @@ contract OCR2DRRegistry is
     bool success
   );
   event RequestTimedOut(bytes32 indexed requestId);
+  event SubscriptionCreated(uint64 indexed subscriptionId, address owner);
+  event SubscriptionFunded(uint64 indexed subscriptionId, uint256 oldBalance, uint256 newBalance);
+  event SubscriptionConsumerAdded(uint64 indexed subscriptionId, address consumer);
+  event SubscriptionConsumerRemoved(uint64 indexed subscriptionId, address consumer);
+  event SubscriptionCanceled(uint64 indexed subscriptionId, address to, uint256 amount);
+  event SubscriptionOwnerTransferRequested(uint64 indexed subscriptionId, address from, address to);
+  event SubscriptionOwnerTransferred(uint64 indexed subscriptionId, address from, address to);
+  event FundsRecovered(address to, uint256 amount);
+
+  mapping(uint64 => SubscriptionConfig) /* subscriptionId */ /* subscriptionConfig */
+    private s_subscriptionConfigs;
+  mapping(uint64 => Subscription) /* subscriptionId */ /* subscription */
+    private s_subscriptions;
+  mapping(uint64 => mapping(address => bool)) /* subscriptionId */ /* consumer */ /* isAuthorized */
+    private s_isAuthorizedConsumer;
+  // Use contract-wide nonce instead
+  uint256 private s_nonce;
+  // We make the sub count public so that its possible to
+  // get all the current subscriptions via getSubscription.
+  uint64 private s_currentsubscriptionId;
+  // s_totalBalance tracks the total link sent to/from
+  // this contract through onTokenTransfer, cancelSubscription and oracleWithdraw.
+  // A discrepancy with this contract's link balance indicates someone
+  // sent tokens using transfer and so we may need to use recoverFunds.
+  uint96 private s_totalBalance;
+  
+  mapping(address => uint96) /* oracle */ /* LINK balance */
+    private s_withdrawableTokens;
+  mapping(bytes32 => Commitment) /* requestID */ /* Commitment */
+    private s_requestCommitments;
+  // If we can save gas by only checking the hash, use the code below instead
+  // mapping(bytes32 => bytes32) /* requestID */ /* Commitment hash */
+  //   private s_requestCommitmentHashes;
 
   struct Config {
     // Maxiumum amount of gas that can be given to a request's client callback
@@ -313,7 +273,7 @@ contract OCR2DRRegistry is
     validateAuthorizedSender
     nonReentrant
     whenNotPaused
-    returns (bytes32)
+    returns (bytes32, Commitment memory)
   {
     SubscriptionConfig memory subscriptionConfig = s_subscriptionConfigs[billing.subscriptionId];
 
@@ -371,14 +331,16 @@ contract OCR2DRRegistry is
       uint40(block.timestamp)
     );
     s_requestCommitments[requestId] = commitment;
+    // If we can save gas by only checking the hash, use the code below instead
+    //s_requestCommitmentHashes[requestId] = keccak256(abi.encode(commitment));
     s_subscriptions[billing.subscriptionId].blockedBalance += estimatedCost;
 
-    // Do we really need to emit this if we are already emitting an oracle request?
+    // Do we still need to emit this if we are already emitting an oracle request?
     // Is it worth the gas?
     // emit BillingStart(requestId, commitment);
     // s_consumers[billing.client][billing.subscriptionId] = nonce; *This is not needed
 
-    return requestId;
+    return (requestId, commitment);
   }
 
   function computeRequestId(
@@ -434,6 +396,8 @@ contract OCR2DRRegistry is
     bytes32 requestId,
     bytes calldata response,
     bytes calldata err,
+    // If we can save gas by only checking the hash, use the code below instead
+    // Commitment calldata commitment,
     address transmitter,
     address[31] memory signers,
     uint8 signerCount,
@@ -441,17 +405,20 @@ contract OCR2DRRegistry is
     uint256 initialGas
   ) external override validateAuthorizedSender nonReentrant whenNotPaused returns (bool success) {
     Commitment memory commitment = s_requestCommitments[requestId];
-    // We should strictly enforce timeouts to set clear & explicit SLAs with customers
-    // confirming if they SHOULD or SHOULD NOT retry initiating a request.  This could be
-    // CRUCIAL for how a user might use this product
+    // If we can save gas by only checking the hash, use the code below instead
+    // if (keccak256(abi.encode(commitment)) != s_requestCommitmentHashes[requestId]) {
+    //   revert IncorrectRequestHash();
+    // }
+    
+    // Do we want to explicitly enforce timeouts? IE: if a timeout is exceeded and an oracle tries
+    // to fulfill, should it still be able to be filfilled or should it just be timed out?
     // (Example: uApp escrow service: https://youtu.be/Ar4WobMZLy0
-    //  If this timeout is not enforced, there could be a "double redeem" when a customer retries and both requests are fulfilled.
-    //  I know this could be resolved by the client, but as a dApp dev myself, I perfer enforced explicit timeouts & retry conditions.)
-   
+    //  If this timeout is not enforced, there could be a "double redeem" if they misuse their logic.)
+    // If yes, use the commented out code below
     // If a request has timed out, the commitment is deleted and the pending request count for the subscription is decremented
-    if (timeoutRequest(requestId)) {
-      return true;
-    }
+    // if (timeoutRequest(requestId)) {
+    //   return true;
+    // }
     if (commitment.client == address(0)) {
       revert IncorrectRequestID();
     }

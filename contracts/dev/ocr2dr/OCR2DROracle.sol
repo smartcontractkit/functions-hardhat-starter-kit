@@ -4,13 +4,19 @@ pragma solidity ^0.8.6;
 import "../interfaces/OCR2DROracleInterface.sol";
 import "../ocr2/OCR2Base.sol";
 import "./AuthorizedOriginReceiver.sol";
+import "../interfaces/OCR2DRRegistryInterface.sol";
 
 /**
  * @title OCR2DR oracle contract
  * @dev THIS CONTRACT HAS NOT GONE THROUGH ANY SECURITY REVIEW. DO NOT USE IN PROD.
  */
-contract OCR2DROracle is OCR2DROracleInterface, OCR2Base, AuthorizedOriginReceiver {
-  event OracleRequest(bytes32 indexed requestId, uint64 subscriptionId, bytes data);
+contract OCR2DROracle is OCR2DROracleInterface, OCR2Base, AuthorizedOriginReceiver {  
+  event OracleRequest(
+    bytes32 indexed requestId,
+    uint64 subscriptionId,
+    bytes requestData,
+    OCR2DRRegistryInterface.Commitment commitment
+  );
   event OracleResponse(bytes32 indexed requestId);
   event UserCallbackError(bytes32 indexed requestId, string reason);
   event UserCallbackRawError(bytes32 indexed requestId, bytes lowLevelData);
@@ -105,20 +111,20 @@ contract OCR2DROracle is OCR2DROracleInterface, OCR2Base, AuthorizedOriginReceiv
    */
   function sendRequest(
     uint64 subscriptionId,
-    bytes calldata data,
+    bytes calldata requestData,
     uint32 gasLimit,
     uint56 gasPrice
   // ??? Do we need to check if registry is set for every single call?
   ) external override registryIsSet validateAuthorizedSender returns (bytes32) {
     // ??? What is the reason for adding this null check? If it isn't necessary, is it worth the gas cost?
-    if (data.length == 0) {
+    if (requestData.length == 0) {
       revert EmptyRequestData();
     }
-    bytes32 requestId = s_registry.startBilling(
-      data,
+    (bytes32 requestId, OCR2DRRegistryInterface.Commitment memory commitment) = s_registry.startBilling(
+      requestData,
       OCR2DRRegistryInterface.RequestBilling(subscriptionId, msg.sender, gasLimit, gasPrice)
     );
-    emit OracleRequest(requestId, subscriptionId, data);
+    emit OracleRequest(requestId, subscriptionId, requestData, commitment);
     return requestId;
   }
 
