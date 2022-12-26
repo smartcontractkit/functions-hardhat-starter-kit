@@ -49,7 +49,7 @@ contract OnDemandConsumer is OCR2DRClient, ConfirmedOwner {
             OCR2DR.CodeLanguage.JavaScript,
             source
         );
-        if (secrets.length > 0) req.addInlineSecrets(secrets);
+        if (secrets.length > 0) req.addSecrets(OCR2DR.Location.Inline, secrets);
         if (args.length > 0) req.addArgs(args);
 
         bytes32 assignedReqID = sendRequest(

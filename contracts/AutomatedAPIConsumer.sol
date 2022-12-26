@@ -32,7 +32,7 @@ contract AutomatedAPIConsumer is
     uint256 public immutable interval;
     uint256 public lastTimeStamp;
 
-    event FulfillRequestInvoked(bytes32 requestId, bytes response, bytes err);
+    event FulfillRequestInvoked(bytes32 requestId, bytes response, string err);
     event ExecuteRequestInvoked(bytes32 requestId);
 
     /**
@@ -56,7 +56,7 @@ contract AutomatedAPIConsumer is
             OCR2DR.CodeLanguage.JavaScript,
             source
         );
-        if (secrets.length > 0) request.addInlineSecrets(secrets);
+        if (secrets.length > 0) request.addSecrets(OCR2DR.Location.Inline, secrets);
         if (args.length > 0) request.addArgs(args);
         reqInFlight = false;
 
@@ -94,7 +94,7 @@ contract AutomatedAPIConsumer is
      * @param secrets The user encrypted secrets (must not be empty)
      */
     function setInlineSecrets(bytes memory secrets) public onlyOwner {
-        request.addInlineSecrets(secrets);
+        request.addSecrets(OCR2DR.Location.Inline, secrets);
     }
 
     /**
@@ -124,13 +124,13 @@ contract AutomatedAPIConsumer is
     function fulfillRequest(
         bytes32 requestId,
         bytes memory response,
-        bytes memory err
+        string memory err
     ) internal override {
         console.logBytes32(requestId);
         console.logBytes(response);
-        console.logBytes(err);
+        console.log(err);
         emit FulfillRequestInvoked(requestId, response, err);
-        if (err.length != 0) value = response;
+        if (bytes(err).length != 0) value = response;
         reqInFlight = false;
     }
 
