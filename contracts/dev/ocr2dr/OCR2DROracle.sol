@@ -156,6 +156,10 @@ contract OCR2DROracle is OCR2DROracleInterface, OCR2Base, AuthorizedOriginReceiv
       revert ReportInvalid();
     }
 
+    // Can we just set a resonable constant value to account for the gas used for report validation?
+    // This would also eliminate one of the variable factors for users to determine cost
+    // (ie: their cost changes based on how many request fulfillments are bundled into a single transmission)
+    // It would also slightly reduce gas usage.
     uint256 reportValidationGasShare = (initialGas - gasleft()) / signerCount;
 
     for (uint256 i = 0; i < requestIds.length; i++) {
