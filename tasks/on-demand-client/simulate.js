@@ -1,185 +1,214 @@
 const { simulateRequest, buildRequest } = require('../utils/onDemandRequestSimulator')
 const { getDecodedResultLog } = require('../utils/onDemandRequestSimulator/simulateRequest')
 const { getNetworkConfig } = require('../utils/utils')
+const { developmentChains } = require('../../helper-hardhat-config')
 
 task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally')
-    .addOptionalParam(
-      'name',
-      'Name of the contract to test (defaults to OnDemandConsumer)'
+  .addOptionalParam('gaslimit', 'The maximum amount of gas that can be used to fulfill a request (defaults to 100,000)')
+  .setAction(async (taskArgs, hre) => {
+    if (developmentChains.includes(network.name)) {
+      throw Error('This command cannot be used on a local development chain.  Please specify a valid network or simulate an OnDemandConsumer request locally with "npx hardhat on-demand-simulate".')
+    }
+
+    // Simuation can only be conducted on a local fork of the blockchain
+    if (network.name !== 'hardhat') {
+      throw Error('Simulated requests can only be conducted using --network "hardhat"')
+    }
+
+    // Check to see if the maximum gas limit has been exceeded
+    const gasLimit = parseInt(taskArgs.gaslimit ?? '100000')
+    if (!(400000 > gasLimit)) {
+      throw Error('Gas limit must be less than 400,000')
+    }
+
+    // Simulating the JavaScript code locally
+    console.log('\nExecuting JavaScript request source code locally...')
+    const { success, result, resultLog } = await simulateRequest('../../../on-demand-request-config.js')
+    console.log(`\n${resultLog}`)
+
+    // Recompile the latest version of the contracts
+    console.log('__Compiling Contracts__')
+    await run('compile')
+
+    // Deploy a mock oracle & registry contract to simulate a fulfillment
+    const { oracle, registry, linkToken } = await deployMockOracle()
+    // Deploy the client contract
+    const clientFactory = await ethers.getContractFactory('OnDemandConsumer')
+    const client = await clientFactory.deploy(oracle.address)
+    await client.deployTransaction.wait(1)
+    // Create & fund a subscription
+    const createSubscriptionTx = await registry.createSubscription()
+    const createSubscriptionReceipt = await createSubscriptionTx.wait(1)
+    const subscriptionId = createSubscriptionReceipt.events[0].args['subscriptionId'].toNumber()
+    const juelsAmount = ethers.utils.parseUnits('10')
+    await linkToken.transferAndCall(
+      registry.address,
+      juelsAmount,
+      ethers.utils.defaultAbiCoder.encode(['uint64'], [subscriptionId])
     )
-    .addOptionalParam(
-        'gaslimit',
-        'The maximum amount of gas that can be used to fulfill a request (defaults to 100,000)'
-    )
-    .setAction(async (taskArgs, hre) => {
-        if (network.name !== 'hardhat') {
-          throw Error('Simulated requests can only be conducted using --network "hardhat"')
-        }
+    // Authorize the client contract to use the subscription
+    await registry.addConsumer(subscriptionId, client.address)
+    const accounts = await ethers.getSigners()
+    const deployer = accounts[0]
+    // Add the wallet initiating the request to the oracle whitelist
+    const whitelistTx = await oracle.addAuthorizedSenders([deployer.address])
+    await whitelistTx.wait(1)
 
-        const contractName = taskArgs.name ?? 'OnDemandConsumer'
-        const gasLimit = parseInt(taskArgs.gaslimit ?? '100000')
-        if (gasLimit >= 400000) {
-          throw Error('Gas limit must be less than 400,000')
-        }
+    // Build the parameters to make a request from the client contract
+    const request = await buildRequest('../../../on-demand-request-config.js', await oracle.getDONPublicKey())
 
-        console.log('\nSimulating on demand request locally...')
-        const { success, result, resultLog } = await simulateRequest('../../../on-demand-request-config.js')
-        console.log(`\n${resultLog}`)
+    // Make a request & simulate a fulfillment
+    await new Promise(async (resolve) => {
+      // Initiate the request from the client contract
+      const clientContract = await clientFactory.attach(client.address)
+      const requestTx = await clientContract.executeRequest(
+        request.source,
+        request.secrets ?? [],
+        request.args ?? [],
+        subscriptionId,
+        gasLimit
+      )
+      const requestTxReceipt = await requestTx.wait(1)
+      const requestId = requestTxReceipt.events[2].args.id
 
-        const request = await buildRequest('../../../on-demand-request-config.js')
-
-        const { oracle, registry, linkToken } = await deployMockOracle()
-        const clientFactory = await ethers.getContractFactory(contractName)
-        const client = await clientFactory.deploy(oracle.address)
-        await client.deployTransaction.wait(1)
-        const createSubscriptionTx = await registry.createSubscription()
-        const createSubscriptionReceipt = await createSubscriptionTx.wait(1)
-        const subscriptionId = createSubscriptionReceipt.events[0].args['subscriptionId'].toNumber()
-        const juelsAmount = ethers.utils.parseUnits('10')
-        await linkToken.transferAndCall(
-          registry.address,
-          juelsAmount,
-          ethers.utils.defaultAbiCoder.encode(['uint64'], [subscriptionId])
+      // Simulate a request fulfillment
+      const ocrConfig = require('../../OCR2DROracleConfig.json')
+      const transmitter = ocrConfig.transmitters[0]
+      const signers = Array(31).fill(transmitter)
+      let i = 0
+      for (const t of ocrConfig.transmitters) {
+        signers[i] = t
+        i++
+      }
+      let totalGasUsed
+      try {
+        const fulfillTx = await registry.fulfillAndBill(
+          requestId,
+          success ? result : '0x',
+          success ? '0x' : result,
+          transmitter,
+          signers,
+          ocrConfig.transmitters.length,
+          0,
+          500_000,
+          {
+            gasLimit: 500_000,
+          }
         )
-        await registry.addConsumer(subscriptionId, client.address)
-        const accounts = await ethers.getSigners()
-        const deployer = accounts[0]
-        const whitelistTx = await oracle.addAuthorizedSenders([deployer.address])
-        await whitelistTx.wait(1)
+        const fulfillTxData = await fulfillTx.wait(1)
+        totalGasUsed = fulfillTxData.gasUsed.toNumber()
+      } catch (fulfillError) {
+        // Catch & report any unexpected fulfillment errors
+        console.log('Unexpected error encountered when calling fulfillRequest in client contract.')
+        console.log(fulfillError)
+        resolve()
+      }
 
-        await new Promise(async (resolve) => {
-          const clientContract = await clientFactory.attach(client.address)
-
-          const requestTx = await clientContract.executeRequest(
-            request.source,
-            request.secrets ?? [],
-            request.args ?? [],
-            subscriptionId,
-            gasLimit
+      // Listen for the OCRResponse event & log the simulated response returned to the client contract
+      client.on('OCRResponse', async (result, err) => {
+        console.log('\n__Simulated On-Chain Response__')
+        // Check for & log a successful request
+        if (result !== '0x') {
+          console.log(
+            `Response represented as a hex string: ${result}\n${getDecodedResultLog(
+              require('../../on-demand-request-config'),
+              result
+            )}`
           )
-          const requestTxReceipt = await requestTx.wait(1)
-          const requestId = requestTxReceipt.events[2].args.id
+        }
+        // Check for & log a request that returned an error message
+        if (err !== '0x') {
+          console.log(`Response error message: ${Buffer.from(err.slice(2), 'hex')}\n`)
+        }
+      })
 
-          // Simulate a request fulfillment
-          const ocrConfig = require('../../OCR2DROracleConfig.json')
-          const transmitter = ocrConfig.transmitters[0]
-          const signers = Array(31).fill(transmitter)
-          let i = 0
-          for (const t of ocrConfig.transmitters) {
-            signers[i] = t
-            i ++
-          }
-          try {
-            await registry.fulfillAndBill(
-              requestId,
-              success ? result : '0x',
-              success ? '0x' : result,
-              transmitter,
-              signers,
-              ocrConfig.transmitters.length,
-              // TODO: the values below must be accurate to provide accurate gas estimation
-              0,
-              500_000,
-              {
-                gasLimit: 500_000
-              }
+      // Listen for the BillingEnd event & log the estimated billing data
+      registry.on(
+        'BillingEnd',
+        async (
+          eventSubscriptionId,
+          eventRequestId,
+          eventSignerPayment,
+          eventTransmitterPayment,
+          eventTotalCost,
+          eventSuccess
+        ) => {
+          if (requestId == eventRequestId) {
+            // Check for a successful request & log a mesage if the fulfillment was not successful
+            if (!eventSuccess) {
+              console.log(
+                'Error encountered when calling fulfillRequest in client contract.\n' +
+                  'Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficent.'
+              )
+            }
+            // Amount of gas used validate the OCR report
+            const gasOverhead = 100_000
+            // Amount of gas used to transfer funds to DON nodes, log fulfillment, & remove the fulfilled request commitment
+            const gasAfterPaymentCalculation = 21_000 + 5_000 + 2_100 + 20_000 + 2 * 2_100 - 15_000 + 7_315
+            console.log(`Estimated gas used to fulfill request: ${totalGasUsed + gasOverhead + gasAfterPaymentCalculation}`)
+            console.log(
+              `Estimated transmission cost: ${hre.ethers.utils.formatUnits(eventTransmitterPayment, 18)} LINK`
             )
-          } catch (fulfillError) {
-            console.log('Unexpected error encountered when calling fulfillRequest in client contract.')
-            console.log(fulfillError)
-            resolve()
+            console.log(`Base fee: ${hre.ethers.utils.formatUnits(eventSignerPayment, 18)} LINK`)
+            console.log(`Total cost: ${hre.ethers.utils.formatUnits(eventTotalCost, 18)} LINK`)
+            return resolve()
           }
-
-          client.on('OCRResponse', async (result, err) => {
-            if (result !== '0x') {
-                console.log(
-                    `\nOn-chain response represented as a hex string: ${result}\n${getDecodedResultLog(
-                        require('../../on-demand-request-config'),
-                        result
-                    )}`
-                )
-            }
-            if (err !== '0x') {
-                console.log(`\nOn-chain error message: ${Buffer.from(err.slice(2), 'hex')}`)
-            }
-          })
-
-          registry.on('BillingEnd', async (
-            eventSubscriptionId,
-            eventRequestId,
-            eventWeiPerUnitGas,
-            eventTotalGasUsed,
-            eventSignerPayment,
-            eventTransmitterPayment,
-            eventTotalCost,
-            eventSuccess
-          ) => {
-            if (requestId == eventRequestId) {
-              if (!eventSuccess) {
-                console.log('Error encountered when calling fulfillRequest in client contract.\n' +
-                  'Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficent.')
-              }
-              console.log(`\nGas used to fulfill request: ${eventTotalGasUsed}`)
-              console.log(`Transmission cost: ${hre.ethers.utils.formatUnits(eventTransmitterPayment, 18)} LINK`)
-              console.log(`Base fee: ${hre.ethers.utils.formatUnits(eventSignerPayment, 18)} LINK`)
-              console.log(`Total cost: ${hre.ethers.utils.formatUnits(eventTotalCost, 18)} LINK`)
-              return resolve()
-            }
-          })
-        })
+        }
+      )
     })
+  })
 
 const deployMockOracle = async () => {
   const networkConfig = getNetworkConfig('hardhat')
 
-  const linkTokenFactory = await ethers.getContractFactory("LinkToken")
+  // Deploy a mock LINK token contract
+  const linkTokenFactory = await ethers.getContractFactory('LinkToken')
   const linkToken = await linkTokenFactory.deploy()
 
   // TODO: Gas reimbursement cost should be calculated in native token, not ETH
-  const linkEthFeedAddress = networkConfig["linkEthPriceFeed"]
+  const linkEthFeedAddress = networkConfig['linkEthPriceFeed']
 
-  const registryFactory = await ethers.getContractFactory("OCR2DRRegistry")
+  // Deploy the mock registry billing contract
+  const registryFactory = await ethers.getContractFactory('OCR2DRRegistry')
   const registry = await registryFactory.deploy(linkToken.address, linkEthFeedAddress)
   await registry.deployTransaction.wait(1)
-
+  // Set registry configuration
   const config = {
-      maxGasLimit: 450_000,
-      stalenessSeconds: 86_400,
-      gasAfterPaymentCalculation: 21_000 + 5_000 + 2_100 + 20_000 + 2 * 2_100 - 15_000 + 7_315,
-      weiPerUnitLink: ethers.BigNumber.from("5000000000000000"),
-      gasOverhead: 100_000,
-      requestTimeoutSeconds: 300,
+    maxGasLimit: 400_000,
+    stalenessSeconds: 86_400,
+    gasAfterPaymentCalculation: 21_000 + 5_000 + 2_100 + 20_000 + 2 * 2_100 - 15_000 + 7_315,
+    weiPerUnitLink: ethers.BigNumber.from('5000000000000000'),
+    gasOverhead: 100_000,
+    requestTimeoutSeconds: 300,
   }
   await registry.setConfig(
-      config.maxGasLimit,
-      config.stalenessSeconds,
-      config.gasAfterPaymentCalculation,
-      config.weiPerUnitLink,
-      config.gasOverhead,
-      config.requestTimeoutSeconds
+    config.maxGasLimit,
+    config.stalenessSeconds,
+    config.gasAfterPaymentCalculation,
+    config.weiPerUnitLink,
+    config.gasOverhead,
+    config.requestTimeoutSeconds
   )
-
-  const oracleFactoryFactory = await ethers.getContractFactory("OCR2DROracleFactory")
+  // Deploy the mock oracle factory contract
+  const oracleFactoryFactory = await ethers.getContractFactory('OCR2DROracleFactory')
   const oracleFactory = await oracleFactoryFactory.deploy()
   await oracleFactory.deployTransaction.wait(1)
-
+  // Deploy the mock oracle contract
   const accounts = await ethers.getSigners()
   const deployer = accounts[0]
   const OracleDeploymentTransaction = await oracleFactory.deployNewOracle()
   const OracleDeploymentReceipt = await OracleDeploymentTransaction.wait(1)
   const OCR2DROracleAddress = OracleDeploymentReceipt.events[1].args.oracle
-  const oracle = await ethers.getContractAt("OCR2DROracle", OCR2DROracleAddress, deployer)
-
+  const oracle = await ethers.getContractAt('OCR2DROracle', OCR2DROracleAddress, deployer)
+  // Accept ownership of the mock oracle contract
   const acceptTx = await oracle.acceptOwnership()
   await acceptTx.wait(1)
-
-  await oracle.setDONPublicKey(
-    ethers.utils.toUtf8Bytes(networkConfig["ocr2odPublicKey"])
-  )
-  // Set the current account as an authorized sender on the oracle in order to simulate a fulfillment locally
+  // Set the secrets encryption public DON key in the mock oracle contract
+  await oracle.setDONPublicKey(ethers.utils.toUtf8Bytes(networkConfig['ocr2drPublicKey']))
+  // Set the current account as an authorized sender in the mock registry to allow for simulated local fulfillments
   await registry.setAuthorizedSenders([oracle.address, deployer.address])
   await oracle.setRegistry(registry.address)
-
+  // Set the mock oracle OCR configuration settings
   const ocrConfig = require('../../OCR2DROracleConfig.json')
   const setOcrConfigTx = await oracle.setConfig(
     ocrConfig.signers,
@@ -190,7 +219,7 @@ const deployMockOracle = async () => {
     ocrConfig.offchainConfig
   )
   await setOcrConfigTx.wait(1)
-
+  // Return the mock oracle, mock registry & mock LINK token contracts
   return { oracle, registry, linkToken }
 }
 

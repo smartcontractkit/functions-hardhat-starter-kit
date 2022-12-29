@@ -103,8 +103,6 @@ contract OCR2DRRegistry is
     private s_requestCommitments;
   event BillingStart(bytes32 requestId, Commitment commitment);
   struct ItemizedBill {
-    uint32 weiPerUnitGas;
-    uint32 totalGasUsed;
     uint96 signerPayment;
     uint96 transmitterPayment;
     uint96 totalCost;
@@ -112,8 +110,6 @@ contract OCR2DRRegistry is
   event BillingEnd(
     uint64 subscriptionId,
     bytes32 indexed requestId,
-    uint32 totalGasUsed,
-    uint32 weiPerUnitGas,
     uint96 signerPayment,
     uint96 transmitterPayment,
     uint96 totalCost,
@@ -472,8 +468,6 @@ contract OCR2DRRegistry is
     emit BillingEnd(
       commitment.subscriptionId,
       requestId,
-      bill.weiPerUnitGas,
-      bill.totalGasUsed,
       bill.signerPayment,
       bill.transmitterPayment,
       bill.totalCost,
@@ -497,8 +491,9 @@ contract OCR2DRRegistry is
       revert InvalidLinkWeiPrice(weiPerUnitLink);
     }
     // (1e18 juels/link) (wei/gas * gas) / (wei/link) = juels
-    uint256 totalGasUsed = reportValidationGas + gasAfterPaymentCalculation + startGas - gasleft();
-    uint256 paymentNoFee = (1e18 * weiPerUnitGas * totalGasUsed) / uint256(weiPerUnitLink);
+    uint256 paymentNoFee = (1e18 *
+      weiPerUnitGas *
+      (reportValidationGas + gasAfterPaymentCalculation + startGas - gasleft())) / uint256(weiPerUnitLink);
     uint256 fee = uint256(donFee) + uint256(registryFee);
     if (paymentNoFee > (1e27 - fee)) {
       revert PaymentTooLarge(); // Payment + fee cannot be more than all of the link in existence.
@@ -506,7 +501,7 @@ contract OCR2DRRegistry is
     uint96 signerPayment = donFee / uint96(signerCount);
     uint96 transmitterPayment = uint96(paymentNoFee) + signerPayment;
     uint96 totalCost = SafeCast.toUint96(paymentNoFee + fee);
-    return ItemizedBill(uint32(weiPerUnitGas), uint32(totalGasUsed), signerPayment, transmitterPayment, totalCost);
+    return ItemizedBill(signerPayment, transmitterPayment, totalCost);
   }
 
   function getFeedData() private view returns (int256) {

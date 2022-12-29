@@ -1,9 +1,9 @@
-const { simulateRequest, buildRequest } = require('./onDemandRequestSimulator');
-const { writeFileSync } = require('fs');
+const { simulateRequest, buildRequest } = require('./onDemandRequestSimulator')
+const { writeFileSync } = require('fs')
 
-(async () => {
+;(async () => {
   const { success, resultLog } = await simulateRequest('../../on-demand-request-config.js')
-  
+
   console.log(resultLog)
 
   if (success) {

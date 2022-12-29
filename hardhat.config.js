@@ -16,6 +16,9 @@ MUMBAI_RPC_URL =
 const GOERLI_RPC_URL =
     process.env.GOERLI_RPC_URL || "https://eth-goerli.alchemyapi.io/v2/your-api-key"
 const PRIVATE_KEY = process.env.PRIVATE_KEY
+if (!PRIVATE_KEY) {
+    throw Error('Set the PRIVATE_KEY environment variable with your EVM wallet private key')
+}
 
 let setRpcUrlCount = 0
 if (MAINNET_RPC_URL !== "https://eth-mainnet.alchemyapi.io/v2/your-api-key") setRpcUrlCount++
@@ -33,20 +36,9 @@ if (setRpcUrlCount === 0) {
     )
 }
 
-// optional
-const MNEMONIC = process.env.MNEMONIC || "Your mnemonic"
-const FORKING_BLOCK_NUMBER = parseInt(
-    process.env.FORKING_BLOCK_NUMBER ??
-    `${
-        GOERLI_RPC_URL !== "https://eth-goerli.alchemyapi.io/v2/your-api-key" ? '8200306' : ''
-    }${
-        MUMBAI_RPC_URL !== "https://polygon-mumbai.g.alchemy.com/v2/v2/your-api-key" ? '30145064' : ''
-    }${
-        MAINNET_RPC_URL !== "https://eth-mainnet.alchemyapi.io/v2/your-api-key" ? '16264649' : ''
-    }${
-        POLYGON_MAINNET_RPC_URL !== "https://polygon-mainnet.alchemyapi.io/v2/your-api-key" ? '37274458' : ''
-    }`
-)
+const FORKING_BLOCK_NUMBER = process.env.FORKING_BLOCK_NUMBER
+    ? parseInt(process.env.FORKING_BLOCK_NUMBER)
+    : undefined
 
 // Your API key for Etherscan, obtain one at https://etherscan.io/
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "Your etherscan API key"
@@ -108,13 +100,13 @@ module.exports = {
                 enabled: true,
             },
             chainId: 31337,
-            accounts: [
-                {
-                    privateKey: ethers.Wallet.fromMnemonic(networkConfig[31337].deployerMnemonic)
-                        .privateKey,
-                    balance: "10000000000000000000000",
-                },
-            ],
+            accounts:
+                process.env.PRIVATE_KEY ?
+                    [{
+                        privateKey: process.env.PRIVATE_KEY,
+                        balance: "10000000000000000000000",
+                    }]
+                    : [],
         },
         localhost: {
             chainId: 31337,
@@ -127,25 +119,16 @@ module.exports = {
         mainnet: {
             url: MAINNET_RPC_URL,
             accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-            accounts: MNEMONIC !== undefined ? {
-                mnemonic: MNEMONIC,
-            } : undefined,
             chainId: 1,
         },
         polygon: {
             url: POLYGON_MAINNET_RPC_URL,
             accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-            accounts: MNEMONIC !== undefined ? {
-                mnemonic: MNEMONIC,
-            } : undefined,
             chainId: 137,
         },
         mumbai: {
             url: MUMBAI_RPC_URL,
             accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-            accounts: MNEMONIC !== undefined ? {
-                mnemonic: MNEMONIC,
-            } : undefined,
             gas: 3_000_000,
             chainId: 80001,
         },
@@ -166,7 +149,7 @@ module.exports = {
         // coinmarketcap: process.env.COINMARKETCAP_API_KEY,
     },
     contractSizer: {
-        runOnCompile: true,
+        runOnCompile: false,
         only: [
             "APIConsumer",
             "AutomationCounter",

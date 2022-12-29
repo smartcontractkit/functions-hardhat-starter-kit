@@ -1,21 +1,26 @@
 const { developmentChains, VERIFICATION_BLOCK_CONFIRMATIONS } = require('../../helper-hardhat-config')
 const { getNetworkConfig } = require('../utils/utils')
 
-task('on-demand-set-ocr-config', 'Sets the OCR config using values from on-demand-request.json').setAction(async () => {
+task('on-demand-set-ocr-config', 'Sets the OCR config using values from on-demand-request.json')
+  .setAction(async () => {
+    if (developmentChains.includes(network.name)) {
+      throw Error('This command cannot be used on a local development chain.  Please specify a valid network or simulate an OnDemandConsumer request locally with "npx hardhat on-demand-simulate".')
+    }
+
     const networkConfig = getNetworkConfig(network.name)
 
     const oracleFactory = await ethers.getContractFactory('OCR2DROracle')
-    const oracle = oracleFactory.attach(networkConfig['ocr2odOracle'])
+    const oracle = oracleFactory.attach(networkConfig['ocr2drOracle'])
 
     const ocrConfig = require('../../OCR2DROracleConfig.json')
-    console.log(`Setting oracle OCR config for oracle ${networkConfig['ocr2odOracle']}`)
+    console.log(`Setting oracle OCR config for oracle ${networkConfig['ocr2drOracle']}`)
     const setConfigTx = await oracle.setConfig(
-        ocrConfig.signers,
-        ocrConfig.transmitters,
-        ocrConfig.f,
-        ocrConfig.onchainConfig,
-        ocrConfig.offchainConfigVersion,
-        ocrConfig.offchainConfig
+      ocrConfig.signers,
+      ocrConfig.transmitters,
+      ocrConfig.f,
+      ocrConfig.onchainConfig,
+      ocrConfig.offchainConfigVersion,
+      ocrConfig.offchainConfig
     )
 
     const waitBlockConfirmations = developmentChains.includes(network.name) ? 1 : VERIFICATION_BLOCK_CONFIRMATIONS
