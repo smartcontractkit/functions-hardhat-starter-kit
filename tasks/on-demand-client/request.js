@@ -133,6 +133,8 @@ task('on-demand-request', 'Calls an On Demand API consumer contract to request e
         }
       })
       // Listen for successful fulfillment
+      let billingEndEventRecieved = false
+      let ocrResponseEventReceived = false
       clientContract.on('OCRResponse', async (result, err) => {
         console.log(`\nRequest ${requestId} fulfilled!`)
         if (result !== '0x') {
@@ -146,7 +148,10 @@ task('on-demand-request', 'Calls an On Demand API consumer contract to request e
         if (err !== '0x') {
           console.log(`\nError message returned to client contract: ${Buffer.from(err.slice(2), 'hex')}\n`)
         }
-        return resolve()
+        ocrResponseEventReceived = true
+        if (billingEndEventRecieved) {
+          return resolve()
+        }
       })
       // Listen for the BillingEnd event, log cost breakdown & resolve
       registry.on(
@@ -171,6 +176,10 @@ task('on-demand-request', 'Calls an On Demand API consumer contract to request e
                 '\nError encountered when calling fulfillRequest in client contract.\n' +
                   'Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficent.'
               )
+              return resolve()
+            }
+            billingEndEventRecieved = true
+            if (ocrResponseEventReceived) {
               return resolve()
             }
           }

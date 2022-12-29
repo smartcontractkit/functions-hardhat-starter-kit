@@ -6,10 +6,6 @@ const { developmentChains } = require('../../helper-hardhat-config')
 task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally')
   .addOptionalParam('gaslimit', 'The maximum amount of gas that can be used to fulfill a request (defaults to 100,000)')
   .setAction(async (taskArgs, hre) => {
-    if (developmentChains.includes(network.name)) {
-      throw Error('This command cannot be used on a local development chain.  Please specify a valid network or simulate an OnDemandConsumer request locally with "npx hardhat on-demand-simulate".')
-    }
-
     // Simuation can only be conducted on a local fork of the blockchain
     if (network.name !== 'hardhat') {
       throw Error('Simulated requests can only be conducted using --network "hardhat"')
@@ -89,7 +85,7 @@ task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally')
           transmitter,
           signers,
           ocrConfig.transmitters.length,
-          0,
+          100_000,
           500_000,
           {
             gasLimit: 500_000,
@@ -110,7 +106,7 @@ task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally')
         // Check for & log a successful request
         if (result !== '0x') {
           console.log(
-            `Response represented as a hex string: ${result}\n${getDecodedResultLog(
+            `Response returned to client contract represented as a hex string: ${result}\n${getDecodedResultLog(
               require('../../on-demand-request-config'),
               result
             )}`
@@ -118,7 +114,7 @@ task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally')
         }
         // Check for & log a request that returned an error message
         if (err !== '0x') {
-          console.log(`Response error message: ${Buffer.from(err.slice(2), 'hex')}\n`)
+          console.log(`Error message returned to client contract: ${Buffer.from(err.slice(2), 'hex')}\n`)
         }
       })
 
@@ -141,13 +137,11 @@ task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally')
                   'Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficent.'
               )
             }
-            // Amount of gas used validate the OCR report
-            const gasOverhead = 100_000
-            // Amount of gas used to transfer funds to DON nodes, log fulfillment, & remove the fulfilled request commitment
-            const gasAfterPaymentCalculation = 21_000 + 5_000 + 2_100 + 20_000 + 2 * 2_100 - 15_000 + 7_315
-            console.log(`Estimated gas used to fulfill request: ${totalGasUsed + gasOverhead + gasAfterPaymentCalculation}`)
+            // Amount of gas used to send and validate the OCR report
+            const estimatedValidationGas = 100_000
+            console.log(`Approximate gas used to fulfill request: ${totalGasUsed + estimatedValidationGas}`)
             console.log(
-              `Estimated transmission cost: ${hre.ethers.utils.formatUnits(eventTransmitterPayment, 18)} LINK`
+              `Estimated transmission cost: ${hre.ethers.utils.formatUnits(eventTransmitterPayment, 18)} LINK (This will vary based on gas price)`
             )
             console.log(`Base fee: ${hre.ethers.utils.formatUnits(eventSignerPayment, 18)} LINK`)
             console.log(`Total cost: ${hre.ethers.utils.formatUnits(eventTotalCost, 18)} LINK`)
