@@ -1,6 +1,6 @@
 const { simulateRequest, buildRequest, getDecodedResultLog } = require('../../onDemandRequestSimulator')
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require('../../network-config')
-const readline = require('readline/promises')
+// const readline = require('readline/promises')
 
 task('on-demand-request', 'Calls an On Demand API consumer contract to request external data')
   .addParam('contract', 'The address of the On Demand On Demand API Consumer contract that you want to call')
@@ -34,17 +34,17 @@ task('on-demand-request', 'Calls an On Demand API consumer contract to request e
     console.log(`\n${resultLog}`)
 
     // If the simulated JavaScript source code contains an error, confirm the user still wants to continue
-    if (!success) {
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      })
-      const q1answer = await rl.question('\nThere was an error when running the JavaScript source code for the request.  Do you still want to continue? (y) Yes / (n) No\n')
-      rl.close()
-      if (q1answer.toLowerCase() !== 'y' && q1answer.toLowerCase() !== 'yes') {
-        return
-      }
-    }
+    // if (!success) {
+    //   const rl = readline.createInterface({
+    //     input: process.stdin,
+    //     output: process.stdout,
+    //   })
+    //   const q1answer = await rl.question('\nThere was an error when running the JavaScript source code for the request.  Do you still want to continue? (y) Yes / (n) No\n')
+    //   rl.close()
+    //   if (q1answer.toLowerCase() !== 'y' && q1answer.toLowerCase() !== 'yes') {
+    //     return
+    //   }
+    // }
 
     // Check that the subscription is valid
     let subInfo
@@ -100,16 +100,16 @@ task('on-demand-request', 'Calls an On Demand API consumer contract to request e
       )} LINK`
     )
     // Ask for confirmation before initiating the request on-chain
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    })
-    let cont = false
-    const q2answer = await rl.question('Continue? (y) Yes / (n) No\n')
-    rl.close()
-    if (q2answer.toLowerCase() !== 'y' && q2answer.toLowerCase() !== 'yes') {
-      return
-    }
+    // const rl = readline.createInterface({
+    //   input: process.stdin,
+    //   output: process.stdout,
+    // })
+    // let cont = false
+    // const q2answer = await rl.question('Continue? (y) Yes / (n) No\n')
+    // rl.close()
+    // if (q2answer.toLowerCase() !== 'y' && q2answer.toLowerCase() !== 'yes') {
+    //   return
+    // }
 
     // Use a promise to wait & listen for the fulfillment event before resolving
     await new Promise(async (resolve, reject) => {
