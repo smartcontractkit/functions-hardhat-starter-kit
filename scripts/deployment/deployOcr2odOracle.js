@@ -1,9 +1,9 @@
 const { ethers, network, run } = require('hardhat')
-const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig, developmentChains } = require('../../helper-hardhat-config')
+const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require('../../network-config')
 
-async function deployOcr2odOracle(chainId = network.config.chainId) {
-  const linkEthFeedAddress = networkConfig[chainId]['linkEthPriceFeed']
-  const linkTokenAddress = networkConfig[chainId]['linkToken']
+async function deployOcr2odOracle() {
+  const linkEthFeedAddress = networkConfig[network.name]['linkEthPriceFeed']
+  const linkTokenAddress = networkConfig[network.name]['linkToken']
 
   console.log('Deploying OCR2DR registry')
   const registryFactory = await ethers.getContractFactory('OCR2DRRegistry')
@@ -21,7 +21,7 @@ async function deployOcr2odOracle(chainId = network.config.chainId) {
     gasOverhead: 100_000,
     requestTimeoutSeconds: 300,
   }
-  const setConfigTx = await registry.setConfig(
+  await registry.setConfig(
     config.maxGasLimit,
     config.stalenessSeconds,
     config.gasAfterPaymentCalculation,
@@ -29,8 +29,6 @@ async function deployOcr2odOracle(chainId = network.config.chainId) {
     config.gasOverhead,
     config.requestTimeoutSeconds
   )
-  console.log(`Waiting for transaction ${setConfigTx.hash} to be confirmed...`)
-  await setConfigTx.wait(1)
   console.log('Registry configuration set')
 
   console.log('Deploying OCR2DR oracle factory')
@@ -57,48 +55,52 @@ async function deployOcr2odOracle(chainId = network.config.chainId) {
   await acceptTx.wait(1)
   console.log('Oracle ownership accepted')
 
-  console.log(`Setting DON public key to ${networkConfig[chainId]['ocr2drPublicKey']}`)
-  const setKeyTx = await oracle.setDONPublicKey(ethers.utils.toUtf8Bytes(networkConfig[chainId]['ocr2drPublicKey']))
-  console.log(`Waiting for transaction ${setKeyTx.hash} to be confirmed...`)
-  await setKeyTx.wait(1)
+  console.log(`Setting DON public key to ${networkConfig[network.name]['ocr2drPublicKey']}`)
+  await oracle.setDONPublicKey('0x' + networkConfig[network.name]['ocr2drPublicKey'])
   console.log('DON public key set')
 
   console.log('Authorizing oracle with registry')
-  const authTx = await registry.setAuthorizedSenders([oracle.address])
-  console.log(`Waiting for transaction ${authTx.hash} to be confirmed...`)
+  await registry.setAuthorizedSenders([oracle.address])
   console.log('Oracle authorized with registry')
 
   console.log(`Setting oracle registry to ${registry.address}`)
   const setRegistryTx = await oracle.setRegistry(registry.address)
-  console.log(`Waiting for transaction ${setRegistryTx.hash} to be confirmed...`)
   console.log('Oracle registry set')
 
-  console.log(`OCR2ODOracle successfully deployed to ${oracle.address} on ${network.name}`)
+  await setRegistryTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+  console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks...`)
 
-  if (!developmentChains.includes(network.name) && (process.env.ETHERSCAN_API_KEY || process.env.POLYGONSCAN_API_KEY)) {
-    console.log('Verifying registry contract...')
-    await run('verify:verify', {
-      address: oracleFactory.address,
-      constructorArguments: [],
-    })
-    console.log('Oracle registry contract verified')
-
-    console.log('Verifying oracle factory contract...')
-    await run('verify:verify', {
-      address: oracleFactory.address,
-      constructorArguments: [],
-    })
-    console.log('Oracle factory contract verified')
-
-    console.log('Verifying oracle contract...')
-    await run('verify:verify', {
-      address: oracle.address,
-      constructorArguments: [],
-    })
-    console.log('Oracle contract verified')
+  if (process.env.ETHERSCAN_API_KEY || process.env.POLYGONSCAN_API_KEY) {
+    try { 
+      console.log('Verifying registry contract...')
+      await run('verify:verify', {
+        address: registry.address,
+        constructorArguments: [linkTokenAddress, linkEthFeedAddress],
+      })
+      console.log('Oracle registry contract verified')
+  
+      console.log('Verifying oracle factory contract...')
+      await run('verify:verify', {
+        address: oracleFactory.address,
+        constructorArguments: [],
+      })
+      console.log('Oracle factory contract verified')
+  
+      console.log('Verifying oracle contract...')
+      await run('verify:verify', {
+        address: oracle.address,
+        constructorArguments: [],
+      })
+      console.log('Oracle contract verified')
+    } catch (error) {
+      console.log('Error verifying contracts.  Delete the ./build folder and try again.')
+      console.log(error)
+    }
   }
+  
+  console.log(`\nOCR2ODOracle successfully deployed to ${oracle.address} on ${network.name}\n`)
 
-  return { oracle }
+  return { oracleFactory,  oracle, registry }
 }
 
 module.exports = {

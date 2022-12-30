@@ -7,9 +7,10 @@ const coinPaprikaCoinId = args[2];
 const badApiCoinId = args[3];
 
 if (!secrets.apiKey) {
-  throw Error('API_KEY environment variable not set for CoinMarketCap API.  Get a free key from https://coinmarketcap.com/api/')
+  throw Error('COINMARKETCAP_API_KEY environment variable not set for CoinMarketCap API.  Get a free key from https://coinmarketcap.com/api/');
 }
 
+// To make an HTTP request, use the OCR2DR.makeHttpRequest function
 // OCR2DR.makeHttpRequest function parameters:
 // - url
 // - method (optional, defaults to 'GET')
@@ -31,6 +32,7 @@ const coinGeckoResponse = await OCR2DR.makeHttpRequest({
 const coinPaprikaResponse = await OCR2DR.makeHttpRequest({
   url: `https://api.coinpaprika.com/v1/tickers/${coinPaprikaCoinId}`
 });
+// This dummy request simulates a failed API request
 const badApiResponse = await OCR2DR.makeHttpRequest({
   url: `https://badapi.com/price/symbol/${badApiCoinId}`
 });
@@ -53,27 +55,26 @@ if (!coinPaprikaResponse.error) {
 } else {
   console.log('CoinPaprika Error');
 }
-  
 // A single failed API request does not cause the whole request to fail
 if (!badApiResponse.error) {
   prices.push(httpResponses[3].data.price.usd);
 } else {
-  console.log('Bad API request failed. (This message is expected and just for demonstration purposes.)')
+  console.log('Bad API request failed. (This message is expected to demonstrate using console.log for debugging locally with the simulator)');
 }
   
 // At least 3 out of 4 prices are needed to aggregate the median price
 if (prices.length < 3) {
   // If an error is thrown, it will be returned back to the smart contract
-  throw Error('More than 1 API failed This needs to be a suuuuper long error message to test gas usage limits for a function and stuff');
+  throw Error('More than 1 API failed');
 }
 
 const medianPrice = prices.sort((a, b) => a - b)[Math.round(prices.length / 2)];
 console.log(`Median Bitcoin price: $${medianPrice.toFixed(2)}`);
 
-// Use one of the following functions to convert the returned value to a Buffer
-// representing the bytes that are returned to the client smart contract:
+// The source code MUST return a Buffer or the request will return an error message
+// Use one of the following functions to convert to a Buffer representing the response bytes that are returned to the client smart contract:
 // - OCR2DR.encodeUint256
 // - OCR2DR.encodeInt256
 // - OCR2DR.encodeString
-// Or return a Buffer for a custom byte encoding
+// Or return a custom Buffer for a custom byte encoding
 return OCR2DR.encodeUint256(Math.round(medianPrice * 100));

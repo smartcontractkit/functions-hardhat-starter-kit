@@ -1,52 +1,23 @@
-const { developmentChains } = require('../../helper-hardhat-config')
+const { getDecodedResultLog } = require('../../onDemandRequestSimulator')
 
 task('on-demand-read', 'Calls an On Demand API Consumer Contract to read data obtained from an external API')
   .addParam('contract', 'The address of the On Demand On Demand API Consumer contract that you want to call')
   .setAction(async (taskArgs) => {
-    if (developmentChains.includes(network.name)) {
-      throw Error('This command cannot be used on a local development chain.  Please specify a valid network or simulate an OnDemandConsumer request locally with "npx hardhat on-demand-simulate".')
+    if (network.name === 'hardhat') {
+      throw Error('This command cannot be used on a local hardhat chain.  Please specify a valid network or simulate an OnDemandConsumer request locally with "npx hardhat on-demand-simulate".')
     }
 
-    const contractAddr = taskArgs.contract
-    const networkId = network.name
-
-    console.log('Reading data from On Demand API Consumer contract ', contractAddr, ' on network ', networkId)
+    console.log(`Reading data from On Demand API Consumer contract ${taskArgs.contract} on network network.name`)
     const clientContractFactory = await ethers.getContractFactory('OnDemandConsumer')
-    const clientContract = await clientContractFactory.attach(contractAddr)
+    const clientContract = await clientContractFactory.attach(taskArgs.contract)
     
     let latestResponse = await clientContract.latestResponse()
-    let responseStr = latestResponse.toString()
 
-    console.log(`💾 On-chain data represented as a hex string: ${responseStr}`)
-
-    const config = require('../../on-demand-request-config')
-    if (config.expectedReturnType) {
-      let decodedData
-      switch (config.expectedReturnType) {
-        case 'uint256':
-          decodedData = BigInt('0x' + responseStr.slice(2).slice(-64))
-          break
-        case 'int256':
-          decodedData = signedInt256toBigInt('0x' + responseStr.slice(2).slice(-64))
-          break
-        case 'string':
-          decodedData = Buffer.from(responseStr.slice(2), 'hex').toString()
-          break
-        default:
-          const end = config.expectedReturnType
-          throw new Error(`incorrect expectedReturnType ${end}`)
-      }
-      console.log(`📒 On-chain data decoded as a ${config.expectedReturnType}: ${decodedData}`)
-    }
+    const requestConfig = require('../../on-demand-request-config')
+    console.log(
+      `\nOn-chain response represented as a hex string: ${latestResponse}\n${getDecodedResultLog(
+        requestConfig,
+        latestResponse
+      )}`
+    )
   })
-
-const signedInt256toBigInt = (hex) => {
-  const binary = BigInt(hex).toString(2).padStart(256, '0')
-  // if the first bit is 0, number is positive
-  if (binary[0] === '0') {
-    return BigInt(hex)
-  }
-  return -(BigInt(2) ** BigInt(255)) + BigInt(`0b${binary.slice(1)}`)
-}
-
-module.exports = {}

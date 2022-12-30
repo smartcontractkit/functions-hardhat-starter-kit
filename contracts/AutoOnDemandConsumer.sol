@@ -12,7 +12,7 @@ import "hardhat/console.sol";
  * @notice This contract is a demonstration of using OCR2DR along with Chainlink Automation.
  * @notice NOT FOR PRODUCTION USE
  */
-contract AutomatedAPIConsumer is
+contract AutoOnDemandConsumer is
     OCR2DRClient,
     KeeperCompatibleInterface,
     ConfirmedOwner

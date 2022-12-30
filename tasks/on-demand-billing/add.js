@@ -1,21 +1,18 @@
-const { getNetworkConfig } = require('../utils/utils')
-const { VERIFICATION_BLOCK_CONFIRMATIONS, developmentChains } = require('../../helper-hardhat-config')
+const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require('../../network-config')
 
-task('on-demand-sub-add-consumer', 'Adds a client contract to the On-Demand billing subscription')
+task('on-demand-sub-add', 'Adds a client contract to the On-Demand billing subscription')
   .addParam('subid', 'Subscription ID')
   .addParam('contract', 'Address of the On-Demand client contract to authorize for billing')
   .setAction(async (taskArgs) => {
-    if (developmentChains.includes(network.name)) {
-      throw Error('This command cannot be used on a local development chain.  Please specify a valid network or simulate an OnDemandConsumer request locally with "npx hardhat on-demand-simulate".')
+    if (network.name == 'hardhat') {
+      throw Error('This command cannot be used on a local hardhat chain.  Specify a valid network.')
     }
-
-    const networkConfig = getNetworkConfig(network.name)
 
     const subscriptionId = taskArgs.subid
     const consumer = taskArgs.contract
 
     const RegistryFactory = await ethers.getContractFactory('OCR2DRRegistry')
-    const registry = await RegistryFactory.attach(networkConfig['ocr2drOracleRegistry'])
+    const registry = await RegistryFactory.attach(networkConfig[network.name]['ocr2drOracleRegistry'])
 
     // Check that the subscription is valid
     let preSubInfo
@@ -28,6 +25,13 @@ task('on-demand-sub-add-consumer', 'Adds a client contract to the On-Demand bill
       throw error
     }
 
+    // Check that the requesting wallet is the owner of the subscription
+    const accounts = await ethers.getSigners()
+    const signer = accounts[0]
+    if (preSubInfo[1] !== signer.address) {
+      throw Error('The current wallet is not the owner of the subscription')
+    }
+
     // Check that the consumer is not already authorized (for convenience)
     const existingConsumers = preSubInfo[2].map((addr) => addr.toLowerCase())
     if (existingConsumers.includes(consumer.toLowerCase())) {
@@ -37,10 +41,9 @@ task('on-demand-sub-add-consumer', 'Adds a client contract to the On-Demand bill
     console.log(`Adding consumer contract address ${consumer} to subscription ${subscriptionId}`)
     const addTx = await registry.addConsumer(subscriptionId, consumer)
 
-    const waitBlockConfirmations = developmentChains.includes(network.name) ? 1 : VERIFICATION_BLOCK_CONFIRMATIONS
-    console.log(`Waiting ${waitBlockConfirmations} blocks for transaction ${addTx.hash} to be confirmed...`)
-    await addTx.wait(waitBlockConfirmations)
-    console.log(`Added consumer contract address ${consumer} to subscription ${subscriptionId}`)
+    console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${addTx.hash} to be confirmed...`)
+    await addTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+    console.log(`\nAdded consumer contract address ${consumer} to subscription ${subscriptionId}`)
 
     // Print information about the subscription
     const postSubInfo = await registry.getSubscription(subscriptionId)

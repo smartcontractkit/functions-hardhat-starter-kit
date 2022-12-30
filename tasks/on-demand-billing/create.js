@@ -1,27 +1,24 @@
-const { getNetworkConfig } = require('../utils/utils')
-const { VERIFICATION_BLOCK_CONFIRMATIONS, developmentChains } = require('../../helper-hardhat-config')
+const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require('../../network-config')
 
-task('on-demand-sub-create', 'Creates a new billing subscription for On-Demand Consumer contracts')
+task('on-demand-sub-create', 'Creates a new billing subscription for On-Demand consumer contracts')
   .addOptionalParam('amount', 'Inital amount used to fund the subscription in LINK')
-  .addOptionalParam('contract', 'Address of the client contract address to add to subscription')
+  .addOptionalParam('contract', 'Address of the client contract address authorized to use the new billing subscription')
   .setAction(async (taskArgs) => {
-    if (developmentChains.includes(network.name)) {
-      throw Error('This command cannot be used on a local development chain.  Please specify a valid network or simulate an OnDemandConsumer request locally with "npx hardhat on-demand-simulate".')
+    if (network.name === 'hardhat') {
+      throw Error('This command cannot be used on a local hardhat chain.  Specify a valid network or simulate a request locally with "npx hardhat on-demand-simulate".')
     }
-
-    const networkConfig = getNetworkConfig(network.name)
 
     const linkAmount = taskArgs.amount
     const consumer = taskArgs.contract
 
     const RegistryFactory = await ethers.getContractFactory('OCR2DRRegistry')
-    const registry = await RegistryFactory.attach(networkConfig['ocr2drOracleRegistry'])
+    const registry = await RegistryFactory.attach(networkConfig[network.name]['ocr2drOracleRegistry'])
 
     console.log('Creating On-Demand billing subscription')
     const createSubscriptionTx = await registry.createSubscription()
 
-    const createWaitBlockConfirmations =
-      developmentChains.includes(network.name) || consumer || linkAmount ? 1 : VERIFICATION_BLOCK_CONFIRMATIONS
+    // If a consumer or linkAmount was also specified, wait 1 block instead of VERIFICATION_BLOCK_CONFIRMATIONS blocks
+    const createWaitBlockConfirmations = consumer || linkAmount ? 1 : VERIFICATION_BLOCK_CONFIRMATIONS
     console.log(
       `Waiting ${createWaitBlockConfirmations} blocks for transaction ${createSubscriptionTx.hash} to be confirmed...`
     )
@@ -36,11 +33,12 @@ task('on-demand-sub-create', 'Creates a new billing subscription for On-Demand C
       const juelsAmount = ethers.utils.parseUnits(linkAmount)
 
       const LinkTokenFactory = await ethers.getContractFactory('LinkToken')
-      const linkToken = await LinkTokenFactory.attach(networkConfig.linkToken)
+      const linkToken = await LinkTokenFactory.attach(networkConfig[network.name]['linkToken'])
 
       const accounts = await ethers.getSigners()
       const signer = accounts[0]
 
+      // Check for a sufficent LINK balance to fund the subscription
       const balance = await linkToken.balanceOf(signer.address)
       if (juelsAmount.gt(balance)) {
         throw Error(
@@ -52,12 +50,12 @@ task('on-demand-sub-create', 'Creates a new billing subscription for On-Demand C
 
       console.log(`Funding with ${ethers.utils.formatEther(juelsAmount)} LINK`)
       const fundTx = await linkToken.transferAndCall(
-        networkConfig['ocr2drOracleRegistry'],
+        networkConfig[network.name]['ocr2drOracleRegistry'],
         juelsAmount,
         ethers.utils.defaultAbiCoder.encode(['uint64'], [subscriptionId])
       )
-      const fundWaitBlockConfirmations =
-        developmentChains.includes(network.name) || consumer ? 1 : VERIFICATION_BLOCK_CONFIRMATIONS
+      // If a consumer was also specified, wait 1 block instead of VERIFICATION_BLOCK_CONFIRMATIONS blocks
+      const fundWaitBlockConfirmations = !!consumer ? 1 : VERIFICATION_BLOCK_CONFIRMATIONS
       console.log(`Waiting ${fundWaitBlockConfirmations} blocks for transaction ${fundTx.hash} to be confirmed...`)
       await fundTx.wait(fundWaitBlockConfirmations)
 
@@ -68,15 +66,14 @@ task('on-demand-sub-create', 'Creates a new billing subscription for On-Demand C
       // Add consumer
       console.log(`Adding consumer contract address ${consumer} to subscription ${subscriptionId}`)
       const addTx = await registry.addConsumer(subscriptionId, consumer)
-      const waitBlockConfirmations = developmentChains.includes(network.name) ? 1 : VERIFICATION_BLOCK_CONFIRMATIONS
-      console.log(`Waiting ${waitBlockConfirmations} blocks for transaction ${addTx.hash} to be confirmed...`)
-      await addTx.wait(waitBlockConfirmations)
+      console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${addTx.hash} to be confirmed...`)
+      await addTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
 
       console.log(`Authorized consumer contract: ${consumer}`)
     }
 
     const subInfo = await registry.getSubscription(subscriptionId)
-    console.log(`\nSubscription ID: ${subscriptionId}`)
+    console.log(`\nCreated subscription with ID: ${subscriptionId}`)
     console.log(`Owner: ${subInfo[1]}`)
     console.log(`Balance: ${ethers.utils.formatEther(subInfo[0])} LINK`)
     console.log(`${subInfo[2].length} authorized consumer contract${subInfo[2].length === 1 ? '' : 's'}:`)

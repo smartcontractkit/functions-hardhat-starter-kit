@@ -1,8 +1,8 @@
 const { ethers, network, run } = require('hardhat')
-const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig, developmentChains } = require('../../helper-hardhat-config')
+const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require('../../network-config')
 const LINK_TOKEN_ABI = require('@chainlink/contracts/abi/v0.4/LinkToken.json')
 
-const { buildRequest, simulateRequest } = require('../../tasks/utils/onDemandRequestSimulator')
+const { buildRequest, simulateRequest } = require('../../onDemandRequestSimulator')
 
 async function deployAutomatedApiConsumer(chainId = network.config.chainId) {
   console.log('Simulating on demand request locally...')

@@ -1,7 +1,5 @@
-const { simulateRequest, buildRequest } = require('../utils/onDemandRequestSimulator')
-const { getDecodedResultLog } = require('../utils/onDemandRequestSimulator/simulateRequest')
-const { VERIFICATION_BLOCK_CONFIRMATIONS, developmentChains } = require('../../helper-hardhat-config')
-const { getNetworkConfig } = require('../utils/utils')
+const { simulateRequest, buildRequest, getDecodedResultLog } = require('../../onDemandRequestSimulator')
+const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require('../../network-config')
 const readline = require('readline/promises')
 
 task('on-demand-request', 'Calls an On Demand API consumer contract to request external data')
@@ -9,30 +7,30 @@ task('on-demand-request', 'Calls an On Demand API consumer contract to request e
   .addParam('subid', 'The billing subscription ID used to pay for the request')
   .addOptionalParam('gaslimit', 'The maximum amount of gas that can be used to fulfill a request (defaults to 100,000)')
   .setAction(async (taskArgs, hre) => {
-    if (developmentChains.includes(network.name)) {
-      throw Error('This command cannot be used on a local development chain.  Please specify a valid network or simulate an OnDemandConsumer request locally with "npx hardhat on-demand-simulate".')
+    if (network.name === 'hardhat') {
+      throw Error('This command cannot be used on a local development chain.  Specify a valid network or simulate an OnDemandConsumer request locally with "npx hardhat on-demand-simulate".')
     }
 
     // Get the required parameters
-    const networkConfig = getNetworkConfig(network.name)
     const contractAddr = taskArgs.contract
     const subscriptionId = taskArgs.subid
     const gasLimit = parseInt(taskArgs.gaslimit ?? '100000')
-    if (gasLimit >= 400000) {
-      throw Error('Gas limit must be less than 400,000')
+    if (gasLimit > 300000) {
+      throw Error('Gas limit must be less than or equal to 300,000')
     }
 
     // Attach to the required contracts
     const clientContractFactory = await ethers.getContractFactory('OnDemandConsumer')
     const clientContract = clientContractFactory.attach(contractAddr)
     const OracleFactory = await ethers.getContractFactory('OCR2DROracle')
-    const oracle = await OracleFactory.attach(networkConfig['ocr2drOracle'])
+    const oracle = await OracleFactory.attach(networkConfig[network.name]['ocr2drOracle'])
     const registryAddress = await oracle.getRegistry()
     const RegistryFactory = await ethers.getContractFactory('OCR2DRRegistry')
     const registry = await RegistryFactory.attach(registryAddress)
 
     console.log('Simulating on demand request locally...')
-    const { success, resultLog } = await simulateRequest('../../../on-demand-request-config.js', await oracle.getDONPublicKey())
+    const requestConfig = require('../../on-demand-request-config.js')
+    const { success, resultLog } = await simulateRequest(requestConfig)
     console.log(`\n${resultLog}`)
 
     // If the simulated JavaScript source code contains an error, confirm the user still wants to continue
@@ -41,15 +39,11 @@ task('on-demand-request', 'Calls an On Demand API consumer contract to request e
         input: process.stdin,
         output: process.stdout,
       })
-      await rl.question(
-        'There was an error when running the JavaScript source code for the request.  Do you still want to continue? (y) Yes / (n) No\n',
-        async function (input) {
-          if (input.toLowerCase() !== 'y' && input.toLowerCase() !== 'yes') {
-            rl.close()
-            process.exit(0)
-          }
-        })
+      const q1answer = await rl.question('\nThere was an error when running the JavaScript source code for the request.  Do you still want to continue? (y) Yes / (n) No\n')
       rl.close()
+      if (q1answer.toLowerCase() !== 'y' && q1answer.toLowerCase() !== 'yes') {
+        return
+      }
     }
 
     // Check that the subscription is valid
@@ -67,9 +61,13 @@ task('on-demand-request', 'Calls an On Demand API consumer contract to request e
     if (!existingConsumers.includes(contractAddr.toLowerCase())) {
       throw Error(`Consumer contract ${contractAddr} is not registered to use subscription ${subscriptionId}`)
     }
-
-    // Build the request
-    const request = await buildRequest('../../../on-demand-request-config.js', await oracle.getDONPublicKey())
+    
+    // Fetch the DON public key from on-chain
+    const DONPublicKey = await oracle.getDONPublicKey()
+    // Remove the preceeding 0x from the DON public key
+    requestConfig.DONPublicKey = DONPublicKey.slice(2)
+    // Build the parameters to make a request from the client contract
+    const request = await buildRequest(requestConfig)
 
     // Estimate the cost of the request
     const { lastBaseFeePerGas, maxPriorityFeePerGas } = await hre.ethers.provider.getFeeData()
@@ -99,21 +97,19 @@ task('on-demand-request', 'Calls an On Demand API consumer contract to request e
       `If all ${gasLimit} callback gas is used, this request is estimated to cost ${hre.ethers.utils.formatUnits(
         estimatedCostJuels,
         18
-      )} LINK\n`
+      )} LINK`
     )
     // Ask for confirmation before initiating the request on-chain
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
     })
-    await rl.question('Continue? (y) Yes / (n) No\n', async function (input) {
-      if (input.toLowerCase() !== 'y' && input.toLowerCase() !== 'yes') {
-        rl.close()
-        process.exit(0)
-      }
-      resolve()
-    })
+    let cont = false
+    const q2answer = await rl.question('Continue? (y) Yes / (n) No\n')
     rl.close()
+    if (q2answer.toLowerCase() !== 'y' && q2answer.toLowerCase() !== 'yes') {
+      return
+    }
 
     // Use a promise to wait & listen for the fulfillment event before resolving
     await new Promise(async (resolve, reject) => {
@@ -136,17 +132,17 @@ task('on-demand-request', 'Calls an On Demand API consumer contract to request e
       let billingEndEventRecieved = false
       let ocrResponseEventReceived = false
       clientContract.on('OCRResponse', async (result, err) => {
-        console.log(`\nRequest ${requestId} fulfilled!`)
+        console.log(`Request ${requestId} fulfilled!`)
         if (result !== '0x') {
           console.log(
-            `\nResponse returned to client contract represented as a hex string: ${result}\n${getDecodedResultLog(
+            `Response returned to client contract represented as a hex string: ${result}\n${getDecodedResultLog(
               require('../../on-demand-request-config'),
               result
             )}`
           )
         }
         if (err !== '0x') {
-          console.log(`\nError message returned to client contract: ${Buffer.from(err.slice(2), 'hex')}\n`)
+          console.log(`Error message returned to client contract: ${Buffer.from(err.slice(2), 'hex')}\n`)
         }
         ocrResponseEventReceived = true
         if (billingEndEventRecieved) {
@@ -167,13 +163,13 @@ task('on-demand-request', 'Calls an On Demand API consumer contract to request e
           if (requestId == eventRequestId) {
             // Check for a successful request & log a mesage if the fulfillment was not successful
             console.log(
-              `\nTransmission cost: ${hre.ethers.utils.formatUnits(eventTransmitterPayment, 18)} LINK`
+              `Transmission cost: ${hre.ethers.utils.formatUnits(eventTransmitterPayment, 18)} LINK`
             )
             console.log(`Base fee: ${hre.ethers.utils.formatUnits(eventSignerPayment, 18)} LINK`)
-            console.log(`Total cost: ${hre.ethers.utils.formatUnits(eventTotalCost, 18)} LINK`)
+            console.log(`Total cost: ${hre.ethers.utils.formatUnits(eventTotalCost, 18)} LINK\n`)
             if (!eventSuccess) {
               console.log(
-                '\nError encountered when calling fulfillRequest in client contract.\n' +
+                'Error encountered when calling fulfillRequest in client contract.\n' +
                   'Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficent.'
               )
               return resolve()
@@ -201,12 +197,10 @@ task('on-demand-request', 'Calls an On Demand API consumer contract to request e
         ),
         300_000
       )
-      const waitBlockConfirmations = developmentChains.includes(network.name) ? 1 : VERIFICATION_BLOCK_CONFIRMATIONS
-      console.log(`Waiting ${waitBlockConfirmations} blocks for transaction ${requestTx.hash} to be confirmed...`)
-      const requestTxReceipt = await requestTx.wait(waitBlockConfirmations)
+      console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${requestTx.hash} to be confirmed...`)
+      const requestTxReceipt = await requestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
       const requestId = requestTxReceipt.events[2].args.id
       console.log(`\nRequest ${requestId} initiated`)
-      console.log(`Waiting for fulfillment...`)
+      console.log(`Waiting for fulfillment...\n`)
     })
   })
-module.exports = {}

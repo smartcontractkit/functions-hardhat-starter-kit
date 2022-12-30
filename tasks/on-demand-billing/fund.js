@@ -1,21 +1,18 @@
-const { getNetworkConfig } = require('../utils/utils')
-const { VERIFICATION_BLOCK_CONFIRMATIONS, developmentChains } = require('../../helper-hardhat-config')
+const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require('../../network-config')
 
-task('on-demand-sub-fund', 'Funds a billing subscription for On-Demand Consumer contracts')
+task('on-demand-sub-fund', 'Funds a billing subscription for On-Demand consumer contracts')
   .addParam('amount', 'Amount to fund subscription in LINK')
   .addParam('subid', 'Subscription ID to fund')
   .setAction(async (taskArgs) => {
-    if (developmentChains.includes(network.name)) {
-      throw Error('This command cannot be used on a local development chain.  Please specify a valid network or simulate an OnDemandConsumer request locally with "npx hardhat on-demand-simulate".')
+    if (network.name === 'hardhat') {
+      throw Error('This command cannot be used on a local hardhat chain.  Specify a valid network.')
     }
-
-    const networkConfig = getNetworkConfig(network.name)
 
     const subscriptionId = taskArgs.subid
     const linkAmount = taskArgs.amount
 
     const RegistryFactory = await ethers.getContractFactory('OCR2DRRegistry')
-    const registry = await RegistryFactory.attach(networkConfig['ocr2drOracleRegistry'])
+    const registry = await RegistryFactory.attach(networkConfig[network.name]['ocr2drOracleRegistry'])
 
     // Check that the subscription is valid
     let preSubInfo
@@ -33,7 +30,7 @@ task('on-demand-sub-fund', 'Funds a billing subscription for On-Demand Consumer 
     console.log(`Funding subscription ${subscriptionId} with ${ethers.utils.formatEther(juelsAmount)} LINK`)
 
     const LinkTokenFactory = await ethers.getContractFactory('LinkToken')
-    const linkToken = await LinkTokenFactory.attach(networkConfig.linkToken)
+    const linkToken = await LinkTokenFactory.attach(networkConfig[network.name].linkToken)
 
     const accounts = await ethers.getSigners()
     const signer = accounts[0]
@@ -50,16 +47,15 @@ task('on-demand-sub-fund', 'Funds a billing subscription for On-Demand Consumer 
 
     // Fund the subscription with LINK
     const fundTx = await linkToken.transferAndCall(
-      networkConfig['ocr2drOracleRegistry'],
+      networkConfig[network.name]['ocr2drOracleRegistry'],
       juelsAmount,
       ethers.utils.defaultAbiCoder.encode(['uint64'], [subscriptionId])
     )
 
-    const waitBlockConfirmations = developmentChains.includes(network.name) ? 1 : VERIFICATION_BLOCK_CONFIRMATIONS
-    console.log(`Waiting ${waitBlockConfirmations} blocks for transaction ${fundTx.hash} to be confirmed...`)
-    await fundTx.wait(waitBlockConfirmations)
+    console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${fundTx.hash} to be confirmed...`)
+    await fundTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
 
     const postSubInfo = await registry.getSubscription(subscriptionId)
 
-    console.log(`Subscription ${subscriptionId} funded with ${ethers.utils.formatEther(postSubInfo[0])} LINK`)
+    console.log(`\nSubscription ${subscriptionId} has a total balance of ${ethers.utils.formatEther(postSubInfo[0])} LINK`)
   })

@@ -4,18 +4,18 @@
 // Arguments can be provided when a request is initated on-chain and used in the request source code as shown below
 const principalAmount = parseInt(args[4]);
 const APYTimes100 = parseInt(args[5]);
-const APYAsDecimalPercentage = (APYTimes100 / 100) / 100
+const APYAsDecimalPercentage = (APYTimes100 / 100) / 100;
 
-const timeInYears = (1/12) // represents 1 month
+const timeInYears = (1/12); // represents 1 month
 const eulersNumber = 2.7183;
 
-// A = Pe^(rt)
-const totalAmountAfterInterest = principalAmount * eulersNumber ** (APYAsDecimalPercentage * timeInYears)
+// Continuouly-compounding interest formula: A = Pe^(rt)
+const totalAmountAfterInterest = principalAmount * eulersNumber ** (APYAsDecimalPercentage * timeInYears);
 
-// Use one of the following functions to convert the returned value to a Buffer
-// representing the bytes that are returned to the client smart contract:
+// The source code MUST return a Buffer or the request will return an error message
+// Use one of the following functions to convert to a Buffer representing the response bytes that are returned to the client smart contract:
 // - OCR2DR.encodeUint256
 // - OCR2DR.encodeInt256
 // - OCR2DR.encodeString
-// Or return a Buffer for a custom byte encoding
-return OCR2DR.encodeUint256(Math.round(totalAmountAfterInterest))
+// Or return a custom Buffer for a custom byte encoding
+return OCR2DR.encodeUint256(Math.round(totalAmountAfterInterest));
