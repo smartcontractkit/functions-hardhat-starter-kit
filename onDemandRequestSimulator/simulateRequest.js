@@ -33,12 +33,12 @@ const simulateRequest = async (unvalidatedConfig) => {
             resultLog: `__Output from sandboxed source code__\nOutput represented as a hex string: ${result.success}\n${(0, exports.getDecodedResultLog)(config, result.success)}`,
         };
     }
-    const { name, message, details } = result.error;
+    const { name, message } = result.error;
     const errorString = `${name}: ${message}`.slice(0, config.maxResponseBytes);
     return {
         success: false,
         result: `0x${Buffer.from(errorString).toString('hex')}`,
-        resultLog: `__Error thrown in sandboxed source code__\n${name}\n${message}\n${details ? `${details}\n` : ''}`,
+        resultLog: `__Error thrown in sandboxed source code__\n${name}: ${message}\n`,
     };
 };
 exports.simulateRequest = simulateRequest;

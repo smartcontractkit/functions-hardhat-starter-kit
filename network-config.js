@@ -1,3 +1,6 @@
+// Loads environment variables from .env file (if it exists)
+require('dotenv').config()
+
 const networkConfig = {
     hardhat: {
         // TODO: for networks other than mainnet, gas costs should be calculated the native token, not ETH

@@ -1,5 +1,5 @@
-task('on-demand-read-error', 'Calls an On Demand API Consumer Contract to read a reported error')
-  .addParam('contract', 'The address of the On Demand On Demand API Consumer contract that you want to call')
+task('on-demand-read-error', 'Reads the latest error returned to a OnDemandConsumer client contract')
+  .addParam('contract', 'Address of the client contract to read')
   .setAction(async (taskArgs) => {
     if (network.name === 'hardhat') {
       throw Error('This command cannot be used on a local hardhat chain.  Please specify a valid network or simulate an OnDemandConsumer request locally with "npx hardhat on-demand-simulate".')

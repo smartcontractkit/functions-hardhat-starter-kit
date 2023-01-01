@@ -1,11 +1,11 @@
 const { simulateRequest, buildRequest, getDecodedResultLog } = require('../../onDemandRequestSimulator')
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require('../../network-config')
-// const readline = require('readline/promises')
+const readline = require('readline-promise').default
 
-task('on-demand-request', 'Calls an On Demand API consumer contract to request external data')
-  .addParam('contract', 'The address of the On Demand On Demand API Consumer contract that you want to call')
-  .addParam('subid', 'The billing subscription ID used to pay for the request')
-  .addOptionalParam('gaslimit', 'The maximum amount of gas that can be used to fulfill a request (defaults to 100,000)')
+task('on-demand-request', 'Initiates a request from an OnDemandConsumer client contract')
+  .addParam('contract', 'Address of the client contract to call')
+  .addParam('subid', 'Billing subscription ID used to pay for the request')
+  .addOptionalParam('gaslimit', 'Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000)')
   .setAction(async (taskArgs, hre) => {
     if (network.name === 'hardhat') {
       throw Error('This command cannot be used on a local development chain.  Specify a valid network or simulate an OnDemandConsumer request locally with "npx hardhat on-demand-simulate".')
@@ -34,17 +34,17 @@ task('on-demand-request', 'Calls an On Demand API consumer contract to request e
     console.log(`\n${resultLog}`)
 
     // If the simulated JavaScript source code contains an error, confirm the user still wants to continue
-    // if (!success) {
-    //   const rl = readline.createInterface({
-    //     input: process.stdin,
-    //     output: process.stdout,
-    //   })
-    //   const q1answer = await rl.question('\nThere was an error when running the JavaScript source code for the request.  Do you still want to continue? (y) Yes / (n) No\n')
-    //   rl.close()
-    //   if (q1answer.toLowerCase() !== 'y' && q1answer.toLowerCase() !== 'yes') {
-    //     return
-    //   }
-    // }
+    if (!success) {
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+      })
+      const q1answer = await rl.questionAsync('There was an error when running the JavaScript source code for the request.\nContinue? (y) Yes / (n) No\n')
+      rl.close()
+      if (q1answer.toLowerCase() !== 'y' && q1answer.toLowerCase() !== 'yes') {
+        return
+      }
+    }
 
     // Check that the subscription is valid
     let subInfo
@@ -94,24 +94,24 @@ task('on-demand-request', 'Calls an On Demand API consumer contract to request e
 
     // Print the estimated cost of the request
     console.log(
-      `If all ${gasLimit} callback gas is used, this request is estimated to cost ${hre.ethers.utils.formatUnits(
+      `\nIf all ${gasLimit} callback gas is used, this request is estimated to cost ${hre.ethers.utils.formatUnits(
         estimatedCostJuels,
         18
       )} LINK`
     )
     // Ask for confirmation before initiating the request on-chain
-    // const rl = readline.createInterface({
-    //   input: process.stdin,
-    //   output: process.stdout,
-    // })
-    // let cont = false
-    // const q2answer = await rl.question('Continue? (y) Yes / (n) No\n')
-    // rl.close()
-    // if (q2answer.toLowerCase() !== 'y' && q2answer.toLowerCase() !== 'yes') {
-    //   return
-    // }
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    })
+    let cont = false
+    const q2answer = await rl.questionAsync('Continue? (y) Yes / (n) No\n')
+    rl.close()
+    if (q2answer.toLowerCase() !== 'y' && q2answer.toLowerCase() !== 'yes') {
+      return
+    }
 
-    // Use a promise to wait & listen for the fulfillment event before resolving
+    // Use a promise to wait & listen for the fulfillment event before returning
     await new Promise(async (resolve, reject) => {
       // Initate the listeners before making the request
 
@@ -142,7 +142,7 @@ task('on-demand-request', 'Calls an On Demand API consumer contract to request e
           )
         }
         if (err !== '0x') {
-          console.log(`Error message returned to client contract: ${Buffer.from(err.slice(2), 'hex')}\n`)
+          console.log(`Error message returned to client contract: "${Buffer.from(err.slice(2), 'hex')}"\n`)
         }
         ocrResponseEventReceived = true
         if (billingEndEventRecieved) {

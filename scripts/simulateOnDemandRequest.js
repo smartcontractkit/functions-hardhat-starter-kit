@@ -2,13 +2,16 @@ const { simulateRequest, getDecodedResultLog } = require('../onDemandRequestSimu
 const requestConfig = require('../on-demand-request-config.js')
 
 ;(async () => {
-  const { resultLog, result } = await simulateRequest(requestConfig)
+  const { resultLog, result, success } = await simulateRequest(requestConfig)
 
   console.log(`\n${resultLog}`)
-  console.log(
-    `Response returned to client contract represented as a hex string: ${result}\n${getDecodedResultLog(
-      requestConfig,
-      result
-    )}`
-  )
+  if (success) {
+    console.log(
+      `Value returned from souce code: ${result}\n${getDecodedResultLog(
+        requestConfig,
+        result
+      )}`
+    )
+    return
+  }
 })()

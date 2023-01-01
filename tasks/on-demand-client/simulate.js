@@ -1,8 +1,8 @@
 const { simulateRequest, buildRequest, getDecodedResultLog } = require('../../onDemandRequestSimulator')
 const { networkConfig } = require('../../network-config')
 
-task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally')
-  .addOptionalParam('gaslimit', 'The maximum amount of gas that can be used to fulfill a request (defaults to 100,000)')
+task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally for the OnDemandConsumer contract')
+  .addOptionalParam('gaslimit', 'Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000)')
   .setAction(async (taskArgs, hre) => {
     // Simuation can only be conducted on a local fork of the blockchain
     if (network.name !== 'hardhat') {
@@ -15,13 +15,8 @@ task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally')
       throw Error('Gas limit must be less than or equal to 300,000')
     }
 
-    // Simulating the JavaScript code locally
-    console.log('\nExecuting JavaScript request source code locally...')
-    const { success, result, resultLog } = await simulateRequest(require('../../on-demand-request-config.js'))
-    console.log(`\n${resultLog}`)
-
     // Recompile the latest version of the contracts
-    console.log('__Compiling Contracts__')
+    console.log('\n__Compiling Contracts__')
     await run('compile')
 
     // Deploy a mock oracle & registry contract to simulate a fulfillment
@@ -72,6 +67,11 @@ task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally')
       const requestTxReceipt = await requestTx.wait(1)
       const requestId = requestTxReceipt.events[2].args.id
 
+      // Simulating the JavaScript code locally
+      console.log('\nExecuting JavaScript request source code locally...')
+      const { success, result, resultLog } = await simulateRequest(require('../../on-demand-request-config.js'))
+      console.log(`\n${resultLog}`)
+
       // Simulate a request fulfillment
       const ocrConfig = require('../../OCR2DROracleConfig.json')
       const transmitter = ocrConfig.transmitters[0]
@@ -107,7 +107,7 @@ task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally')
 
       // Listen for the OCRResponse event & log the simulated response returned to the client contract
       client.on('OCRResponse', async (result, err) => {
-        console.log('\n__Simulated On-Chain Response__')
+        console.log('__Simulated On-Chain Response__')
         // Check for & log a successful request
         if (result !== '0x') {
           console.log(
@@ -119,7 +119,7 @@ task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally')
         }
         // Check for & log a request that returned an error message
         if (err !== '0x') {
-          console.log(`Error message returned to client contract: ${Buffer.from(err.slice(2), 'hex')}\n`)
+          console.log(`Error message returned to client contract: "${Buffer.from(err.slice(2), 'hex')}"\n`)
         }
       })
 
@@ -169,6 +169,7 @@ const deployMockOracle = async () => {
   const registryFactory = await ethers.getContractFactory('OCR2DRRegistry')
   const registry = await registryFactory.deploy(linkToken.address, linkEthFeedAddress)
   await registry.deployTransaction.wait(1)
+
   // Set registry configuration
   const config = {
     maxGasLimit: 400_000,
