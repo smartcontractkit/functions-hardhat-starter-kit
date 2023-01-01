@@ -51,6 +51,8 @@ contract OCR2DRRegistry is
     uint96 signerPayment,
     uint96 transmitterPayment,
     uint96 totalCost,
+    // Gas used for callback is required for tooling.  Users need to be able to track `fulfillRequest` gas usage within the simulator to ensure it falls within reasonable limits
+    uint24 gasUsedByCallback,
     bool success
   );
   event RequestTimedOut(bytes32 indexed requestId);

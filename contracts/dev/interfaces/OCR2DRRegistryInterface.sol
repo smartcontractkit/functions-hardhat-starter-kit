@@ -26,6 +26,7 @@ interface OCR2DRRegistryInterface {
     uint96 signerPayment;
     uint96 transmitterPayment;
     uint96 totalCost;
+    uint24 gasUsedByCallback;
   }
 
   struct Subscription {
