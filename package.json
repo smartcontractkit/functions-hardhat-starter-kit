@@ -4,18 +4,12 @@
   "version": "2.1.0",
   "description": "A repo for boilerplate code for testing, deploying, and shipping chainlink solidity code.",
   "scripts": {
-    "help": "hardhat help",
     "compile": "hardhat compile",
-    "test": "hardhat test test/unit/*.spec.js",
-    "test-staging": "hardhat test test/staging/*.spec.js --network goerli",
-    "deploy-oracle": "hardhat run scripts/deployment/deploy.js",
+    "on-demand-deploy-oracle": "hardhat run scripts/deployment/deploy.js",
     "on-demand-simulate-javascript": "node scripts/simulateOnDemandRequest.js",
     "on-demand-build-request": "node scripts/buildOnDemandRequest.js",
     "lint": "solhint 'contracts/*.sol'",
-    "lint:fix": "solhint 'contracts/**/*.sol' --fix",
-    "format": "prettier --write .",
-    "coverage": "hardhat coverage --solcoverjs ./.solcover.js",
-    "fuzzing": "docker run -it --rm -v $PWD:/src trailofbits/eth-security-toolbox"
+    "lint:fix": "solhint 'contracts/**/*.sol' --fix"
   },
   "devDependencies": {
     "@chainlink/contracts": "0.5.1",

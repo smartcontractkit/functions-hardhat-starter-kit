@@ -6,7 +6,7 @@ const coinGeckoCoinId = args[1];
 const coinPaprikaCoinId = args[2];
 const badApiCoinId = args[3];
 
-if (!secrets.apiKey) {
+if (!secrets.apiKey || secrets.apiKey === 'Your coinmarketcap API key (get a free one: https://coinmarketcap.com/api/)') {
   throw Error('COINMARKETCAP_API_KEY environment variable not set for CoinMarketCap API.  Get a free key from https://coinmarketcap.com/api/');
 }
 
