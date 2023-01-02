@@ -81,7 +81,6 @@ task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally for the 
         signers[i] = t
         i++
       }
-      let totalGasUsed
       try {
         const fulfillTx = await registry.fulfillAndBill(
           requestId,
@@ -97,7 +96,6 @@ task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally for the 
           }
         )
         const fulfillTxData = await fulfillTx.wait(1)
-        totalGasUsed = fulfillTxData.gasUsed.toNumber()
       } catch (fulfillError) {
         // Catch & report any unexpected fulfillment errors
         console.log('\nUnexpected error encountered when calling fulfillRequest in client contract.')
@@ -142,9 +140,6 @@ task('on-demand-simulate', 'Simulates an end-to-end fulfillment locally for the 
                   'Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficent.\n'
               )
             }
-            // Amount of gas used to send and validate the OCR report
-            const estimatedValidationGas = 100_000
-            console.log(`Approximate gas used to validate & fulfill request: ${totalGasUsed + estimatedValidationGas}`)
             console.log(
               `Estimated transmission cost: ${hre.ethers.utils.formatUnits(eventTransmitterPayment, 18)} LINK (This will vary based on gas price)`
             )
