@@ -118,13 +118,13 @@ An end-to-end request initiation and fulfillment can be simulated using the `npx
 
 ## `npm run` Commands
 
-| Command                         | Description                                                                                                                                        |
-| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `compile`                       | Compiles all smart contracts                                                                                                                       |
+| Command                         | Description                                                                                                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `compile`                       | Compiles all smart contracts                                                                                                                                  |
 | `on-demand-simulate-javascript` | Simulates running the JavaScript source code for an on-demand request locally without simulating an end-to-end request and fulfillment in the client contract |
 | `on-demand-build-request`       | Builds the required on-demand request parameters, including generating encrypted secrets, and outputs the results to the file `on-demand-request.json`        |
-| `lint`                          | Lints contracts                                                                                                                                    |
-| `link:fix`                      | Lints contracts and fixes linting nonconformities                                                                                                  |
+| `lint`                          | Lints contracts                                                                                                                                               |
+| `link:fix`                      | Lints contracts and fixes linting nonconformities                                                                                                             |
 
 ## `npx hardhat` Commands
 
