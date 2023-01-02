@@ -25,7 +25,7 @@
 
 Ensure Node.js is installed.  It is recommended to use Node.js version 18.
 
-1. Navigate to this folder and run `npm install` to install all dependencies.<br><br>
+1. In this directory, run `npm install` to install all dependencies.<br><br>
 2. Set the required environment variables.
    1. This can be done by renaming the file `.env.example` to `.env` and setting the values `PRIVATE_KEY` and either `GOERLI_RPC_URL` or `MUMBAI_RPC_URL`.
    2. If desired, the `REPORT_GAS`, `ETHERSCAN_API_KEY` and `POLYGONSCAN_API_KEY` can also be set, along with any values used in the `secrets` object in `on-demand-request-config.js`.<br><br>
