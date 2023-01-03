@@ -21,21 +21,34 @@ if (!secrets.apiKey || secrets.apiKey === 'Your coinmarketcap API key (get a fre
 // - responseType: expected response type (optional, defaults to 'json')
 
 // Use multiple APIs & aggregate the results to enhance decentralization
-const coinMarketCapResponse = await OCR2DR.makeHttpRequest({
+const coinMarketCapRequest = OCR2DR.makeHttpRequest({
   url: `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?convert=USD&id=${coinMarketCapCoinId}`,
   // Get a free API key from https://coinmarketcap.com/api/
   headers: { 'X-CMC_PRO_API_KEY': secrets.apiKey }
 });
-const coinGeckoResponse = await OCR2DR.makeHttpRequest({
+const coinGeckoRequest= OCR2DR.makeHttpRequest({
   url: `https://api.coingecko.com/api/v3/simple/price?ids=${coinGeckoCoinId}&vs_currencies=usd`,
 });
-const coinPaprikaResponse = await OCR2DR.makeHttpRequest({
+const coinPaprikaRequest= OCR2DR.makeHttpRequest({
   url: `https://api.coinpaprika.com/v1/tickers/${coinPaprikaCoinId}`
 });
 // This dummy request simulates a failed API request
-const badApiResponse = await OCR2DR.makeHttpRequest({
+const badApiRequest = OCR2DR.makeHttpRequest({
   url: `https://badapi.com/price/symbol/${badApiCoinId}`
 });
+
+// First, execute all the API requests are executed concurrently, then wait for the responses
+const [
+  coinMarketCapResponse,
+  coinGeckoResponse,
+  coinPaprikaResponse,
+  badApiResponse,
+] = await Promise.all([
+  coinMarketCapRequest,
+  coinGeckoRequest,
+  coinPaprikaRequest,
+  badApiRequest,
+]);
 
 const prices = [];
 
