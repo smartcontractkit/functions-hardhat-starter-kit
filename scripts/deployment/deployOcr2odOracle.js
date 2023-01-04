@@ -5,8 +5,8 @@ async function deployOcr2odOracle() {
   const linkEthFeedAddress = networkConfig[network.name]['linkEthPriceFeed']
   const linkTokenAddress = networkConfig[network.name]['linkToken']
 
-  console.log('Deploying OCR2DR registry')
-  const registryFactory = await ethers.getContractFactory('OCR2DRRegistry')
+  console.log('Deploying Functions registry')
+  const registryFactory = await ethers.getContractFactory('FunctionsRegistry')
   const registry = await registryFactory.deploy(linkTokenAddress, linkEthFeedAddress)
   console.log(`Waiting for transaction ${registry.deployTransaction.hash} to be confirmed...`)
   await registry.deployTransaction.wait(1)
@@ -31,32 +31,32 @@ async function deployOcr2odOracle() {
   )
   console.log('Registry configuration set')
 
-  console.log('Deploying OCR2DR oracle factory')
-  const oracleFactoryFactory = await ethers.getContractFactory('OCR2DROracleFactory')
+  console.log('Deploying Functions oracle factory')
+  const oracleFactoryFactory = await ethers.getContractFactory('FunctionsOracleFactory')
   const oracleFactory = await oracleFactoryFactory.deploy()
   console.log(`Waiting for transaction ${oracleFactory.deployTransaction.hash} to be confirmed...`)
   await oracleFactory.deployTransaction.wait(1)
   console.log(`OCR2ODOracleFactory deployed to ${oracleFactory.address} on ${network.name}`)
 
-  console.log('Deploying OCR2DR oracle')
+  console.log('Deploying Functions oracle')
   const accounts = await ethers.getSigners()
   const deployer = accounts[0]
   const OracleDeploymentTransaction = await oracleFactory.deployNewOracle()
   console.log(`Waiting for transaction ${OracleDeploymentTransaction.hash} to be confirmed...`)
   const OracleDeploymentReceipt = await OracleDeploymentTransaction.wait(1)
-  const OCR2DROracleAddress = OracleDeploymentReceipt.events[1].args.oracle
-  const oracle = await ethers.getContractAt('OCR2DROracle', OCR2DROracleAddress, deployer)
+  const FunctionsOracleAddress = OracleDeploymentReceipt.events[1].args.oracle
+  const oracle = await ethers.getContractAt('FunctionsOracle', FunctionsOracleAddress, deployer)
   console.log(`OCR2ODOracle deployed to ${oracle.address} on ${network.name}`)
 
-  // Set up OCR2DR Oracle
+  // Set up Functions Oracle
   console.log(`Accepting oracle contract ownership`)
   const acceptTx = await oracle.acceptOwnership()
   console.log(`Waiting for transaction ${acceptTx.hash} to be confirmed...`)
   await acceptTx.wait(1)
   console.log('Oracle ownership accepted')
 
-  console.log(`Setting DON public key to ${networkConfig[network.name]['ocr2drPublicKey']}`)
-  await oracle.setDONPublicKey('0x' + networkConfig[network.name]['ocr2drPublicKey'])
+  console.log(`Setting DON public key to ${networkConfig[network.name]['functionsPublicKey']}`)
+  await oracle.setDONPublicKey('0x' + networkConfig[network.name]['functionsPublicKey'])
   console.log('DON public key set')
 
   console.log('Authorizing oracle with registry')

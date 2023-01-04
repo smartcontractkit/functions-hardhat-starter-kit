@@ -149,9 +149,9 @@ module.exports = {
     contractSizer: {
         runOnCompile: false,
         only: [
-            "OnDemandConsumer",
-            "AutomatedOnDemandConsumer",
-            "OCR2DRRegistry",
+            "FunctionsConsumer",
+            "AutomatedFunctionsConsumer",
+            "FunctionsRegistry",
         ],
     },
     paths: {
