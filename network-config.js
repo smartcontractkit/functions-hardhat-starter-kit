@@ -15,7 +15,7 @@ const networkConfig = {
                 process.env.MAINNET_RPC_URL ? '0xdc530d9457755926550b59e8eccdae7624181557' : ''
             }`,
         ocr2drPublicKey:
-            "7e00a17e0d8c5c59bbe1f580f2405d51feb66c947fe66136190e80aabaf850964b837bcd379a92d5db52d2a8c8e044f8033cb981450bf3710ead0c4a43122ec1",
+            "971f006163a12ee3383a00d7743334480d6b1c83fdf60497e0c520b16d1a4ee421cc61375679b63466156fee6f2f1da5a7e630ba0b1cddb2704ef907ead223db",
         mockOcr2odPrivateKey: "0x09768a19def4dce2b6793d7dc807828ef47b681709cf1005627a93f0da9c8065",
     },
     mainnet: {
