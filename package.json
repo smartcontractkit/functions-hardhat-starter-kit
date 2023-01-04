@@ -8,6 +8,7 @@
     "on-demand-deploy-oracle": "hardhat run scripts/deployment/deploy.js",
     "on-demand-simulate-javascript": "node scripts/simulateOnDemandRequest.js",
     "on-demand-build-request": "node scripts/buildOnDemandRequest.js",
+    "on-demand-generate-don-keys": "node scripts/generateDONKeys.js",
     "lint": "solhint 'contracts/*.sol'",
     "lint:fix": "solhint 'contracts/**/*.sol' --fix"
   },
