@@ -5,10 +5,9 @@
   "description": "A repo for boilerplate code for testing, deploying, and shipping chainlink solidity code.",
   "scripts": {
     "compile": "hardhat compile",
-    "on-demand-deploy-oracle": "hardhat run scripts/deployment/deploy.js",
-    "on-demand-simulate-javascript": "node scripts/simulateOnDemandRequest.js",
-    "on-demand-build-request": "node scripts/buildOnDemandRequest.js",
-    "on-demand-generate-don-keys": "node scripts/generateDONKeys.js",
+    "functions-deploy-oracle": "hardhat run scripts/deployment/deploy.js",
+    "functions-simulate-javascript": "node scripts/simulateFunctionsRequest.js",
+    "functions-build-request": "node scripts/buildFunctionsRequest.js",
     "lint": "solhint 'contracts/*.sol'",
     "lint:fix": "solhint 'contracts/**/*.sol' --fix"
   },
