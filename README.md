@@ -9,11 +9,9 @@
   - [Modifying Contracts](#modifying-contracts)
   - [Simulating Requests](#simulating-requests)
 - [Command Glossary](#command-glossary)
-  - [`npx hardhat` Commands](#npx-hardhat-commands)
     - [Functions Commands](#functions-commands)
     - [Functions Subscription Managment Commands](#functions-subscription-managment-commands)
     - [Admin Commands](#admin-commands)
-  - [`npm run` Commands](#npm-run-commands)
   
 # Overview
 
@@ -25,14 +23,14 @@
 
 Ensure Node.js is installed.  It is recommended to use Node.js version 18.
 
-1. In this directory, run `npm install` to install all dependencies.<br><br>
+1. Open this directory and run `npm install` to install all dependencies.<br><br>
 2. Set the required environment variables.
-   1. This can be done by renaming the file `.env.example` to `.env` and setting the values `PRIVATE_KEY` and either `GOERLI_RPC_URL` or `MUMBAI_RPC_URL`.
+   1. This can be done by renaming the file `.env.example` to `.env` and setting the values `PRIVATE_KEY` and either `GOERLI_RPC_URL` or `MUMBAI_RPC_URL` (but not both).
    2. If desired, the `REPORT_GAS`, `ETHERSCAN_API_KEY` and `POLYGONSCAN_API_KEY` can also be set, along with any values used in the `secrets` object in `Functions-request-config.js`.<br><br>
 3. Simulate an end-to-end fulfillment locally by running:<br>`npx hardhat functions-simulate`<br><br>
 4. Deploy a client contract by running:<br>`npx hardhat functions-deploy-client --network network_name_here`<br><br>
 5. Create, fund & authorize a new Functions billing subscription by running:<br> `npx hardhat functions-sub-create --network network_name_here --amount funding_LINK_amount_here --contract 0xDeployed_client_contract_address_here`<br>**Note**: Ensure your wallet has a sufficent LINK balance before running this command.<br><br>
-6. Make an on-chain request by running:<br>`nxp hardhat Functions-request --network network_name_here --contract 0xDeployed_client_contract_address_here`
+6. Make an on-chain request by running:<br>`nxp hardhat functions-request --network network_name_here --contract 0xDeployed_client_contract_address_here`
 
 # Request Configuration
 
@@ -46,7 +44,7 @@ Chainlink Functions requests can be configured by modifying values in the `reque
 | `source`             | This is a string containing the source code which is executed in a request.  This must be valid JavaScript code that returns a Buffer.  See the [JavaScript Code](#javascript-code) section for more details.                                                                          |
 | `secrets`            | This is a JavaScript object which contains secret values that are injected into the JavaScript source code and can be accessed using the name `secrets`.  This object will be automatically encrypted by the tooling using the DON public key before making an on-chain request.       |
 | `walletPrivateKey`   | This is the EVM private key.  It is used to generate a signature for the encrypted secrets such that the secrets cannot be reused by an unauthorized 3rd party.                                                                                                                        |
-| `DONPublicKey`       | This is the DON's public encryption key used to encrypt secrets.  This value is only used by the `npm run functions-build-request` command.  All other commands fetch the DON key directly from the `FunctionsOracle` contract on-chain.                                                  |
+| `DONPublicKey`       | This is the DON's public encryption key used to encrypt secrets.  This value is only used by the `npm run functions-build-request` command.  All other commands fetch the DON key directly from the `FunctionsOracle` contract on-chain.                                               |
 | `args`               | This is an array of strings which contains values that are injected into the JavaScript source code and can be accessed using the name `args`.  This provides a convenient way to set modifiable parameters within a request.                                                          |
 | `maxResponseBytes`   | This specifies the maximum size of a response.  If the response size is exceeded, it will be curtailed to this size.  It has no on-chain impact, but is used by the CLI to simulate on-chain behavior for responses which are too large.  It is recommended not to change this value.  |
 | `expectedReturnType` | This specifies the expected return type of a request.  It has no on-chain impact, but is used by the CLI to decode the response bytes into the specified type.  The options are `uint256`, `int256`, `string`, or `Buffer`.                                                            |
@@ -119,23 +117,22 @@ An end-to-end request initiation and fulfillment can be simulated using the `npx
 
 Each of these commands can be executed in the following format.
 
-`npx hardhat command_here`
+`npx hardhat command_here --parameter1 parameter_1_here --parameter2 parameter_2_here`
 
-Be sure to specify the desired network using the `--network` parameter.
+Be sure to specify the desired network using the `--network` parameter when running these commands (except for `compile` and `functions-simulate` which only run locally).
 
 Example: `npx hardhat functions-read --network goerli --contract 0x787Fe00416140b37B026f3605c6C72d096110Bb8`
 
-## `npx hardhat` Commands
-
 ### Functions Commands
 
-| Command                   | Description                                                                   | Parameters                                                                                                                                                                                                                                          |
-| ------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `functions-simulate`      | Simulates an end-to-end fulfillment locally for the Functions contract | `gaslimit` (optional): Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000 & must be less than 300,000)                                                                                                                   |
-| `functions-deploy-client` | Deploys the FunctionsConsumer contract                                         |                                                                                                                                                                                                                                                     |
-| `Functions-request`       | Initiates a request from an FunctionsConsumer client contract                  | `contract`: Address of the client contract to call, `subid`: Billing subscription ID used to pay for the request, `gaslimit` (optional): Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000 & must be less than 300,000) |
-| `functions-read`          | Reads the latest response returned to a FunctionsConsumer client contract      | `contract`: Address of the client contract to read                                                                                                                                                                                                  |
-| `functions-read-error`    | Reads the latest error returned to a FunctionsConsumer client contract         | `contract`: Address of the client contract to read                                                                                                                                                                                                  |
+| Command                   | Description                                                               | Parameters                                                                                                                                                                                                                                                                      |
+| ------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `compile`                 | Compiles all smart contracts                                              |                                                                                                                                                                                                                                                                                 |
+| `functions-simulate`      | Simulates an end-to-end fulfillment locally for the Functions contract    | `gaslimit` (optional): Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000 & must be less than 300,000)                                                                                                                   |
+| `functions-deploy-client` | Deploys the FunctionsConsumer contract                                    |                                                                                                                                                                                                                                                                                 |
+| `Functions-request`       | Initiates a request from an FunctionsConsumer client contract             | `contract`: Address of the client contract to call, `subid`: Billing subscription ID used to pay for the request, `gaslimit` (optional): Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000 & must be less than 300,000) |
+| `functions-read`          | Reads the latest response returned to a FunctionsConsumer client contract | `contract`: Address of the client contract to read                                                                                                                                                                                                                              |
+| `functions-read-error`    | Reads the latest error returned to a FunctionsConsumer client contract    | `contract`: Address of the client contract to read                                                                                                                                                                                                                              |
 
 ### Functions Subscription Managment Commands
 
@@ -158,19 +155,3 @@ Example: `npx hardhat functions-read --network goerli --contract 0x787Fe00416140
 | `functions-add-senders`    | Add wallets to allowlist in the Oracle contract                                             | `addresses`: Comma-separated list of addresses |
 | `functions-set-don-key`    | Sets the DON public key in the Functions oracle contract using value from network-config.js |                                                |
 | `functions-remove-senders` | Remove wallets from allowlist in the Oracle contract                                        | `addresses`: Comma-separated list of addresses |
-
-## `npm run` Commands
-
-Each of these commands can be executed in the following format.
-
-`npm run command_here`
-
-Example: `npm run compile`
-
-| Command                         | Description                                                                                                                                                   |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `compile`                       | Compiles all smart contracts                                                                                                                                  |
-| `functions-simulate-javascript` | Simulates running the JavaScript source code for an functions request locally without simulating an end-to-end request and fulfillment in the client contract |
-| `functions-build-request`       | Builds the required functions request parameters, including generating encrypted secrets, and outputs the results to the file `Functions-request.json`        |
-| `lint`                          | Lints contracts                                                                                                                                               |
-| `link:fix`                      | Lints contracts and fixes linting nonconformities                                                                                                             |
