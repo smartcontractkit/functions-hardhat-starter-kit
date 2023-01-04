@@ -15,7 +15,7 @@ const networkConfig = {
                 process.env.MAINNET_RPC_URL ? '0xdc530d9457755926550b59e8eccdae7624181557' : ''
             }`,
         functionsPublicKey:
-            "971f006163a12ee3383a00d7743334480d6b1c83fdf60497e0c520b16d1a4ee421cc61375679b63466156fee6f2f1da5a7e630ba0b1cddb2704ef907ead223db",
+            "7e00a17e0d8c5c59bbe1f580f2405d51feb66c947fe66136190e80aabaf850964b837bcd379a92d5db52d2a8c8e044f8033cb981450bf3710ead0c4a43122ec1",
         mockFunctionsPrivateKey: "0x09768a19def4dce2b6793d7dc807828ef47b681709cf1005627a93f0da9c8065",
     },
     mainnet: {
@@ -28,7 +28,7 @@ const networkConfig = {
         functionsOracleFactory: "0x5b2E2a078c6CF99c7Aa61555034CaD28cA08a54f",
         functionsOracleRegistry: "0x70511301892257bbD0071043E41385dF40Cd99f5",
         functionsPublicKey:
-            "f2f9c47363202d89aa9fa70baf783d70006fe493471ac8cfa82f1426fd09f16a5f6b32b7c4b5d5165cd147a6e513ba4c0efd39d969d6b20a8a21126f0411b9c6",
+            "7e00a17e0d8c5c59bbe1f580f2405d51feb66c947fe66136190e80aabaf850964b837bcd379a92d5db52d2a8c8e044f8033cb981450bf3710ead0c4a43122ec1",
     },
     polygon: {
         linkToken: "0xb0897686c545045afc77cf20ec7a532e3120e0f1",
@@ -39,7 +39,7 @@ const networkConfig = {
         functionsOracle: "0x0e9C779d5f2aDe5cf642433C584904B249441eFb",
         functionsOracleFactory: "0xF4387B2Ad01B479d1ba18e9A101C35d96A83d5a5",
         functionsOracleRegistry: "0xE7e4882E6cc98b4c20A5155ca83A18C85aaBfCe6",
-        functionsPublicKey: "f2f9c47363202d89aa9fa70baf783d70006fe493471ac8cfa82f1426fd09f16a5f6b32b7c4b5d5165cd147a6e513ba4c0efd39d969d6b20a8a21126f0411b9c6",
+        functionsPublicKey: "7e00a17e0d8c5c59bbe1f580f2405d51feb66c947fe66136190e80aabaf850964b837bcd379a92d5db52d2a8c8e044f8033cb981450bf3710ead0c4a43122ec1",
     },
 }
 
