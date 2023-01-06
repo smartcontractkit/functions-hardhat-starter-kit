@@ -39,7 +39,7 @@ const requestConfig = {
   // ETH wallet key used to sign secrets so they cannot be accessed by a 3rd party
   walletPrivateKey: process.env['PRIVATE_KEY'],
   // DON public key used to encrypt secrets so they are not exposed on-chain
-  DONPublicKey: '7e00a17e0d8c5c59bbe1f580f2405d51feb66c947fe66136190e80aabaf850964b837bcd379a92d5db52d2a8c8e044f8033cb981450bf3710ead0c4a43122ec1',
+  DONPublicKey: 'f2f9c47363202d89aa9fa70baf783d70006fe493471ac8cfa82f1426fd09f16a5f6b32b7c4b5d5165cd147a6e513ba4c0efd39d969d6b20a8a21126f0411b9c6',
   // args can be accessed within the source code with `args[index]` (ie: args[0])
   args: [ '1', 'bitcoin', 'btc-bitcoin', 'btc', '1000000', '450', ],
   // maximum size of a response in bytes
