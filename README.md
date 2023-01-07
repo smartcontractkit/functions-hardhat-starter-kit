@@ -116,7 +116,7 @@ The function takes an object `x` with the following parameters.
   headers: (optional) Object with headers to use in the request,
   params: (optional) Object with URL query parameters,
   data: (optional) Object which represents the body sent with the request,
-  timeout: (optional) Number with the maximum request duration in ms (defaults to 3000ms),
+  timeout: (optional) Number with the maximum request duration in ms (defaults to 5000ms),
   responseType: (optional) String specifying the expected response type which can be either 'json', 'arraybuffer', 'document', 'text' or 'stream' (defaults to 'json'),
 }
 ```
