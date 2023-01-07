@@ -48,8 +48,4 @@ const requestConfig = {
   expectedReturnType: ReturnType.uint256,
 }
 
-if (requestConfig.secrets && !requestConfig.walletPrivateKey) {
-  throw Error('Set private EVM wallet key using the PRIVATE_KEY environment variable or within Functions-request-config.js')
-}
-
 module.exports = requestConfig

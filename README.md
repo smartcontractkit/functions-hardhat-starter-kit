@@ -3,15 +3,15 @@
 - [Chainlink Functions Starter Kit](#chainlink-functions-starter-kit)
 - [Overview](#overview)
 - [Quickstart](#quickstart)
+- [Command Glossary](#command-glossary)
+    - [Functions Commands](#functions-commands)
+    - [Functions Subscription Managment Commands](#functions-subscription-managment-commands)
+    - [Admin Commands](#admin-commands)
 - [Request Configuration](#request-configuration)
   - [JavaScript Code](#javascript-code)
     - [Functions Library](#functions-library)
   - [Modifying Contracts](#modifying-contracts)
   - [Simulating Requests](#simulating-requests)
-- [Command Glossary](#command-glossary)
-    - [Functions Commands](#functions-commands)
-    - [Functions Subscription Managment Commands](#functions-subscription-managment-commands)
-    - [Admin Commands](#admin-commands)
   
 # Overview
 
@@ -31,6 +31,50 @@ Ensure Node.js is installed.  It is recommended to use Node.js version 18.
 4. Deploy a client contract by running:<br>`npx hardhat functions-deploy-client --network network_name_here`<br><br>
 5. Create, fund & authorize a new Functions billing subscription by running:<br> `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0xDeployed_client_contract_address_here`<br>**Note**: Ensure your wallet has a sufficent LINK balance before running this command.<br><br>
 6. Make an on-chain request by running:<br>`nxp hardhat functions-request --network network_name_here --contract 0xDeployed_client_contract_address_here --subid subscription_id_number_here`
+
+# Command Glossary
+
+Each of these commands can be executed in the following format.
+
+`npx hardhat command_here --parameter1 parameter_1_here --parameter2 parameter_2_here`
+
+Be sure to specify the desired network using the `--network` parameter when running these commands (except for `compile` and `functions-simulate`, which only run locally).
+
+Example: `npx hardhat functions-read --network goerli --contract 0x787Fe00416140b37B026f3605c6C72d096110Bb8`
+
+### Functions Commands
+
+| Command                   | Description                                                                    | Parameters                                                                                                                                                                                                                                                                      |
+| ------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `compile`                 | Compiles all smart contracts                                                   |                                                                                                                                                                                                                                                                                 |
+| `functions-simulate`      | Simulates an end-to-end fulfillment locally for the FunctionsConsumer contract | `gaslimit` (optional): Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000 & must be less than 300,000)                                                                                                                   |
+| `functions-deploy-client` | Deploys the FunctionsConsumer contract                                         |                                                                                                                                                                                                                                                                                 |
+| `functions-request`       | Initiates a request from an FunctionsConsumer client contract                  | `contract`: Address of the client contract to call, `subid`: Billing subscription ID used to pay for the request, `gaslimit` (optional): Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000 & must be less than 300,000) |
+| `functions-read`          | Reads the latest response returned to a FunctionsConsumer client contract      | `contract`: Address of the client contract to read                                                                                                                                                                                                                              |
+| `functions-read-error`    | Reads the latest error returned to a FunctionsConsumer client contract         | `contract`: Address of the client contract to read                                                                                                                                                                                                                              |
+
+### Functions Subscription Managment Commands
+
+| Command                  | Description                                                                                                                        | Parameters                                                                                                                                                                             |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `functions-sub-create`   | Creates a new billing subscription for Functions client contracts                                                                  | `amount` (optional): Inital amount used to fund the subscription in LINK, `contract` (optional): Address of the client contract address authorized to use the new billing subscription |
+| `functions-sub-info`     | Gets the Functions billing subscription balance, owner, and list of authorized client contract addresses                           | `subid`: Subscription ID                                                                                                                                                               |
+| `functions-sub-fund`     | Funds a billing subscription with LINK                                                                                             | `subid`: Subscription ID, `amount`: Amount to fund subscription in LINK                                                                                                                |
+| `functions-sub-cancel`   | Cancels Functions billing subscription and refunds unused balance. Cancellation is only possible if there are no pending requests. | `subid`: Subscription ID, `refundaddress` (optional): Address where the remaining subscription balance is sent (defaults to caller's address)                                          |
+| `functions-sub-add`      | Adds a client contract to the Functions billing subscription                                                                       | `subid`: Subscription ID, `contract`: Address of the client contract to authorize for billing                                                                                          |
+| `functions-sub-remove`   | Removes a client contract from an Functions billing subscription                                                                   | `subid`: Subscription ID, `contract`: Address of the client contract to remove from billing subscription                                                                               |
+| `functions-sub-transfer` | Request ownership of an Functions subscription be transferred to a new address                                                     | `subid`: Subscription ID, `newowner`: Address of the new owner                                                                                                                         |
+| `functions-sub-accept`   | Accepts ownership of an Functions subscription after a transfer is requested                                                       | `subid`: Subscription ID                                                                                                                                                               |
+
+### Admin Commands
+
+| Command                    | Description                                                                                                                                                | Parameters                                     |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `functions-deploy-oracle`  | Deploys & configures a new FunctionsRegistry, FunctionsOracleFactory and FunctionsOracle (`functions-set-ocr-config` must still be run after this command) |                                                |
+| `functions-set-ocr-config` | Sets the OCR config using values from FunctionsOracleConfig.json                                                                                           |                                                |
+| `functions-add-senders`    | Add wallets to allowlist in the Oracle contract                                                                                                            | `addresses`: Comma-separated list of addresses |
+| `functions-set-don-key`    | Sets the DON public key in the Functions oracle contract using value from network-config.js                                                                |                                                |
+| `functions-remove-senders` | Remove wallets from allowlist in the Oracle contract                                                                                                       | `addresses`: Comma-separated list of addresses |
 
 # Request Configuration
 
@@ -64,7 +108,7 @@ Asynchronous code with top-level `await` statements is supported, as shown in th
 The `Functions` library is injected into the JavaScript source code and can be accessed using the name `Functions`.
 
 In order to make HTTP requests, only the `Functions.makeHttpRequest(x)` function can be used.  All other methods of accessing the Internet are restricted.
-The function takes an object `x` the following parameters.
+The function takes an object `x` with the following parameters.
 ```
 {
   url: String with the URL to which the request is sent,
@@ -72,7 +116,7 @@ The function takes an object `x` the following parameters.
   headers: (optional) Object with headers to use in the request,
   params: (optional) Object with URL query parameters,
   data: (optional) Object which represents the body sent with the request,
-  timeout: (optional) Number with the maximum request duration in ms (defaults to 10000ms),
+  timeout: (optional) Number with the maximum request duration in ms (defaults to 3000ms),
   responseType: (optional) String specifying the expected response type which can be either 'json', 'arraybuffer', 'document', 'text' or 'stream' (defaults to 'json'),
 }
 ```
@@ -112,46 +156,3 @@ Client contracts which initiate a request and receive a fulfillment can be modif
 ## Simulating Requests
 
 An end-to-end request initiation and fulfillment can be simulated using the `npx hardhat functions-simulate` command.  This command will report the total estimated cost of a request in LINK using the latest on-chain gas prices.  Costs are based on the amount of gas used to validate the response and call the client contract's `fulfillRequest` function, plus a flat fee.  Please note that actual request costs can vary based on gas prices when a request is inititated on-chain.
-
-# Command Glossary
-
-Each of these commands can be executed in the following format.
-
-`npx hardhat command_here --parameter1 parameter_1_here --parameter2 parameter_2_here`
-
-Be sure to specify the desired network using the `--network` parameter when running these commands (except for `compile` and `functions-simulate` which only run locally).
-
-Example: `npx hardhat functions-read --network goerli --contract 0x787Fe00416140b37B026f3605c6C72d096110Bb8`
-
-### Functions Commands
-
-| Command                   | Description                                                               | Parameters                                                                                                                                                                                                                                                                      |
-| ------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `compile`                 | Compiles all smart contracts                                              |                                                                                                                                                                                                                                                                                 |
-| `functions-simulate`      | Simulates an end-to-end fulfillment locally for the Functions contract    | `gaslimit` (optional): Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000 & must be less than 300,000)                                                                                                                   |
-| `functions-deploy-client` | Deploys the FunctionsConsumer contract                                    |                                                                                                                                                                                                                                                                                 |
-| `functions-request`       | Initiates a request from an FunctionsConsumer client contract             | `contract`: Address of the client contract to call, `subid`: Billing subscription ID used to pay for the request, `gaslimit` (optional): Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000 & must be less than 300,000) |
-| `functions-read`          | Reads the latest response returned to a FunctionsConsumer client contract | `contract`: Address of the client contract to read                                                                                                                                                                                                                              |
-| `functions-read-error`    | Reads the latest error returned to a FunctionsConsumer client contract    | `contract`: Address of the client contract to read                                                                                                                                                                                                                              |
-
-### Functions Subscription Managment Commands
-
-| Command                  | Description                                                                                                                       | Parameters                                                                                                                                                                             |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `functions-sub-create`   | Creates a new billing subscription for Functions consumer contracts                                                               | `amount` (optional): Inital amount used to fund the subscription in LINK, `contract` (optional): Address of the client contract address authorized to use the new billing subscription |
-| `functions-sub-info`     | Gets the Functions billing subscription balance, owner, and list of authorized consumer contract addresses                        | `subid`: Subscription ID                                                                                                                                                               |
-| `functions-sub-fund`     | Funds a billing subscription for Functions consumer contracts                                                                     | `subid`: Subscription ID, `amount`: Amount to fund subscription in LINK                                                                                                                |
-| `functions-sub-cancel`   | Cancels Functions billing subscription and refunds unused balance. Cancellation is only possible if there are no pending requests | `subid`: Subscription ID, `refundaddress` (optional): Address where the remaining subscription balance is sent (defaults to caller's address)                                          |
-| `functions-sub-add`      | Adds a client contract to the Functions billing subscription                                                                      | `subid`: Subscription ID, `contract`: Address of the Functions client contract to authorize for billing                                                                                |
-| `functions-sub-remove`   | Removes a client contract from an Functions billing subscription                                                                  | `subid`: Subscription ID, `contract`: Address of the client contract to remove from billing subscription                                                                               |
-| `functions-sub-transfer` | Request ownership of an Functions subscription be transferred to a new address                                                    | `subid`: Subscription ID, `newowner`: Address of the new owner                                                                                                                         |
-| `functions-sub-accept`   | Accepts ownership of an Functions subscription after a transfer is requested                                                      | `subid`: Subscription ID                                                                                                                                                               |
-
-### Admin Commands
-
-| Command                    | Description                                                                                 | Parameters                                     |
-| -------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| `functions-set-ocr-config` | Sets the OCR config using values from FunctionsOracleConfig.json                            |                                                |
-| `functions-add-senders`    | Add wallets to allowlist in the Oracle contract                                             | `addresses`: Comma-separated list of addresses |
-| `functions-set-don-key`    | Sets the DON public key in the Functions oracle contract using value from network-config.js |                                                |
-| `functions-remove-senders` | Remove wallets from allowlist in the Oracle contract                                        | `addresses`: Comma-separated list of addresses |
