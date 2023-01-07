@@ -23,6 +23,7 @@ task('functions-deploy-client', 'Deploys the FunctionsConsumer contract').setAct
   if (process.env.ETHERSCAN_API_KEY || process.env.POLYGONSCAN_API_KEY) {
     try {
       console.log('\nVerifying contract...')
+      await clientContract.deployTransaction.wait(Math.max(6 - VERIFICATION_BLOCK_CONFIRMATIONS, 0))
       await run('verify:verify', {
         address: clientContract.address,
         constructorArguments: [oracleAddress],
