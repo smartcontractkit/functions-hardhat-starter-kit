@@ -1,8 +1,8 @@
 {
-  "name": "hardhat-starter-kit",
+  "name": "functions-hardhat-starter-kit",
   "license": "MIT",
-  "version": "2.1.0",
-  "description": "A repo for boilerplate code for testing, deploying, and shipping chainlink solidity code.",
+  "version": "1.0.0",
+  "description": "Tooling for interacting with Chainlink Functions",
   "scripts": {
     "compile": "hardhat compile",
     "functions-deploy-oracle": "hardhat run scripts/deployment/deploy.js",
