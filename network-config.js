@@ -44,7 +44,7 @@ const networkConfig = {
 }
 
 // This is set to 2 for speed & convenience.  For mainnet deployments, it is recommended to set this to 6 or higher
-const VERIFICATION_BLOCK_CONFIRMATIONS = 2
+const VERIFICATION_BLOCK_CONFIRMATIONS = 4
 
 module.exports = {
     networkConfig,
