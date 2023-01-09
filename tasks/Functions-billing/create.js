@@ -8,15 +8,6 @@ task('functions-sub-create', 'Creates a new billing subscription for Functions c
       throw Error('This command cannot be used on a local hardhat chain.  Specify a valid network or simulate a request locally with "npx hardhat functions-simulate".')
     }
 
-    let overrides = undefined
-    if (network.config.chainId == 5) {
-      overrides = {
-        // be careful, this may drain your balance quickly
-        maxPriorityFeePerGas: ethers.utils.parseUnits("50", "gwei"),
-        maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
-      }
-    }
-
     const linkAmount = taskArgs.amount
     const consumer = taskArgs.contract
 
@@ -24,7 +15,7 @@ task('functions-sub-create', 'Creates a new billing subscription for Functions c
     const registry = await RegistryFactory.attach(networkConfig[network.name]['functionsOracleRegistry'])
 
     console.log('Creating Functions billing subscription')
-    const createSubscriptionTx = await registry.createSubscription(overrides)
+    const createSubscriptionTx = await registry.createSubscription()
 
     // If a consumer or linkAmount was also specified, wait 1 block instead of VERIFICATION_BLOCK_CONFIRMATIONS blocks
     const createWaitBlockConfirmations = consumer || linkAmount ? 1 : VERIFICATION_BLOCK_CONFIRMATIONS
@@ -62,7 +53,6 @@ task('functions-sub-create', 'Creates a new billing subscription for Functions c
         networkConfig[network.name]['functionsOracleRegistry'],
         juelsAmount,
         ethers.utils.defaultAbiCoder.encode(['uint64'], [subscriptionId]),
-        overrides
       )
       // If a consumer was also specified, wait 1 block instead of VERIFICATION_BLOCK_CONFIRMATIONS blocks
       const fundWaitBlockConfirmations = !!consumer ? 1 : VERIFICATION_BLOCK_CONFIRMATIONS
@@ -75,7 +65,7 @@ task('functions-sub-create', 'Creates a new billing subscription for Functions c
     if (consumer) {
       // Add consumer
       console.log(`Adding consumer contract address ${consumer} to subscription ${subscriptionId}`)
-      const addTx = await registry.addConsumer(subscriptionId, consumer, overrides)
+      const addTx = await registry.addConsumer(subscriptionId, consumer)
       console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${addTx.hash} to be confirmed...`)
       await addTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
 

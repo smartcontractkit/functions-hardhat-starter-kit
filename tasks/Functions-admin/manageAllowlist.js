@@ -27,10 +27,14 @@ async function addOrRemove(action, taskArgs) {
 
   if (action == Action.Add) {
     console.log(`Adding addresses ${addresses} to oracle ${networkConfig[network.name]['functionsOracle']}`)
-    tx = await oracle.addAuthorizedSenders(addresses, overrides)
+    tx = overrides
+      ? await oracle.addAuthorizedSenders(addresses, overrides)
+      : await oracle.addAuthorizedSenders(addresses)
   } else {
     console.log(`Removing addresses ${addresses} from oracle ${networkConfig[network.name]['functionsOracle']}`)
-    tx = await oracle.removeAuthorizedSenders(addresses, overrides)
+    tx = overrides
+     ? await oracle.removeAuthorizedSenders(addresses, overrides)
+     : await oracle.removeAuthorizedSenders(addresses)
   }
 
   console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${tx.hash} to be confirmed...`)
