@@ -19,10 +19,10 @@ const networkConfig = {
         mockOcr2odPrivateKey: "0x09768a19def4dce2b6793d7dc807828ef47b681709cf1005627a93f0da9c8065",
     },
     mainnet: {
-        linkToken: "0x514910771af9ca656af840dff83e8264ecf986ca",
+        linkToken: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
     },
     goerli: {
-        linkToken: "0x326c977e6efc84e512bb9c30f76e30c160ed06fb",
+        linkToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
         linkEthPriceFeed: "0xb4c4a493AB6356497713A78FFA6c60FB53517c63",
         ocr2drOracle: "0x6189f573660Ef1FeE4E68605bCa4feaF15aF58dD",
         ocr2drOracleFactory: "0x6A93fA1300C6c78ffF81289bFfbA42C5f3C9A55c",
