@@ -5,7 +5,7 @@ task('functions-deploy-oracle', 'Deploys & configures a new FunctionsRegistry, F
     const linkEthFeedAddress = networkConfig[network.name]['linkEthPriceFeed']
     const linkTokenAddress = networkConfig[network.name]['linkToken']
     let overrides = undefined
-    if (network.config.chainId == 5) {
+    if (network.name === 'goerli') {
       overrides = {
         // be careful, this may drain your balance quickly
         maxPriorityFeePerGas: ethers.utils.parseUnits("50", "gwei"),
@@ -106,5 +106,7 @@ task('functions-deploy-oracle', 'Deploys & configures a new FunctionsRegistry, F
       }
     }
     
-    console.log(`\nFunctionsOracle successfully deployed to ${oracle.address} on ${network.name}\n`)
+    console.log(`\nFunctionsRegistry successfully deployed to ${registry.address} on ${network.name}\n`)
+    console.log(`FunctionsOracleFactory successfully deployed to ${oracleFactory.address} on ${network.name}\n`)
+    console.log(`FunctionsOracle successfully deployed to ${oracle.address} on ${network.name}\n`)
   })

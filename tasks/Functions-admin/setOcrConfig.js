@@ -7,7 +7,7 @@ task('functions-set-ocr-config', 'Sets the OCR config using values from Function
     }
 
     let overrides = undefined
-    if (network.config.chainId == 5) {
+    if (network.name === 'goerli') {
       overrides = {
         // be careful, this may drain your balance quickly
         maxPriorityFeePerGas: ethers.utils.parseUnits("50", "gwei"),

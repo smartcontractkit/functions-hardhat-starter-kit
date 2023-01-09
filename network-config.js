@@ -22,7 +22,7 @@ const networkConfig = {
         linkToken: "0x514910771af9ca656af840dff83e8264ecf986ca",
     },
     goerli: {
-        linkToken: "0x326c977e6efc84e512bb9c30f76e30c160ed06fb",
+        linkToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
         linkEthPriceFeed: "0xb4c4a493AB6356497713A78FFA6c60FB53517c63",
         functionsOracle: "0xBAE17CF0694dF955F715D2eDC6cF0C86246Ed7Af",
         functionsOracleFactory: "0x5b2E2a078c6CF99c7Aa61555034CaD28cA08a54f",

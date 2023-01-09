@@ -5,6 +5,15 @@ task('functions-deploy-client', 'Deploys the FunctionsConsumer contract').setAct
     throw Error('This command cannot be used on a local hardhat chain.  Specify a valid network or simulate an FunctionsConsumer request locally with "npx hardhat functions-simulate".')
   }
 
+  let overrides = undefined
+  if (network.config.chainId == 5) {
+    overrides = {
+      // be careful, this may drain your balance quickly
+      maxPriorityFeePerGas: ethers.utils.parseUnits("50", "gwei"),
+      maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
+    }
+  }
+
   console.log(`Deploying FunctionsConsumer contract to ${network.name}`)
 
   const oracleAddress = networkConfig[network.name]['functionsOracle']
@@ -13,7 +22,7 @@ task('functions-deploy-client', 'Deploys the FunctionsConsumer contract').setAct
   await run('compile')
 
   const clientContractFactory = await ethers.getContractFactory('FunctionsConsumer')
-  const clientContract = await clientContractFactory.deploy(oracleAddress)
+  const clientContract = await clientContractFactory.deploy(oracleAddress, overrides)
 
   console.log(
     `\nWaiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${clientContract.deployTransaction.hash} to be confirmed...`
