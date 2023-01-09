@@ -7,7 +7,7 @@ task('on-demand-read', 'Reads the latest response returned to a OnDemandConsumer
       throw Error('This command cannot be used on a local hardhat chain.  Please specify a valid network or simulate an OnDemandConsumer request locally with "npx hardhat on-demand-simulate".')
     }
 
-    console.log(`Reading data from On Demand API Consumer contract ${taskArgs.contract} on network network.name`)
+    console.log(`Reading data from On Demand API Consumer contract ${taskArgs.contract} on network ${network.name}`)
     const clientContractFactory = await ethers.getContractFactory('OnDemandConsumer')
     const clientContract = await clientContractFactory.attach(taskArgs.contract)
     

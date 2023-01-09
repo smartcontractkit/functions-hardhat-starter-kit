@@ -182,13 +182,20 @@ task('on-demand-request', 'Initiates a request from an OnDemandConsumer client c
         }
       )
 
+      let overrides = undefined
+      if (network.name === 'goerli') {
+        overrides = {
+          gasLimit: 300000,
+        }
+      }
       console.log(`\nRequesting new data from On Demand API Consumer contract ${contractAddr} on network ${network.name}`)
       const requestTx = await clientContract.executeRequest(
         request.source,
         request.secrets ?? [],
         request.args ?? [],
         subscriptionId,
-        gasLimit
+        gasLimit,
+        overrides
       )
       // If a response is not received within 5 minutes, the request has failed
       setTimeout(

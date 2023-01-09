@@ -29,6 +29,8 @@ const networkConfig = {
         ocr2drOracleRegistry: "0x4d09FB03d95eD80669a762BA8f1DA6759013930f",
         ocr2drPublicKey:
             "f2f9c47363202d89aa9fa70baf783d70006fe493471ac8cfa82f1426fd09f16a5f6b32b7c4b5d5165cd147a6e513ba4c0efd39d969d6b20a8a21126f0411b9c6",
+        // Client contract: 0x1dBcAE8B7c53d09bf2e4de245e5B2900d2613BB7
+        // SubID: 1
     },
     polygon: {
         linkToken: "0xb0897686c545045afc77cf20ec7a532e3120e0f1",
