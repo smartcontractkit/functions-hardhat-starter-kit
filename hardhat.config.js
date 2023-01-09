@@ -128,8 +128,6 @@ module.exports = {
         mumbai: {
             url: MUMBAI_RPC_URL,
             accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-            // TODO: check if this is still needed
-            gas: 3_000_000,
             chainId: 80001,
         },
     },

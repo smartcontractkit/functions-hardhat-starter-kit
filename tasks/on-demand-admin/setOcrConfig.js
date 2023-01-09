@@ -1,6 +1,6 @@
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require('../../network-config')
 
-task('on-demand-set-ocr-config', 'Sets the OCR config using values from on-demand-request.json')
+task('on-demand-set-ocr-config', 'Sets the OCR config using values from OCR2DROracleConfig.json')
   .setAction(async () => {
     if (network.name === 'hardhat') {
       throw Error('This command cannot be used on a local development chain.  Specify a valid network.')

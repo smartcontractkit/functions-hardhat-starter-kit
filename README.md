@@ -155,7 +155,7 @@ An end-to-end request initiation and fulfillment can be simulated using the `npx
 
 | Command                    | Description                                                                                 | Parameters                                     |
 | -------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| `on-demand-set-ocr-config` | Sets the OCR config using values from on-demand-request.json                                |                                                |
+| `on-demand-set-ocr-config` | Sets the OCR config using values from OCR2DROracleConfig.json                                |                                                |
 | `on-demand-add-senders`    | Add wallets to allowlist in the Oracle contract                                             | `addresses`: Comma-separated list of addresses |
 | `on-demand-set-don-key`    | Sets the DON public key in the On-Demand oracle contract using value from network-config.js |                                                |
 | `on-demand-remove-senders` | Remove wallets from allowlist in the Oracle contract                                        | `addresses`: Comma-separated list of addresses |

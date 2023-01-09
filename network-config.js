@@ -24,9 +24,9 @@ const networkConfig = {
     goerli: {
         linkToken: "0x326c977e6efc84e512bb9c30f76e30c160ed06fb",
         linkEthPriceFeed: "0xb4c4a493AB6356497713A78FFA6c60FB53517c63",
-        ocr2drOracle: "0xBAE17CF0694dF955F715D2eDC6cF0C86246Ed7Af",
-        ocr2drOracleFactory: "0x5b2E2a078c6CF99c7Aa61555034CaD28cA08a54f",
-        ocr2drOracleRegistry: "0x70511301892257bbD0071043E41385dF40Cd99f5",
+        ocr2drOracle: "0x6189f573660Ef1FeE4E68605bCa4feaF15aF58dD",
+        ocr2drOracleFactory: "0x6A93fA1300C6c78ffF81289bFfbA42C5f3C9A55c",
+        ocr2drOracleRegistry: "0x4d09FB03d95eD80669a762BA8f1DA6759013930f",
         ocr2drPublicKey:
             "f2f9c47363202d89aa9fa70baf783d70006fe493471ac8cfa82f1426fd09f16a5f6b32b7c4b5d5165cd147a6e513ba4c0efd39d969d6b20a8a21126f0411b9c6",
     },

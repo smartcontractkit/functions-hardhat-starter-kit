@@ -4,10 +4,18 @@ const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require('../../netwo
 async function deployOcr2odOracle() {
   const linkEthFeedAddress = networkConfig[network.name]['linkEthPriceFeed']
   const linkTokenAddress = networkConfig[network.name]['linkToken']
+  let overrides = undefined
+  if (network.config.chainId == 5) {
+    overrides = {
+      // be careful, this may drain your balance quickly
+      maxPriorityFeePerGas: ethers.utils.parseUnits("50", "gwei"),
+      maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
+    }
+  }
 
   console.log('Deploying OCR2DR registry')
   const registryFactory = await ethers.getContractFactory('OCR2DRRegistry')
-  const registry = await registryFactory.deploy(linkTokenAddress, linkEthFeedAddress)
+  const registry = await registryFactory.deploy(linkTokenAddress, linkEthFeedAddress, overrides)
   console.log(`Waiting for transaction ${registry.deployTransaction.hash} to be confirmed...`)
   await registry.deployTransaction.wait(1)
   console.log(`OCR2ODRegistry deployed to ${registry.address} on ${network.name}`)
@@ -33,7 +41,7 @@ async function deployOcr2odOracle() {
 
   console.log('Deploying OCR2DR oracle factory')
   const oracleFactoryFactory = await ethers.getContractFactory('OCR2DROracleFactory')
-  const oracleFactory = await oracleFactoryFactory.deploy()
+  const oracleFactory = await oracleFactoryFactory.deploy(overrides)
   console.log(`Waiting for transaction ${oracleFactory.deployTransaction.hash} to be confirmed...`)
   await oracleFactory.deployTransaction.wait(1)
   console.log(`OCR2ODOracleFactory deployed to ${oracleFactory.address} on ${network.name}`)
@@ -41,7 +49,7 @@ async function deployOcr2odOracle() {
   console.log('Deploying OCR2DR oracle')
   const accounts = await ethers.getSigners()
   const deployer = accounts[0]
-  const OracleDeploymentTransaction = await oracleFactory.deployNewOracle()
+  const OracleDeploymentTransaction = await oracleFactory.deployNewOracle(overrides)
   console.log(`Waiting for transaction ${OracleDeploymentTransaction.hash} to be confirmed...`)
   const OracleDeploymentReceipt = await OracleDeploymentTransaction.wait(1)
   const OCR2DROracleAddress = OracleDeploymentReceipt.events[1].args.oracle
@@ -50,21 +58,21 @@ async function deployOcr2odOracle() {
 
   // Set up OCR2DR Oracle
   console.log(`Accepting oracle contract ownership`)
-  const acceptTx = await oracle.acceptOwnership()
+  const acceptTx = await oracle.acceptOwnership(overrides)
   console.log(`Waiting for transaction ${acceptTx.hash} to be confirmed...`)
   await acceptTx.wait(1)
   console.log('Oracle ownership accepted')
 
   console.log(`Setting DON public key to ${networkConfig[network.name]['ocr2drPublicKey']}`)
-  await oracle.setDONPublicKey('0x' + networkConfig[network.name]['ocr2drPublicKey'])
+  await oracle.setDONPublicKey('0x' + networkConfig[network.name]['ocr2drPublicKey'], overrides)
   console.log('DON public key set')
 
   console.log('Authorizing oracle with registry')
-  await registry.setAuthorizedSenders([oracle.address])
+  await registry.setAuthorizedSenders([oracle.address], overrides)
   console.log('Oracle authorized with registry')
 
   console.log(`Setting oracle registry to ${registry.address}`)
-  const setRegistryTx = await oracle.setRegistry(registry.address)
+  const setRegistryTx = await oracle.setRegistry(registry.address, overrides)
   console.log('Oracle registry set')
 
   await setRegistryTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)

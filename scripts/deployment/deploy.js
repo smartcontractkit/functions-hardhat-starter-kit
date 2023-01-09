@@ -4,8 +4,7 @@ const { deployOcr2odOracle } = require('./deployOcr2odOracle')
 
 async function main() {
   await run('compile')
-  const chainId = network.config.chainId
-  await deployOcr2odOracle(chainId)
+  await deployOcr2odOracle()
 }
 
 main().catch((error) => {
