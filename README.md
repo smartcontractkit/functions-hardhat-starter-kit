@@ -32,7 +32,7 @@ Ensure Node.js is installed.  It is recommended to use Node.js version 18.
 3. Simulate an end-to-end fulfillment locally by running:<br>`npx hardhat on-demand-simulate`<br><br>
 4. Deploy a client contract by running:<br>`npx hardhat on-demand-deploy-client --network network_name_here`<br><br>
 5. Create, fund & authorize a new On-Demand billing subscription by running:<br> `npx hardhat on-demand-sub-create --network network_name_here --amount funding_LINK_amount_here --contract 0xDeployed_client_contract_address_here`<br>**Note**: Ensure your wallet has a sufficent LINK balance before running this command.<br><br>
-6. Make an on-chain request by running:<br>`nxp hardhat on-demand-request --network network_name_here --contract 0xDeployed_client_contract_address_here`
+6. Make an on-chain request by running:<br>`npx hardhat on-demand-request --network network_name_here --contract 0xDeployed_client_contract_address_here --subid your-subscription-id`
 # Request Configuration
 
 Chainlink On-Demand OCR requests can be configured by modifying values in the `requestConfig` object found in the `on-demand-request-config.js` file located in the root of this repository.
