@@ -20,16 +20,24 @@ task('functions-set-ocr-config', 'Sets the OCR config using values from Function
 
     const ocrConfig = require('../../FunctionsOracleConfig.json')
     console.log(`Setting oracle OCR config for oracle ${networkConfig[network.name]['functionsOracle']}`)
-    const setConfigTx = await oracle.setConfig(
-      ocrConfig.signers,
-      ocrConfig.transmitters,
-      ocrConfig.f,
-      ocrConfig.onchainConfig,
-      ocrConfig.offchainConfigVersion,
-      ocrConfig.offchainConfig,
-      overrides,
-    )
-
+    const setConfigTx = overrides
+      ? await oracle.setConfig(
+          ocrConfig.signers,
+          ocrConfig.transmitters,
+          ocrConfig.f,
+          ocrConfig.onchainConfig,
+          ocrConfig.offchainConfigVersion,
+          ocrConfig.offchainConfig,
+          overrides,
+        )
+      : await oracle.setConfig(
+          ocrConfig.signers,
+          ocrConfig.transmitters,
+          ocrConfig.f,
+          ocrConfig.onchainConfig,
+          ocrConfig.offchainConfigVersion,
+          ocrConfig.offchainConfig,
+        )
     console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${setConfigTx.hash} to be confirmed...`)
     await setConfigTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
 

@@ -15,7 +15,9 @@ task('functions-deploy-oracle', 'Deploys & configures a new FunctionsRegistry, F
   
     console.log('Deploying Functions registry')
     const registryFactory = await ethers.getContractFactory('FunctionsRegistry')
-    const registry = await registryFactory.deploy(linkTokenAddress, linkEthFeedAddress, overrides)
+    const registry = overrides
+      ? await registryFactory.deploy(linkTokenAddress, linkEthFeedAddress, overrides)
+      : await registryFactory.deploy(linkTokenAddress, linkEthFeedAddress)
     console.log(`Waiting for transaction ${registry.deployTransaction.hash} to be confirmed...`)
     await registry.deployTransaction.wait(1)
     console.log(`FunctionsRegistry deployed to ${registry.address} on ${network.name}`)
@@ -41,15 +43,19 @@ task('functions-deploy-oracle', 'Deploys & configures a new FunctionsRegistry, F
   
     console.log('Deploying Functions oracle factory')
     const oracleFactoryFactory = await ethers.getContractFactory('FunctionsOracleFactory')
-    const oracleFactory = await oracleFactoryFactory.deploy(overrides)
+    const oracleFactory = overrides
+      ? await oracleFactoryFactory.deploy(overrides)
+      : await oracleFactoryFactory.deploy()
     console.log(`Waiting for transaction ${oracleFactory.deployTransaction.hash} to be confirmed...`)
-    await oracleFactory.deployTransaction.wait(1)
+    await oracleFactory.deployTransaction.wait(2)
     console.log(`FunctionsOracleFactory deployed to ${oracleFactory.address} on ${network.name}`)
   
     console.log('Deploying Functions oracle')
     const accounts = await ethers.getSigners()
     const deployer = accounts[0]
-    const OracleDeploymentTransaction = await oracleFactory.deployNewOracle(overrides)
+    const OracleDeploymentTransaction = overrides
+      ? await oracleFactory.deployNewOracle(overrides)
+      : await oracleFactory.deployNewOracle()
     console.log(`Waiting for transaction ${OracleDeploymentTransaction.hash} to be confirmed...`)
     const OracleDeploymentReceipt = await OracleDeploymentTransaction.wait(1)
     const FunctionsOracleAddress = OracleDeploymentReceipt.events[1].args.oracle
@@ -58,21 +64,29 @@ task('functions-deploy-oracle', 'Deploys & configures a new FunctionsRegistry, F
   
     // Set up Functions Oracle
     console.log(`Accepting oracle contract ownership`)
-    const acceptTx = await oracle.acceptOwnership(overrides)
+    const acceptTx = overrides
+      ? await oracle.acceptOwnership(overrides)
+      : await oracle.acceptOwnership()
     console.log(`Waiting for transaction ${acceptTx.hash} to be confirmed...`)
     await acceptTx.wait(1)
     console.log('Oracle ownership accepted')
   
     console.log(`Setting DON public key to ${networkConfig[network.name]['functionsPublicKey']}`)
-    await oracle.setDONPublicKey('0x' + networkConfig[network.name]['functionsPublicKey'], overrides)
+    overrides
+      ? await oracle.setDONPublicKey('0x' + networkConfig[network.name]['functionsPublicKey'], overrides)
+      : await oracle.setDONPublicKey('0x' + networkConfig[network.name]['functionsPublicKey'])
     console.log('DON public key set')
   
     console.log('Authorizing oracle with registry')
-    await registry.setAuthorizedSenders([oracle.address], overrides)
+    overrides
+      ? await registry.setAuthorizedSenders([oracle.address], overrides)
+      : await registry.setAuthorizedSenders([oracle.address])
     console.log('Oracle authorized with registry')
   
     console.log(`Setting oracle registry to ${registry.address}`)
-    const setRegistryTx = await oracle.setRegistry(registry.address, overrides)
+    const setRegistryTx = overrides
+      ? await oracle.setRegistry(registry.address, overrides)
+      : await oracle.setRegistry(registry.address)
     console.log('Oracle registry set')
   
     if (process.env.ETHERSCAN_API_KEY || process.env.POLYGONSCAN_API_KEY) {

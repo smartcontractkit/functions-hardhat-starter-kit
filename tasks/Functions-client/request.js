@@ -11,15 +11,6 @@ task('functions-request', 'Initiates a request from an Functions client contract
       throw Error('This command cannot be used on a local development chain.  Specify a valid network or simulate an Functions request locally with "npx hardhat functions-simulate".')
     }
 
-    let overrides = undefined
-    if (network.config.chainId == 5) {
-      overrides = {
-        // be careful, this may drain your balance quickly
-        maxPriorityFeePerGas: ethers.utils.parseUnits("50", "gwei"),
-        maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
-      }
-    }
-
     // Get the required parameters
     const contractAddr = taskArgs.contract
     const subscriptionId = taskArgs.subid
@@ -198,7 +189,6 @@ task('functions-request', 'Initiates a request from an Functions client contract
         request.args ?? [],
         subscriptionId,
         gasLimit,
-        overrides,
       )
       // If a response is not received within 5 minutes, the request has failed
       setTimeout(
