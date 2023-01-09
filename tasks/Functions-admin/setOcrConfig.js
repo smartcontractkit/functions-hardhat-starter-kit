@@ -1,9 +1,18 @@
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require('../../network-config')
 
-task('functions-set-ocr-config', 'Sets the OCR config using values from Functions-request.json')
+task('functions-set-ocr-config', 'Sets the OCR config using values from FunctionsOracleConfig.json')
   .setAction(async () => {
     if (network.name === 'hardhat') {
       throw Error('This command cannot be used on a local development chain.  Specify a valid network.')
+    }
+
+    let overrides = undefined
+    if (network.config.chainId == 5) {
+      overrides = {
+        // be careful, this may drain your balance quickly
+        maxPriorityFeePerGas: ethers.utils.parseUnits("50", "gwei"),
+        maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
+      }
     }
 
     const oracleFactory = await ethers.getContractFactory('FunctionsOracle')
@@ -17,7 +26,8 @@ task('functions-set-ocr-config', 'Sets the OCR config using values from Function
       ocrConfig.f,
       ocrConfig.onchainConfig,
       ocrConfig.offchainConfigVersion,
-      ocrConfig.offchainConfig
+      ocrConfig.offchainConfig,
+      overrides,
     )
 
     console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${setConfigTx.hash} to be confirmed...`)
