@@ -4,10 +4,18 @@ task('functions-deploy-oracle', 'Deploys & configures a new FunctionsRegistry, F
   .setAction(async () => {
     const linkEthFeedAddress = networkConfig[network.name]['linkEthPriceFeed']
     const linkTokenAddress = networkConfig[network.name]['linkToken']
+    let overrides = undefined
+    if (network.config.chainId == 5) {
+      overrides = {
+        // be careful, this may drain your balance quickly
+        maxPriorityFeePerGas: ethers.utils.parseUnits("50", "gwei"),
+        maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
+      }
+    }
   
     console.log('Deploying Functions registry')
     const registryFactory = await ethers.getContractFactory('FunctionsRegistry')
-    const registry = await registryFactory.deploy(linkTokenAddress, linkEthFeedAddress)
+    const registry = await registryFactory.deploy(linkTokenAddress, linkEthFeedAddress, overrides)
     console.log(`Waiting for transaction ${registry.deployTransaction.hash} to be confirmed...`)
     await registry.deployTransaction.wait(1)
     console.log(`FunctionsRegistry deployed to ${registry.address} on ${network.name}`)
@@ -33,7 +41,7 @@ task('functions-deploy-oracle', 'Deploys & configures a new FunctionsRegistry, F
   
     console.log('Deploying Functions oracle factory')
     const oracleFactoryFactory = await ethers.getContractFactory('FunctionsOracleFactory')
-    const oracleFactory = await oracleFactoryFactory.deploy()
+    const oracleFactory = await oracleFactoryFactory.deploy(overrides)
     console.log(`Waiting for transaction ${oracleFactory.deployTransaction.hash} to be confirmed...`)
     await oracleFactory.deployTransaction.wait(1)
     console.log(`FunctionsOracleFactory deployed to ${oracleFactory.address} on ${network.name}`)
@@ -41,7 +49,7 @@ task('functions-deploy-oracle', 'Deploys & configures a new FunctionsRegistry, F
     console.log('Deploying Functions oracle')
     const accounts = await ethers.getSigners()
     const deployer = accounts[0]
-    const OracleDeploymentTransaction = await oracleFactory.deployNewOracle()
+    const OracleDeploymentTransaction = await oracleFactory.deployNewOracle(overrides)
     console.log(`Waiting for transaction ${OracleDeploymentTransaction.hash} to be confirmed...`)
     const OracleDeploymentReceipt = await OracleDeploymentTransaction.wait(1)
     const FunctionsOracleAddress = OracleDeploymentReceipt.events[1].args.oracle
@@ -50,27 +58,27 @@ task('functions-deploy-oracle', 'Deploys & configures a new FunctionsRegistry, F
   
     // Set up Functions Oracle
     console.log(`Accepting oracle contract ownership`)
-    const acceptTx = await oracle.acceptOwnership()
+    const acceptTx = await oracle.acceptOwnership(overrides)
     console.log(`Waiting for transaction ${acceptTx.hash} to be confirmed...`)
     await acceptTx.wait(1)
     console.log('Oracle ownership accepted')
   
     console.log(`Setting DON public key to ${networkConfig[network.name]['functionsPublicKey']}`)
-    await oracle.setDONPublicKey('0x' + networkConfig[network.name]['functionsPublicKey'])
+    await oracle.setDONPublicKey('0x' + networkConfig[network.name]['functionsPublicKey'], overrides)
     console.log('DON public key set')
   
     console.log('Authorizing oracle with registry')
-    await registry.setAuthorizedSenders([oracle.address])
+    await registry.setAuthorizedSenders([oracle.address], overrides)
     console.log('Oracle authorized with registry')
   
     console.log(`Setting oracle registry to ${registry.address}`)
-    const setRegistryTx = await oracle.setRegistry(registry.address)
+    const setRegistryTx = await oracle.setRegistry(registry.address, overrides)
     console.log('Oracle registry set')
   
-    await setRegistryTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
-    console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks...`)
-  
     if (process.env.ETHERSCAN_API_KEY || process.env.POLYGONSCAN_API_KEY) {
+      console.log('Waiting 6 blocks before verifying contracts...')
+      await setRegistryTx.wait(6)
+
       try { 
         console.log('Verifying registry contract...')
         await run('verify:verify', {
