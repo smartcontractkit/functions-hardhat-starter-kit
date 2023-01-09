@@ -5,7 +5,7 @@ task('functions-read-error', 'Reads the latest error returned to a FunctionsCons
       throw Error('This command cannot be used on a local hardhat chain.  Please specify a valid network or simulate an FunctionsConsumer request locally with "npx hardhat functions-simulate".')
     }
 
-    console.log(`Reading error data from Functions client contract ${taskArgs.contract} on network network.name`)
+    console.log(`Reading error data from Functions client contract ${taskArgs.contract} on network ${network.name}`)
     const clientContractFactory = await ethers.getContractFactory('FunctionsConsumer')
     const clientContract = await clientContractFactory.attach(taskArgs.contract)
     let latestError = await clientContract.latestError()
