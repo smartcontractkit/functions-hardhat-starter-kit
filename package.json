@@ -5,7 +5,6 @@
   "description": "Tooling for interacting with Chainlink Functions",
   "scripts": {
     "compile": "hardhat compile",
-    "functions-deploy-oracle": "hardhat run scripts/deployment/deploy.js",
     "functions-simulate-javascript": "node scripts/simulateFunctionsRequest.js",
     "functions-build-request": "node scripts/buildFunctionsRequest.js",
     "lint": "solhint 'contracts/*.sol'",
