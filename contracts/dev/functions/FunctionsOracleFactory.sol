@@ -5,16 +5,16 @@ import "./FunctionsOracle.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/TypeAndVersionInterface.sol";
 
 /**
- * @title FunctionsOracle Factory
+ * @title The Functions Decentralized Oracle Network (Oracle) Factory
  * @dev THIS CONTRACT HAS NOT GONE THROUGH ANY SECURITY REVIEW. DO NOT USE IN PROD.
- * @notice Creates FunctionsOracle contracts for node operators
+ * @notice Creates FunctionsOracle contracts of a specific version
  */
 contract FunctionsOracleFactory is TypeAndVersionInterface {
   using EnumerableSet for EnumerableSet.AddressSet;
 
   EnumerableSet.AddressSet private s_created;
 
-  event OracleCreated(address indexed oracle, address indexed owner, address indexed sender);
+  event OracleCreated(address indexed don, address indexed owner, address indexed sender);
 
   /**
    * @notice The type and version of this contract
@@ -26,23 +26,23 @@ contract FunctionsOracleFactory is TypeAndVersionInterface {
 
   /**
    * @notice creates a new Oracle contract with the msg.sender as the proposed owner
-   * @notice msg.sender will still need to call oracle.acceptOwnership()
-   * @return address Address of a newly deployed oracle
+   * @notice msg.sender will still need to call Oracle.acceptOwnership()
+   * @return address Address of a newly deployed Oracle
    */
   function deployNewOracle() external returns (address) {
-    FunctionsOracle oracle = new FunctionsOracle();
-    oracle.transferOwnership(msg.sender);
-    s_created.add(address(oracle));
-    emit OracleCreated(address(oracle), msg.sender, msg.sender);
-    return address(oracle);
+    FunctionsOracle don = new FunctionsOracle();
+    don.transferOwnership(msg.sender);
+    s_created.add(address(don));
+    emit OracleCreated(address(don), msg.sender, msg.sender);
+    return address(don);
   }
 
   /**
    * @notice Verifies whether this factory deployed an address
-   * @param oracleAddress The oracle address in question
-   * @return bool True if an oracle has been created at that address
+   * @param OracleAddress The Oracle address in question
+   * @return bool True if an Oracle has been created at that address
    */
-  function created(address oracleAddress) external view returns (bool) {
-    return s_created.contains(oracleAddress);
+  function created(address OracleAddress) external view returns (bool) {
+    return s_created.contains(OracleAddress);
   }
 }

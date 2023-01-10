@@ -3,25 +3,27 @@ pragma solidity ^0.8.6;
 
 import "@chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
-import "../interfaces/FunctionsRegistryInterface.sol";
+import "../interfaces/FunctionsBillingRegistryInterface.sol";
 import "../interfaces/FunctionsOracleInterface.sol";
 import "../interfaces/FunctionsClientInterface.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/TypeAndVersionInterface.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/ERC677ReceiverInterface.sol";
+import "../interfaces/AuthorizedOriginReceiverInterface.sol";
 import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 import "../AuthorizedReceiver.sol";
 import "../vendor/openzeppelin-solidity/v.4.8.0/contracts/utils/SafeCast.sol";
 import "../vendor/openzeppelin-solidity/v.4.8.0/contracts/security/Pausable.sol";
 
-contract FunctionsRegistry is
+contract FunctionsBillingRegistry is
   ConfirmedOwner,
   Pausable,
-  FunctionsRegistryInterface,
+  FunctionsBillingRegistryInterface,
   ERC677ReceiverInterface,
   AuthorizedReceiver
 {
   LinkTokenInterface public immutable LINK;
   AggregatorV3Interface public immutable LINK_ETH_FEED;
+  AuthorizedOriginReceiverInterface private immutable ORACLE_WITH_ALLOWLIST;
 
   // We need to maintain a list of consuming addresses.
   // This bound ensures we are able to loop over them as needed.
@@ -86,7 +88,7 @@ contract FunctionsRegistry is
   error PaymentTooLarge();
   error Reentrant();
 
-  mapping(address => uint96) /* oracle */ /* LINK balance */
+  mapping(address => uint96) /* oracle node */ /* LINK balance */
     private s_withdrawableTokens;
   struct Commitment {
     uint64 subscriptionId;
@@ -143,13 +145,18 @@ contract FunctionsRegistry is
     uint32 gasOverhead
   );
 
-  constructor(address link, address linkEthFeed) ConfirmedOwner(msg.sender) {
+  constructor(
+    address link,
+    address linkEthFeed,
+    address oracle
+  ) ConfirmedOwner(msg.sender) {
     LINK = LinkTokenInterface(link);
     LINK_ETH_FEED = AggregatorV3Interface(linkEthFeed);
+    ORACLE_WITH_ALLOWLIST = AuthorizedOriginReceiverInterface(oracle);
   }
 
   /**
-   * @notice Sets the configuration of the Functions registry
+   * @notice Sets the configuration of the Chainlink Functions billing registry
    * @param maxGasLimit global max for request gas limit
    * @param stalenessSeconds if the eth/link feed is more stale then this, use the fallback price
    * @param gasAfterPaymentCalculation gas used in doing accounting after completing the gas measurement
@@ -181,7 +188,7 @@ contract FunctionsRegistry is
   }
 
   /**
-   * @notice Gets the configuration of the Functions registry
+   * @notice Gets the configuration of the Chainlink Functions billing registry
    * @return maxGasLimit global max for request gas limit
    * @return stalenessSeconds if the eth/link feed is more stale then this, use the fallback price
    * @return gasAfterPaymentCalculation gas used in doing accounting after completing the gas measurement
@@ -252,25 +259,25 @@ contract FunctionsRegistry is
   }
 
   /**
-   * @inheritdoc FunctionsRegistryInterface
+   * @inheritdoc FunctionsBillingRegistryInterface
    */
   function getRequestConfig() external view override returns (uint32, address[] memory) {
     return (s_config.maxGasLimit, getAuthorizedSenders());
   }
 
   /**
-   * @inheritdoc FunctionsRegistryInterface
+   * @inheritdoc FunctionsBillingRegistryInterface
    */
   function getRequiredFee(
     bytes calldata, /* data */
-    FunctionsRegistryInterface.RequestBilling memory /* billing */
+    FunctionsBillingRegistryInterface.RequestBilling memory /* billing */
   ) public pure override returns (uint96) {
     // NOTE: Optionally, compute additional fee here
     return 0;
   }
 
   /**
-   * @inheritdoc FunctionsRegistryInterface
+   * @inheritdoc FunctionsBillingRegistryInterface
    */
   function estimateCost(
     uint32 gasLimit,
@@ -294,7 +301,7 @@ contract FunctionsRegistry is
   }
 
   /**
-   * @inheritdoc FunctionsRegistryInterface
+   * @inheritdoc FunctionsBillingRegistryInterface
    */
   function startBilling(bytes calldata data, RequestBilling calldata billing)
     external
@@ -402,7 +409,7 @@ contract FunctionsRegistry is
   }
 
   /**
-   * @inheritdoc FunctionsRegistryInterface
+   * @inheritdoc FunctionsBillingRegistryInterface
    */
   function fulfillAndBill(
     bytes32 requestId,
@@ -438,7 +445,7 @@ contract FunctionsRegistry is
 
     // We want to charge users exactly for how much gas they use in their callback.
     // The gasAfterPaymentCalculation is meant to cover these additional operations where we
-    // decrement the subscription balance and increment the oracles withdrawable balance.
+    // decrement the subscription balance and increment the oracle's withdrawable balance.
     ItemizedBill memory bill = calculatePaymentAmount(
       initialGas,
       s_config.gasAfterPaymentCalculation,
@@ -598,7 +605,7 @@ contract FunctionsRegistry is
    * @dev    amount,
    * @dev    abi.encode(subscriptionId));
    */
-  function createSubscription() external nonReentrant whenNotPaused returns (uint64) {
+  function createSubscription() external nonReentrant whenNotPaused onlyAuthorizedUsers returns (uint64) {
     s_currentsubscriptionId++;
     uint64 currentsubscriptionId = s_currentsubscriptionId;
     address[] memory consumers = new address[](0);
@@ -611,6 +618,18 @@ contract FunctionsRegistry is
 
     emit SubscriptionCreated(currentsubscriptionId, msg.sender);
     return currentsubscriptionId;
+  }
+
+  /**
+   * @notice Gets subscription owner.
+   * @param subscriptionId - ID of the subscription
+   * @return owner - owner of the subscription.
+   */
+  function getSubscriptionOwner(uint64 subscriptionId) external view override returns (address owner) {
+    if (s_subscriptionConfigs[subscriptionId].owner == address(0)) {
+      revert InvalidSubscription();
+    }
+    return s_subscriptionConfigs[subscriptionId].owner;
   }
 
   /**
@@ -637,7 +656,12 @@ contract FunctionsRegistry is
    * @dev will revert if original owner of subscriptionId has
    * not requested that msg.sender become the new owner.
    */
-  function acceptSubscriptionOwnerTransfer(uint64 subscriptionId) external nonReentrant whenNotPaused {
+  function acceptSubscriptionOwnerTransfer(uint64 subscriptionId)
+    external
+    nonReentrant
+    whenNotPaused
+    onlyAuthorizedUsers
+  {
     if (s_subscriptionConfigs[subscriptionId].owner == address(0)) {
       revert InvalidSubscription();
     }
@@ -651,7 +675,7 @@ contract FunctionsRegistry is
   }
 
   /**
-   * @notice Remove a consumer from a Functions subscription.
+   * @notice Remove a consumer from a Chainlink Functions subscription.
    * @param subscriptionId - ID of the subscription
    * @param consumer - Consumer to remove from the subscription
    */
@@ -682,7 +706,7 @@ contract FunctionsRegistry is
   }
 
   /**
-   * @notice Add a consumer to a Functions subscription.
+   * @notice Add a consumer to a Chainlink Functions subscription.
    * @param subscriptionId - ID of the subscription
    * @param consumer - New consumer which can use the subscription
    */
@@ -793,6 +817,16 @@ contract FunctionsRegistry is
         emit RequestTimedOut(requestId);
       }
     }
+  }
+
+  /**
+   * @dev The allow list is kept on the Oracle contract. This modifier checks if a user is authorized from there.
+   */
+  modifier onlyAuthorizedUsers() {
+    if (ORACLE_WITH_ALLOWLIST.authorizedReceiverActive() && !ORACLE_WITH_ALLOWLIST.isAuthorizedSender(msg.sender)) {
+      revert UnauthorizedSender();
+    }
+    _;
   }
 
   modifier onlySubOwner(uint64 subscriptionId) {

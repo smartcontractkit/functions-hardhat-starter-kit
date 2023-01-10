@@ -6,11 +6,19 @@ import "../ocr2/OCR2Base.sol";
 import "./AuthorizedOriginReceiver.sol";
 
 /**
- * @title Functions oracle contract
+ * @title Functions Oracle contract
+ * @notice Contract that nodes of a Decentralized Oracle Network (DON) interact with
  * @dev THIS CONTRACT HAS NOT GONE THROUGH ANY SECURITY REVIEW. DO NOT USE IN PROD.
  */
 contract FunctionsOracle is FunctionsOracleInterface, OCR2Base, AuthorizedOriginReceiver {
-  event OracleRequest(bytes32 indexed requestId, uint64 subscriptionId, bytes data);
+  event OracleRequest(
+    bytes32 indexed requestId,
+    address requestingContract,
+    address requestInitiator,
+    uint64 subscriptionId,
+    address subscriptionOwner,
+    bytes data
+  );
   event OracleResponse(bytes32 indexed requestId);
   event UserCallbackError(bytes32 indexed requestId, string reason);
   event UserCallbackRawError(bytes32 indexed requestId, bytes lowLevelData);
@@ -22,7 +30,7 @@ contract FunctionsOracle is FunctionsOracleInterface, OCR2Base, AuthorizedOrigin
   error InvalidRequestID();
 
   bytes private s_donPublicKey;
-  FunctionsRegistryInterface private s_registry;
+  FunctionsBillingRegistryInterface private s_registry;
 
   constructor() OCR2Base(true) {}
 
@@ -48,7 +56,7 @@ contract FunctionsOracle is FunctionsOracleInterface, OCR2Base, AuthorizedOrigin
     if (registryAddress == address(0)) {
       revert EmptyBillingRegistry();
     }
-    s_registry = FunctionsRegistryInterface(registryAddress);
+    s_registry = FunctionsBillingRegistryInterface(registryAddress);
   }
 
   /**
@@ -73,9 +81,9 @@ contract FunctionsOracle is FunctionsOracleInterface, OCR2Base, AuthorizedOrigin
    */
   function getRequiredFee(
     bytes calldata, /* data */
-    FunctionsRegistryInterface.RequestBilling memory /* billing */
+    FunctionsBillingRegistryInterface.RequestBilling memory /* billing */
   ) public pure override returns (uint96) {
-    // NOTE: Optionally, compute additional fee split between oracles here
+    // NOTE: Optionally, compute additional fee split between nodes of the DON here
     // e.g. 0.1 LINK * s_transmitters.length
     return 0;
   }
@@ -89,7 +97,7 @@ contract FunctionsOracle is FunctionsOracleInterface, OCR2Base, AuthorizedOrigin
     uint32 gasLimit,
     uint256 gasPrice
   ) external view override registryIsSet returns (uint96) {
-    FunctionsRegistryInterface.RequestBilling memory billing = FunctionsRegistryInterface.RequestBilling(
+    FunctionsBillingRegistryInterface.RequestBilling memory billing = FunctionsBillingRegistryInterface.RequestBilling(
       subscriptionId,
       msg.sender,
       gasLimit,
@@ -114,9 +122,16 @@ contract FunctionsOracle is FunctionsOracleInterface, OCR2Base, AuthorizedOrigin
     }
     bytes32 requestId = s_registry.startBilling(
       data,
-      FunctionsRegistryInterface.RequestBilling(subscriptionId, msg.sender, gasLimit, gasPrice)
+      FunctionsBillingRegistryInterface.RequestBilling(subscriptionId, msg.sender, gasLimit, gasPrice)
     );
-    emit OracleRequest(requestId, subscriptionId, data);
+    emit OracleRequest(
+      requestId,
+      msg.sender,
+      tx.origin,
+      subscriptionId,
+      s_registry.getSubscriptionOwner(subscriptionId),
+      data
+    );
     return requestId;
   }
 
@@ -144,11 +159,11 @@ contract FunctionsOracle is FunctionsOracleInterface, OCR2Base, AuthorizedOrigin
     bytes[] memory results;
     bytes[] memory errors;
     (requestIds, results, errors) = abi.decode(report, (bytes32[], bytes[], bytes[]));
-    if (requestIds.length != results.length && requestIds.length != errors.length) {
+    if (requestIds.length == 0 || requestIds.length != results.length || requestIds.length != errors.length) {
       revert ReportInvalid();
     }
 
-    uint256 reportValidationGasShare = (initialGas - gasleft()) / signerCount;
+    uint256 reportValidationGasShare = (initialGas - gasleft()) / requestIds.length;
 
     for (uint256 i = 0; i < requestIds.length; i++) {
       try
@@ -175,7 +190,7 @@ contract FunctionsOracle is FunctionsOracleInterface, OCR2Base, AuthorizedOrigin
   }
 
   /**
-   * @dev Reverts if the the registry is not set
+   * @dev Reverts if the the billing registry is not set
    */
   modifier registryIsSet() {
     if (address(s_registry) == address(0)) {
