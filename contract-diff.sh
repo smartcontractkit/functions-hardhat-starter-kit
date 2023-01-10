@@ -1,10 +1,10 @@
 #!/bin/zsh
 
-cd contracts/dev/ocr2dr
+cd contracts/dev/functions
 for f in *
 do
 	echo "\n\n######################## DIFF for ${f}"
-	diff ${f} ~/chainlink/contracts/src/v0.8/dev/ocr2dr/${f}
+	diff ${f} ~/chainlink/contracts/src/v0.8/dev/functions/${f}
 done
 
 cd ../ocr2

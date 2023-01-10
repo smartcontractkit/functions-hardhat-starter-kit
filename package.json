@@ -1,14 +1,12 @@
 {
-  "name": "hardhat-starter-kit",
+  "name": "functions-hardhat-starter-kit",
   "license": "MIT",
-  "version": "2.1.0",
-  "description": "A repo for boilerplate code for testing, deploying, and shipping chainlink solidity code.",
+  "version": "1.0.0",
+  "description": "Tooling for interacting with Chainlink Functions",
   "scripts": {
     "compile": "hardhat compile",
-    "on-demand-deploy-oracle": "hardhat run scripts/deployment/deploy.js",
-    "on-demand-simulate-javascript": "node scripts/simulateOnDemandRequest.js",
-    "on-demand-build-request": "node scripts/buildOnDemandRequest.js",
-    "on-demand-generate-don-keys": "node scripts/generateDONKeys.js",
+    "functions-simulate-javascript": "node scripts/simulateFunctionsRequest.js",
+    "functions-build-request": "node scripts/buildFunctionsRequest.js",
     "lint": "solhint 'contracts/*.sol'",
     "lint:fix": "solhint 'contracts/**/*.sol' --fix"
   },
@@ -54,5 +52,12 @@
       "prettier --write",
       "solhint"
     ]
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "semi": false,
+    "singleQuote": true,
+    "printWidth": 120
   }
 }

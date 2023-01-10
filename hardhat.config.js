@@ -20,15 +20,17 @@ if (MAINNET_RPC_URL !== "https://eth-mainnet.alchemyapi.io/v2/your-api-key") set
 if (POLYGON_MAINNET_RPC_URL !== "https://polygon-mainnet.alchemyapi.io/v2/your-api-key") setRpcUrlCount++
 if (GOERLI_RPC_URL !== "https://eth-goerli.alchemyapi.io/v2/your-api-key") setRpcUrlCount++
 if (MUMBAI_RPC_URL !== "https://polygon-mumbai.g.alchemy.com/v2/v2/your-api-key") setRpcUrlCount++
-if (setRpcUrlCount > 1) {
-    throw Error(
-        'Only 1 of the following environment variables can be set: MAINNET_RPC_URL, GOERLI_RPC_URL, POLYGON_MAINNET_RPC_URL, or MUMBAI_RPC_URL'
-    )
-}
 if (setRpcUrlCount === 0) {
     throw Error(
-        '1 of the following environment variables must be set: MAINNET_RPC_URL, GOERLI_RPC_URL, POLYGON_MAINNET_RPC_URL, or MUMBAI_RPC_URL'
+        'One of the following environment variables must be set: MAINNET_RPC_URL, GOERLI_RPC_URL, POLYGON_MAINNET_RPC_URL, or MUMBAI_RPC_URL'
     )
+}
+
+const getChainToFork = () => {
+    if (MAINNET_RPC_URL !== 'https://eth-mainnet.alchemyapi.io/v2/your-api-key') return MAINNET_RPC_URL
+    if (POLYGON_MAINNET_RPC_URL !== 'https://polygon-mainnet.alchemyapi.io/v2/your-api-key') return POLYGON_MAINNET_RPC_URL
+    if (GOERLI_RPC_URL !== 'https://eth-goerli.alchemyapi.io/v2/your-api-key') return GOERLI_RPC_URL
+    if (MUMBAI_RPC_URL !== 'https://polygon-mumbai.g.alchemy.com/v2/v2/your-api-key') return MUMBAI_RPC_URL
 }
 
 // Set EVM private key (required)
@@ -88,16 +90,7 @@ module.exports = {
             allowUnlimitedContractSize: true,
             hardfork: "merge",
             forking: {
-                url:
-                    `${
-                        GOERLI_RPC_URL != 'https://eth-goerli.alchemyapi.io/v2/your-api-key' ? GOERLI_RPC_URL : ''
-                    }${
-                        MUMBAI_RPC_URL != 'https://polygon-mumbai.g.alchemy.com/v2/v2/your-api-key' ? MUMBAI_RPC_URL : ''
-                    }${
-                        POLYGON_MAINNET_RPC_URL != 'https://polygon-mainnet.alchemyapi.io/v2/your-api-key' ? POLYGON_MAINNET_RPC_URL : ''
-                    }${
-                        MAINNET_RPC_URL != 'https://eth-mainnet.alchemyapi.io/v2/your-api-key' ? MAINNET_RPC_URL : ''
-                    }`,
+                url: getChainToFork(),
                 blockNumber: FORKING_BLOCK_NUMBER,
                 enabled: true,
             },
@@ -149,9 +142,9 @@ module.exports = {
     contractSizer: {
         runOnCompile: false,
         only: [
-            "OnDemandConsumer",
-            "AutomatedOnDemandConsumer",
-            "OCR2DRRegistry",
+            "FunctionsConsumer",
+            "AutomatedFunctionsConsumer",
+            "FunctionsRegistry",
         ],
     },
     paths: {
