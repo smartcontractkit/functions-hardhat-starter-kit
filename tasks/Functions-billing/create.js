@@ -11,7 +11,7 @@ task('functions-sub-create', 'Creates a new billing subscription for Functions c
     const linkAmount = taskArgs.amount
     const consumer = taskArgs.contract
 
-    const RegistryFactory = await ethers.getContractFactory('FunctionsRegistry')
+    const RegistryFactory = await ethers.getContractFactory('FunctionsBillingRegistry')
     const registry = await RegistryFactory.attach(networkConfig[network.name]['functionsOracleRegistry'])
 
     console.log('Creating Functions billing subscription')

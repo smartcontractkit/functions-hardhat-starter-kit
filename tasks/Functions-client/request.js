@@ -25,7 +25,7 @@ task('functions-request', 'Initiates a request from an Functions client contract
     const OracleFactory = await ethers.getContractFactory('FunctionsOracle')
     const oracle = await OracleFactory.attach(networkConfig[network.name]['functionsOracle'])
     const registryAddress = await oracle.getRegistry()
-    const RegistryFactory = await ethers.getContractFactory('FunctionsRegistry')
+    const RegistryFactory = await ethers.getContractFactory('FunctionsBillingRegistry')
     const registry = await RegistryFactory.attach(registryAddress)
 
     console.log('Simulating Functions request locally...')

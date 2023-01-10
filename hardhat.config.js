@@ -144,7 +144,7 @@ module.exports = {
         only: [
             "FunctionsConsumer",
             "AutomatedFunctionsConsumer",
-            "FunctionsRegistry",
+            "FunctionsBillingRegistry",
         ],
     },
     paths: {

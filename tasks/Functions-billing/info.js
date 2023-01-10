@@ -9,7 +9,7 @@ task('functions-sub-info', 'Gets the Functions billing subscription balance, own
 
     const subscriptionId = taskArgs.subid
 
-    const RegistryFactory = await ethers.getContractFactory('FunctionsRegistry')
+    const RegistryFactory = await ethers.getContractFactory('FunctionsBillingRegistry')
     const registry = await RegistryFactory.attach(networkConfig[network.name]['functionsOracleRegistry'])
 
     // Check that the subscription is valid
