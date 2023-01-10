@@ -13,34 +13,6 @@ task('functions-deploy-oracle', 'Deploys & configures a new FunctionsRegistry, F
       }
     }
   
-    console.log('Deploying Functions registry')
-    const registryFactory = await ethers.getContractFactory('FunctionsRegistry')
-    const registry = overrides
-      ? await registryFactory.deploy(linkTokenAddress, linkEthFeedAddress, overrides)
-      : await registryFactory.deploy(linkTokenAddress, linkEthFeedAddress)
-    console.log(`Waiting for transaction ${registry.deployTransaction.hash} to be confirmed...`)
-    await registry.deployTransaction.wait(1)
-    console.log(`FunctionsRegistry deployed to ${registry.address} on ${network.name}`)
-  
-    console.log('Setting registy configuration')
-    const config = {
-      maxGasLimit: 450_000,
-      stalenessSeconds: 86_400,
-      gasAfterPaymentCalculation: 21_000 + 5_000 + 2_100 + 20_000 + 2 * 2_100 - 15_000 + 7_315,
-      weiPerUnitLink: ethers.BigNumber.from('5000000000000000'),
-      gasOverhead: 100_000,
-      requestTimeoutSeconds: 300,
-    }
-    await registry.setConfig(
-      config.maxGasLimit,
-      config.stalenessSeconds,
-      config.gasAfterPaymentCalculation,
-      config.weiPerUnitLink,
-      config.gasOverhead,
-      config.requestTimeoutSeconds
-    )
-    console.log('Registry configuration set')
-  
     console.log('Deploying Functions oracle factory')
     const oracleFactoryFactory = await ethers.getContractFactory('FunctionsOracleFactory')
     const oracleFactory = overrides
@@ -76,6 +48,35 @@ task('functions-deploy-oracle', 'Deploys & configures a new FunctionsRegistry, F
       ? await oracle.setDONPublicKey('0x' + networkConfig[network.name]['functionsPublicKey'], overrides)
       : await oracle.setDONPublicKey('0x' + networkConfig[network.name]['functionsPublicKey'])
     console.log('DON public key set')
+
+    // Deploying registry
+    console.log('Deploying Functions registry')
+    const registryFactory = await ethers.getContractFactory('FunctionsRegistry')
+    const registry = overrides
+      ? await registryFactory.deploy(linkTokenAddress, linkEthFeedAddress, oracle.address, overrides)
+      : await registryFactory.deploy(linkTokenAddress, linkEthFeedAddress, oracle.address)
+    console.log(`Waiting for transaction ${registry.deployTransaction.hash} to be confirmed...`)
+    await registry.deployTransaction.wait(1)
+    console.log(`FunctionsRegistry deployed to ${registry.address} on ${network.name}`)
+  
+    console.log('Setting registy configuration')
+    const config = {
+      maxGasLimit: 450_000,
+      stalenessSeconds: 86_400,
+      gasAfterPaymentCalculation: 21_000 + 5_000 + 2_100 + 20_000 + 2 * 2_100 - 15_000 + 7_315,
+      weiPerUnitLink: ethers.BigNumber.from('5000000000000000'),
+      gasOverhead: 100_000,
+      requestTimeoutSeconds: 300,
+    }
+    await registry.setConfig(
+      config.maxGasLimit,
+      config.stalenessSeconds,
+      config.gasAfterPaymentCalculation,
+      config.weiPerUnitLink,
+      config.gasOverhead,
+      config.requestTimeoutSeconds
+    )
+    console.log('Registry configuration set')
   
     console.log('Authorizing oracle with registry')
     overrides
