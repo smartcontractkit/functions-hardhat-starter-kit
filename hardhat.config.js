@@ -37,7 +37,7 @@ if (!PRIVATE_KEY) {
 }
 
 // Set a specific bock number to fork (optional)
-const FORKING_BLOCK_NUMBER = process.env.FORKING_BLOCK_NUMBER ? parseInt(process.env.FORKING_BLOCK_NUMBER) : undefined
+const FORKING_BLOCK_NUMBER = isNaN(process.env.FORKING_BLOCK_NUMBER) ? undefined : parseInt(process.env.FORKING_BLOCK_NUMBER)
 
 // Your API key for Etherscan, obtain one at https://etherscan.io/ (optional)
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "Your etherscan API key"
