@@ -1,28 +1,34 @@
-const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require('../../network-config')
+const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 
-task('functions-sub-cancel', 'Cancels Functions billing subscription and refunds unused balance. Cancellation is only possible if there are no pending requests')
-  .addParam('subid', 'Subscription ID to cancel')
-  .addOptionalParam('refundaddress', "Address where the remaining subscription balance is sent (defaults to caller's address)")
+task(
+  "functions-sub-cancel",
+  "Cancels Functions billing subscription and refunds unused balance. Cancellation is only possible if there are no pending requests"
+)
+  .addParam("subid", "Subscription ID to cancel")
+  .addOptionalParam(
+    "refundaddress",
+    "Address where the remaining subscription balance is sent (defaults to caller's address)"
+  )
   .setAction(async (taskArgs) => {
     if (developmentChains.includes(network.name)) {
-      throw Error('This command cannot be used on a local development chain.  Specify a valid network.')
+      throw Error("This command cannot be used on a local development chain.  Specify a valid network.")
     }
 
     const subscriptionId = taskArgs.subid
     const refundAddress = taskArgs.refundAddress ?? (await ethers.getSigners())[0].address
 
-    const RegistryFactory = await ethers.getContractFactory('FunctionsBillingRegistry')
-    const registry = await RegistryFactory.attach(networkConfig[network.name]['functionsOracleRegistry'])
+    const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
+    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsOracleRegistry"])
 
     // Check that the subscription is valid
     let preSubInfo
     try {
       preSubInfo = await registry.getSubscription(subscriptionId)
     } catch (error) {
-      if (error.errorName === 'InvalidSubscription') {
+      if (error.errorName === "InvalidSubscription") {
         throw Error(`Subscription ID "${subscriptionId}" is invalid or does not exist`)
       }
-      console.log('Cancellation failed. Ensure there are no pending requests or requests which must be timed out.')
+      console.log("Cancellation failed. Ensure there are no pending requests or requests which must be timed out.")
       throw error
     }
 
@@ -30,7 +36,7 @@ task('functions-sub-cancel', 'Cancels Functions billing subscription and refunds
     const accounts = await ethers.getSigners()
     const signer = accounts[0]
     if (preSubInfo[1] !== signer.address) {
-      throw Error('The current wallet is not the owner of the subscription')
+      throw Error("The current wallet is not the owner of the subscription")
     }
 
     // TODO: This script should check for any pending requests and return an error.
@@ -39,8 +45,14 @@ task('functions-sub-cancel', 'Cancels Functions billing subscription and refunds
     console.log(`Canceling subscription ${subscriptionId}`)
     const cancelTx = await registry.cancelSubscription(subscriptionId, refundAddress)
 
-    console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${cancelTx.hash} to be confirmed...`)
+    console.log(
+      `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${cancelTx.hash} to be confirmed...`
+    )
     await cancelTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
 
-    console.log(`\nSubscription ${subscriptionId} cancelled.\n${ethers.utils.formatEther(postSubInfo[0])} LINK refunded to ${refundAddress}`)
+    console.log(
+      `\nSubscription ${subscriptionId} cancelled.\n${ethers.utils.formatEther(
+        postSubInfo[0]
+      )} LINK refunded to ${refundAddress}`
+    )
   })

@@ -1,20 +1,22 @@
-const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require('../../network-config')
+const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 
-task('functions-sub-create', 'Creates a new billing subscription for Functions consumer contracts')
-  .addOptionalParam('amount', 'Inital amount used to fund the subscription in LINK')
-  .addOptionalParam('contract', 'Address of the client contract address authorized to use the new billing subscription')
+task("functions-sub-create", "Creates a new billing subscription for Functions consumer contracts")
+  .addOptionalParam("amount", "Inital amount used to fund the subscription in LINK")
+  .addOptionalParam("contract", "Address of the client contract address authorized to use the new billing subscription")
   .setAction(async (taskArgs) => {
-    if (network.name === 'hardhat') {
-      throw Error('This command cannot be used on a local hardhat chain.  Specify a valid network or simulate a request locally with "npx hardhat functions-simulate".')
+    if (network.name === "hardhat") {
+      throw Error(
+        'This command cannot be used on a local hardhat chain.  Specify a valid network or simulate a request locally with "npx hardhat functions-simulate".'
+      )
     }
 
     const linkAmount = taskArgs.amount
     const consumer = taskArgs.contract
 
-    const RegistryFactory = await ethers.getContractFactory('FunctionsBillingRegistry')
-    const registry = await RegistryFactory.attach(networkConfig[network.name]['functionsOracleRegistry'])
+    const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
+    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsOracleRegistry"])
 
-    console.log('Creating Functions billing subscription')
+    console.log("Creating Functions billing subscription")
     const createSubscriptionTx = await registry.createSubscription()
 
     // If a consumer or linkAmount was also specified, wait 1 block instead of VERIFICATION_BLOCK_CONFIRMATIONS blocks
@@ -24,7 +26,7 @@ task('functions-sub-create', 'Creates a new billing subscription for Functions c
     )
     const createSubscriptionReceipt = await createSubscriptionTx.wait(createWaitBlockConfirmations)
 
-    const subscriptionId = createSubscriptionReceipt.events[0].args['subscriptionId'].toNumber()
+    const subscriptionId = createSubscriptionReceipt.events[0].args["subscriptionId"].toNumber()
 
     console.log(`Subscription created with ID: ${subscriptionId}`)
 
@@ -32,8 +34,8 @@ task('functions-sub-create', 'Creates a new billing subscription for Functions c
       // Fund subscription
       const juelsAmount = ethers.utils.parseUnits(linkAmount)
 
-      const LinkTokenFactory = await ethers.getContractFactory('LinkToken')
-      const linkToken = await LinkTokenFactory.attach(networkConfig[network.name]['linkToken'])
+      const LinkTokenFactory = await ethers.getContractFactory("LinkToken")
+      const linkToken = await LinkTokenFactory.attach(networkConfig[network.name]["linkToken"])
 
       const accounts = await ethers.getSigners()
       const signer = accounts[0]
@@ -50,9 +52,9 @@ task('functions-sub-create', 'Creates a new billing subscription for Functions c
 
       console.log(`Funding with ${ethers.utils.formatEther(juelsAmount)} LINK`)
       const fundTx = await linkToken.transferAndCall(
-        networkConfig[network.name]['functionsOracleRegistry'],
+        networkConfig[network.name]["functionsOracleRegistry"],
         juelsAmount,
-        ethers.utils.defaultAbiCoder.encode(['uint64'], [subscriptionId]),
+        ethers.utils.defaultAbiCoder.encode(["uint64"], [subscriptionId])
       )
       // If a consumer was also specified, wait 1 block instead of VERIFICATION_BLOCK_CONFIRMATIONS blocks
       const fundWaitBlockConfirmations = !!consumer ? 1 : VERIFICATION_BLOCK_CONFIRMATIONS
@@ -76,6 +78,6 @@ task('functions-sub-create', 'Creates a new billing subscription for Functions c
     console.log(`\nCreated subscription with ID: ${subscriptionId}`)
     console.log(`Owner: ${subInfo[1]}`)
     console.log(`Balance: ${ethers.utils.formatEther(subInfo[0])} LINK`)
-    console.log(`${subInfo[2].length} authorized consumer contract${subInfo[2].length === 1 ? '' : 's'}:`)
+    console.log(`${subInfo[2].length} authorized consumer contract${subInfo[2].length === 1 ? "" : "s"}:`)
     console.log(subInfo[2])
   })

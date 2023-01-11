@@ -1,25 +1,25 @@
-const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require('../../network-config')
+const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 
-task('functions-sub-add', 'Adds a client contract to the Functions billing subscription')
-  .addParam('subid', 'Subscription ID')
-  .addParam('contract', 'Address of the Functions client contract to authorize for billing')
+task("functions-sub-add", "Adds a client contract to the Functions billing subscription")
+  .addParam("subid", "Subscription ID")
+  .addParam("contract", "Address of the Functions client contract to authorize for billing")
   .setAction(async (taskArgs) => {
-    if (network.name == 'hardhat') {
-      throw Error('This command cannot be used on a local hardhat chain.  Specify a valid network.')
+    if (network.name == "hardhat") {
+      throw Error("This command cannot be used on a local hardhat chain.  Specify a valid network.")
     }
 
     const subscriptionId = taskArgs.subid
     const consumer = taskArgs.contract
 
-    const RegistryFactory = await ethers.getContractFactory('FunctionsBillingRegistry')
-    const registry = await RegistryFactory.attach(networkConfig[network.name]['functionsOracleRegistry'])
+    const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
+    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsOracleRegistry"])
 
     // Check that the subscription is valid
     let preSubInfo
     try {
       preSubInfo = await registry.getSubscription(subscriptionId)
     } catch (error) {
-      if (error.errorName === 'InvalidSubscription') {
+      if (error.errorName === "InvalidSubscription") {
         throw Error(`Subscription ID "${subscriptionId}" is invalid or does not exist`)
       }
       throw error
@@ -29,7 +29,7 @@ task('functions-sub-add', 'Adds a client contract to the Functions billing subsc
     const accounts = await ethers.getSigners()
     const signer = accounts[0]
     if (preSubInfo[1] !== signer.address) {
-      throw Error('The current wallet is not the owner of the subscription')
+      throw Error("The current wallet is not the owner of the subscription")
     }
 
     // Check that the consumer is not already authorized (for convenience)
@@ -49,7 +49,7 @@ task('functions-sub-add', 'Adds a client contract to the Functions billing subsc
     const postSubInfo = await registry.getSubscription(subscriptionId)
     console.log(
       `${postSubInfo[2].length} authorized consumer contract${
-        postSubInfo[2].length === 1 ? '' : 's'
+        postSubInfo[2].length === 1 ? "" : "s"
       } for subscription ${subscriptionId}:`
     )
     console.log(postSubInfo[2])
