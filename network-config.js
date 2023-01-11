@@ -1,14 +1,17 @@
 // Loads environment variables from .env file (if it exists)
 require("dotenv").config()
 
+const getLinkEthPriceFeed = () => {
+    if (process.env.MAINNET_RPC_URL) return "0xdc530d9457755926550b59e8eccdae7624181557"
+    if (process.env.POLYGON_MAINNET_RPC_URL) return "0xb77fa460604b9c6435a235d057f7d319ac83cb53"
+    if (process.env.GOERLI_RPC_URL) return "0xb4c4a493AB6356497713A78FFA6c60FB53517c63"
+    if (process.env.MUMBAI_RPC_URL) return "0x12162c3E810393dEC01362aBf156D7ecf6159528"
+}
+
 const networkConfig = {
   hardhat: {
     // TODO: for networks other than mainnet, gas costs should be calculated the native token, not ETH
-    linkEthPriceFeed: `${process.env.MUMBAI_RPC_URL ? "0x12162c3E810393dEC01362aBf156D7ecf6159528" : ""}${
-      process.env.GOERLI_RPC_URL ? "0xb4c4a493AB6356497713A78FFA6c60FB53517c63" : ""
-    }${process.env.POLYGON_MAINNET_RPC_URL ? "0xb77fa460604b9c6435a235d057f7d319ac83cb53" : ""}${
-      process.env.MAINNET_RPC_URL ? "0xdc530d9457755926550b59e8eccdae7624181557" : ""
-    }`,
+    linkEthPriceFeed: getLinkEthPriceFeed(),
     functionsPublicKey:
       "971f006163a12ee3383a00d7743334480d6b1c83fdf60497e0c520b16d1a4ee421cc61375679b63466156fee6f2f1da5a7e630ba0b1cddb2704ef907ead223db",
     mockFunctionsPrivateKey: "0x09768a19def4dce2b6793d7dc807828ef47b681709cf1005627a93f0da9c8065",
