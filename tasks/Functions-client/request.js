@@ -16,6 +16,15 @@ task("functions-request", "Initiates a request from an Functions client contract
       )
     }
 
+    if (network.name === "goerli") {
+      overrides = {
+        // be careful, this may drain your balance quickly
+        maxPriorityFeePerGas: ethers.utils.parseUnits("50", "gwei"),
+        maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
+        gasLimit: 500000,
+      }
+    }  
+
     // Get the required parameters
     const contractAddr = taskArgs.contract
     const subscriptionId = taskArgs.subid
@@ -188,13 +197,22 @@ task("functions-request", "Initiates a request from an Functions client contract
       )
 
       console.log(`\nRequesting new data for FunctionsConsumer contract ${contractAddr} on network ${network.name}`)
-      const requestTx = await clientContract.executeRequest(
-        request.source,
-        request.secrets ?? [],
-        request.args ?? [],
-        subscriptionId,
-        gasLimit
-      )
+      const requestTx = overrides
+        ? await clientContract.executeRequest(
+          request.source,
+          request.secrets ?? [],
+          request.args ?? [],
+          subscriptionId,
+          gasLimit,
+          overrides,
+        )
+        : await clientContract.executeRequest(
+          request.source,
+          request.secrets ?? [],
+          request.args ?? [],
+          subscriptionId,
+          gasLimit
+        )
       // If a response is not received within 5 minutes, the request has failed
       setTimeout(
         () =>
