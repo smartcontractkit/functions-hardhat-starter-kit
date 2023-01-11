@@ -5,7 +5,7 @@ import {CBORChainlink} from "@chainlink/contracts/src/v0.8/vendor/CBORChainlink.
 import {BufferChainlink} from "@chainlink/contracts/src/v0.8/vendor/BufferChainlink.sol";
 
 /**
- * @title Library for OCR2 Direct Request functions
+ * @title Library for Chainlink Functions
  */
 library Functions {
   uint256 internal constant DEFAULT_BUFFER_SIZE = 256;
@@ -74,7 +74,7 @@ library Functions {
   }
 
   /**
-   * @notice Initializes a Functions Request
+   * @notice Initializes a Chainlink Functions Request
    * @dev Sets the codeLocation and code on the request
    * @param self The uninitialized request
    * @param location The user provided source code location
@@ -95,7 +95,7 @@ library Functions {
   }
 
   /**
-   * @notice Initializes a Functions Request
+   * @notice Initializes a Chainlink Functions Request
    * @dev Simplified version of initializeRequest for PoC
    * @param self The uninitialized request
    * @param javaScriptSource The user provided JS code (must not be empty)

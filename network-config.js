@@ -24,11 +24,11 @@ const networkConfig = {
     goerli: {
         linkToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
         linkEthPriceFeed: "0xb4c4a493AB6356497713A78FFA6c60FB53517c63",
-        functionsOracle: "0xBAE17CF0694dF955F715D2eDC6cF0C86246Ed7Af",
-        functionsOracleFactory: "0x5b2E2a078c6CF99c7Aa61555034CaD28cA08a54f",
-        functionsOracleRegistry: "0x70511301892257bbD0071043E41385dF40Cd99f5",
+        functionsOracle: "0x4A36e9FF349b729BeB706B6aDa4310Aa2068C705",
+        functionsOracleFactory: "0x010b764194A5AF05F38843678480751F00D1c318",
+        functionsOracleRegistry: "0xfB8533e447AeDEEB2f7632d0b0E989E11dEE8eAb",
         functionsPublicKey:
-            "f2f9c47363202d89aa9fa70baf783d70006fe493471ac8cfa82f1426fd09f16a5f6b32b7c4b5d5165cd147a6e513ba4c0efd39d969d6b20a8a21126f0411b9c6",
+        "f2f9c47363202d89aa9fa70baf783d70006fe493471ac8cfa82f1426fd09f16a5f6b32b7c4b5d5165cd147a6e513ba4c0efd39d969d6b20a8a21126f0411b9c6",
     },
     polygon: {
         linkToken: "0xb0897686c545045afc77cf20ec7a532e3120e0f1",

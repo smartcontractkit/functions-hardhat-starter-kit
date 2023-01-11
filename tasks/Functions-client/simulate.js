@@ -161,7 +161,7 @@ const deployMockOracle = async () => {
   const linkEthFeedAddress = networkConfig['hardhat']['linkEthPriceFeed']
 
   // Deploy the mock registry billing contract
-  const registryFactory = await ethers.getContractFactory('FunctionsRegistry')
+  const registryFactory = await ethers.getContractFactory('FunctionsBillingRegistry')
   const registry = await registryFactory.deploy(linkToken.address, linkEthFeedAddress)
   await registry.deployTransaction.wait(1)
 

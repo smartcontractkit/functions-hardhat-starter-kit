@@ -11,7 +11,7 @@ task('functions-sub-cancel', 'Cancels Functions billing subscription and refunds
     const subscriptionId = taskArgs.subid
     const refundAddress = taskArgs.refundAddress ?? (await ethers.getSigners())[0].address
 
-    const RegistryFactory = await ethers.getContractFactory('FunctionsRegistry')
+    const RegistryFactory = await ethers.getContractFactory('FunctionsBillingRegistry')
     const registry = await RegistryFactory.attach(networkConfig[network.name]['functionsOracleRegistry'])
 
     // Check that the subscription is valid

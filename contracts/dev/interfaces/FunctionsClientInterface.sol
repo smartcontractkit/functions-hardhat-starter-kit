@@ -2,11 +2,11 @@
 pragma solidity ^0.8.6;
 
 /**
- * @title Functions client interface.
+ * @title Chainlink Functions client interface.
  */
 interface FunctionsClientInterface {
   /**
-   * @notice Returns DON secp256k1 public key used to encrypt secrets
+   * @notice Returns the DON's secp256k1 public key used to encrypt secrets
    * @dev All Oracles nodes have the corresponding private key
    * needed to decrypt the secrets encrypted with the public key
    * @return publicKey DON's public key
@@ -14,7 +14,7 @@ interface FunctionsClientInterface {
   function getDONPublicKey() external view returns (bytes memory);
 
   /**
-   * @notice Functions response handler called by the designated oracle.
+   * @notice Chainlink Functions response handler called by the designated transmitter node in an OCR round.
    * @param requestId The requestId returned by FunctionsClient.sendRequest().
    * @param response Aggregated response from the user code.
    * @param err Aggregated error either from the user code or from the execution pipeline.

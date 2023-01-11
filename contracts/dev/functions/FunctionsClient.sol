@@ -6,8 +6,8 @@ import "../interfaces/FunctionsClientInterface.sol";
 import "../interfaces/FunctionsOracleInterface.sol";
 
 /**
- * @title The Functions client contract
- * @notice Contract writers can inherit this contract in order to create functions OCR requests
+ * @title The Chainlink Functions client contract
+ * @notice Contract writers can inherit this contract in order to create Chainlink Functions requests
  */
 abstract contract FunctionsClient is FunctionsClientInterface {
   FunctionsOracleInterface private s_oracle;
@@ -48,7 +48,7 @@ abstract contract FunctionsClient is FunctionsClientInterface {
   }
 
   /**
-   * @notice Sends Functions request to the stored oracle address
+   * @notice Sends a Chainlink Functions request to the stored oracle address
    * @param req The initialized Functions.Request
    * @param subscriptionId The subscription ID
    * @param gasLimit gas limit for the fulfillment callback
@@ -91,11 +91,11 @@ abstract contract FunctionsClient is FunctionsClientInterface {
   }
 
   /**
-   * @notice Sets the stored oracle address
-   * @param oracleAddress The address of Functions oracle contract
+   * @notice Sets the stored Oracle address
+   * @param oracle The address of Functions Oracle contract
    */
-  function setOracle(address oracleAddress) internal {
-    s_oracle = FunctionsOracleInterface(oracleAddress);
+  function setOracle(address oracle) internal {
+    s_oracle = FunctionsOracleInterface(oracle);
   }
 
   /**
@@ -117,7 +117,7 @@ abstract contract FunctionsClient is FunctionsClientInterface {
   }
 
   /**
-   * @dev Reverts if the sender is not the oracle of the request.
+   * @dev Reverts if the sender is not the oracle that serviced the request.
    * Emits RequestFulfilled event.
    * @param requestId The request ID for fulfillment
    */
