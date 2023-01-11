@@ -4,15 +4,15 @@
 - [Overview](#overview)
 - [Quickstart](#quickstart)
 - [Command Glossary](#command-glossary)
-    - [Functions Commands](#functions-commands)
-    - [Functions Subscription Managment Commands](#functions-subscription-managment-commands)
-    - [Admin Commands](#admin-commands)
+  - [Functions Commands](#functions-commands)
+  - [Functions Subscription Managment Commands](#functions-subscription-managment-commands)
+  - [Admin Commands](#admin-commands)
 - [Request Configuration](#request-configuration)
   - [JavaScript Code](#javascript-code)
     - [Functions Library](#functions-library)
   - [Modifying Contracts](#modifying-contracts)
   - [Simulating Requests](#simulating-requests)
-  
+
 # Overview
 
 <p>Chainlink Functions allows users to request data from almost any API and perform custom computation using JavaScript.</p>
@@ -21,7 +21,7 @@
 
 # Quickstart
 
-Ensure Node.js is installed.  It is recommended to use Node.js version 18.
+Ensure Node.js is installed. It is recommended to use Node.js version 18.
 
 1. Open this directory and run `npm install` to install all dependencies.<br><br>
 2. Set the required environment variables.
@@ -80,18 +80,18 @@ Example: `npx hardhat functions-read --network goerli --contract 0x787Fe00416140
 
 Chainlink Functions requests can be configured by modifying values in the `requestConfig` object found in the `Functions-request-config.js` file located in the root of this repository.
 
-| Setting Name         | Description                                                                                                                                                                                                                                                                            |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `codeLocation`       | This specifies where the JavaScript code for a request is located.  Currenly, only the `Inline` option is supported (represented by the value `0`).  This means the JavaScript string is provided directly in the on-chain request instead of being referenced via a URL or IPFS hash. |
-| `secretsLocation`    | This specifies where the encrypted secrets for a request are located.  Currenly, only the `Inline` option is supported (represented by the value `0`).  This means encypted secrets are provided directly in the on-chain request instead of being referenced via a URL or IPFS hash.  |
-| `codeLanguage`       | This specifies the language of the source code which is executed in a request.  Currently, only `JavaScript` is supported (represented by the value `0`).                                                                                                                              |
-| `source`             | This is a string containing the source code which is executed in a request.  This must be valid JavaScript code that returns a Buffer.  See the [JavaScript Code](#javascript-code) section for more details.                                                                          |
-| `secrets`            | This is a JavaScript object which contains secret values that are injected into the JavaScript source code and can be accessed using the name `secrets`.  This object will be automatically encrypted by the tooling using the DON public key before making an on-chain request.       |
-| `walletPrivateKey`   | This is the EVM private key.  It is used to generate a signature for the encrypted secrets such that the secrets cannot be reused by an unauthorized 3rd party.                                                                                                                        |
-| `DONPublicKey`       | This is the DON's public encryption key used to encrypt secrets.  This value is only used by the `npm run functions-build-request` command.  All other commands fetch the DON key directly from the `FunctionsOracle` contract on-chain.                                               |
-| `args`               | This is an array of strings which contains values that are injected into the JavaScript source code and can be accessed using the name `args`.  This provides a convenient way to set modifiable parameters within a request.                                                          |
-| `maxResponseBytes`   | This specifies the maximum size of a response.  If the response size is exceeded, it will be curtailed to this size.  It has no on-chain impact, but is used by the CLI to simulate on-chain behavior for responses which are too large.  It is recommended not to change this value.  |
-| `expectedReturnType` | This specifies the expected return type of a request.  It has no on-chain impact, but is used by the CLI to decode the response bytes into the specified type.  The options are `uint256`, `int256`, `string`, or `Buffer`.                                                            |
+| Setting Name         | Description                                                                                                                                                                                                                                                                          |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `codeLocation`       | This specifies where the JavaScript code for a request is located. Currenly, only the `Inline` option is supported (represented by the value `0`). This means the JavaScript string is provided directly in the on-chain request instead of being referenced via a URL or IPFS hash. |
+| `secretsLocation`    | This specifies where the encrypted secrets for a request are located. Currenly, only the `Inline` option is supported (represented by the value `0`). This means encypted secrets are provided directly in the on-chain request instead of being referenced via a URL or IPFS hash.  |
+| `codeLanguage`       | This specifies the language of the source code which is executed in a request. Currently, only `JavaScript` is supported (represented by the value `0`).                                                                                                                             |
+| `source`             | This is a string containing the source code which is executed in a request. This must be valid JavaScript code that returns a Buffer. See the [JavaScript Code](#javascript-code) section for more details.                                                                          |
+| `secrets`            | This is a JavaScript object which contains secret values that are injected into the JavaScript source code and can be accessed using the name `secrets`. This object will be automatically encrypted by the tooling using the DON public key before making an on-chain request.      |
+| `walletPrivateKey`   | This is the EVM private key. It is used to generate a signature for the encrypted secrets such that the secrets cannot be reused by an unauthorized 3rd party.                                                                                                                       |
+| `DONPublicKey`       | This is the DON's public encryption key used to encrypt secrets. This value is only used by the `npm run functions-build-request` command. All other commands fetch the DON key directly from the `FunctionsOracle` contract on-chain.                                               |
+| `args`               | This is an array of strings which contains values that are injected into the JavaScript source code and can be accessed using the name `args`. This provides a convenient way to set modifiable parameters within a request.                                                         |
+| `maxResponseBytes`   | This specifies the maximum size of a response. If the response size is exceeded, it will be curtailed to this size. It has no on-chain impact, but is used by the CLI to simulate on-chain behavior for responses which are too large. It is recommended not to change this value.   |
+| `expectedReturnType` | This specifies the expected return type of a request. It has no on-chain impact, but is used by the CLI to decode the response bytes into the specified type. The options are `uint256`, `int256`, `string`, or `Buffer`.                                                            |
 
 ## JavaScript Code
 
@@ -107,8 +107,9 @@ Asynchronous code with top-level `await` statements is supported, as shown in th
 
 The `Functions` library is injected into the JavaScript source code and can be accessed using the name `Functions`.
 
-In order to make HTTP requests, only the `Functions.makeHttpRequest(x)` function can be used.  All other methods of accessing the Internet are restricted.
+In order to make HTTP requests, only the `Functions.makeHttpRequest(x)` function can be used. All other methods of accessing the Internet are restricted.
 The function takes an object `x` with the following parameters.
+
 ```
 {
   url: String with the URL to which the request is sent,
@@ -120,9 +121,11 @@ The function takes an object `x` with the following parameters.
   responseType: (optional) String specifying the expected response type which can be either 'json', 'arraybuffer', 'document', 'text' or 'stream' (defaults to 'json'),
 }
 ```
+
 The funtion returns a promise that resolves to either a success response object or an error response object.
 
 A success response object will have the following parameters.
+
 ```
 {
   error: false,
@@ -132,7 +135,9 @@ A success response object will have the following parameters.
   headers: Object with response headers sent by the server,
 }
 ```
+
 An error response object will have the following parameters.
+
 ```
 {
   error: true,
@@ -142,7 +147,6 @@ An error response object will have the following parameters.
 }
 ```
 
-
 This library also exposes functions for encoding JavaScript values into Buffers which represent the bytes that a returned on-chain.
 
 - `Functions.encodeUint256(x)` takes a positive JavaScript integer number `x` and returns a 32 byte Buffer representing `x` as a `uint256` type in Solidity.
@@ -151,8 +155,8 @@ This library also exposes functions for encoding JavaScript values into Buffers 
 
 ## Modifying Contracts
 
-Client contracts which initiate a request and receive a fulfillment can be modified for specific use cases.  The only requirements are that the client contract extends the `FunctionsClient` contract and the `fulfillRequest` callback function never uses more than 300,000 gas.
+Client contracts which initiate a request and receive a fulfillment can be modified for specific use cases. The only requirements are that the client contract extends the `FunctionsClient` contract and the `fulfillRequest` callback function never uses more than 300,000 gas.
 
 ## Simulating Requests
 
-An end-to-end request initiation and fulfillment can be simulated using the `npx hardhat functions-simulate` command.  This command will report the total estimated cost of a request in LINK using the latest on-chain gas prices.  Costs are based on the amount of gas used to validate the response and call the client contract's `fulfillRequest` function, plus a flat fee.  Please note that actual request costs can vary based on gas prices when a request is inititated on-chain.
+An end-to-end request initiation and fulfillment can be simulated using the `npx hardhat functions-simulate` command. This command will report the total estimated cost of a request in LINK using the latest on-chain gas prices. Costs are based on the amount of gas used to validate the response and call the client contract's `fulfillRequest` function, plus a flat fee. Please note that actual request costs can vary based on gas prices when a request is inititated on-chain.
