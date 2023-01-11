@@ -5,7 +5,7 @@
 - [Quickstart](#quickstart)
 - [Command Glossary](#command-glossary)
     - [Functions Commands](#functions-commands)
-    - [Functions Subscription Managment Commands](#functions-subscription-managment-commands)
+    - [Functions Subscription Management Commands](#functions-subscription-management-commands)
     - [Admin Commands](#admin-commands)
 - [Request Configuration](#request-configuration)
   - [JavaScript Code](#javascript-code)
@@ -53,7 +53,7 @@ Example: `npx hardhat functions-read --network goerli --contract 0x787Fe00416140
 | `functions-read`          | Reads the latest response returned to a FunctionsConsumer client contract      | `contract`: Address of the client contract to read                                                                                                                                                                                                                              |
 | `functions-read-error`    | Reads the latest error returned to a FunctionsConsumer client contract         | `contract`: Address of the client contract to read                                                                                                                                                                                                                              |
 
-### Functions Subscription Managment Commands
+### Functions Subscription Management Commands
 
 | Command                  | Description                                                                                                                        | Parameters                                                                                                                                                                                                     |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
