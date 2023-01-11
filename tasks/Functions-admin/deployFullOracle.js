@@ -15,6 +15,10 @@ task(
     }
   }
 
+  if (network.name === "mumbai") {
+    overrides = { gasLimit: 5000000 }
+  }
+
   console.log("Deploying Functions oracle factory")
   const oracleFactoryFactory = await ethers.getContractFactory("FunctionsOracleFactory")
   const oracleFactory = overrides ? await oracleFactoryFactory.deploy(overrides) : await oracleFactoryFactory.deploy()
@@ -118,7 +122,7 @@ task(
     }
   }
 
-  console.log(`\nFunctionsBillingRegistry successfully deployed to ${registry.address} on ${network.name}\n`)
-  console.log(`FunctionsOracleFactory successfully deployed to ${oracleFactory.address} on ${network.name}\n`)
-  console.log(`FunctionsOracle successfully deployed to ${oracle.address} on ${network.name}\n`)
+  console.log(`\nFunctionsBillingRegistry successfully deployed to ${registry.address} on ${network.name}`)
+  console.log(`FunctionsOracleFactory successfully deployed to ${oracleFactory.address} on ${network.name}`)
+  console.log(`FunctionsOracle successfully deployed to ${oracle.address} on ${network.name}`)
 })
