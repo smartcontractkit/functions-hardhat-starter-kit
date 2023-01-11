@@ -10,6 +10,8 @@ task("functions-request", "Initiates a request from an Functions client contract
     "Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000)"
   )
   .setAction(async (taskArgs, hre) => {
+    let overrides;
+
     if (network.name === "hardhat") {
       throw Error(
         'This command cannot be used on a local development chain.  Specify a valid network or simulate an Functions request locally with "npx hardhat functions-simulate".'
