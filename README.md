@@ -4,9 +4,9 @@
 - [Overview](#overview)
 - [Quickstart](#quickstart)
 - [Command Glossary](#command-glossary)
-  - [Functions Commands](#functions-commands)
-  - [Functions Subscription Managment Commands](#functions-subscription-managment-commands)
-  - [Admin Commands](#admin-commands)
+    - [Functions Commands](#functions-commands)
+    - [Functions Subscription Managment Commands](#functions-subscription-managment-commands)
+    - [Admin Commands](#admin-commands)
 - [Request Configuration](#request-configuration)
   - [JavaScript Code](#javascript-code)
     - [Functions Library](#functions-library)
@@ -55,16 +55,16 @@ Example: `npx hardhat functions-read --network goerli --contract 0x787Fe00416140
 
 ### Functions Subscription Managment Commands
 
-| Command                  | Description                                                                                                                        | Parameters                                                                                                                                                                             |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `functions-sub-create`   | Creates a new billing subscription for Functions client contracts                                                                  | `amount` (optional): Inital amount used to fund the subscription in LINK, `contract` (optional): Address of the client contract address authorized to use the new billing subscription |
-| `functions-sub-info`     | Gets the Functions billing subscription balance, owner, and list of authorized client contract addresses                           | `subid`: Subscription ID                                                                                                                                                               |
-| `functions-sub-fund`     | Funds a billing subscription with LINK                                                                                             | `subid`: Subscription ID, `amount`: Amount to fund subscription in LINK                                                                                                                |
-| `functions-sub-cancel`   | Cancels Functions billing subscription and refunds unused balance. Cancellation is only possible if there are no pending requests. | `subid`: Subscription ID, `refundaddress` (optional): Address where the remaining subscription balance is sent (defaults to caller's address)                                          |
-| `functions-sub-add`      | Adds a client contract to the Functions billing subscription                                                                       | `subid`: Subscription ID, `contract`: Address of the client contract to authorize for billing                                                                                          |
-| `functions-sub-remove`   | Removes a client contract from an Functions billing subscription                                                                   | `subid`: Subscription ID, `contract`: Address of the client contract to remove from billing subscription                                                                               |
-| `functions-sub-transfer` | Request ownership of an Functions subscription be transferred to a new address                                                     | `subid`: Subscription ID, `newowner`: Address of the new owner                                                                                                                         |
-| `functions-sub-accept`   | Accepts ownership of an Functions subscription after a transfer is requested                                                       | `subid`: Subscription ID                                                                                                                                                               |
+| Command                  | Description                                                                                                                        | Parameters                                                                                                                                                                                                     |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `functions-sub-create`   | Creates a new billing subscription for Functions client contracts                                                                  | `amount` (optional): Inital amount used to fund the subscription in LINK (decimals are accepted), `contract` (optional): Address of the client contract address authorized to use the new billing subscription |
+| `functions-sub-info`     | Gets the Functions billing subscription balance, owner, and list of authorized client contract addresses                           | `subid`: Subscription ID                                                                                                                                                                                       |
+| `functions-sub-fund`     | Funds a billing subscription with LINK                                                                                             | `subid`: Subscription ID, `amount`: Amount to fund subscription in LINK (decimals are accepted)                                                                                                                |
+| `functions-sub-cancel`   | Cancels Functions billing subscription and refunds unused balance. Cancellation is only possible if there are no pending requests. | `subid`: Subscription ID, `refundaddress` (optional): Address where the remaining subscription balance is sent (defaults to caller's address)                                                                  |
+| `functions-sub-add`      | Adds a client contract to the Functions billing subscription                                                                       | `subid`: Subscription ID, `contract`: Address of the client contract to authorize for billing                                                                                                                  |
+| `functions-sub-remove`   | Removes a client contract from an Functions billing subscription                                                                   | `subid`: Subscription ID, `contract`: Address of the client contract to remove from billing subscription                                                                                                       |
+| `functions-sub-transfer` | Request ownership of an Functions subscription be transferred to a new address                                                     | `subid`: Subscription ID, `newowner`: Address of the new owner                                                                                                                                                 |
+| `functions-sub-accept`   | Accepts ownership of an Functions subscription after a transfer is requested                                                       | `subid`: Subscription ID                                                                                                                                                                                       |
 
 ### Admin Commands
 

@@ -4,30 +4,17 @@ require("./tasks")
 require("dotenv").config()
 
 // Set one of the following RPC endpoints (required)
-const MAINNET_RPC_URL = process.env.MAINNET_RPC_URL || "https://eth-mainnet.alchemyapi.io/v2/your-api-key"
-const POLYGON_MAINNET_RPC_URL =
-  process.env.POLYGON_MAINNET_RPC_URL || "https://polygon-mainnet.alchemyapi.io/v2/your-api-key"
-MUMBAI_RPC_URL = process.env.MUMBAI_RPC_URL || "https://polygon-mumbai.g.alchemy.com/v2/v2/your-api-key"
-const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL || "https://eth-goerli.alchemyapi.io/v2/your-api-key"
+const MAINNET_RPC_URL = process.env.MAINNET_RPC_URL
+const POLYGON_MAINNET_RPC_URL = process.env.POLYGON_MAINNET_RPC_URL
+const MUMBAI_RPC_URL = process.env.MUMBAI_RPC_URL
+const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL
 
 // Ensure one of the RPC endpoints has been set
 let setRpcUrlCount = 0
-if (MAINNET_RPC_URL !== "https://eth-mainnet.alchemyapi.io/v2/your-api-key") setRpcUrlCount++
-if (POLYGON_MAINNET_RPC_URL !== "https://polygon-mainnet.alchemyapi.io/v2/your-api-key") setRpcUrlCount++
-if (GOERLI_RPC_URL !== "https://eth-goerli.alchemyapi.io/v2/your-api-key") setRpcUrlCount++
-if (MUMBAI_RPC_URL !== "https://polygon-mumbai.g.alchemy.com/v2/v2/your-api-key") setRpcUrlCount++
-if (setRpcUrlCount === 0) {
+if (!MAINNET_RPC_URL && !POLYGON_MAINNET_RPC_URL && !MUMBAI_RPC_URL && !GOERLI_RPC_URL) {
   throw Error(
     "One of the following environment variables must be set: MAINNET_RPC_URL, GOERLI_RPC_URL, POLYGON_MAINNET_RPC_URL, or MUMBAI_RPC_URL"
   )
-}
-
-const getChainToFork = () => {
-  if (MAINNET_RPC_URL !== "https://eth-mainnet.alchemyapi.io/v2/your-api-key") return MAINNET_RPC_URL
-  if (POLYGON_MAINNET_RPC_URL !== "https://polygon-mainnet.alchemyapi.io/v2/your-api-key")
-    return POLYGON_MAINNET_RPC_URL
-  if (GOERLI_RPC_URL !== "https://eth-goerli.alchemyapi.io/v2/your-api-key") return GOERLI_RPC_URL
-  if (MUMBAI_RPC_URL !== "https://polygon-mumbai.g.alchemy.com/v2/v2/your-api-key") return MUMBAI_RPC_URL
 }
 
 // Set EVM private key (required)
@@ -37,7 +24,7 @@ if (!PRIVATE_KEY) {
 }
 
 // Set a specific bock number to fork (optional)
-const FORKING_BLOCK_NUMBER = process.env.FORKING_BLOCK_NUMBER ? parseInt(process.env.FORKING_BLOCK_NUMBER) : undefined
+const FORKING_BLOCK_NUMBER = isNaN(process.env.FORKING_BLOCK_NUMBER) ? undefined : parseInt(process.env.FORKING_BLOCK_NUMBER)
 
 // Your API key for Etherscan, obtain one at https://etherscan.io/ (optional)
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "Your etherscan API key"
@@ -85,7 +72,7 @@ module.exports = {
       allowUnlimitedContractSize: true,
       hardfork: "merge",
       forking: {
-        url: getChainToFork(),
+        url: MAINNET_RPC_URL ?? POLYGON_MAINNET_RPC_URL ?? GOERLI_RPC_URL ?? MUMBAI_RPC_URL,
         blockNumber: FORKING_BLOCK_NUMBER,
         enabled: true,
       },
