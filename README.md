@@ -30,7 +30,7 @@ Ensure Node.js is installed. It is recommended to use Node.js version 18.
 3. Simulate an end-to-end fulfillment locally by running:<br>`npx hardhat functions-simulate`<br><br>
 4. Deploy a client contract by running:<br>`npx hardhat functions-deploy-client --network network_name_here`<br><br>
 5. Create, fund & authorize a new Functions billing subscription by running:<br> `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0xDeployed_client_contract_address_here`<br>**Note**: Ensure your wallet has a sufficent LINK balance before running this command.<br><br>
-6. Make an on-chain request by running:<br>`nxp hardhat functions-request --network network_name_here --contract 0xDeployed_client_contract_address_here --subid subscription_id_number_here`
+6. Make an on-chain request by running:<br>`npx hardhat functions-request --network network_name_here --contract 0xDeployed_client_contract_address_here --subid subscription_id_number_here`
 
 # Command Glossary
 
