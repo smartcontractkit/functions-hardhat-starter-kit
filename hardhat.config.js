@@ -87,22 +87,22 @@ module.exports = {
         : [],
     },
     goerli: {
-      url: GOERLI_RPC_URL,
+      url: GOERLI_RPC_URL ?? '',
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
       chainId: 5,
     },
     mainnet: {
-      url: MAINNET_RPC_URL,
+      url: MAINNET_RPC_URL ?? '',
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
       chainId: 1,
     },
     polygon: {
-      url: POLYGON_MAINNET_RPC_URL,
+      url: POLYGON_MAINNET_RPC_URL ?? '',
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
       chainId: 137,
     },
     mumbai: {
-      url: MUMBAI_RPC_URL,
+      url: MUMBAI_RPC_URL ?? '',
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
       // TODO: check if this is still needed
       gas: 3_000_000,
