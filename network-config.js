@@ -6,6 +6,7 @@ const getLinkEthPriceFeed = () => {
     if (process.env.POLYGON_MAINNET_RPC_URL) return "0xb77fa460604b9c6435a235d057f7d319ac83cb53"
     if (process.env.GOERLI_RPC_URL) return "0xb4c4a493AB6356497713A78FFA6c60FB53517c63"
     if (process.env.MUMBAI_RPC_URL) return "0x12162c3E810393dEC01362aBf156D7ecf6159528"
+    if (process.env.SEPOLIA_RPC_URL) return "NOT_AVAILABLE_YET"
 }
 
 const networkConfig = {
