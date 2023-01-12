@@ -8,14 +8,20 @@ const MAINNET_RPC_URL = process.env.MAINNET_RPC_URL
 const POLYGON_MAINNET_RPC_URL = process.env.POLYGON_MAINNET_RPC_URL
 const MUMBAI_RPC_URL = process.env.MUMBAI_RPC_URL
 const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL
+const SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL
 
 // Ensure one of the RPC endpoints has been set
-let setRpcUrlCount = 0
-if (!MAINNET_RPC_URL && !POLYGON_MAINNET_RPC_URL && !MUMBAI_RPC_URL && !GOERLI_RPC_URL) {
-  throw Error(
-    "One of the following environment variables must be set: MAINNET_RPC_URL, GOERLI_RPC_URL, POLYGON_MAINNET_RPC_URL, or MUMBAI_RPC_URL"
-  )
+const selectedRPCs = [
+  MAINNET_RPC_URL, 
+  POLYGON_MAINNET_RPC_URL,
+  MUMBAI_RPC_URL,
+  GOERLI_RPC_URL,
+  SEPOLIA_RPC_URL
+].filter(v => !!v)
+if (selectedRPCs.length !== 1) {
+  throw Error("A single *_RPC_URL env variable must be set, found: " + selectedRPCs.join(","))
 }
+const selectedRPC = selectedRPCs[0]
 
 // Set EVM private key (required)
 const PRIVATE_KEY = process.env.PRIVATE_KEY
@@ -72,7 +78,7 @@ module.exports = {
       allowUnlimitedContractSize: true,
       hardfork: "merge",
       forking: {
-        url: MAINNET_RPC_URL ?? POLYGON_MAINNET_RPC_URL ?? GOERLI_RPC_URL ?? MUMBAI_RPC_URL,
+        url: selectedRPC,
         blockNumber: FORKING_BLOCK_NUMBER,
         enabled: true,
       },
@@ -87,26 +93,31 @@ module.exports = {
         : [],
     },
     goerli: {
-      url: GOERLI_RPC_URL,
+      url: GOERLI_RPC_URL || "NOTSET",
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
       chainId: 5,
     },
     mainnet: {
-      url: MAINNET_RPC_URL,
+      url: MAINNET_RPC_URL || "NOTSET",
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
       chainId: 1,
     },
     polygon: {
-      url: POLYGON_MAINNET_RPC_URL,
+      url: POLYGON_MAINNET_RPC_URL || "NOTSET",
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
       chainId: 137,
     },
     mumbai: {
-      url: MUMBAI_RPC_URL,
+      url: MUMBAI_RPC_URL || "NOTSET",
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
       // TODO: check if this is still needed
       gas: 3_000_000,
       chainId: 80001,
+    },
+    sepolia: {
+      url: SEPOLIA_RPC_URL || "NOTSET",
+      accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
+      chainId: 11155111,
     },
   },
   etherscan: {
