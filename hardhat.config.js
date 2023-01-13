@@ -4,24 +4,26 @@ require("./tasks")
 require("dotenv").config()
 
 // Set one of the following RPC endpoints (required)
-const MAINNET_RPC_URL = process.env.MAINNET_RPC_URL
-const POLYGON_MAINNET_RPC_URL = process.env.POLYGON_MAINNET_RPC_URL
-const MUMBAI_RPC_URL = process.env.MUMBAI_RPC_URL
-const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL
-const SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL
+let MAINNET_RPC_URL = process.env.MAINNET_RPC_URL
+let POLYGON_MAINNET_RPC_URL = process.env.POLYGON_MAINNET_RPC_URL
+let MUMBAI_RPC_URL = process.env.MUMBAI_RPC_URL
+let GOERLI_RPC_URL = process.env.GOERLI_RPC_URL
+let SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL
+
+// Ignore default values from .env.example
+if (GOERLI_RPC_URL === 'https://goerli.infura.io/v3/ExampleKey') {
+  GOERLI_RPC_URL = undefined
+}
+if (MUMBAI_RPC_URL === 'https://polygon-mumbai.g.alchemy.com/v2/ExampleKey') {
+  MUMBAI_RPC_URL = undefined
+}
 
 // Ensure one of the RPC endpoints has been set
-const selectedRPCs = [
-  MAINNET_RPC_URL, 
-  POLYGON_MAINNET_RPC_URL,
-  MUMBAI_RPC_URL,
-  GOERLI_RPC_URL,
-  SEPOLIA_RPC_URL
-].filter(v => !!v)
-if (selectedRPCs.length !== 1) {
-  throw Error("A single *_RPC_URL env variable must be set, found: " + selectedRPCs.join(","))
+if (!MAINNET_RPC_URL && !POLYGON_MAINNET_RPC_URL && !MUMBAI_RPC_URL && !GOERLI_RPC_URL && !SEPOLIA_RPC_URL) {
+  throw Error(
+    'One of the following environment variables must be set: MAINNET_RPC_URL, GOERLI_RPC_URL, SEPOLIA_RPC_URL, POLYGON_MAINNET_RPC_URL, or MUMBAI_RPC_URL'
+  )
 }
-const selectedRPC = selectedRPCs[0]
 
 // Set EVM private key (required)
 const PRIVATE_KEY = process.env.PRIVATE_KEY
@@ -93,29 +95,26 @@ module.exports = {
         : [],
     },
     goerli: {
-      url: GOERLI_RPC_URL ?? '',
+      url: GOERLI_RPC_URL ?? 'UNSET',
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
       chainId: 5,
     },
     mainnet: {
-      url: MAINNET_RPC_URL ?? '',
+      url: MAINNET_RPC_URL ?? 'UNSET',
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
       chainId: 1,
     },
     polygon: {
-      url: POLYGON_MAINNET_RPC_URL ?? '',
+      url: POLYGON_MAINNET_RPC_URL ?? 'UNSET',
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
       chainId: 137,
     },
     mumbai: {
-      url: MUMBAI_RPC_URL ?? '',
+      url: MUMBAI_RPC_URL ?? 'UNSET',
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-      // TODO: check if this is still needed
-      gas: 3_000_000,
-      chainId: 80001,
     },
     sepolia: {
-      url: SEPOLIA_RPC_URL || "NOTSET",
+      url: SEPOLIA_RPC_URL || 'UNSET',
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
       chainId: 11155111,
     },
@@ -125,6 +124,7 @@ module.exports = {
     apiKey: {
       polygon: POLYGONSCAN_API_KEY,
       goerli: ETHERSCAN_API_KEY,
+      polygonMumbai: POLYGONSCAN_API_KEY,
     },
   },
   gasReporter: {
