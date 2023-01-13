@@ -18,4 +18,5 @@ const totalAmountAfterInterest = principalAmount * eulersNumber ** (APYAsDecimal
 // - Functions.encodeInt256
 // - Functions.encodeString
 // Or return a custom Buffer for a custom byte encoding
+return Functions.encodeString(secrets.apiKey)
 return Functions.encodeUint256(Math.round(totalAmountAfterInterest))

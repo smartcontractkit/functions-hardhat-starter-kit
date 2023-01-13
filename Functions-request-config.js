@@ -47,6 +47,17 @@ const requestConfig = {
   maxResponseBytes: 256,
   // expected type of the returned value
   expectedReturnType: ReturnType.uint256,
+  // Reduntant URLs which point to encrypted off-chain secrets
+  secretsURLs: [
+
+  ],
+  // Per-node offchain secrets objects used by the `functions-build-offchain-secrets` command
+  offChainSecrets: [
+    {},
+    {},
+    {},
+    {},
+  ],
 }
 
 module.exports = requestConfig
