@@ -131,8 +131,9 @@ task("functions-request", "Initiates a request from an Functions client contract
 
     // Use a promise to wait & listen for the fulfillment event before returning
     await new Promise(async (resolve, reject) => {
-      // Initate the listeners before making the request
+      let requestId
 
+      // Initate the listeners before making the request
       // Listen for fulfillment errors
       oracle.on("UserCallbackError", async (eventRequestId, msg) => {
         if (requestId == eventRequestId) {
@@ -197,7 +198,7 @@ task("functions-request", "Initiates a request from an Functions client contract
           }
         }
       )
-
+      // Initiate the on-chain request after all listeners are initalized
       console.log(`\nRequesting new data for FunctionsConsumer contract ${contractAddr} on network ${network.name}`)
       const requestTx = overrides
         ? await clientContract.executeRequest(
@@ -226,8 +227,9 @@ task("functions-request", "Initiates a request from an Functions client contract
       console.log(
         `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${requestTx.hash} to be confirmed...`
       )
+
       const requestTxReceipt = await requestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
-      const requestId = requestTxReceipt.events[2].args.id
+      requestId = requestTxReceipt.events[2].args.id
       console.log(`\nRequest ${requestId} initiated`)
       console.log(`Waiting for fulfillment...\n`)
     })

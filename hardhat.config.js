@@ -4,13 +4,20 @@ require("./tasks")
 require("dotenv").config()
 
 // Set one of the following RPC endpoints (required)
-const MAINNET_RPC_URL = process.env.MAINNET_RPC_URL
-const POLYGON_MAINNET_RPC_URL = process.env.POLYGON_MAINNET_RPC_URL
-const MUMBAI_RPC_URL = process.env.MUMBAI_RPC_URL
-const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL
+let MAINNET_RPC_URL = process.env.MAINNET_RPC_URL
+let POLYGON_MAINNET_RPC_URL = process.env.POLYGON_MAINNET_RPC_URL
+let MUMBAI_RPC_URL = process.env.MUMBAI_RPC_URL
+let GOERLI_RPC_URL = process.env.GOERLI_RPC_URL
+
+// Ignore default values from .env.example
+if (GOERLI_RPC_URL === 'https://goerli.infura.io/v3/ExampleKey') {
+  GOERLI_RPC_URL = undefined
+}
+if (MUMBAI_RPC_URL === 'https://polygon-mumbai.g.alchemy.com/v2/ExampleKey') {
+  MUMBAI_RPC_URL = undefined
+}
 
 // Ensure one of the RPC endpoints has been set
-let setRpcUrlCount = 0
 if (!MAINNET_RPC_URL && !POLYGON_MAINNET_RPC_URL && !MUMBAI_RPC_URL && !GOERLI_RPC_URL) {
   throw Error(
     "One of the following environment variables must be set: MAINNET_RPC_URL, GOERLI_RPC_URL, POLYGON_MAINNET_RPC_URL, or MUMBAI_RPC_URL"
