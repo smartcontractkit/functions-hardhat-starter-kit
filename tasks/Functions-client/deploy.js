@@ -32,8 +32,12 @@ task("functions-deploy-client", "Deploys the FunctionsConsumer contract").setAct
       })
       console.log("Contract verified")
     } catch (error) {
-      console.log("Error verifying contract.  Delete the ./build folder and try again.")
-      console.log(error)
+      if (!error.message.includes('Already Verified')) {
+        console.log("Error verifying contract.  Try delete the ./build folder and try again.")
+        console.log(error)
+      } else {
+        console.log("Contract already verified")
+      }
     }
   }
 
