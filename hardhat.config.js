@@ -14,6 +14,9 @@ let SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL
 if (GOERLI_RPC_URL === 'https://goerli.infura.io/v3/ExampleKey') {
   GOERLI_RPC_URL = undefined
 }
+if (SEPOLIA_RPC_URL === 'https://sepolia.infura.io/v3/ExampleKey') {
+  SEPOLIA_RPC_URL = undefined
+}
 if (MUMBAI_RPC_URL === 'https://polygon-mumbai.g.alchemy.com/v2/ExampleKey') {
   MUMBAI_RPC_URL = undefined
 }
@@ -80,7 +83,7 @@ module.exports = {
       allowUnlimitedContractSize: true,
       hardfork: "merge",
       forking: {
-        url: selectedRPC,
+        url: MAINNET_RPC_URL ?? POLYGON_MAINNET_RPC_URL ?? MUMBAI_RPC_URL ?? GOERLI_RPC_URL ?? SEPOLIA_RPC_URL,
         blockNumber: FORKING_BLOCK_NUMBER,
         enabled: true,
       },
