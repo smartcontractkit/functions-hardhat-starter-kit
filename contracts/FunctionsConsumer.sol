@@ -17,7 +17,7 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
   bytes public latestResponse;
   bytes public latestError;
 
-  event OCRResponse(bytes result, bytes err);
+  event OCRResponse(bytes32 indexed requestId, bytes result, bytes err);
 
   /**
    * @notice Executes once when a contract is created to initialize state variables
@@ -66,6 +66,6 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
     // revert('test');
     latestResponse = response;
     latestError = err;
-    emit OCRResponse(response, err);
+    emit OCRResponse(requestId, response, err);
   }
 }
