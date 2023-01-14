@@ -224,9 +224,9 @@ task("functions-request", "Initiates a request from an Functions client contract
         300_000
       )
       console.log(
-        `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${requestTx.hash} to be confirmed...`
+        `Waiting 2 blocks for transaction ${requestTx.hash} to be confirmed...`
       )
-      const requestTxReceipt = await requestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+      const requestTxReceipt = await requestTx.wait(2)
       const requestId = requestTxReceipt.events[2].args.id
       console.log(`\nRequest ${requestId} initiated`)
       console.log(`Waiting for fulfillment...\n`)

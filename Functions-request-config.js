@@ -5,6 +5,7 @@ require("dotenv").config()
 
 const Location = {
   Inline: 0,
+  Offchain: 1,
 }
 
 const CodeLanguage = {
@@ -26,7 +27,7 @@ const requestConfig = {
   // location of source code (only Inline is curently supported)
   codeLocation: Location.Inline,
   // location of secrets (only Inline is currently supported)
-  secretsLocation: Location.Inline,
+  secretsLocation: Location.Offchain,
   // code language (only JavaScript is currently supported)
   codeLanguage: CodeLanguage.JavaScript,
   // string containing the source code to be executed
@@ -48,15 +49,16 @@ const requestConfig = {
   // expected type of the returned value
   expectedReturnType: ReturnType.uint256,
   // Reduntant URLs which point to encrypted off-chain secrets
+  // TODO: The tooling should fetch this URL & verify that the secrets are correctly specified (ie: has the correct format & contains entries for all current transmitter node addresses)
   secretsURLs: [
-
+    'https://raw.githubusercontent.com/KuphJr/off-chain-secrets/main/test-secrets.json'
   ],
   // Per-node offchain secrets objects used by the `functions-build-offchain-secrets` command
-  offChainSecrets: [
-    {},
-    {},
-    {},
-    {},
+  perNodeSecrets: [
+    { apiKey: process.env.COINMARKETCAP_API_KEY0 },
+    { apiKey: process.env.COINMARKETCAP_API_KEY1 },
+    { apiKey: process.env.COINMARKETCAP_API_KEY2 },
+    { apiKey: process.env.COINMARKETCAP_API_KEY3 },
   ],
 }
 

@@ -19,7 +19,7 @@ task("functions-set-ocr-config", "Sets the OCR config using values from Function
     const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracle"])
 
     const ocrConfig = require("../../FunctionsOracleConfig.json")
-    console.log(`Setting oracle OCR config for oracle ${networkConfig[network.name]["functionsOracle"]}`)
+    console.log(`Setting oracle OCR config for FunctionsOracle ${networkConfig[network.name]["functionsOracle"]}`)
     const setConfigTx = overrides
       ? await oracle.setConfig(
           ocrConfig.signers,
