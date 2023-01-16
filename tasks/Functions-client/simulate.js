@@ -1,3 +1,4 @@
+const path = require("path")
 const { simulateRequest, buildRequest, getDecodedResultLog } = require("../../FunctionsRequestSimulator")
 const { networkConfig } = require("../../network-config")
 
@@ -6,6 +7,7 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
     "gaslimit",
     "Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000)"
   )
+  .addOptionalParam("path", "Path to request configuration file")
   .setAction(async (taskArgs, hre) => {
     // Simuation can only be conducted on a local fork of the blockchain
     if (network.name !== "hardhat") {
@@ -49,7 +51,16 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
     await registry.addConsumer(subscriptionId, client.address)
 
     // Build the parameters to make a request from the client contract
-    const requestConfig = require("../../Functions-request-config.js")
+    const requestConfigPath = taskArgs.path
+    let requestConfig
+    if (requestConfigPath) {
+      console.log(`load request config file from ${requestConfigPath}`)
+      requestConfig = require(path.resolve(requestConfigPath))
+    } else {
+      console.log(`no load request config file provided. Load config from ./Functions-request-config.js`)
+      requestConfig = require("../../Functions-request-config.js")
+    }
+
     // Fetch the DON public key from on-chain
     const DONPublicKey = await oracle.getDONPublicKey()
     // Remove the preceeding 0x from the DON public key
@@ -72,7 +83,7 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
 
       // Simulating the JavaScript code locally
       console.log("\nExecuting JavaScript request source code locally...")
-      const { success, result, resultLog } = await simulateRequest(require("../../Functions-request-config.js"))
+      const { success, result, resultLog } = await simulateRequest(requestConfig)
       console.log(`\n${resultLog}`)
 
       // Simulate a request fulfillment
