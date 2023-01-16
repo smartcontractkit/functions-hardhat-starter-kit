@@ -1,3 +1,4 @@
+const path = require("path")
 const { simulateRequest, buildRequest, getDecodedResultLog } = require("../../FunctionsRequestSimulator")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 const readline = require("readline-promise").default
@@ -9,8 +10,9 @@ task("functions-request", "Initiates a request from an Functions client contract
     "gaslimit",
     "Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000)"
   )
+  .addOptionalParam("path", "Path to request configuration file")
   .setAction(async (taskArgs, hre) => {
-    let overrides;
+    let overrides
 
     if (network.name === "hardhat") {
       throw Error(
@@ -25,7 +27,7 @@ task("functions-request", "Initiates a request from an Functions client contract
         maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
         gasLimit: 500000,
       }
-    }  
+    }
 
     // Get the required parameters
     const contractAddr = taskArgs.contract
@@ -45,7 +47,16 @@ task("functions-request", "Initiates a request from an Functions client contract
     const registry = await RegistryFactory.attach(registryAddress)
 
     console.log("Simulating Functions request locally...")
-    const requestConfig = require("../../Functions-request-config.js")
+    // Build the parameters to make a request from the client contract
+    const requestConfigPath = taskArgs.path
+    let requestConfig
+    if (requestConfigPath) {
+      console.log(`load request config file from ${requestConfigPath}`)
+      requestConfig = require(path.resolve(requestConfigPath))
+    } else {
+      console.log(`no load request config file provided. Load config from ./Functions-request-config.js`)
+      requestConfig = require("../../Functions-request-config.js")
+    }
     const { success, resultLog } = await simulateRequest(requestConfig)
     console.log(`\n${resultLog}`)
 
@@ -155,7 +166,7 @@ task("functions-request", "Initiates a request from an Functions client contract
         if (result !== "0x") {
           console.log(
             `Response returned to client contract represented as a hex string: ${result}\n${getDecodedResultLog(
-              require("../../Functions-request-config"),
+              requestConfig,
               result
             )}`
           )
@@ -202,20 +213,20 @@ task("functions-request", "Initiates a request from an Functions client contract
       console.log(`\nRequesting new data for FunctionsConsumer contract ${contractAddr} on network ${network.name}`)
       const requestTx = overrides
         ? await clientContract.executeRequest(
-          request.source,
-          request.secrets ?? [],
-          request.args ?? [],
-          subscriptionId,
-          gasLimit,
-          overrides,
-        )
+            request.source,
+            request.secrets ?? [],
+            request.args ?? [],
+            subscriptionId,
+            gasLimit,
+            overrides
+          )
         : await clientContract.executeRequest(
-          request.source,
-          request.secrets ?? [],
-          request.args ?? [],
-          subscriptionId,
-          gasLimit
-        )
+            request.source,
+            request.secrets ?? [],
+            request.args ?? [],
+            subscriptionId,
+            gasLimit
+          )
       // If a response is not received within 5 minutes, the request has failed
       setTimeout(
         () =>
