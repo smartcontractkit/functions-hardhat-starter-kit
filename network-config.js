@@ -4,8 +4,9 @@ require("dotenv").config()
 const getLinkEthPriceFeed = () => {
     if (process.env.MAINNET_RPC_URL) return "0xdc530d9457755926550b59e8eccdae7624181557"
     if (process.env.POLYGON_MAINNET_RPC_URL) return "0xb77fa460604b9c6435a235d057f7d319ac83cb53"
-    if (process.env.GOERLI_RPC_URL) return "0xb4c4a493AB6356497713A78FFA6c60FB53517c63"
     if (process.env.MUMBAI_RPC_URL) return "0x12162c3E810393dEC01362aBf156D7ecf6159528"
+    if (process.env.GOERLI_RPC_URL) return "0xb4c4a493AB6356497713A78FFA6c60FB53517c63"
+    if (process.env.SEPOLIA_RPC_URL) return "NOT_AVAILABLE_YET"
 }
 
 const networkConfig = {
@@ -37,6 +38,15 @@ const networkConfig = {
     functionsOracle: "0x0e9C779d5f2aDe5cf642433C584904B249441eFb",
     functionsOracleFactory: "0xF4387B2Ad01B479d1ba18e9A101C35d96A83d5a5",
     functionsOracleRegistry: "0xE7e4882E6cc98b4c20A5155ca83A18C85aaBfCe6",
+    functionsPublicKey:
+      "f2f9c47363202d89aa9fa70baf783d70006fe493471ac8cfa82f1426fd09f16a5f6b32b7c4b5d5165cd147a6e513ba4c0efd39d969d6b20a8a21126f0411b9c6",
+  },
+  sepolia: {
+    linkToken: "0x779877A7B0D9E8603169DdbD7836e478b4624789",
+    linkEthPriceFeed: "",
+    functionsOracle: "0x642E1EEE05Deedb98D92e3E0efDc37d36F7e6aeB",
+    functionsOracleFactory: "",
+    functionsOracleRegistry: "0x49A98D5B7fd9B258db53D712C48619A97d36f230",
     functionsPublicKey:
       "f2f9c47363202d89aa9fa70baf783d70006fe493471ac8cfa82f1426fd09f16a5f6b32b7c4b5d5165cd147a6e513ba4c0efd39d969d6b20a8a21126f0411b9c6",
   },
