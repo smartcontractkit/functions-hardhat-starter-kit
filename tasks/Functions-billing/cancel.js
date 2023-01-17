@@ -10,8 +10,8 @@ task(
     "Address where the remaining subscription balance is sent (defaults to caller's address)"
   )
   .setAction(async (taskArgs) => {
-    if (developmentChains.includes(network.name)) {
-      throw Error("This command cannot be used on a local development chain.  Specify a valid network.")
+    if (network.name == "hardhat") {
+      throw Error("This command cannot be used on a local hardhat chain.  Specify a valid network.")
     }
 
     const subscriptionId = taskArgs.subid
@@ -50,6 +50,7 @@ task(
     )
     await cancelTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
 
+    const postSubInfo = await registry.getSubscription(subscriptionId)
     console.log(
       `\nSubscription ${subscriptionId} cancelled.\n${ethers.utils.formatEther(
         postSubInfo[0]
