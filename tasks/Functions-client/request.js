@@ -158,7 +158,7 @@ task("functions-request", "Initiates a request from an Functions client contract
       let ocrResponseEventReceived = false
       clientContract.on("OCRResponse", async (eventRequestId, result, err) => {
         // Ensure the fulfilled requestId matches the initiated requestId to prevent logging a response for an unrelated requestId
-        if (eventRequestId !== eventRequestId) {
+        if (eventRequestId !== requestId) {
           return
         }
 
