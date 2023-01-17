@@ -33,5 +33,6 @@ module.exports = {
   Location,
   CodeLanguage,
   ReturnType,
+  defaultRequestConfigPath,
   getRequestConfigPath,
 }

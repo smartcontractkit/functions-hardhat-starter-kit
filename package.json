@@ -5,8 +5,8 @@
   "description": "Tooling for interacting with Chainlink Functions",
   "scripts": {
     "compile": "hardhat compile",
-    "functions-simulate-javascript": "node scripts/simulateFunctionsRequest.js",
-    "functions-build-request": "node scripts/buildFunctionsRequest.js",
+    "functions-simulate-javascript": "node scripts/cli.js simulate",
+    "functions-build-request": "node scripts/cli.js build",
     "lint": "solhint 'contracts/*.sol'",
     "lint:fix": "solhint 'contracts/**/*.sol' --fix"
   },
@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "axios": "^1.1.3",
+    "commander": "^10.0.0",
     "crypto-js": "^4.1.1",
     "dotenv": "^16.0.3",
     "jsrsasign": "^10.6.0",

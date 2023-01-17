@@ -4,10 +4,12 @@ const LINK_TOKEN_ABI = require("@chainlink/contracts/abi/v0.4/LinkToken.json")
 
 const { buildRequest, simulateRequest } = require("../../FunctionsRequestSimulator")
 
-async function deployAutomatedApiConsumer(chainId = network.config.chainId) {
+async function deployAutomatedApiConsumer(chainId = network.config.chainId, requestConfigPath) {
   console.log("Simulating Functions request locally...")
+  if (!requestConfigPath) throw new Error("Request config path not provided")
+  const requestConfig = require(requestConfigPath)
 
-  const { success, resultLog } = await simulateRequest("../../Functions-request-config.js")
+  const { success, resultLog } = await simulateRequest(requestConfig)
 
   console.log(resultLog)
 
@@ -15,7 +17,7 @@ async function deployAutomatedApiConsumer(chainId = network.config.chainId) {
     return
   }
 
-  const request = await buildRequest("../../Functions-request-config.js")
+  const request = await buildRequest(requestConfig)
 
   const accounts = await ethers.getSigners()
   const deployer = accounts[0]

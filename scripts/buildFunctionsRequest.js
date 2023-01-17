@@ -1,7 +1,12 @@
 const { simulateRequest, buildRequest, getDecodedResultLog } = require("../FunctionsRequestSimulator")
 const { writeFileSync } = require("fs")
 
-;(async () => {
-  const builtRequest = await buildRequest(require("../Functions-request-config.js"))
-  writeFileSync("Functions-request.json", JSON.stringify(builtRequest))
-})()
+const build = async (requestConfigPath) => {
+  if (!requestConfigPath) throw new Error("Request config path not provided")
+  const outputFile = "Functions-request.json"
+  const builtRequest = await buildRequest(require(requestConfigPath))
+  writeFileSync(outputFile, JSON.stringify(builtRequest))
+  console.log(`Build file ${outputFile} generated`)
+}
+
+module.exports = { build }
