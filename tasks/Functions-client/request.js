@@ -10,7 +10,7 @@ task("functions-request", "Initiates a request from an Functions client contract
     "Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000)"
   )
   .setAction(async (taskArgs, hre) => {
-    let overrides;
+    let overrides
 
     if (network.name === "hardhat") {
       throw Error(
@@ -27,10 +27,9 @@ task("functions-request", "Initiates a request from an Functions client contract
       }
     }
 
-    if (network.name === "mumbai") {
-      overrides = {
-        gasLimit: 500000,
-      }
+    // A manual gas limit is required as the gas limit estimated by Ethers is not always accurate
+    overrides = {
+      gasLimit: 500000,
     }
 
     // Get the required parameters
