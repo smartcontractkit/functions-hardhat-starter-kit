@@ -27,6 +27,12 @@ task("functions-request", "Initiates a request from an Functions client contract
       }
     }
 
+    if (network.name === "mumbai") {
+      overrides = {
+        gasLimit: 500000,
+      }
+    }
+
     // Get the required parameters
     const contractAddr = taskArgs.contract
     const subscriptionId = taskArgs.subid

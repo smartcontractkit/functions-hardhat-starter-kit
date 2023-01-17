@@ -150,7 +150,7 @@ An error response object will have the following parameters.
 This library also exposes functions for encoding JavaScript values into Buffers which represent the bytes that a returned on-chain.
 
 - `Functions.encodeUint256(x)` takes a positive JavaScript integer number `x` and returns a 32 byte Buffer representing `x` as a `uint256` type in Solidity.
-- `Functions.encodeUint256(x)` takes a JavaScript integer number `x` and returns a 32 byte Buffer representing `x` as a `int256` type in Solidity.
+- `Functions.encodeInt256(x)` takes a JavaScript integer number `x` and returns a 32 byte Buffer representing `x` as a `int256` type in Solidity.
 - `Functions.encodeString(x)` takes a JavaScript string `x` and returns a Buffer representing `x` as a `string` type in Solidity.
 
 ## Modifying Contracts
