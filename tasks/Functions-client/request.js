@@ -25,7 +25,7 @@ task("functions-request", "Initiates a request from an Functions client contract
         maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
         gasLimit: 500000,
       }
-    }  
+    }
 
     // Get the required parameters
     const contractAddr = taskArgs.contract
@@ -143,14 +143,19 @@ task("functions-request", "Initiates a request from an Functions client contract
       })
       oracle.on("UserCallbackRawError", async (eventRequestId, msg) => {
         if (requestId == eventRequestId) {
-          console.log("Error in client contract callback function")
+          console.log("Raw error in client contract callback function")
           console.log(Buffer.from(msg, "hex").toString())
         }
       })
       // Listen for successful fulfillment
       let billingEndEventRecieved = false
       let ocrResponseEventReceived = false
-      clientContract.on("OCRResponse", async (result, err) => {
+      clientContract.on("OCRResponse", async (eventRequestId, result, err) => {
+        // Ensure the fulfilled requestId matches the initiated requestId to prevent logging a response for an unrelated requestId
+        if (eventRequestId !== eventRequestId) {
+          return
+        }
+
         console.log(`Request ${requestId} fulfilled!`)
         if (result !== "0x") {
           console.log(
