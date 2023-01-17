@@ -10,7 +10,10 @@ task("functions-request", "Initiates a request from an Functions client contract
     "Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000)"
   )
   .setAction(async (taskArgs, hre) => {
-    let overrides
+    // A manual gas limit is required as the gas limit estimated by Ethers is not always accurate
+    const overrides = {
+      gasLimit: 500000,
+    }
 
     if (network.name === "hardhat") {
       throw Error(
@@ -19,17 +22,8 @@ task("functions-request", "Initiates a request from an Functions client contract
     }
 
     if (network.name === "goerli") {
-      overrides = {
-        // be careful, this may drain your balance quickly
-        maxPriorityFeePerGas: ethers.utils.parseUnits("50", "gwei"),
-        maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
-        gasLimit: 500000,
-      }
-    }
-
-    // A manual gas limit is required as the gas limit estimated by Ethers is not always accurate
-    overrides = {
-      gasLimit: 500000,
+      overrides.maxPriorityFeePerGas = ethers.utils.parseUnits("50", "gwei")
+      overrides.maxFeePerGas = ethers.utils.parseUnits("50", "gwei")
     }
 
     // Get the required parameters
@@ -210,22 +204,14 @@ task("functions-request", "Initiates a request from an Functions client contract
       )
       // Initiate the on-chain request after all listeners are initalized
       console.log(`\nRequesting new data for FunctionsConsumer contract ${contractAddr} on network ${network.name}`)
-      const requestTx = overrides
-        ? await clientContract.executeRequest(
-          request.source,
-          request.secrets ?? [],
-          request.args ?? [],
-          subscriptionId,
-          gasLimit,
-          overrides,
-        )
-        : await clientContract.executeRequest(
-          request.source,
-          request.secrets ?? [],
-          request.args ?? [],
-          subscriptionId,
-          gasLimit
-        )
+      const requestTx = await clientContract.executeRequest(
+        request.source,
+        request.secrets ?? [],
+        request.args ?? [],
+        subscriptionId,
+        gasLimit,
+        overrides,
+      )
       // If a response is not received within 5 minutes, the request has failed
       setTimeout(
         () =>
