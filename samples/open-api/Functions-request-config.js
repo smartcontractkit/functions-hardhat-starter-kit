@@ -1,6 +1,6 @@
 const fs = require("fs")
 const path = require("path")
-const { CodeLanguage, Location, ReturnType } = require("../common")
+const { CodeLanguage, Location, ReturnType } = require("../../functionsRequestCommon")
 
 // Loads environment variables from .env file (if it exists)
 require("dotenv").config()

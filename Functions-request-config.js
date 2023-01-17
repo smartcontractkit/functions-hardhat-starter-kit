@@ -1,25 +1,8 @@
 const fs = require("fs")
+const { CodeLanguage, Location, ReturnType } = require("./functionsRequestCommon")
 
 // Loads environment variables from .env file (if it exists)
 require("dotenv").config()
-
-const Location = {
-  Inline: 0,
-}
-
-const CodeLanguage = {
-  JavaScript: 0,
-}
-
-const ReturnType = {
-  uint: "uint256",
-  uint256: "uint256",
-  int: "int256",
-  int256: "int256",
-  string: "string",
-  bytes: "Buffer",
-  Buffer: "Buffer",
-}
 
 // Configure the request by setting the fields below
 const requestConfig = {

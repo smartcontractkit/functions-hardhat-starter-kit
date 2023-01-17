@@ -1,6 +1,6 @@
-const path = require("path")
 const { simulateRequest, buildRequest, getDecodedResultLog } = require("../../FunctionsRequestSimulator")
 const { networkConfig } = require("../../network-config")
+const { getRequestConfigPath } = require("../../FunctionsRequestCommon")
 
 task("functions-simulate", "Simulates an end-to-end fulfillment locally for the FunctionsConsumer contract")
   .addOptionalParam(
@@ -51,15 +51,7 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
     await registry.addConsumer(subscriptionId, client.address)
 
     // Build the parameters to make a request from the client contract
-    const requestConfigPath = taskArgs.path
-    let requestConfig
-    if (requestConfigPath) {
-      console.log(`load request config file from ${requestConfigPath}`)
-      requestConfig = require(path.resolve(requestConfigPath))
-    } else {
-      console.log(`no load request config file provided. Load config from ./Functions-request-config.js`)
-      requestConfig = require("../../Functions-request-config.js")
-    }
+    const requestConfig = require(getRequestConfigPath(taskArgs.path))
 
     // Fetch the DON public key from on-chain
     const DONPublicKey = await oracle.getDONPublicKey()

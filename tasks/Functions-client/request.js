@@ -1,4 +1,4 @@
-const path = require("path")
+const { getRequestConfigPath } = require("../../FunctionsRequestCommon")
 const { simulateRequest, buildRequest, getDecodedResultLog } = require("../../FunctionsRequestSimulator")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 const readline = require("readline-promise").default
@@ -48,15 +48,7 @@ task("functions-request", "Initiates a request from an Functions client contract
 
     console.log("Simulating Functions request locally...")
     // Build the parameters to make a request from the client contract
-    const requestConfigPath = taskArgs.path
-    let requestConfig
-    if (requestConfigPath) {
-      console.log(`load request config file from ${requestConfigPath}`)
-      requestConfig = require(path.resolve(requestConfigPath))
-    } else {
-      console.log(`no load request config file provided. Load config from ./Functions-request-config.js`)
-      requestConfig = require("../../Functions-request-config.js")
-    }
+    const requestConfig = require(getRequestConfigPath(taskArgs.path))
     const { success, resultLog } = await simulateRequest(requestConfig)
     console.log(`\n${resultLog}`)
 

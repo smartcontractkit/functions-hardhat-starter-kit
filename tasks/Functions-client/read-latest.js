@@ -1,4 +1,4 @@
-const path = require("path")
+const { getRequestConfigPath } = require("../../FunctionsRequestCommon")
 const { getDecodedResultLog } = require("../../FunctionsRequestSimulator")
 
 task("functions-read", "Reads the latest response returned to a FunctionsConsumer client contract")
@@ -18,15 +18,7 @@ task("functions-read", "Reads the latest response returned to a FunctionsConsume
     let latestResponse = await clientContract.latestResponse()
 
     // Build the parameters to make a request from the client contract
-    const requestConfigPath = taskArgs.path
-    let requestConfig
-    if (requestConfigPath) {
-      console.log(`load request config file from ${requestConfigPath}`)
-      requestConfig = require(path.resolve(requestConfigPath))
-    } else {
-      console.log(`no load request config file provided. Load config from ./Functions-request-config.js`)
-      requestConfig = require("../../Functions-request-config.js")
-    }
+    const requestConfig = require(getRequestConfigPath(taskArgs.path))
     console.log(
       `\nOn-chain response represented as a hex string: ${latestResponse}\n${getDecodedResultLog(
         requestConfig,
