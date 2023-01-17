@@ -25,7 +25,13 @@ task("functions-request", "Initiates a request from an Functions client contract
         maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
         gasLimit: 500000,
       }
-    }  
+    }
+
+    if (network.name === "mumbai") {
+      overrides = {
+        gasLimit: 500000,
+      }
+    }
 
     // Get the required parameters
     const contractAddr = taskArgs.contract
