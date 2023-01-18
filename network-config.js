@@ -23,9 +23,9 @@ const networkConfig = {
   goerli: {
     linkToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
     linkEthPriceFeed: "0xb4c4a493AB6356497713A78FFA6c60FB53517c63",
-    functionsOracle: "0xf90Dfc940DB85467DA7632321FcC898D224476B0",
-    functionsOracleFactory: "0x4AB8770f17AE630Eaf32AAd67727f05cc9FAD966",
-    functionsOracleRegistry: "0x7476a7688C0336EeEc859436Fe9071D27d1cdbf0",
+    functionsOracle: "0xeB6863217327B044Ac3380D4122b32951377389A",
+    functionsOracleFactory: "0x3F43f18E05b2578FDe8e55FC71383D0d02e05150",
+    functionsOracleRegistry: "0x510edc20c85B414e765A14fE3d6D3909d2e204a0",
     functionsPublicKey:
       "f2f9c47363202d89aa9fa70baf783d70006fe493471ac8cfa82f1426fd09f16a5f6b32b7c4b5d5165cd147a6e513ba4c0efd39d969d6b20a8a21126f0411b9c6",
   },
@@ -35,9 +35,9 @@ const networkConfig = {
   mumbai: {
     linkToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
     linkEthPriceFeed: "0x12162c3E810393dEC01362aBf156D7ecf6159528",
-    functionsOracle: "0x305a8D56144a75C1ce505255feEc9E254E418e17",
-    functionsOracleFactory: "0x4E73E14cdA1F16FC0c5B31fe695C5D284b6c9587",
-    functionsOracleRegistry: "0x25Db40c0B62fB7a4Cc357d81b9962AF7487259A1",
+    functionsOracle: "0x6199175d137B791B7AB06C3452aa6acc3519b254",
+    functionsOracleFactory: "0xCBEAb3ECc3Af26bE11E25767bc6DDA5f0B129BEA",
+    functionsOracleRegistry: "0xB12044Ba63F66191E53b0Cd8C10095080b4c8434",
     functionsPublicKey:
       "f2f9c47363202d89aa9fa70baf783d70006fe493471ac8cfa82f1426fd09f16a5f6b32b7c4b5d5165cd147a6e513ba4c0efd39d969d6b20a8a21126f0411b9c6",
   },

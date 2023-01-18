@@ -168,10 +168,9 @@ task("functions-request", "Initiates a request from an Functions client contract
           console.log(`Error message returned to client contract: "${Buffer.from(err.slice(2), "hex")}"\n`)
         }
         ocrResponseEventReceived = true
-        // FIXME BillingEnd event
-        //if (billingEndEventRecieved) {
-        return resolve()
-        //}
+        if (billingEndEventRecieved) {
+          return resolve()
+        }
       })
       // Listen for the BillingEnd event, log cost breakdown & resolve
       registry.on(
