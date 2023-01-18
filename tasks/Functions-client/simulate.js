@@ -131,8 +131,8 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
       registry.on(
         "BillingEnd",
         async (
-          eventSubscriptionId,
           eventRequestId,
+          eventSubscriptionId,
           eventSignerPayment,
           eventTransmitterPayment,
           eventTotalCost,
