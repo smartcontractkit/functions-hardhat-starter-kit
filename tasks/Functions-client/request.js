@@ -176,8 +176,8 @@ task("functions-request", "Initiates a request from an Functions client contract
       registry.on(
         "BillingEnd",
         async (
-          eventSubscriptionId,
           eventRequestId,
+          eventSubscriptionId,
           eventSignerPayment,
           eventTransmitterPayment,
           eventTotalCost,
