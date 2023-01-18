@@ -7,7 +7,7 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
     "Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000)"
   )
   .setAction(async (taskArgs, hre) => {
-    // Simuation can only be conducted on a local fork of the blockchain
+    // Simulation can only be conducted on a local fork of the blockchain
     if (network.name !== "hardhat") {
       throw Error('Simulated requests can only be conducted using --network "hardhat"')
     }

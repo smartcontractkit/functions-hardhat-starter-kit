@@ -6,7 +6,7 @@ import "./dev/functions/FunctionsClient.sol";
 import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 
 /**
- * @title Functions Copns contract
+ * @title Functions Consumer contract
  * @notice This contract is a demonstration of using Functions.
  * @notice NOT FOR PRODUCTION USE
  */

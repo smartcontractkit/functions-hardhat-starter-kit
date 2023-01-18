@@ -47,7 +47,7 @@ task(
   await registry.deployTransaction.wait(1)
   console.log(`FunctionsBillingRegistry deployed to ${registry.address} on ${network.name}`)
 
-  console.log("Setting registy configuration")
+  console.log("Setting registry configuration")
   const config = {
     maxGasLimit: 450_000,
     stalenessSeconds: 86_400,

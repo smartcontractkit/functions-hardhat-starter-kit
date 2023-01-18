@@ -15,9 +15,9 @@
 
 # Overview
 
-<p>Chainlink Functions allows users to request data from almost any API and perform custom computation using JavaScript.</p>
-<p>It works by using a <a href="https://chain.link/education/blockchain-oracles#decentralized-oracles">decentralized oracle network</a> (DON).<br>When a request is initiated, each node in the DON executes the user-provided JavaScript code simultaneously.  Then, nodes use the <a href="https://docs.chain.link/architecture-overview/off-chain-reporting/">Chainlink OCR</a> protocol to come to consensus on the results.  Finally, the median result is returned to the requesting contract via a callback function.</p>
-<p>Chainlink Functions also enables users to share encrypted secrets with each node in the DON.  This allows users to access to APIs that require authentication, without exposing their API keys to the general public.
+<p>Chainlink Functions allows smart contracts to perform custom computation off-chain in a decentralized manner.</p>
+<p>The request is fulfilled by a <a href="https://chain.link/education/blockchain-oracles#decentralized-oracles">decentralized oracle network</a> (DON).<br>When a request is initiated, each node in the DON executes the user-provided code simultaneously.  The nodes then use the <a href="https://docs.chain.link/architecture-overview/off-chain-reporting/">Chainlink OCR</a> protocol to come to consensus on the result.  Finally, the median result is returned to the requesting contract via a callback function.</p>
+<p>Chainlink Functions also enables users to share encrypted secrets with each node in the DON.  This allows users to access APIs that require authentication without exposing their API keys to the public.
 
 # Quickstart
 
@@ -57,7 +57,7 @@ Example: `npx hardhat functions-read --network goerli --contract 0x787Fe00416140
 
 | Command                  | Description                                                                                                                        | Parameters                                                                                                                                                                                                     |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `functions-sub-create`   | Creates a new billing subscription for Functions client contracts                                                                  | `amount` (optional): Inital amount used to fund the subscription in LINK (decimals are accepted), `contract` (optional): Address of the client contract address authorized to use the new billing subscription |
+| `functions-sub-create`   | Creates a new billing subscription for Functions client contracts                                                                  | `amount` (optional): Initial amount used to fund the subscription in LINK (decimals are accepted), `contract` (optional): Address of the client contract address authorized to use the new billing subscription |
 | `functions-sub-info`     | Gets the Functions billing subscription balance, owner, and list of authorized client contract addresses                           | `subid`: Subscription ID                                                                                                                                                                                       |
 | `functions-sub-fund`     | Funds a billing subscription with LINK                                                                                             | `subid`: Subscription ID, `amount`: Amount to fund subscription in LINK (decimals are accepted)                                                                                                                |
 | `functions-sub-cancel`   | Cancels Functions billing subscription and refunds unused balance. Cancellation is only possible if there are no pending requests. | `subid`: Subscription ID, `refundaddress` (optional): Address where the remaining subscription balance is sent (defaults to caller's address)                                                                  |
@@ -83,19 +83,19 @@ Chainlink Functions requests can be configured by modifying values in the `reque
 | Setting Name         | Description                                                                                                                                                                                                                                                                          |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `codeLocation`       | This specifies where the JavaScript code for a request is located. Currenly, only the `Inline` option is supported (represented by the value `0`). This means the JavaScript string is provided directly in the on-chain request instead of being referenced via a URL or IPFS hash. |
-| `secretsLocation`    | This specifies where the encrypted secrets for a request are located. Currenly, only the `Inline` option is supported (represented by the value `0`). This means encypted secrets are provided directly in the on-chain request instead of being referenced via a URL or IPFS hash.  |
+| `secretsLocation`    | This specifies where the encrypted secrets for a request are located. Currenly, only the `Inline` option is supported (represented by the value `0`). This means encrypted secrets are provided directly in the on-chain request instead of being referenced via a URL or IPFS hash.  |
 | `codeLanguage`       | This specifies the language of the source code which is executed in a request. Currently, only `JavaScript` is supported (represented by the value `0`).                                                                                                                             |
 | `source`             | This is a string containing the source code which is executed in a request. This must be valid JavaScript code that returns a Buffer. See the [JavaScript Code](#javascript-code) section for more details.                                                                          |
-| `secrets`            | This is a JavaScript object which contains secret values that are injected into the JavaScript source code and can be accessed using the name `secrets`. This object will be automatically encrypted by the tooling using the DON public key before making an on-chain request.      |
+| `secrets`            | This is a JavaScript object which contains secret values that are injected into the JavaScript source code and can be accessed using the name `secrets`. This object will be encrypted by the tooling using the DON public key before making an on-chain request.      |
 | `walletPrivateKey`   | This is the EVM private key. It is used to generate a signature for the encrypted secrets such that the secrets cannot be reused by an unauthorized 3rd party.                                                                                                                       |
 | `DONPublicKey`       | This is the DON's public encryption key used to encrypt secrets. This value is only used by the `npm run functions-build-request` command. All other commands fetch the DON key directly from the `FunctionsOracle` contract on-chain.                                               |
-| `args`               | This is an array of strings which contains values that are injected into the JavaScript source code and can be accessed using the name `args`. This provides a convenient way to set modifiable parameters within a request.                                                         |
+| `args`               | This is an array of string values that are injected into the JavaScript source code and can be accessed using the name `args`. This provides a convenient way to set modifiable parameters within a request.                                                         |
 | `maxResponseBytes`   | This specifies the maximum size of a response. If the response size is exceeded, it will be curtailed to this size. It has no on-chain impact, but is used by the CLI to simulate on-chain behavior for responses which are too large. It is recommended not to change this value.   |
 | `expectedReturnType` | This specifies the expected return type of a request. It has no on-chain impact, but is used by the CLI to decode the response bytes into the specified type. The options are `uint256`, `int256`, `string`, or `Buffer`.                                                            |
 
 ## JavaScript Code
 
-The JavaScript source code for an Functions request can use vanilla Node.js features, but cannot use any imported modules or `require` statements.
+The JavaScript source code for a Functions request can use vanilla Node.js features, but cannot use any imported modules or `require` statements.
 It must return a JavaScript Buffer which represents the response bytes that are sent back to the requesting contract.
 Encoding functions are provided in the [Functions library](#functions-library).
 Additionally, the script must return in **less than 10 seconds** or it will be terminated and send back an error to the requesting contract.
@@ -122,7 +122,7 @@ The function takes an object `x` with the following parameters.
 }
 ```
 
-The funtion returns a promise that resolves to either a success response object or an error response object.
+The function returns a promise that resolves to either a success response object or an error response object.
 
 A success response object will have the following parameters.
 

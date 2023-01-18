@@ -20,7 +20,7 @@ class Sandbox {
   async evaluate(numAllowedQueries, javascriptString, args, secrets, requestId) {
     const secretsRedactor = (0, Log_1.secretsRedactorFactory)(secrets ?? {})
     const functionsModule = new Functions_1.FunctionsModule(secretsRedactor, requestId)
-    const Functions = functionsModule.buildFunctionsmodule(numAllowedQueries)
+    const Functions = functionsModule.buildFunctionsModule(numAllowedQueries)
     // Clear the tmp directory before running the untrusted code to ensure
     // it does not have access to any cached data from the previously run script
     // in the case that the previous script exited prematurely.

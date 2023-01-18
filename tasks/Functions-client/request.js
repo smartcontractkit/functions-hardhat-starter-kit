@@ -216,7 +216,7 @@ task("functions-request", "Initiates a request from an Functions client contract
       setTimeout(
         () =>
           reject(
-            "A response not received within 5 minutes of the request being initiated and has been canceled. Your subscription was not charged. Please make a new request."
+            "A response was not received within 5 minutes of the request being initiated. The request has been canceled. Your subscription was not charged."
           ),
         300_000
       )

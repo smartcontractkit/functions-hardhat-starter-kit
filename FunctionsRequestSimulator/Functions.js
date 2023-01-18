@@ -14,7 +14,7 @@ class FunctionsModule {
     this.secretsRedactor = secretsRedactor
     this.requestId = requestId
     this._userHttpQueries = []
-    this.buildFunctionsmodule = (numAllowedQueries) => {
+    this.buildFunctionsModule = (numAllowedQueries) => {
       return {
         makeHttpRequest: this.makeHttpRequestFactory(numAllowedQueries),
         encodeUint256: FunctionsModule.encodeUint256,
