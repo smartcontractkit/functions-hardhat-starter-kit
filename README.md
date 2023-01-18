@@ -28,7 +28,7 @@ Ensure Node.js is installed. It is recommended to use Node.js version 18.
    1. This can be done by renaming the file `.env.example` to `.env` and setting the values for `PRIVATE_KEY` and one of `GOERLI_RPC_URL`, `MUMBAI_RPC_URL` or `SEPOLIA_RPC_URL`.
    2. If desired, the `REPORT_GAS`, `ETHERSCAN_API_KEY` and `POLYGONSCAN_API_KEY` can also be set, along with any values used in the `secrets` object in `Functions-request-config.js`.<br><br>
 3. Simulate an end-to-end fulfillment locally by running:<br>`npx hardhat functions-simulate`<br><br>
-4. Deploy a client contract by running:<br>`npx hardhat functions-deploy-client --network network_name_here`<br><br>
+4. Deploy and verify a client contract by running:<br>`npx hardhat functions-deploy-client --network network_name_here --verify true`<br><br>.
 5. Create, fund & authorize a new Functions billing subscription by running:<br> `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0xDeployed_client_contract_address_here`<br>**Note**: Ensure your wallet has a sufficent LINK balance before running this command.<br><br>
 6. Make an on-chain request by running:<br>`npx hardhat functions-request --network network_name_here --contract 0xDeployed_client_contract_address_here --subid subscription_id_number_here`
 
