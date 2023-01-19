@@ -76,22 +76,18 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
       console.log(`\n${resultLog}`)
 
       // Simulate a request fulfillment
-      const ocrConfig = require("../../FunctionsOracleConfig.json")
-      const transmitter = ocrConfig.transmitters[0]
-      const signers = Array(31).fill(transmitter)
+      const accounts = await ethers.getSigners()
+      const dummyTransmitter = accounts[0].address
+      const dummySigners = Array(31).fill(dummyTransmitter)
       let i = 0
-      for (const t of ocrConfig.transmitters) {
-        signers[i] = t
-        i++
-      }
       try {
         const fulfillTx = await registry.fulfillAndBill(
           requestId,
           success ? result : "0x",
           success ? "0x" : result,
-          transmitter,
-          signers,
-          ocrConfig.transmitters.length,
+          dummyTransmitter,
+          dummySigners,
+          4,
           100_000,
           500_000,
           {
@@ -206,17 +202,5 @@ const deployMockOracle = async () => {
   // Set the current account as an authorized sender in the mock registry to allow for simulated local fulfillments
   await registry.setAuthorizedSenders([oracle.address, deployer.address])
   await oracle.setRegistry(registry.address)
-  // Set the mock oracle OCR configuration settings
-  const ocrConfig = require("../../FunctionsOracleConfig.json")
-  const setOcrConfigTx = await oracle.setConfig(
-    ocrConfig.signers,
-    ocrConfig.transmitters,
-    ocrConfig.f,
-    ocrConfig.onchainConfig,
-    ocrConfig.offchainConfigVersion,
-    ocrConfig.offchainConfig
-  )
-  await setOcrConfigTx.wait(1)
-  // Return the mock oracle, mock registry & mock LINK token contracts
   return { oracle, registry, linkToken }
 }
