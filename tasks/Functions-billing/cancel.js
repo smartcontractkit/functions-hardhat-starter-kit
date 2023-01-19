@@ -49,11 +49,5 @@ task(
       `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${cancelTx.hash} to be confirmed...`
     )
     await cancelTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
-
-    const postSubInfo = await registry.getSubscription(subscriptionId)
-    console.log(
-      `\nSubscription ${subscriptionId} cancelled.\n${ethers.utils.formatEther(
-        postSubInfo[0]
-      )} LINK refunded to ${refundAddress}`
-    )
+    console.log(`\nSubscription ${subscriptionId} cancelled.`)
   })
