@@ -4,6 +4,9 @@ task(
   "functions-deploy-oracle",
   "Deploys & configures a new FunctionsBillingRegistry, FunctionsOracleFactory and FunctionsOracle (functions-set-ocr-config must still be run after this command)"
 ).setAction(async () => {
+  console.log("\n__Recompiling Contracts__")
+  await run("compile")
+
   const linkEthFeedAddress = networkConfig[network.name]["linkEthPriceFeed"]
   const linkTokenAddress = networkConfig[network.name]["linkToken"]
   let overrides = undefined
