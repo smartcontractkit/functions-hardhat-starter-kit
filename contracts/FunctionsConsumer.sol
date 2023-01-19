@@ -68,4 +68,8 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
     latestError = err;
     emit OCRResponse(requestId, response, err);
   }
+
+  function updateOracleAddress(address oracle) public onlyOwner {
+    setOracle(oracle);
+  }
 }
