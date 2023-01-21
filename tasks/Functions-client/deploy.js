@@ -44,8 +44,8 @@ task("functions-deploy-client", "Deploys the FunctionsConsumer contract")
           console.log("Contract already verified")
         }
       }
-    } else {
-      console.log("\nSkip contract verification...")
+    } else if (verifyContract) {
+      console.log("\nPOLYGONSCAN_API_KEY or ETHERSCAN_API_KEY missing. Skipping contract verification...")
     }
 
     console.log(`\nFunctionsConsumer contract deployed to ${clientContract.address} on ${network.name}`)
