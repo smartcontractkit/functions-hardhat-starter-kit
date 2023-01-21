@@ -27,7 +27,7 @@ task("functions-deploy-client", "Deploys the FunctionsConsumer contract")
 
     const verifyContract = taskArgs.verify
 
-    if (verifyContract && (process.env.POLYGONSCAN_API_KEY || ETHERSCAN_API_KEY)) {
+    if (verifyContract && (process.env.POLYGONSCAN_API_KEY || process.env.ETHERSCAN_API_KEY)) {
       try {
         console.log("\nVerifying contract...")
         await clientContract.deployTransaction.wait(Math.max(6 - VERIFICATION_BLOCK_CONFIRMATIONS, 0))
