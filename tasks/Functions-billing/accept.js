@@ -23,7 +23,7 @@ task("functions-sub-accept", "Accepts ownership of an Functions subscription aft
       throw error
     }
 
-    // Accept subscription ownership (only works if a tranfer has been requested by the previous owner)
+    // Accept subscription ownership (only works if a transfer has been requested by the previous owner)
     try {
       console.log(`Accepting ownership of subscription ${subscriptionId}`)
       const acceptTx = await registry.acceptSubscriptionOwnerTransfer(subscriptionId)
@@ -33,7 +33,7 @@ task("functions-sub-accept", "Accepts ownership of an Functions subscription aft
       await acceptTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
     } catch (error) {
       console.log(
-        `\nFailed to accept ownership. Ensure that a tranfer has been requested by the previous owner ${preSubInfo[1]}`
+        `\nFailed to accept ownership. Ensure that a transfer has been requested by the previous owner ${preSubInfo[1]}`
       )
       throw error
     }

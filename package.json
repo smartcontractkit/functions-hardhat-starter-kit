@@ -6,7 +6,6 @@
   "scripts": {
     "compile": "hardhat compile",
     "functions-simulate-javascript": "node scripts/simulateFunctionsRequest.js",
-    "functions-build-request": "node scripts/buildFunctionsRequest.js",
     "lint": "solhint 'contracts/*.sol'",
     "lint:fix": "solhint 'contracts/**/*.sol' --fix"
   },
