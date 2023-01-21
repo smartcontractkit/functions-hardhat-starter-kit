@@ -7,6 +7,7 @@
     "compile": "hardhat compile",
     "functions-simulate-javascript": "node scripts/simulateFunctionsRequest.js",
     "functions-build-request": "node scripts/buildFunctionsRequest.js",
+    "functions-gen-keys": "node scripts/generateKeypair.js",
     "lint": "solhint 'contracts/*.sol'",
     "lint:fix": "solhint 'contracts/**/*.sol' --fix"
   },
