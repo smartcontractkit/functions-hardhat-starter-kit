@@ -1,4 +1,4 @@
-const { simulateRequest, buildRequest, getDecodedResultLog } = require("../FunctionsRequestSimulator")
+const { simulateRequest, buildRequest, getDecodedResultLog } = require("../FunctionsSandboxLibrary")
 const { writeFileSync } = require("fs")
 
 ;(async () => {

@@ -1,4 +1,4 @@
-const { simulateRequest, buildRequest, getDecodedResultLog } = require("../../FunctionsRequestSimulator")
+const { simulateRequest, buildRequest, getDecodedResultLog } = require("../../FunctionsSandboxLibrary")
 const { networkConfig } = require("../../network-config")
 
 task("functions-simulate", "Simulates an end-to-end fulfillment locally for the FunctionsConsumer contract")

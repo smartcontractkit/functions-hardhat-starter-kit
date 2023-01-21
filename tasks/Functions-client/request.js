@@ -1,4 +1,4 @@
-const { simulateRequest, buildRequest, getDecodedResultLog } = require("../../FunctionsRequestSimulator")
+const { simulateRequest, buildRequest, getDecodedResultLog } = require("../../FunctionsSandboxLibrary")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 const readline = require("readline-promise").default
 
