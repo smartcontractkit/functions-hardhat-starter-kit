@@ -49,10 +49,13 @@ task("functions-request", "Initiates a request from an Functions client contract
     const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
     if (requestConfig.secretsLocation === 1) {
+      if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
+        requestConfig.secrets = requestConfig.perNodeSecrets[0] ?? {}
+      }
       // Get node addresses for off-chain secrets
       const [ nodeAddresses, publicKeys ] = await oracle.getAllNodePublicKeys()
-      if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
-        requestConfig.secrets = requestConfig.perNodeSecrets[0]
+      if (requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0) {
+        verifyOffchainSecrets(requestConfig.secretsURLs)
       }
     }
 
@@ -92,7 +95,7 @@ task("functions-request", "Initiates a request from an Functions client contract
 
     // Fetch the DON public key from on-chain
     const DONPublicKey = await oracle.getDONPublicKey()
-    // Remove the preceeding 0x from the DON public key
+    // Remove the preceding 0x from the DON public key
     requestConfig.DONPublicKey = DONPublicKey.slice(2)
     // Build the parameters to make a request from the client contract
     const request = await buildRequest(requestConfig)
@@ -258,14 +261,14 @@ const verifyOffchainSecrets = async (secretsURLs, nodeAddresses) => {
         secrets: response.data,
       })
     } catch (error) {
-      throw Error(`Failed to fetch off-chain secrets from ${url}`)
+      throw Error(`Failed to fetch off-chain secrets from ${url}\n${error}`)
     }
   }
 
   for (const { secrets, url } of offchainSecretsResponses) {
     for (const comparedSecretsResponse of offchainSecretsResponses) {
       if (JSON.stringify(secrets) !== JSON.stringify(comparedSecretsResponse.secrets)) {
-        throw Error(`Off-chain secrets URLs ${url} and ${comparedSecretsResponse.url} do not contain the same JSON object.  All secrets URLs must have an idential JSON object.`)
+        throw Error(`Off-chain secrets URLs ${url} and ${comparedSecretsResponse.url} do not contain the same JSON object.  All secrets URLs must have an identical JSON object.`)
       }
     }
 

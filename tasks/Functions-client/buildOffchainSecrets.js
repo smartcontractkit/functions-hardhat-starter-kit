@@ -14,12 +14,17 @@ task("functions-build-offchain-secrets", "Builds an off-chain secrets object for
 
     const requestConfig = require("../../Functions-request-config")
 
-    if (!Array.isArray(requestConfig.perNodeSecrets)) {
+    // Verify that perNodeSecrets and/or secrets is correctly specified in the config
+    if (requestConfig.perNodeSecrets && !Array.isArray(requestConfig.perNodeSecrets)) {
       throw Error('perNodeSecrets is not correctly specified in config file.  It must be an array of objects.')
     }
 
     if (requestConfig.secrets && typeof requestConfig.secrets !== 'object') {
       throw Error('secrets object is not correctly specified in config file.  It must be an object.')
+    }
+
+    if (!requestConfig.perNodeSecrets && !requestConfig.secrets) { 
+      throw Error('Neither perNodeSecrets nor secrets is specified')
     }
 
     const defaultSecretsObjectKeys = JSON.stringify(Object.keys(requestConfig.secrets).sort())
@@ -28,28 +33,33 @@ task("functions-build-offchain-secrets", "Builds an off-chain secrets object for
       console.log("WARNING: No default `secrets` provided.  If DON membership changes, the new node will not be able to process requests.")
     }
 
-    for (const secrets of requestConfig.perNodeSecrets) {
-      if (typeof secrets !== 'object') {
-        throw Error('perNodeSecrets is not correctly specified in config file.  It must be an array of objects.')
-      }
-
-      if (Object.keys(secrets).length === 0) {
-        throw Error('In the config file, perNodeSecrets contains an empty object.')
-      }
-
-      const secretsObjectKeys = JSON.stringify(Object.keys(secrets).sort())
-
-      if (defaultSecretsObjectKeys !== secretsObjectKeys) {
-        throw Error('In the config file, not all objects in `perNodeSecrets` have the same object keys as default `secrets`. (The values can be different, but the keys should be the same between all objects.)')
-      }
-
-      for (const comparedSecrets of requestConfig.perNodeSecrets) {
-        if (JSON.stringify(Object.keys(comparedSecrets).sort()) !== secretsObjectKeys) {
-          throw Error('In the config file, not all objects in `perNodeSecrets` have the same object keys. (The values can be different, but the keys should be the same between all objects.)')
+    if (requestConfig.perNodeSecrets) {
+      for (const secrets of requestConfig.perNodeSecrets) {
+        if (typeof secrets !== 'object') {
+          throw Error('perNodeSecrets is not correctly specified in config file.  It must be an array of objects.')
+        }
+  
+        if (Object.keys(secrets).length === 0) {
+          throw Error('In the config file, perNodeSecrets contains an empty object.')
+        }
+  
+        const secretsObjectKeys = JSON.stringify(Object.keys(secrets).sort())
+  
+        if (
+          requestConfig.secrets
+          && defaultSecretsObjectKeys.length > 0
+          && defaultSecretsObjectKeys !== secretsObjectKeys
+        ) {
+          throw Error('In the config file, not all objects in `perNodeSecrets` have the same object keys as default `secrets`. (The values can be different, but the keys should be the same between all objects.)')
+        }
+  
+        for (const comparedSecrets of requestConfig.perNodeSecrets) {
+          if (JSON.stringify(Object.keys(comparedSecrets).sort()) !== secretsObjectKeys) {
+            throw Error('In the config file, not all objects in `perNodeSecrets` have the same object keys. (The values can be different, but the keys should be the same between all objects.)')
+          }
         }
       }
     }
-
 
     console.log(`Using public keys from FunctionsOracle contract ${networkConfig[network.name]['functionsOracle']} on network ${network.name}`)
     const OracleContract = await ethers.getContractFactory("FunctionsOracle")
@@ -57,9 +67,11 @@ task("functions-build-offchain-secrets", "Builds an off-chain secrets object for
 
     const [ nodeAddresses, publicKeys ] = await oracleContract.getAllNodePublicKeys()
 
-    console.log(nodeAddresses, publicKeys)
-
-    if (requestConfig.perNodeSecrets.length !== nodeAddresses.length) {
+    if (
+      requestConfig.perNodeSecrets
+      && requestConfig.perNodeSecrets.length !== nodeAddresses.length
+      && requestConfig.perNodeSecrets.length !== 0
+    ) {
       throw Error(
         `The number of per-node secrets must match the number of nodes.  Length of perNodeSecrets: ${requestConfig.perNodeSecrets.length} Number of nodes: ${nodeAddresses.length}`
       )
@@ -67,15 +79,17 @@ task("functions-build-offchain-secrets", "Builds an off-chain secrets object for
 
     const offchainSecrets = {}
 
-    for (let i = 0; i < nodeAddresses.length; i++) {
-      offchainSecrets[nodeAddresses[i].toLowerCase()] = Buffer.from(
-        await encrypt(
-          process.env.PRIVATE_KEY,
-          publicKeys[i].slice(2),
-          JSON.stringify(requestConfig.perNodeSecrets[i])
-        ),
-        'hex',
-      ).toString('base64')
+    if (requestConfig.perNodeSecrets && Object.keys(requestConfig.perNodeSecrets).length > 0) {
+      for (let i = 0; i < nodeAddresses.length; i++) {
+        offchainSecrets[nodeAddresses[i].toLowerCase()] = Buffer.from(
+          await encrypt(
+            process.env.PRIVATE_KEY,
+            publicKeys[i].slice(2),
+            JSON.stringify(requestConfig.perNodeSecrets[i])
+          ),
+          'hex',
+        ).toString('base64')
+      }
     }
 
     // if `secrets` is specified in the config, use those as the default secrets under the 0x0 entry

@@ -38,15 +38,20 @@ const requestConfig = {
   secrets: { apiKey: process.env.COINMARKETCAP_API_KEY },
   // ETH wallet key used to sign secrets so they cannot be accessed by a 3rd party
   walletPrivateKey: process.env["PRIVATE_KEY"],
-  // DON public key used to encrypt secrets so they are not exposed on-chain
-  DONPublicKey:
-    "f2f9c47363202d89aa9fa70baf783d70006fe493471ac8cfa82f1426fd09f16a5f6b32b7c4b5d5165cd147a6e513ba4c0efd39d969d6b20a8a21126f0411b9c6",
   // args (string only array) can be accessed within the source code with `args[index]` (ie: args[0]). 
   args: ["1", "bitcoin", "btc-bitcoin", "btc", "1000000", "450"],
-  // maximum size of a response in bytes
-  maxResponseBytes: 256,
   // expected type of the returned value
   expectedReturnType: ReturnType.uint256,
+  // Redundant URLs which point to encrypted off-chain secrets
+  secretsURLs: [],
+  // Per-node offchain secrets objects used by the `functions-build-offchain-secrets` command
+  // The first entry will be used by the simulator if `secrets` is undefined
+  perNodeSecrets: [
+    { apiKey: process.env.COINMARKETCAP_API_KEY0 },
+    { apiKey: process.env.COINMARKETCAP_API_KEY1 },
+    { apiKey: process.env.COINMARKETCAP_API_KEY2 },
+    { apiKey: process.env.COINMARKETCAP_API_KEY3 },
+  ],
 }
 
 module.exports = requestConfig
