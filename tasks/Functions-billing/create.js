@@ -1,7 +1,7 @@
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 
 task("functions-sub-create", "Creates a new billing subscription for Functions consumer contracts")
-  .addOptionalParam("amount", "Inital amount used to fund the subscription in LINK")
+  .addOptionalParam("amount", "Initial amount used to fund the subscription in LINK")
   .addOptionalParam("contract", "Address of the client contract address authorized to use the new billing subscription")
   .setAction(async (taskArgs) => {
     if (network.name === "hardhat") {

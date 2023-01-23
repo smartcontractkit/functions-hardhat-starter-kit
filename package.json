@@ -5,8 +5,7 @@
   "description": "Tooling for interacting with Chainlink Functions",
   "scripts": {
     "compile": "hardhat compile",
-    "functions-simulate-javascript": "node scripts/simulateFunctionsRequest.js",
-    "functions-build-request": "node scripts/buildFunctionsRequest.js",
+    "functions-simulate-javascript": "node scripts/simulateFunctionsJavaScript.js",
     "lint": "solhint 'contracts/*.sol'",
     "lint:fix": "solhint 'contracts/**/*.sol' --fix"
   },

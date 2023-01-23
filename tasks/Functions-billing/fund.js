@@ -35,11 +35,11 @@ task("functions-sub-fund", "Funds a billing subscription for Functions consumer 
     const accounts = await ethers.getSigners()
     const signer = accounts[0]
 
-    // Ensure sufficent balance
+    // Ensure sufficient balance
     const balance = await linkToken.balanceOf(signer.address)
     if (juelsAmount.gt(balance)) {
       throw Error(
-        `Insufficent LINK balance. Trying to fund subscription with ${ethers.utils.formatEther(
+        `Insufficient LINK balance. Trying to fund subscription with ${ethers.utils.formatEther(
           juelsAmount
         )} LINK, but wallet only has ${ethers.utils.formatEther(balance)}.`
       )
