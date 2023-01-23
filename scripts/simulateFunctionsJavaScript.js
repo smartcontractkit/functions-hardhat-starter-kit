@@ -1,4 +1,4 @@
-const { simulateRequest, getDecodedResultLog } = require("../FunctionsRequestSimulator")
+const { simulateRequest, getDecodedResultLog } = require("../FunctionsSandboxLibrary")
 const requestConfig = require("../Functions-request-config.js")
 
 ;(async () => {

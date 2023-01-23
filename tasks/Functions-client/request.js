@@ -1,4 +1,4 @@
-const { simulateRequest, buildRequest, getDecodedResultLog } = require("../../FunctionsRequestSimulator")
+const { simulateRequest, buildRequest, getDecodedResultLog } = require("../../FunctionsSandboxLibrary")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 const readline = require("readline-promise").default
 
@@ -81,7 +81,7 @@ task("functions-request", "Initiates a request from an Functions client contract
 
     // Fetch the DON public key from on-chain
     const DONPublicKey = await oracle.getDONPublicKey()
-    // Remove the preceeding 0x from the DON public key
+    // Remove the preceding 0x from the DON public key
     requestConfig.DONPublicKey = DONPublicKey.slice(2)
     // Build the parameters to make a request from the client contract
     const request = await buildRequest(requestConfig)
@@ -105,7 +105,7 @@ task("functions-request", "Initiates a request from an Functions client contract
     const linkBalance = subInfo[0]
     if (subInfo[0].lt(estimatedCostJuels)) {
       throw Error(
-        `Subscription ${subscriptionId} does not have sufficent funds. The estimated cost is ${estimatedCostJuels} Juels LINK, but has balance of ${linkBalance}`
+        `Subscription ${subscriptionId} does not have sufficient funds. The estimated cost is ${estimatedCostJuels} Juels LINK, but has balance of ${linkBalance}`
       )
     }
 
@@ -132,7 +132,7 @@ task("functions-request", "Initiates a request from an Functions client contract
     await new Promise(async (resolve, reject) => {
       let requestId
 
-      // Initate the listeners before making the request
+      // Initiate the listeners before making the request
       // Listen for fulfillment errors
       oracle.on("UserCallbackError", async (eventRequestId, msg) => {
         if (requestId == eventRequestId) {
@@ -147,7 +147,7 @@ task("functions-request", "Initiates a request from an Functions client contract
         }
       })
       // Listen for successful fulfillment
-      let billingEndEventRecieved = false
+      let billingEndEventReceived = false
       let ocrResponseEventReceived = false
       clientContract.on("OCRResponse", async (eventRequestId, result, err) => {
         // Ensure the fulfilled requestId matches the initiated requestId to prevent logging a response for an unrelated requestId
@@ -168,7 +168,7 @@ task("functions-request", "Initiates a request from an Functions client contract
           console.log(`Error message returned to client contract: "${Buffer.from(err.slice(2), "hex")}"\n`)
         }
         ocrResponseEventReceived = true
-        if (billingEndEventRecieved) {
+        if (billingEndEventReceived) {
           return resolve()
         }
       })
@@ -191,18 +191,18 @@ task("functions-request", "Initiates a request from an Functions client contract
             if (!eventSuccess) {
               console.log(
                 "Error encountered when calling fulfillRequest in client contract.\n" +
-                  "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficent."
+                  "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient."
               )
               return resolve()
             }
-            billingEndEventRecieved = true
+            billingEndEventReceived = true
             if (ocrResponseEventReceived) {
               return resolve()
             }
           }
         }
       )
-      // Initiate the on-chain request after all listeners are initalized
+      // Initiate the on-chain request after all listeners are initialized
       console.log(`\nRequesting new data for FunctionsConsumer contract ${contractAddr} on network ${network.name}`)
       const requestTx = await clientContract.executeRequest(
         request.source,
