@@ -25,7 +25,7 @@ task("functions-set-node-key", "Sets the per-node public key in the Functions or
 
     const nodeAddress = taskArgs.node ?? sender.address
 
-    console.log(`Setting oracle OCR config for oracle ${networkConfig[network.name]["functionsOracle"]}`)
+    console.log(`Setting node public key to ${taskArgs.key} for oracle ${networkConfig[network.name]["functionsOracle"]}`)
     const setTx = overrides
       ? await oracle.setNodePublicKey(nodeAddress, "0x" + taskArgs.key, overrides)
       : await oracle.setNodePublicKey(nodeAddress, "0x" + taskArgs.key)
@@ -33,5 +33,5 @@ task("functions-set-node-key", "Sets the per-node public key in the Functions or
     console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${setTx.hash} to be confirmed...`)
     await setTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
 
-    console.log(`\nOCR2Oracle config set for oracle ${oracle.address} on ${network.name}`)
+    console.log(`\nNode key set for node ${nodeAddress} for oracle contract ${oracle.address} on ${network.name}`)
   })
