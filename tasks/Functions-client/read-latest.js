@@ -1,4 +1,4 @@
-const { getDecodedResultLog } = require("../../FunctionsRequestSimulator")
+const { getDecodedResultLog } = require("../../FunctionsSandboxLibrary")
 
 task("functions-read", "Reads the latest response returned to a FunctionsConsumer client contract")
   .addParam("contract", "Address of the client contract to read")

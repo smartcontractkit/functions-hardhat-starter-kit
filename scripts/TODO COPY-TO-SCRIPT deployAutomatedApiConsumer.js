@@ -2,7 +2,7 @@ const { ethers, network, run } = require("hardhat")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 const LINK_TOKEN_ABI = require("@chainlink/contracts/abi/v0.4/LinkToken.json")
 
-const { buildRequest, simulateRequest } = require("../../FunctionsRequestSimulator")
+const { buildRequest, simulateRequest } = require("../../FunctionsSandboxLibrary")
 
 async function deployAutomatedApiConsumer(chainId = network.config.chainId) {
   console.log("Simulating Functions request locally...")
