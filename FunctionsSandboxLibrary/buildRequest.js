@@ -16,7 +16,7 @@ const buildRequest = async (unvalidatedConfig) => {
             }
             // If the secrets object is empty, do nothing, else encrypt secrets
             if (Object.keys(config.secrets).length !== 0) {
-                request.secrets = '0x' + await (0, encryptSecrets_1.encrypt)(config.walletPrivateKey, config.DONPublicKey, JSON.stringify(config.secrets));
+                request.secrets = '0x' + await (0, encryptSecrets_1.encryptWithSignature)(config.walletPrivateKey, config.DONPublicKey, JSON.stringify(config.secrets));
             }
         }
         if (config.secretsLocation === getRequestConfig_1.Location_.Remote) {
@@ -25,7 +25,7 @@ const buildRequest = async (unvalidatedConfig) => {
             }
             // If the secrets URLs is empty, do nothing, else encrypt secrets URLs
             if (config.secretsURLs.length > 0) {
-                request.secrets = '0x' + await (0, encryptSecrets_1.encrypt)(config.walletPrivateKey, config.DONPublicKey, config.secretsURLs.join(' '));
+                request.secrets = '0x' + await (0, encryptSecrets_1.encrypt)(config.DONPublicKey, config.secretsURLs.join(' '));
             }
         }
     }
