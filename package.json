@@ -6,6 +6,7 @@
   "scripts": {
     "compile": "hardhat compile",
     "functions-simulate-javascript": "node scripts/simulateFunctionsJavaScript.js",
+    "functions-gen-keys": "node scripts/generateKeypair.js",
     "lint": "solhint 'contracts/*.sol'",
     "lint:fix": "solhint 'contracts/**/*.sol' --fix"
   },
