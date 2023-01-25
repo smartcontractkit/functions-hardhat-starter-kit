@@ -50,6 +50,7 @@ task("functions-request", "Initiates a request from an Functions client contract
 
     if (requestConfig.secretsLocation === 1) {
       if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
+        console.log('Using secrets assigned to the first node as no default secrets were provided')
         requestConfig.secrets = requestConfig.perNodeSecrets[0] ?? {}
       }
       // Get node addresses for off-chain secrets
