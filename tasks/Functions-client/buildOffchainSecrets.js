@@ -38,13 +38,15 @@ task("functions-build-offchain-secrets", "Builds an off-chain secrets object for
       console.log("\nWARNING: No default `secrets` provided.  If DON membership changes, the new node will not be able to process requests.\n")
     }
 
-    if (requestConfig.perNodeSecrets) {
-      for (const secrets of requestConfig.perNodeSecrets) {
-        if (typeof secrets !== 'object') {
+    if (requestConfig.perNodeSecrets && requestConfig.perNodeSecrets.length > 0) {
+      const firstPerNodeSecretsKeys = JSON.stringify(Object.keys(requestConfig.perNodeSecrets[0]).sort())
+
+      for (const assignedSecrets of requestConfig.perNodeSecrets) {
+        if (typeof assignedSecrets !== 'object') {
           throw Error('perNodeSecrets is not correctly specified in config file.  It must be an array of objects.')
         }
   
-        if (Object.keys(secrets).length === 0) {
+        if (Object.keys(assignedSecrets).length === 0) {
           throw Error('In the config file, perNodeSecrets contains an empty object.')
         }
   
@@ -57,11 +59,9 @@ task("functions-build-offchain-secrets", "Builds an off-chain secrets object for
         ) {
           throw Error('In the config file, not all objects in `perNodeSecrets` have the same object keys as default `secrets`. (The values can be different, but the keys should be the same between all objects.)')
         }
-  
-        for (const comparedSecrets of requestConfig.perNodeSecrets) {
-          if (JSON.stringify(Object.keys(comparedSecrets).sort()) !== secretsObjectKeys) {
-            throw Error('In the config file, not all objects in `perNodeSecrets` have the same object keys. (The values can be different, but the keys should be the same between all objects.)')
-          }
+
+        if (firstPerNodeSecretsKeys !== secretsObjectKeys) {
+          throw Error('In the config file, not all objects in `perNodeSecrets` have the same object keys. (The values can be different, but the keys should be the same between all objects.)')
         }
       }
     }
