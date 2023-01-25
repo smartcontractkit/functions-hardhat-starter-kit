@@ -33,5 +33,5 @@ const runSimulation = async (requestConfig) => {
     }
 
     console.log('\n__Simulating JavaScript__')
-    await runSimulation()
+    await runSimulation(requestConfig)
 })()
