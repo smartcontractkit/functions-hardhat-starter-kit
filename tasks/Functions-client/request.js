@@ -50,13 +50,12 @@ task("functions-request", "Initiates a request from an Functions client contract
 
     if (requestConfig.secretsLocation === 1) {
       if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
-        console.log('Using secrets assigned to the first node as no default secrets were provided')
         requestConfig.secrets = requestConfig.perNodeSecrets[0] ?? {}
       }
       // Get node addresses for off-chain secrets
       const [ nodeAddresses, publicKeys ] = await oracle.getAllNodePublicKeys()
       if (requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0) {
-        verifyOffchainSecretsURLs(requestConfig.secretsURLs, nodeAddresses)
+        verifyOffchainSecrets(requestConfig.secretsURLs, nodeAddresses)
       }
     }
 
@@ -247,7 +246,7 @@ task("functions-request", "Initiates a request from an Functions client contract
   })
 
 
-const verifyOffchainSecretsURLs = async (secretsURLs, nodeAddresses) => {
+const verifyOffchainSecrets = async (secretsURLs, nodeAddresses) => {
   const offchainSecretsResponses = []
   for (const url of secretsURLs) {
     try {
