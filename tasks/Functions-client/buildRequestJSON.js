@@ -81,8 +81,15 @@ const verifyOffchainSecrets = async (secretsURLs, nodeAddresses) => {
   }
 
   for (const { secrets, url } of offchainSecretsResponses) {
+<<<<<<< HEAD
     if (JSON.stringify(secrets) !== JSON.stringify(offchainSecretsResponses[0].secrets)) {
       throw Error(`Off-chain secrets URLs ${url} and ${offchainSecretsResponses[0].url} do not contain the same JSON object.  All secrets URLs must have an identical JSON object.`)
+=======
+    for (const comparedSecretsResponse of offchainSecretsResponses) {
+      if (JSON.stringify(secrets) !== JSON.stringify(comparedSecretsResponse.secrets)) {
+        throw Error(`Off-chain secrets URLs ${url} and ${comparedSecretsResponse.url} do not contain the same JSON object.  All secrets URLs must have an identical JSON object.`)
+      }
+>>>>>>> 7e919e36 (user-facing offchain secrets tooling)
     }
 
     for (const nodeAddress of nodeAddresses) {
