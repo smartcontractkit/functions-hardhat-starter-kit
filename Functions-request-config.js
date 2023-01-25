@@ -5,6 +5,7 @@ require("dotenv").config()
 
 const Location = {
   Inline: 0,
+  Remote: 1,
 }
 
 const CodeLanguage = {
@@ -26,20 +27,32 @@ const requestConfig = {
   // location of source code (only Inline is currently supported)
   codeLocation: Location.Inline,
   // location of secrets (only Inline is currently supported)
-  secretsLocation: Location.Inline,
+  secretsLocation: Location.Remote,
   // code language (only JavaScript is currently supported)
   codeLanguage: CodeLanguage.JavaScript,
   // string containing the source code to be executed
   source: fs.readFileSync("./Functions-request-source-calculation-example.js").toString(),
   //source: fs.readFileSync('./Functions-request-source-API-example.js').toString(),
   // secrets can be accessed within the source code with `secrets.varName` (ie: secrets.apiKey)
-  secrets: { apiKey: process.env.COINMARKETCAP_API_KEY },
+  secrets: { apiKey: 'default'},
   // ETH wallet key used to sign secrets so they cannot be accessed by a 3rd party
   walletPrivateKey: process.env["PRIVATE_KEY"],
   // args (string only array) can be accessed within the source code with `args[index]` (ie: args[0]). 
   args: ["1", "bitcoin", "btc-bitcoin", "btc", "1000000", "450"],
   // expected type of the returned value
-  expectedReturnType: ReturnType.uint256,
+  expectedReturnType: ReturnType.string,
+  // Redundant URLs which point to encrypted off-chain secrets
+  secretsURLs: [
+    'https://raw.githubusercontent.com/KuphJr/off-chain-secrets/main/test-secrets-both.json'
+  ],
+  // Per-node offchain secrets objects used by the `functions-build-offchain-secrets` command
+  // The first entry will be used by the simulator if `secrets` is undefined
+  perNodeSecrets: [
+    { apiKey: 'assigned' },
+    { apiKey: 'assigned' },
+    { apiKey: 'assigned' },
+    { apiKey: 'assigned' },
+  ],
 }
 
 module.exports = requestConfig

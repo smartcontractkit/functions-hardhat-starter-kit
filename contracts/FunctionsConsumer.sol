@@ -42,7 +42,7 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
   ) public onlyOwner returns (bytes32) {
     Functions.Request memory req;
     req.initializeRequest(Functions.Location.Inline, Functions.CodeLanguage.JavaScript, source);
-    if (secrets.length > 0) req.addInlineSecrets(secrets);
+    if (secrets.length > 0) req.addRemoteSecrets(secrets);
     if (args.length > 0) req.addArgs(args);
 
     bytes32 assignedReqID = sendRequest(req, subscriptionId, gasLimit, tx.gasprice);
