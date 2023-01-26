@@ -27,7 +27,7 @@ task("functions-build-request", "Creates a JSON file with Functions request para
       // Get node addresses for off-chain secrets
       const [ nodeAddresses, publicKeys ] = await oracle.getAllNodePublicKeys()
       if (requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0) {
-        verifyOffchainSecrets(requestConfig.secretsURLs, nodeAddresses)
+        await verifyOffchainSecrets(requestConfig.secretsURLs, nodeAddresses)
       }
     }
 
@@ -95,3 +95,5 @@ const verifyOffchainSecrets = async (secretsURLs, nodeAddresses) => {
     }
   }
 }
+
+exports.verifyOffchainSecrets = verifyOffchainSecrets
