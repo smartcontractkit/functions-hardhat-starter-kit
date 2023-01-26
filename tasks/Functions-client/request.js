@@ -1,7 +1,7 @@
 const { simulateRequest, buildRequest, getDecodedResultLog, getRequestConfig } = require("../../FunctionsSandboxLibrary")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
+const { verifyOffchainSecrets } = require("./buildRequestJSON")
 const readline = require("readline-promise").default
-const axios = require("axios")
 
 task("functions-request", "Initiates a request from an Functions client contract")
   .addParam("contract", "Address of the client contract to call")
@@ -244,41 +244,3 @@ task("functions-request", "Initiates a request from an Functions client contract
       console.log(`Waiting for fulfillment...\n`)
     })
   })
-
-
-const verifyOffchainSecrets = async (secretsURLs, nodeAddresses) => {
-  const offchainSecretsResponses = []
-  for (const url of secretsURLs) {
-    try {
-      const response = await axios.request({
-        url,
-        timeout: 3000,
-        responseType: 'json',
-        maxContentLength: 1000000,
-      })
-      offchainSecretsResponses.push({
-        url,
-        secrets: response.data,
-      })
-    } catch (error) {
-      throw Error(`Failed to fetch off-chain secrets from ${url}\n${error}`)
-    }
-  }
-
-  for (const { secrets, url } of offchainSecretsResponses) {
-    for (const comparedSecretsResponse of offchainSecretsResponses) {
-      if (JSON.stringify(secrets) !== JSON.stringify(comparedSecretsResponse.secrets)) {
-        throw Error(`Off-chain secrets URLs ${url} and ${comparedSecretsResponse.url} do not contain the same JSON object.  All secrets URLs must have an identical JSON object.`)
-      }
-    }
-
-    for (const nodeAddress of nodeAddresses) {
-      if (!secrets[nodeAddress.toLowerCase()]) {
-        if (!secrets["0x0"]) {
-          throw Error(`No secrets specified for node ${nodeAddress.toLowerCase()} and no default secrets found.`)
-        }
-        console.log(`WARNING: No secrets found for node ${nodeAddress.toLowerCase()}.  That node will use default secrets specified by the "0x0" entry.`)
-      }
-    }
-  }
-}
