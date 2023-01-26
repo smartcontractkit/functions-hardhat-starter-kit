@@ -67,8 +67,8 @@ task("functions-build-offchain-secrets", "Builds an off-chain secrets object for
     }
 
     console.log(`Using public keys from FunctionsOracle contract ${networkConfig[network.name]['functionsOracle']} on network ${network.name}`)
-    const OracleContract = await ethers.getContractFactory("FunctionsOracle")
-    const oracleContract = await OracleContract.attach(networkConfig[network.name]['functionsOracle'])
+    const OracleFactory = await ethers.getContractFactory("FunctionsOracle")
+    const oracleContract = await OracleFactory.attach(networkConfig[network.name]['functionsOracle'])
 
     const [ nodeAddresses, publicKeys ] = await oracleContract.getAllNodePublicKeys()
 

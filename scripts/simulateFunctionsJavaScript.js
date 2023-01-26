@@ -16,7 +16,7 @@ const runSimulation = async (requestConfig) => {
 
     if (requestConfig.secretsLocation === 1) {
       if (requestConfig.secrets && Object.keys(requestConfig.secrets).length !== 0) {
-        console.log('\n__SIMULATING JAVASCRIPT WITH DEFAULT SECRETS__'.toUpperCase())
+        console.log('\n__SIMULATING JAVASCRIPT WITH DEFAULT SECRETS__')
         await runSimulation(requestConfig)
       }
 
@@ -26,7 +26,7 @@ const runSimulation = async (requestConfig) => {
 
       for (let i = 0; i < requestConfig.perNodeSecrets.length; i++) {
         requestConfig.secrets = requestConfig.perNodeSecrets[i]
-        console.log(`\n__SIMULATING JAVASCRIPT WITH SECRETS ASSIGNED TO NODE ${i}__`.toUpperCase())
+        console.log(`\n__SIMULATING JAVASCRIPT WITH SECRETS ASSIGNED TO NODE ${i}__`)
         await runSimulation(requestConfig)
       }
       return
