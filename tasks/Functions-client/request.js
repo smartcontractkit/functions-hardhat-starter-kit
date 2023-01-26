@@ -1,5 +1,6 @@
-const { simulateRequest, buildRequest, getDecodedResultLog } = require("../../FunctionsSandboxLibrary")
+const { simulateRequest, buildRequest, getDecodedResultLog, getRequestConfig } = require("../../FunctionsSandboxLibrary")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
+const { verifyOffchainSecrets } = require("./buildRequestJSON")
 const readline = require("readline-promise").default
 
 task("functions-request", "Initiates a request from an Functions client contract")
@@ -44,7 +45,20 @@ task("functions-request", "Initiates a request from an Functions client contract
     const registry = await RegistryFactory.attach(registryAddress)
 
     console.log("Simulating Functions request locally...")
-    const requestConfig = require("../../Functions-request-config.js")
+    const unvalidatedRequestConfig = require("../../Functions-request-config.js")
+    const requestConfig = getRequestConfig(unvalidatedRequestConfig)
+
+    if (requestConfig.secretsLocation === 1) {
+      if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
+        requestConfig.secrets = requestConfig.perNodeSecrets[0] ?? {}
+      }
+      // Get node addresses for off-chain secrets
+      const [ nodeAddresses, publicKeys ] = await oracle.getAllNodePublicKeys()
+      if (requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0) {
+        await verifyOffchainSecrets(requestConfig.secretsURLs, nodeAddresses)
+      }
+    }
+
     const { success, resultLog } = await simulateRequest(requestConfig)
     console.log(`\n${resultLog}`)
 

@@ -5,6 +5,7 @@ require("dotenv").config()
 
 const Location = {
   Inline: 0,
+  Remote: 1,
 }
 
 const CodeLanguage = {
@@ -40,6 +41,11 @@ const requestConfig = {
   args: ["1", "bitcoin", "btc-bitcoin", "btc", "1000000", "450"],
   // expected type of the returned value
   expectedReturnType: ReturnType.uint256,
+  // Redundant URLs which point to encrypted off-chain secrets
+  secretsURLs: [],
+  // Per-node offchain secrets objects used by the `functions-build-offchain-secrets` command
+  // The first entry will be used by the simulator if `secrets` is undefined
+  perNodeSecrets: [],
 }
 
 module.exports = requestConfig
