@@ -55,7 +55,7 @@ task("functions-request", "Initiates a request from an Functions client contract
       // Get node addresses for off-chain secrets
       const [ nodeAddresses, publicKeys ] = await oracle.getAllNodePublicKeys()
       if (requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0) {
-        verifyOffchainSecrets(requestConfig.secretsURLs, nodeAddresses)
+        await verifyOffchainSecrets(requestConfig.secretsURLs, nodeAddresses)
       }
     }
 
