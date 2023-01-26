@@ -44,9 +44,9 @@ const networkConfig = {
   sepolia: {
     linkToken: "0x779877A7B0D9E8603169DdbD7836e478b4624789",
     linkEthPriceFeed: "",
-    functionsOracle: "0x642E1EEE05Deedb98D92e3E0efDc37d36F7e6aeB",
-    functionsOracleFactory: "",
-    functionsOracleRegistry: "0x49A98D5B7fd9B258db53D712C48619A97d36f230",
+    functionsOracle: "0x88F9Dd856D2c8CeC68569b57858ee953CC2bB4f4",
+    functionsOracleFactory: "0x85b44e2A2812E0907136357bb5F536da7cC99c4A",
+    functionsOracleRegistry: "0x774Ea40eCC9fBC7861b35d57B5f49E13Ce87d75C",
     functionsPublicKey:
       "f2f9c47363202d89aa9fa70baf783d70006fe493471ac8cfa82f1426fd09f16a5f6b32b7c4b5d5165cd147a6e513ba4c0efd39d969d6b20a8a21126f0411b9c6",
   },
