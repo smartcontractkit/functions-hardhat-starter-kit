@@ -95,3 +95,5 @@ const verifyOffchainSecrets = async (secretsURLs, nodeAddresses) => {
     }
   }
 }
+
+exports.verifyOffchainSecrets = verifyOffchainSecrets

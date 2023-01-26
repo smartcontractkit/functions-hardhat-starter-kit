@@ -50,7 +50,7 @@ task("functions-build-offchain-secrets", "Builds an off-chain secrets object for
           throw Error('In the config file, perNodeSecrets contains an empty object.')
         }
   
-        const secretsObjectKeys = JSON.stringify(Object.keys(secrets).sort())
+        const secretsObjectKeys = JSON.stringify(Object.keys(assignedSecrets).sort())
   
         if (
           requestConfig.secrets
