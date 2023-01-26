@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "./dev/functions/FunctionsClient.sol";
-// import "@chainlink/contracts/src/v0.8/dev/functions/FunctionsClient.sol"; // Once published
+import "@chainlink/contracts/src/v0.8/dev/functions/FunctionsClient.sol";
 import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 
 /**
@@ -45,7 +44,7 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
     if (secrets.length > 0) req.addInlineSecrets(secrets);
     if (args.length > 0) req.addArgs(args);
 
-    bytes32 assignedReqID = sendRequest(req, subscriptionId, gasLimit, tx.gasprice);
+    bytes32 assignedReqID = sendRequest(req, subscriptionId, gasLimit);
     latestRequestId = assignedReqID;
     return assignedReqID;
   }
