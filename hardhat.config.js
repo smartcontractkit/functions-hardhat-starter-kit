@@ -11,20 +11,20 @@ let GOERLI_RPC_URL = process.env.GOERLI_RPC_URL
 let SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL
 
 // Ignore default values from .env.example
-if (GOERLI_RPC_URL === 'https://goerli.infura.io/v3/ExampleKey') {
+if (GOERLI_RPC_URL === "https://goerli.infura.io/v3/ExampleKey") {
   GOERLI_RPC_URL = undefined
 }
-if (SEPOLIA_RPC_URL === 'https://sepolia.infura.io/v3/ExampleKey') {
+if (SEPOLIA_RPC_URL === "https://sepolia.infura.io/v3/ExampleKey") {
   SEPOLIA_RPC_URL = undefined
 }
-if (MUMBAI_RPC_URL === 'https://polygon-mumbai.g.alchemy.com/v2/ExampleKey') {
+if (MUMBAI_RPC_URL === "https://polygon-mumbai.g.alchemy.com/v2/ExampleKey") {
   MUMBAI_RPC_URL = undefined
 }
 
 // Ensure one of the RPC endpoints has been set
 if (!MAINNET_RPC_URL && !POLYGON_MAINNET_RPC_URL && !MUMBAI_RPC_URL && !GOERLI_RPC_URL && !SEPOLIA_RPC_URL) {
   throw Error(
-    'One of the following environment variables must be set: MAINNET_RPC_URL, GOERLI_RPC_URL, SEPOLIA_RPC_URL, POLYGON_MAINNET_RPC_URL, or MUMBAI_RPC_URL'
+    "One of the following environment variables must be set: MAINNET_RPC_URL, GOERLI_RPC_URL, SEPOLIA_RPC_URL, POLYGON_MAINNET_RPC_URL, or MUMBAI_RPC_URL"
   )
 }
 
@@ -35,7 +35,9 @@ if (!PRIVATE_KEY) {
 }
 
 // Set a specific bock number to fork (optional)
-const FORKING_BLOCK_NUMBER = isNaN(process.env.FORKING_BLOCK_NUMBER) ? undefined : parseInt(process.env.FORKING_BLOCK_NUMBER)
+const FORKING_BLOCK_NUMBER = isNaN(process.env.FORKING_BLOCK_NUMBER)
+  ? undefined
+  : parseInt(process.env.FORKING_BLOCK_NUMBER)
 
 // Your API key for Etherscan, obtain one at https://etherscan.io/ (optional)
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
@@ -98,26 +100,26 @@ module.exports = {
         : [],
     },
     goerli: {
-      url: GOERLI_RPC_URL ?? 'UNSET',
+      url: GOERLI_RPC_URL ?? "UNSET",
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
       chainId: 5,
     },
     mainnet: {
-      url: MAINNET_RPC_URL ?? 'UNSET',
+      url: MAINNET_RPC_URL ?? "UNSET",
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
       chainId: 1,
     },
     polygon: {
-      url: POLYGON_MAINNET_RPC_URL ?? 'UNSET',
+      url: POLYGON_MAINNET_RPC_URL ?? "UNSET",
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
       chainId: 137,
     },
     mumbai: {
-      url: MUMBAI_RPC_URL ?? 'UNSET',
+      url: MUMBAI_RPC_URL ?? "UNSET",
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
     },
     sepolia: {
-      url: SEPOLIA_RPC_URL || 'UNSET',
+      url: SEPOLIA_RPC_URL || "UNSET",
       accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
       chainId: 11155111,
     },
@@ -125,8 +127,10 @@ module.exports = {
   etherscan: {
     // yarn hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_PARAMETERS>
     apiKey: {
+      mainnet: ETHERSCAN_API_KEY,
       polygon: POLYGONSCAN_API_KEY,
       goerli: ETHERSCAN_API_KEY,
+      sepolia: ETHERSCAN_API_KEY,
       polygonMumbai: POLYGONSCAN_API_KEY,
     },
   },
