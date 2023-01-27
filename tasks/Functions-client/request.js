@@ -72,7 +72,14 @@ task("functions-request", "Initiates a request from an Functions client contract
     }
 
     // Estimate the cost of the request
-    const { lastBaseFeePerGas, maxPriorityFeePerGas } = await hre.ethers.provider.getFeeData()
+    let gasPriceEstimate
+    const { lastBaseFeePerGas, maxPriorityFeePerGas, gasPrice } = await hre.ethers.provider.getFeeData()
+    if (network.name === "mumbai") {
+      gasPriceEstimate = gasPrice.mul(lastBaseFeePerGas)
+    } else {
+      gasPriceEstimate = maxPriorityFeePerGas.add(lastBaseFeePerGas)
+    }
+
     const estimatedCostJuels = await clientContract.estimateCost(
       [
         0, // Inline
@@ -84,7 +91,7 @@ task("functions-request", "Initiates a request from an Functions client contract
       ],
       subscriptionId,
       gasLimit,
-      maxPriorityFeePerGas.add(lastBaseFeePerGas)
+      gasPriceEstimate
     )
     // Ensure the subscription has a sufficent balance
     const linkBalance = subInfo[0]
