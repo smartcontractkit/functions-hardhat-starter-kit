@@ -1,4 +1,9 @@
-const { simulateRequest, buildRequest, getDecodedResultLog, getRequestConfig } = require("../../FunctionsSandboxLibrary")
+const {
+  simulateRequest,
+  buildRequest,
+  getDecodedResultLog,
+  getRequestConfig,
+} = require("../../FunctionsSandboxLibrary")
 const { networkConfig } = require("../../network-config")
 
 task("functions-simulate", "Simulates an end-to-end fulfillment locally for the FunctionsConsumer contract")
@@ -74,14 +79,14 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
       console.log("\nExecuting JavaScript request source code locally...")
       const unvalidatedRequestConfig = require("../../Functions-request-config.js")
       const requestConfig = getRequestConfig(unvalidatedRequestConfig)
-  
+
       if (requestConfig.secretsLocation === 1) {
         if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
-          console.log('Using secrets assigned to the first node as no default secrets were provided')
+          console.log("Using secrets assigned to the first node as no default secrets were provided")
           requestConfig.secrets = requestConfig.perNodeSecrets[0] ?? {}
         }
       }
-  
+
       const { success, result, resultLog } = await simulateRequest(requestConfig)
       console.log(`\n${resultLog}`)
 

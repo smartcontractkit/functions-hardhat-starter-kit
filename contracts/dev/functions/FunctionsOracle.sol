@@ -83,7 +83,7 @@ contract FunctionsOracle is FunctionsOracleInterface, OCR2Base, AuthorizedOrigin
    */
   function _isTransmitter(address node) internal view returns (bool) {
     address[] memory nodes = this.transmitters();
-    for (uint i = 0; i < nodes.length; i++) {
+    for (uint256 i = 0; i < nodes.length; i++) {
       if (nodes[i] == node) {
         return true;
       }
@@ -119,7 +119,7 @@ contract FunctionsOracle is FunctionsOracleInterface, OCR2Base, AuthorizedOrigin
   function getAllNodePublicKeys() external view override returns (address[] memory, bytes[] memory) {
     address[] memory nodes = this.transmitters();
     bytes[] memory keys = new bytes[](nodes.length);
-    for (uint i = 0; i < nodes.length; i++) {
+    for (uint256 i = 0; i < nodes.length; i++) {
       keys[i] = s_nodePublicKeys[nodes[i]];
     }
     return (nodes, keys);
