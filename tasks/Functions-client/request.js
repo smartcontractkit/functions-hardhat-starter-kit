@@ -1,4 +1,9 @@
-const { simulateRequest, buildRequest, getDecodedResultLog, getRequestConfig } = require("../../FunctionsSandboxLibrary")
+const {
+  simulateRequest,
+  buildRequest,
+  getDecodedResultLog,
+  getRequestConfig,
+} = require("../../FunctionsSandboxLibrary")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 const { verifyOffchainSecrets } = require("./buildRequestJSON")
 const readline = require("readline-promise").default
@@ -20,11 +25,6 @@ task("functions-request", "Initiates a request from an Functions client contract
       throw Error(
         'This command cannot be used on a local development chain.  Specify a valid network or simulate an Functions request locally with "npx hardhat functions-simulate".'
       )
-    }
-
-    if (network.name === "goerli") {
-      overrides.maxPriorityFeePerGas = ethers.utils.parseUnits("50", "gwei")
-      overrides.maxFeePerGas = ethers.utils.parseUnits("50", "gwei")
     }
 
     // Get the required parameters
@@ -53,7 +53,7 @@ task("functions-request", "Initiates a request from an Functions client contract
         requestConfig.secrets = requestConfig.perNodeSecrets[0] ?? {}
       }
       // Get node addresses for off-chain secrets
-      const [ nodeAddresses, publicKeys ] = await oracle.getAllNodePublicKeys()
+      const [nodeAddresses, publicKeys] = await oracle.getAllNodePublicKeys()
       if (requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0) {
         await verifyOffchainSecrets(requestConfig.secretsURLs, nodeAddresses)
       }
@@ -101,7 +101,14 @@ task("functions-request", "Initiates a request from an Functions client contract
     const request = await buildRequest(requestConfig)
 
     // Estimate the cost of the request
-    const { lastBaseFeePerGas, maxPriorityFeePerGas } = await hre.ethers.provider.getFeeData()
+    let gasPriceEstimate
+    const { lastBaseFeePerGas, maxPriorityFeePerGas, gasPrice } = await hre.ethers.provider.getFeeData()
+    if (network.name === "mumbai") {
+      gasPriceEstimate = gasPrice.mul(lastBaseFeePerGas)
+    } else {
+      gasPriceEstimate = maxPriorityFeePerGas.add(lastBaseFeePerGas)
+    }
+
     const estimatedCostJuels = await clientContract.estimateCost(
       [
         0, // Inline
@@ -113,7 +120,7 @@ task("functions-request", "Initiates a request from an Functions client contract
       ],
       subscriptionId,
       gasLimit,
-      maxPriorityFeePerGas.add(lastBaseFeePerGas)
+      gasPriceEstimate
     )
     // Ensure the subscription has a sufficent balance
     const linkBalance = subInfo[0]
@@ -224,7 +231,7 @@ task("functions-request", "Initiates a request from an Functions client contract
         request.args ?? [],
         subscriptionId,
         gasLimit,
-        overrides,
+        overrides
       )
       // If a response is not received within 5 minutes, the request has failed
       setTimeout(
