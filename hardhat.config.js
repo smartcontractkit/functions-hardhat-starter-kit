@@ -3,6 +3,9 @@ require("hardhat-contract-sizer")
 require("./tasks")
 require("dotenv").config()
 
+const npmCommand = process.env.npm_lifecycle_event
+const isTestEnvironment = npmCommand == "test" || npmCommand == "test:unit"
+
 // Set one of the following RPC endpoints (required)
 let MAINNET_RPC_URL = process.env.MAINNET_RPC_URL
 let POLYGON_MAINNET_RPC_URL = process.env.POLYGON_MAINNET_RPC_URL
@@ -22,7 +25,14 @@ if (MUMBAI_RPC_URL === "https://polygon-mumbai.g.alchemy.com/v2/ExampleKey") {
 }
 
 // Ensure one of the RPC endpoints has been set
-if (!MAINNET_RPC_URL && !POLYGON_MAINNET_RPC_URL && !MUMBAI_RPC_URL && !GOERLI_RPC_URL && !SEPOLIA_RPC_URL) {
+if (
+  !isTestEnvironment &&
+  !MAINNET_RPC_URL &&
+  !POLYGON_MAINNET_RPC_URL &&
+  !MUMBAI_RPC_URL &&
+  !GOERLI_RPC_URL &&
+  !SEPOLIA_RPC_URL
+) {
   throw Error(
     "One of the following environment variables must be set: MAINNET_RPC_URL, GOERLI_RPC_URL, SEPOLIA_RPC_URL, POLYGON_MAINNET_RPC_URL, or MUMBAI_RPC_URL"
   )
@@ -30,11 +40,11 @@ if (!MAINNET_RPC_URL && !POLYGON_MAINNET_RPC_URL && !MUMBAI_RPC_URL && !GOERLI_R
 
 // Set EVM private key (required)
 const PRIVATE_KEY = process.env.PRIVATE_KEY
-if (!PRIVATE_KEY) {
+if (!isTestEnvironment && !PRIVATE_KEY) {
   throw Error("Set the PRIVATE_KEY environment variable with your EVM wallet private key")
 }
 
-// Set a specific bock number to fork (optional)
+// Set a specific block number to fork (optional)
 const FORKING_BLOCK_NUMBER = isNaN(process.env.FORKING_BLOCK_NUMBER)
   ? undefined
   : parseInt(process.env.FORKING_BLOCK_NUMBER)
@@ -85,9 +95,9 @@ module.exports = {
       allowUnlimitedContractSize: true,
       hardfork: "merge",
       forking: {
-        url: MAINNET_RPC_URL ?? POLYGON_MAINNET_RPC_URL ?? MUMBAI_RPC_URL ?? GOERLI_RPC_URL ?? SEPOLIA_RPC_URL,
+        url: MAINNET_RPC_URL ?? POLYGON_MAINNET_RPC_URL ?? MUMBAI_RPC_URL ?? GOERLI_RPC_URL ?? SEPOLIA_RPC_URL ?? "",
         blockNumber: FORKING_BLOCK_NUMBER,
-        enabled: true,
+        enabled: isTestEnvironment === false,
       },
       chainId: 31337,
       accounts: process.env.PRIVATE_KEY
@@ -97,7 +107,7 @@ module.exports = {
               balance: "10000000000000000000000",
             },
           ]
-        : [],
+        : {},
     },
     goerli: {
       url: GOERLI_RPC_URL ?? "UNSET",
