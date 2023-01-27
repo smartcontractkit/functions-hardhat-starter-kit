@@ -1,4 +1,9 @@
-const { simulateRequest, buildRequest, getDecodedResultLog, getRequestConfig } = require("../../FunctionsSandboxLibrary")
+const {
+  simulateRequest,
+  buildRequest,
+  getDecodedResultLog,
+  getRequestConfig,
+} = require("../../FunctionsSandboxLibrary")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 const { verifyOffchainSecrets } = require("./buildRequestJSON")
 const readline = require("readline-promise").default
@@ -53,7 +58,7 @@ task("functions-request", "Initiates a request from an Functions client contract
         requestConfig.secrets = requestConfig.perNodeSecrets[0] ?? {}
       }
       // Get node addresses for off-chain secrets
-      const [ nodeAddresses, publicKeys ] = await oracle.getAllNodePublicKeys()
+      const [nodeAddresses, publicKeys] = await oracle.getAllNodePublicKeys()
       if (requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0) {
         await verifyOffchainSecrets(requestConfig.secretsURLs, nodeAddresses)
       }
@@ -224,7 +229,7 @@ task("functions-request", "Initiates a request from an Functions client contract
         request.args ?? [],
         subscriptionId,
         gasLimit,
-        overrides,
+        overrides
       )
       // If a response is not received within 5 minutes, the request has failed
       setTimeout(
