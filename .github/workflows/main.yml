@@ -13,7 +13,7 @@ concurrency:
 jobs:
   run-unit-tests:
     name: Run unit tests
-    runs-on: [self-hosted, sdlc-ghr-prod]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup
@@ -21,7 +21,7 @@ jobs:
 
   run-basic-checks:
     name: Run linters
-    runs-on: [self-hosted, sdlc-ghr-prod]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup
