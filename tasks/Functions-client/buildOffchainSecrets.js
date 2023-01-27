@@ -20,24 +20,24 @@ task(
       throw Error("perNodeSecrets is not correctly specified in config file.  It must be an array of objects.")
     }
 
-    if (requestConfig.secrets && typeof requestConfig.secrets !== "object") {
-      throw Error("secrets object is not correctly specified in config file.  It must be an object.")
+    if (requestConfig.globalSecrets && typeof requestConfig.globalSecrets !== "object") {
+      throw Error("globalSecrets object is not correctly specified in config file.  It must be an object.")
     }
 
     if (
       (!requestConfig.perNodeSecrets || requestConfig.perNodeSecrets.length === 0) &&
-      (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0)
+      (!requestConfig.globalSecrets || Object.keys(requestConfig.globalSecrets).length === 0)
     ) {
       throw Error("Neither perNodeSecrets nor secrets is specified")
     }
 
-    const defaultSecretsObjectKeys = requestConfig.secrets
-      ? JSON.stringify(Object.keys(requestConfig.secrets).sort())
+    const globalSecretsObjectKeys = requestConfig.globalSecrets
+      ? JSON.stringify(Object.keys(requestConfig.globalSecrets).sort())
       : undefined
 
-    if (!requestConfig.secrets || defaultSecretsObjectKeys.length === 0) {
+    if (!requestConfig.globalSecrets || globalSecretsObjectKeys.length === 0) {
       console.log(
-        "\nWARNING: No default `secrets` provided.  If DON membership changes, the new node will not be able to process requests.\n"
+        "\nWARNING: No global secrets provided.  If DON membership changes, the new node will not be able to process requests.\n"
       )
     }
 
@@ -56,9 +56,9 @@ task(
         const secretsObjectKeys = JSON.stringify(Object.keys(assignedSecrets).sort())
 
         if (
-          requestConfig.secrets &&
-          defaultSecretsObjectKeys.length > 0 &&
-          defaultSecretsObjectKeys !== secretsObjectKeys
+          requestConfig.globalSecrets &&
+          globalSecretsObjectKeys.length > 0 &&
+          globalSecretsObjectKeys !== secretsObjectKeys
         ) {
           throw Error(
             "In the config file, not all objects in `perNodeSecrets` have the same object keys as default `secrets`. (The values can be different, but the keys should be the same between all objects.)"
@@ -108,14 +108,14 @@ task(
       }
     }
 
-    // if `secrets` is specified in the config, use those as the default secrets under the 0x0 entry
-    if (requestConfig.secrets && Object.keys(requestConfig.secrets).length > 0) {
+    // if globalSecrets is specified in the config, use those as the default secrets under the 0x0 entry
+    if (requestConfig.globalSecrets && Object.keys(requestConfig.globalSecrets).length > 0) {
       const DONPublicKey = await oracleContract.getDONPublicKey()
       offchainSecrets["0x0"] = Buffer.from(
         await encryptWithSignature(
           process.env.PRIVATE_KEY,
           DONPublicKey.slice(2),
-          JSON.stringify(requestConfig.secrets)
+          JSON.stringify(requestConfig.globalSecrets)
         ),
         "hex"
       ).toString("base64")

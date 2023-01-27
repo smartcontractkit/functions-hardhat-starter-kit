@@ -15,7 +15,9 @@ const runSimulation = async (requestConfig) => {
   const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
   if (requestConfig.secretsLocation === 1) {
-    if (requestConfig.secrets && Object.keys(requestConfig.secrets).length !== 0) {
+    requestConfig.secrets = {}
+    if (requestConfig.globalSecrets && Object.keys(requestConfig.globalSecrets).length !== 0) {
+      requestConfig.secrets = requestConfig.globalSecrets
       console.log("\n__SIMULATING JAVASCRIPT WITH DEFAULT SECRETS__")
       await runSimulation(requestConfig)
     }

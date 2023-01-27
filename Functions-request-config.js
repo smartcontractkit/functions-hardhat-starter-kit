@@ -40,11 +40,12 @@ const requestConfig = {
   // args (string only array) can be accessed within the source code with `args[index]` (ie: args[0]).
   args: ["1", "bitcoin", "btc-bitcoin", "btc", "1000000", "450"],
   // expected type of the returned value
-  expectedReturnType: ReturnType.uint256,
+  expectedReturnType: ReturnType.string,
   // Redundant URLs which point to encrypted off-chain secrets
   secretsURLs: [],
+  // Default offchain secrets object used by the `functions-build-offchain-secrets` command
+  globalSecrets: {},
   // Per-node offchain secrets objects used by the `functions-build-offchain-secrets` command
-  // The first entry will be used by the simulator if `secrets` is undefined
   perNodeSecrets: [],
 }
 
