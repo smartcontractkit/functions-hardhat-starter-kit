@@ -43,10 +43,10 @@ const networkConfig = {
   },
   sepolia: {
     linkToken: "0x779877A7B0D9E8603169DdbD7836e478b4624789",
-    linkEthPriceFeed: "",
-    functionsOracle: "0x88F9Dd856D2c8CeC68569b57858ee953CC2bB4f4",
-    functionsOracleFactory: "0x85b44e2A2812E0907136357bb5F536da7cC99c4A",
-    functionsOracleRegistry: "0x774Ea40eCC9fBC7861b35d57B5f49E13Ce87d75C",
+    linkEthPriceFeed: "0x42585eD362B3f1BCa95c640FdFf35Ef899212734",
+    functionsOracle: "0x0019f8318006EB71594c4a6CF3cfcf1B25b2174b",
+    functionsOracleFactory: "0xb2A09d7482E23B8D6AD6E9F95C82742be18A30cF",
+    functionsOracleRegistry: "0x7f46A4C21d394e7bd07DA04D614a7e64747eab3c",
     functionsPublicKey:
       "f2f9c47363202d89aa9fa70baf783d70006fe493471ac8cfa82f1426fd09f16a5f6b32b7c4b5d5165cd147a6e513ba4c0efd39d969d6b20a8a21126f0411b9c6",
   },
