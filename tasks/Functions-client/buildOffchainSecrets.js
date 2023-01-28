@@ -42,11 +42,15 @@ task(
     }
 
     if (requestConfig.perNodeOffchainSecrets && requestConfig.perNodeOffchainSecrets.length > 0) {
-      const firstperNodeOffchainSecretsKeys = JSON.stringify(Object.keys(requestConfig.perNodeOffchainSecrets[0]).sort())
+      const firstperNodeOffchainSecretsKeys = JSON.stringify(
+        Object.keys(requestConfig.perNodeOffchainSecrets[0]).sort()
+      )
 
       for (const assignedSecrets of requestConfig.perNodeOffchainSecrets) {
         if (typeof assignedSecrets !== "object") {
-          throw Error("perNodeOffchainSecrets is not correctly specified in config file.  It must be an array of objects.")
+          throw Error(
+            "perNodeOffchainSecrets is not correctly specified in config file.  It must be an array of objects."
+          )
         }
 
         if (Object.keys(assignedSecrets).length === 0) {
