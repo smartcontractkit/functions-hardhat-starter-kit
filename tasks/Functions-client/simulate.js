@@ -57,7 +57,7 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
     const requestConfig = require("../../Functions-request-config.js")
     // Fetch the DON public key from on-chain
     const DONPublicKey = await oracle.getDONPublicKey()
-    // Remove the preceeding 0x from the DON public key
+    // Remove the preceding 0x from the DON public key
     requestConfig.DONPublicKey = DONPublicKey.slice(2)
     const request = await buildRequest(requestConfig)
 
@@ -74,6 +74,7 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
       )
       const requestTxReceipt = await requestTx.wait(1)
       const requestId = requestTxReceipt.events[2].args.id
+      const requestGasUsed = requestTxReceipt.gasUsed.toString()
 
       // Simulating the JavaScript code locally
       console.log("\nExecuting JavaScript request source code locally...")
@@ -109,7 +110,7 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
             gasLimit: 500_000,
           }
         )
-        const fulfillTxData = await fulfillTx.wait(1)
+        await fulfillTx.wait(1)
       } catch (fulfillError) {
         // Catch & report any unexpected fulfillment errors
         console.log("\nUnexpected error encountered when calling fulfillRequest in client contract.")
@@ -150,27 +151,44 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
           eventSuccess
         ) => {
           if (requestId == eventRequestId) {
-            // Check for a successful request & log a mesage if the fulfillment was not successful
+            // Check for a successful request & log a message if the fulfillment was not successful
             if (!eventSuccess) {
               console.log(
                 "\nError encountered when calling fulfillRequest in client contract.\n" +
-                  "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficent.\n"
+                  "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient.\n"
               )
             }
-            console.log(
-              `Estimated transmission cost: ${hre.ethers.utils.formatUnits(
-                eventTransmitterPayment,
-                18
-              )} LINK (This will vary based on gas price)`
-            )
-            console.log(`Base fee: ${hre.ethers.utils.formatUnits(eventSignerPayment, 18)} LINK`)
-            console.log(`Total estimated cost: ${hre.ethers.utils.formatUnits(eventTotalCost, 18)} LINK`)
+
+            const fulfillGasUsed = await getGasUsedForFulfillRequest(success, result)
+            console.log(`Gas used by sendRequest: ${requestGasUsed}`)
+            console.log(`Gas used by client callback function: ${fulfillGasUsed}`)
             return resolve()
           }
         }
       )
     })
   })
+
+const getGasUsedForFulfillRequest = async (success, result) => {
+  const accounts = await ethers.getSigners()
+  const deployer = accounts[0]
+  const simulatedRequestId = '0x0000000000000000000000000000000000000000000000000000000000000001'
+
+  const clientFactory = await ethers.getContractFactory("FunctionsConsumer")
+  const client = await clientFactory.deploy(deployer.address)
+  client.addSimulatedRequestId(deployer.address, simulatedRequestId)
+  await client.deployTransaction.wait(1)
+
+  let txReceipt
+  if (success) {
+    txReceipt = await client.handleOracleFulfillment(simulatedRequestId, result, [])
+  } else {
+    txReceipt = await client.handleOracleFulfillment(simulatedRequestId, [], result)
+  }
+  const txResult = await txReceipt.wait(1)
+
+  return txResult.gasUsed.toString()
+}
 
 const deployMockOracle = async () => {
   // Deploy a mock LINK token contract
