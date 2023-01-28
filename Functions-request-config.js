@@ -26,7 +26,7 @@ const ReturnType = {
 const requestConfig = {
   // location of source code (only Inline is currently supported)
   codeLocation: Location.Inline,
-  // location of secrets (only Inline is currently supported)
+  // location of secrets (Inline or Remote)
   secretsLocation: Location.Inline,
   // code language (only JavaScript is currently supported)
   codeLanguage: CodeLanguage.JavaScript,
