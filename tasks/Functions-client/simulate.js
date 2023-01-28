@@ -172,7 +172,7 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
 const getGasUsedForFulfillRequest = async (success, result) => {
   const accounts = await ethers.getSigners()
   const deployer = accounts[0]
-  const simulatedRequestId = '0x0000000000000000000000000000000000000000000000000000000000000001'
+  const simulatedRequestId = "0x0000000000000000000000000000000000000000000000000000000000000001"
 
   const clientFactory = await ethers.getContractFactory("FunctionsConsumer")
   const client = await clientFactory.deploy(deployer.address)
