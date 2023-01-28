@@ -55,16 +55,16 @@ task("functions-request", "Initiates a request from an Functions client contract
 
     if (requestConfig.secretsLocation === 1) {
       requestConfig.secrets = undefined
-      if (!requestConfig.globalSecrets || Object.keys(requestConfig.globalSecrets).length === 0) {
+      if (!requestConfig.globalOffchainSecrets || Object.keys(requestConfig.globalOffchainSecrets).length === 0) {
         if (
-          requestConfig.perNodeSecrets &&
-          requestConfig.perNodeSecrets[0] &&
-          Object.keys(requestConfig.perNodeSecrets[0]).length > 0
+          requestConfig.perNodeOffchainSecrets &&
+          requestConfig.perNodeOffchainSecrets[0] &&
+          Object.keys(requestConfig.perNodeOffchainSecrets[0]).length > 0
         ) {
-          requestConfig.secrets = requestConfig.perNodeSecrets[0]
+          requestConfig.secrets = requestConfig.perNodeOffchainSecrets[0]
         }
       } else {
-        requestConfig.secrets = requestConfig.globalSecrets
+        requestConfig.secrets = requestConfig.globalOffchainSecrets
       }
       // Get node addresses for off-chain secrets
       const [nodeAddresses, publicKeys] = await oracle.getAllNodePublicKeys()

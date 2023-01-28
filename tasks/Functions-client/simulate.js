@@ -83,17 +83,17 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
       if (requestConfig.secretsLocation === 1) {
         requestConfig.secrets = undefined
 
-        if (!requestConfig.globalSecrets || Object.keys(requestConfig.globalSecrets).length === 0) {
+        if (!requestConfig.globalOffchainSecrets || Object.keys(requestConfig.globalOffchainSecrets).length === 0) {
           console.log("Using secrets assigned to the first node as no global secrets were provided")
           if (
-            requestConfig.perNodeSecrets &&
-            requestConfig.perNodeSecrets[0] &&
-            Object.keys(requestConfig.perNodeSecrets[0]).length > 0
+            requestConfig.perNodeOffchainSecrets &&
+            requestConfig.perNodeOffchainSecrets[0] &&
+            Object.keys(requestConfig.perNodeOffchainSecrets[0]).length > 0
           ) {
-            requestConfig.secrets = requestConfig.perNodeSecrets[0]
+            requestConfig.secrets = requestConfig.perNodeOffchainSecrets[0]
           }
         } else {
-          requestConfig.secrets = requestConfig.globalSecrets
+          requestConfig.secrets = requestConfig.globalOffchainSecrets
         }
       }
 

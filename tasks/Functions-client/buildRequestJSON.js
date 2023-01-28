@@ -22,7 +22,7 @@ task("functions-build-request", "Creates a JSON file with Functions request para
 
     if (requestConfig.secretsLocation === 1) {
       if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
-        requestConfig.secrets = requestConfig.perNodeSecrets[0] ?? {}
+        requestConfig.secrets = requestConfig.perNodeOffchainSecrets[0] ?? {}
       }
       // Get node addresses for off-chain secrets
       const [nodeAddresses, publicKeys] = await oracle.getAllNodePublicKeys()

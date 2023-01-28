@@ -44,9 +44,9 @@ const requestConfig = {
   // Redundant URLs which point to encrypted off-chain secrets
   secretsURLs: [],
   // Default offchain secrets object used by the `functions-build-offchain-secrets` command
-  globalSecrets: {},
+  globalOffchainSecrets: {},
   // Per-node offchain secrets objects used by the `functions-build-offchain-secrets` command
-  perNodeSecrets: [],
+  perNodeOffchainSecrets: [],
 }
 
 module.exports = requestConfig
