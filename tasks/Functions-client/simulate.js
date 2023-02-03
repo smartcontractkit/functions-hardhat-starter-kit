@@ -55,6 +55,7 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
 
     // Build the parameters to make a request from the client contract
     const requestConfig = require("../../Functions-request-config.js")
+    const validatedRequestConfig = getRequestConfig(requestConfig)
     // Fetch the DON public key from on-chain
     const DONPublicKey = await oracle.getDONPublicKey()
     // Remove the preceeding 0x from the DON public key
@@ -68,6 +69,7 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
       const requestTx = await clientContract.executeRequest(
         request.source,
         request.secrets ?? [],
+        validatedRequestConfig.secretsLocation,
         request.args ?? [],
         subscriptionId,
         gasLimit

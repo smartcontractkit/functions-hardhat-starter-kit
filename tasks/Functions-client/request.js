@@ -226,6 +226,7 @@ task("functions-request", "Initiates a request from an Functions client contract
       const requestTx = await clientContract.executeRequest(
         request.source,
         request.secrets ?? [],
+        requestConfig.secretsLocation,
         request.args ?? [],
         subscriptionId,
         gasLimit,
