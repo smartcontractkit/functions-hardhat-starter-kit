@@ -37,11 +37,11 @@ const simulateRequest = async (unvalidatedConfig) => {
     }
   }
   const { name, message } = result.error
-  const errorString = `${name}: ${message}`.slice(0, config.maxResponseBytes)
+  const errorString = `${message}`.slice(0, config.maxResponseBytes)
   return {
     success: false,
     result: `0x${Buffer.from(errorString).toString("hex")}`,
-    resultLog: `__Error thrown in sandboxed source code__\n${name}: ${message}\n`,
+    resultLog: `__Error thrown in sandboxed source code__\n${message}\n`,
   }
 }
 exports.simulateRequest = simulateRequest

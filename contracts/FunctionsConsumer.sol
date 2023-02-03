@@ -79,4 +79,8 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
   function updateOracleAddress(address oracle) public onlyOwner {
     setOracle(oracle);
   }
+
+  function addSimulatedRequestId(address oracleAddress, bytes32 requestId) public onlyOwner {
+    addExternalRequest(oracleAddress, requestId);
+  }
 }
