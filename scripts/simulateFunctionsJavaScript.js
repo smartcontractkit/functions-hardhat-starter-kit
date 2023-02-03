@@ -15,17 +15,19 @@ const runSimulation = async (requestConfig) => {
   const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
   if (requestConfig.secretsLocation === 1) {
-    if (requestConfig.secrets && Object.keys(requestConfig.secrets).length !== 0) {
+    requestConfig.secrets = {}
+    if (requestConfig.globalOffchainSecrets && Object.keys(requestConfig.globalOffchainSecrets).length !== 0) {
+      requestConfig.secrets = requestConfig.globalOffchainSecrets
       console.log("\n__SIMULATING JAVASCRIPT WITH DEFAULT SECRETS__")
       await runSimulation(requestConfig)
     }
 
-    if (!requestConfig.perNodeSecrets) {
+    if (!requestConfig.perNodeOffchainSecrets) {
       return
     }
 
-    for (let i = 0; i < requestConfig.perNodeSecrets.length; i++) {
-      requestConfig.secrets = requestConfig.perNodeSecrets[i]
+    for (let i = 0; i < requestConfig.perNodeOffchainSecrets.length; i++) {
+      requestConfig.secrets = requestConfig.perNodeOffchainSecrets[i]
       console.log(`\n__SIMULATING JAVASCRIPT WITH SECRETS ASSIGNED TO NODE ${i}__`)
       await runSimulation(requestConfig)
     }

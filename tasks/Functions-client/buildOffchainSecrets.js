@@ -15,59 +15,63 @@ task(
 
     const requestConfig = require("../../Functions-request-config")
 
-    // Verify that perNodeSecrets and/or secrets is correctly specified in the config
-    if (requestConfig.perNodeSecrets && !Array.isArray(requestConfig.perNodeSecrets)) {
-      throw Error("perNodeSecrets is not correctly specified in config file.  It must be an array of objects.")
+    // Verify that perNodeOffchainSecrets and/or secrets is correctly specified in the config
+    if (requestConfig.perNodeOffchainSecrets && !Array.isArray(requestConfig.perNodeOffchainSecrets)) {
+      throw Error("perNodeOffchainSecrets is not correctly specified in config file.  It must be an array of objects.")
     }
 
-    if (requestConfig.secrets && typeof requestConfig.secrets !== "object") {
-      throw Error("secrets object is not correctly specified in config file.  It must be an object.")
+    if (requestConfig.globalOffchainSecrets && typeof requestConfig.globalOffchainSecrets !== "object") {
+      throw Error("globalOffchainSecrets object is not correctly specified in config file.  It must be an object.")
     }
 
     if (
-      (!requestConfig.perNodeSecrets || requestConfig.perNodeSecrets.length === 0) &&
-      (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0)
+      (!requestConfig.perNodeOffchainSecrets || requestConfig.perNodeOffchainSecrets.length === 0) &&
+      (!requestConfig.globalOffchainSecrets || Object.keys(requestConfig.globalOffchainSecrets).length === 0)
     ) {
-      throw Error("Neither perNodeSecrets nor secrets is specified")
+      throw Error("Neither perNodeOffchainSecrets nor secrets is specified")
     }
 
-    const defaultSecretsObjectKeys = requestConfig.secrets
-      ? JSON.stringify(Object.keys(requestConfig.secrets).sort())
+    const globalOffchainSecretsObjectKeys = requestConfig.globalOffchainSecrets
+      ? JSON.stringify(Object.keys(requestConfig.globalOffchainSecrets).sort())
       : undefined
 
-    if (!requestConfig.secrets || defaultSecretsObjectKeys.length === 0) {
+    if (!requestConfig.globalOffchainSecrets || globalOffchainSecretsObjectKeys.length === 0) {
       console.log(
-        "\nWARNING: No default `secrets` provided.  If DON membership changes, the new node will not be able to process requests.\n"
+        "\nWARNING: No global secrets provided.  If DON membership changes, the new node will not be able to process requests.\n"
       )
     }
 
-    if (requestConfig.perNodeSecrets && requestConfig.perNodeSecrets.length > 0) {
-      const firstPerNodeSecretsKeys = JSON.stringify(Object.keys(requestConfig.perNodeSecrets[0]).sort())
+    if (requestConfig.perNodeOffchainSecrets && requestConfig.perNodeOffchainSecrets.length > 0) {
+      const firstperNodeOffchainSecretsKeys = JSON.stringify(
+        Object.keys(requestConfig.perNodeOffchainSecrets[0]).sort()
+      )
 
-      for (const assignedSecrets of requestConfig.perNodeSecrets) {
+      for (const assignedSecrets of requestConfig.perNodeOffchainSecrets) {
         if (typeof assignedSecrets !== "object") {
-          throw Error("perNodeSecrets is not correctly specified in config file.  It must be an array of objects.")
+          throw Error(
+            "perNodeOffchainSecrets is not correctly specified in config file.  It must be an array of objects."
+          )
         }
 
         if (Object.keys(assignedSecrets).length === 0) {
-          throw Error("In the config file, perNodeSecrets contains an empty object.")
+          throw Error("In the config file, perNodeOffchainSecrets contains an empty object.")
         }
 
         const secretsObjectKeys = JSON.stringify(Object.keys(assignedSecrets).sort())
 
         if (
-          requestConfig.secrets &&
-          defaultSecretsObjectKeys.length > 0 &&
-          defaultSecretsObjectKeys !== secretsObjectKeys
+          requestConfig.globalOffchainSecrets &&
+          globalOffchainSecretsObjectKeys.length > 0 &&
+          globalOffchainSecretsObjectKeys !== secretsObjectKeys
         ) {
           throw Error(
-            "In the config file, not all objects in `perNodeSecrets` have the same object keys as default `secrets`. (The values can be different, but the keys should be the same between all objects.)"
+            "In the config file, not all objects in `perNodeOffchainSecrets` have the same object keys as default `secrets`. (The values can be different, but the keys should be the same between all objects.)"
           )
         }
 
-        if (firstPerNodeSecretsKeys !== secretsObjectKeys) {
+        if (firstperNodeOffchainSecretsKeys !== secretsObjectKeys) {
           throw Error(
-            "In the config file, not all objects in `perNodeSecrets` have the same object keys. (The values can be different, but the keys should be the same between all objects.)"
+            "In the config file, not all objects in `perNodeOffchainSecrets` have the same object keys. (The values can be different, but the keys should be the same between all objects.)"
           )
         }
       }
@@ -84,38 +88,38 @@ task(
     const [nodeAddresses, publicKeys] = await oracleContract.getAllNodePublicKeys()
 
     if (
-      requestConfig.perNodeSecrets &&
-      requestConfig.perNodeSecrets.length !== nodeAddresses.length &&
-      requestConfig.perNodeSecrets.length !== 0
+      requestConfig.perNodeOffchainSecrets &&
+      requestConfig.perNodeOffchainSecrets.length !== nodeAddresses.length &&
+      requestConfig.perNodeOffchainSecrets.length !== 0
     ) {
       throw Error(
-        `The number of per-node secrets must match the number of nodes.  Length of perNodeSecrets: ${requestConfig.perNodeSecrets.length} Number of nodes: ${nodeAddresses.length}`
+        `The number of per-node secrets must match the number of nodes.  Length of perNodeOffchainSecrets: ${requestConfig.perNodeOffchainSecrets.length} Number of nodes: ${nodeAddresses.length}`
       )
     }
 
     const offchainSecrets = {}
 
-    if (requestConfig.perNodeSecrets && Object.keys(requestConfig.perNodeSecrets).length > 0) {
+    if (requestConfig.perNodeOffchainSecrets && Object.keys(requestConfig.perNodeOffchainSecrets).length > 0) {
       for (let i = 0; i < nodeAddresses.length; i++) {
         offchainSecrets[nodeAddresses[i].toLowerCase()] = Buffer.from(
           await encryptWithSignature(
             process.env.PRIVATE_KEY,
             publicKeys[i].slice(2),
-            JSON.stringify(requestConfig.perNodeSecrets[i])
+            JSON.stringify(requestConfig.perNodeOffchainSecrets[i])
           ),
           "hex"
         ).toString("base64")
       }
     }
 
-    // if `secrets` is specified in the config, use those as the default secrets under the 0x0 entry
-    if (requestConfig.secrets && Object.keys(requestConfig.secrets).length > 0) {
+    // if globalOffchainSecrets is specified in the config, use those as the default secrets under the 0x0 entry
+    if (requestConfig.globalOffchainSecrets && Object.keys(requestConfig.globalOffchainSecrets).length > 0) {
       const DONPublicKey = await oracleContract.getDONPublicKey()
       offchainSecrets["0x0"] = Buffer.from(
         await encryptWithSignature(
           process.env.PRIVATE_KEY,
           DONPublicKey.slice(2),
-          JSON.stringify(requestConfig.secrets)
+          JSON.stringify(requestConfig.globalOffchainSecrets)
         ),
         "hex"
       ).toString("base64")
