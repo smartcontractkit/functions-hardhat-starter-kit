@@ -1,6 +1,7 @@
 # Chainlink Functions Starter Kit
 
 - [Chainlink Functions Starter Kit](#chainlink-functions-starter-kit)
+- [\<\<\<\<\<\<\< HEAD](#-head)
 - [Overview](#overview)
 - [Quickstart](#quickstart)
   - [Requirements](#requirements)
@@ -16,6 +17,8 @@
   - [Simulating Requests](#simulating-requests)
   - [Off-chain Secrets](#off-chain-secrets)
 - [Automation Integration](#automation-integration)
+>>>>>>> b45e0f2e (Added Automation integration demo)
+>>>>>>> 773976a0 (Added Automation integration demo)
 
 # Overview
 
