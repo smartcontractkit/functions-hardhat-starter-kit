@@ -6,7 +6,7 @@ import "./dev/functions/FunctionsClient.sol";
 import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 
 /**
- * @title Functions Copns contract
+ * @title Functions Consumer contract
  * @notice This contract is a demonstration of using Functions.
  * @notice NOT FOR PRODUCTION USE
  */
@@ -28,6 +28,7 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
 
   /**
    * @notice Send a simple request
+   * 
    * @param source JavaScript source code
    * @param secrets Encrypted secrets payload
    * @param args List of arguments accessible from within the source code
@@ -76,10 +77,21 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
     emit OCRResponse(requestId, response, err);
   }
 
+  /**
+   * @notice Allows the Functions oracle address to be updated
+   *
+   * @param oracle New oracle address
+   */
   function updateOracleAddress(address oracle) public onlyOwner {
     setOracle(oracle);
   }
 
+  /**
+   * @notice Allows for simulating fulfillRequest locally with `npx hardhat functions-simulate`
+   *
+   * @param oracleAddress Simulated oracle address
+   * @param requestId Simulated requestId
+   */
   function addSimulatedRequestId(address oracleAddress, bytes32 requestId) public onlyOwner {
     addExternalRequest(oracleAddress, requestId);
   }
