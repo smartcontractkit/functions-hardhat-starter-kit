@@ -15,8 +15,10 @@
   - [Modifying Contracts](#modifying-contracts)
   - [Simulating Requests](#simulating-requests)
   - [Off-chain Secrets](#off-chain-secrets)
+- [\<\<\<\<\<\<\< HEAD](#-head)
 - [Automation Integration](#automation-integration)
-- [To manually trigger a request, use the command `npx hardhat functions-perform-upkeep --network network_name_here --contract contract_address_here`.](#to-manually-trigger-a-request-use-the-command-npx-hardhat-functions-perform-upkeep---network-network_name_here---contract-contract_address_here)
+- [\<\<\<\<\<\<\< HEAD](#-head-1)
+>>>>>>> b45e0f2e (Added Automation integration demo)
 
 # Overview
 
@@ -230,6 +232,9 @@ To generate the encrypted secrets JSON file, run the command `npx hardhat functi
 Once the JSON file is uploaded, set `secretsLocation` to `Location.Remote` in `Functions-request-config.js` and enter the URL(s) where the JSON file is hosted into `secretsURLs`. Multiple URLs can be entered as a fallback in case any of the URLs are offline. Each URL should host the exact same JSON file. The tooling will automatically pack the secrets URL(s) into a space-separated string and encrypt the string using the DON public key so no 3rd party can view the URLs. Finally, this encrypted string of URLs is used in the `secrets` parameter when making an on-chain request.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b45e0f2e (Added Automation integration demo)
 URLs which host secrets must be available ever time a request is executed by DON nodes. For optimal security, it is recommended to expire the URLs when the off-chain secrets are no longer in use.
 
 # Automation Integration
@@ -237,7 +242,11 @@ URLs which host secrets must be available ever time a request is executed by DON
 Chainlink Functions can be used with Chainlink Automation in order to automatically trigger a Functions request.
 
 1. Create & fund a new Functions billing subscription by running:<br>`npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command.<br><br>
+<<<<<<< HEAD
 2. Deploy the `AutomationFunctionsConsumer` client contract by running:<br>`npx hardhat functions-deploy-auto-client --network network_name_here --subid subscription_id_number_here --interval time_between_requests_here --verify true`<br>**Note**: Make sure `ETHERSCAN_API_KEY` or `POLYGONSCAN_API_KEY` environment variables are set. API keys for these services are freely available to anyone who creates an account.<br><br>
+=======
+2. Deploy the `AutomationFunctionsConsumer` client contract by running:<br>`npx hardhat functions-deploy-auto-client --network network_name_here --subid subscription_id_number_here --interval time_between_requests_here --verify true`<br>**Note**: Make sure `ETHERSCAN_API_KEY` or `POLYGONSCAN_API_KEY` are set. API keys for these services are freely available to anyone who creates an account.<br><br>
+>>>>>>> b45e0f2e (Added Automation integration demo)
 3. Register the contract for upkeep via the Chainlink Automation web app here: [https://automation.chain.link/](https://automation.chain.link/)
    - Find further documentation for working with Chainlink Automation here: [https://docs.chain.link/chainlink-automation/introduction](https://docs.chain.link/chainlink-automation/introduction)
 
@@ -245,6 +254,9 @@ Once the contract is registered for upkeep, check the latest response or error w
 
 For debugging, use the command `npx hardhat functions-check-upkeep --network network_name_here --contract contract_address_here` to see if Automation needs to call `performUpkeep`.
 To manually trigger a request, use the command `npx hardhat functions-perform-upkeep --network network_name_here --contract contract_address_here`.
+<<<<<<< HEAD
 =======
 URLs which host secrets must be available every time a request is executed by DON nodes. For optimal security, it is recommended to expire the URLs when the off-chain secrets are no longer in use.
 >>>>>>> 9e7e712c (Add OpenZeppelin Upgradable (#73))
+=======
+>>>>>>> b45e0f2e (Added Automation integration demo)
