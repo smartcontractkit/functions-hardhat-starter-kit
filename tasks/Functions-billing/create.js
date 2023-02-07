@@ -16,6 +16,16 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
     const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
     const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsOracleRegistry"])
 
+    // TODO: Remove the following 6 lines on open access
+    const Oracle = await ethers.getContractFactory("FunctionsOracle")
+    const oracle = await Oracle.attach(networkConfig[network.name]["functionsOracle"])
+    const isWalletAllowed = await oracle.isAuthorizedSender((await ethers.getSigner()).address)
+
+    if (!isWalletAllowed)
+      return console.log(
+        "\nChainlink Functions is currently in a closed testing phase.\nFor access sign up here:\nhttps://chainlinkcommunity.typeform.com/requestaccess"
+      )
+
     console.log("Creating Functions billing subscription")
     const createSubscriptionTx = await registry.createSubscription()
 
