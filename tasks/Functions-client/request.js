@@ -1,4 +1,9 @@
-const { simulateRequest, buildRequest, getDecodedResultLog, getRequestConfig } = require("../../FunctionsSandboxLibrary")
+const {
+  simulateRequest,
+  buildRequest,
+  getDecodedResultLog,
+  getRequestConfig,
+} = require("../../FunctionsSandboxLibrary")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 const { verifyOffchainSecrets } = require("./buildRequestJSON")
 const readline = require("readline-promise").default
@@ -49,11 +54,20 @@ task("functions-request", "Initiates a request from an Functions client contract
     const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
     if (requestConfig.secretsLocation === 1) {
-      if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
-        requestConfig.secrets = requestConfig.perNodeSecrets[0] ?? {}
+      requestConfig.secrets = undefined
+      if (!requestConfig.globalOffchainSecrets || Object.keys(requestConfig.globalOffchainSecrets).length === 0) {
+        if (
+          requestConfig.perNodeOffchainSecrets &&
+          requestConfig.perNodeOffchainSecrets[0] &&
+          Object.keys(requestConfig.perNodeOffchainSecrets[0]).length > 0
+        ) {
+          requestConfig.secrets = requestConfig.perNodeOffchainSecrets[0]
+        }
+      } else {
+        requestConfig.secrets = requestConfig.globalOffchainSecrets
       }
       // Get node addresses for off-chain secrets
-      const [ nodeAddresses, publicKeys ] = await oracle.getAllNodePublicKeys()
+      const [nodeAddresses, publicKeys] = await oracle.getAllNodePublicKeys()
       if (requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0) {
         await verifyOffchainSecrets(requestConfig.secretsURLs, nodeAddresses)
       }
@@ -221,10 +235,11 @@ task("functions-request", "Initiates a request from an Functions client contract
       const requestTx = await clientContract.executeRequest(
         request.source,
         request.secrets ?? [],
+        requestConfig.secretsLocation,
         request.args ?? [],
         subscriptionId,
         gasLimit,
-        overrides,
+        overrides
       )
       // If a response is not received within 5 minutes, the request has failed
       setTimeout(

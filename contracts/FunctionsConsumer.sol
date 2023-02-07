@@ -36,13 +36,20 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
   function executeRequest(
     string calldata source,
     bytes calldata secrets,
+    Functions.Location secretsLocation,
     string[] calldata args,
     uint64 subscriptionId,
     uint32 gasLimit
   ) public onlyOwner returns (bytes32) {
     Functions.Request memory req;
     req.initializeRequest(Functions.Location.Inline, Functions.CodeLanguage.JavaScript, source);
-    if (secrets.length > 0) req.addInlineSecrets(secrets);
+    if (secrets.length > 0) {
+      if (secretsLocation == Functions.Location.Inline) {
+        req.addInlineSecrets(secrets);
+      } else {
+        req.addRemoteSecrets(secrets);
+      }
+    }
     if (args.length > 0) req.addArgs(args);
 
     bytes32 assignedReqID = sendRequest(req, subscriptionId, gasLimit, tx.gasprice);
@@ -71,5 +78,9 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
 
   function updateOracleAddress(address oracle) public onlyOwner {
     setOracle(oracle);
+  }
+
+  function addSimulatedRequestId(address oracleAddress, bytes32 requestId) public onlyOwner {
+    addExternalRequest(oracleAddress, requestId);
   }
 }
