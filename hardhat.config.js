@@ -1,5 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox")
 require("hardhat-contract-sizer")
+require("@openzeppelin/hardhat-upgrades")
 require("./tasks")
 require("dotenv").config()
 
