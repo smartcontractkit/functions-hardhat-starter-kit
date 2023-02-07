@@ -27,7 +27,7 @@ task("functions-upgrade", "Upgrades the implementation of an existing Functions 
       contractPath =
         "contracts/dev/functions/migrations/FunctionsBillingRegistryMigration.sol:FunctionsBillingRegistryMigration"
       newImplementationFactory = await ethers.getContractFactory(contractPath)
-    } else if (type === "registry" || type === "Registry" || type === "REGISTRY") {
+    } else if (type === "oracle" || type === "Oracle" || type === "ORACLE") {
       proxyAddress = networkConfig[network.name]["functionsOracleProxy"]
       contractPath = "contracts/dev/functions/migrations/FunctionsOracleMigration.sol:FunctionsOracleMigration"
       newImplementationFactory = await ethers.getContractFactory(contractPath)
