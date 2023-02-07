@@ -1,0 +1,768 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x1BdDd4d3EDD1c60682e9672c52EEe3fcF82fe078",
+    "txHash": "0x25d3897cbf9be830729319609384b5b31f115c254564b54314e1430693e2df9d"
+  },
+  "proxies": [
+    {
+      "address": "0x4Ff5D5f6caE67941521B06C96f2048379E222AF9",
+      "txHash": "0x49690315a71742aa969b3d5b1a27c0284e0213a27af2b5c37d525f74eb9720f4",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x5b2E2a078c6CF99c7Aa61555034CaD28cA08a54f",
+      "txHash": "0x6c8e5fb4f7f95a12dd17cc40940674f794194a06f9949576085a7c035490fd2d",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "12ca483ac4f8fa3e28586cc70d2adb060ef3be819aed6447610e32f16af0fc18": {
+      "address": "0xDb51960B63F1Cc3289FAF731ba3764F3B3aF3DCd",
+      "txHash": "0xb282e526273e89f9ce641c9ebe9b7ebf4d3d364b1dad6cfffa95e3d39f1981b1",
+      "layout": {
+        "solcVersion": "0.8.7",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "s_owner",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "ConfirmedOwnerUpgradeable",
+            "src": "contracts/dev/functions/ConfirmedOwnerUpgradeable.sol:12"
+          },
+          {
+            "label": "s_pendingOwner",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "ConfirmedOwnerUpgradeable",
+            "src": "contracts/dev/functions/ConfirmedOwnerUpgradeable.sol:13"
+          },
+          {
+            "label": "i_uniqueReports",
+            "offset": 20,
+            "slot": "1",
+            "type": "t_bool",
+            "contract": "OCR2BaseUpgradeable",
+            "src": "contracts/dev/ocr2/OCR2BaseUpgradeable.sol:21"
+          },
+          {
+            "label": "s_configInfo",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_struct(ConfigInfo)11975_storage",
+            "contract": "OCR2BaseUpgradeable",
+            "src": "contracts/dev/ocr2/OCR2BaseUpgradeable.sol:41"
+          },
+          {
+            "label": "s_configCount",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint32",
+            "contract": "OCR2BaseUpgradeable",
+            "src": "contracts/dev/ocr2/OCR2BaseUpgradeable.sol:45"
+          },
+          {
+            "label": "s_latestConfigBlockNumber",
+            "offset": 4,
+            "slot": "4",
+            "type": "t_uint32",
+            "contract": "OCR2BaseUpgradeable",
+            "src": "contracts/dev/ocr2/OCR2BaseUpgradeable.sol:46"
+          },
+          {
+            "label": "s_oracles",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_mapping(t_address,t_struct(Oracle)11992_storage)",
+            "contract": "OCR2BaseUpgradeable",
+            "src": "contracts/dev/ocr2/OCR2BaseUpgradeable.sol:68"
+          },
+          {
+            "label": "s_signers",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "OCR2BaseUpgradeable",
+            "src": "contracts/dev/ocr2/OCR2BaseUpgradeable.sol:72"
+          },
+          {
+            "label": "s_transmitters",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "OCR2BaseUpgradeable",
+            "src": "contracts/dev/ocr2/OCR2BaseUpgradeable.sol:76"
+          },
+          {
+            "label": "_active",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_bool",
+            "contract": "AuthorizedOriginReceiverUpgradeable",
+            "src": "contracts/dev/functions/AuthorizedOriginReceiverUpgradeable.sol:24"
+          },
+          {
+            "label": "s_authorizedSenders",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_struct(AddressSet)14831_storage",
+            "contract": "AuthorizedOriginReceiverUpgradeable",
+            "src": "contracts/dev/functions/AuthorizedOriginReceiverUpgradeable.sol:25"
+          },
+          {
+            "label": "s_authorizedSendersList",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "AuthorizedOriginReceiverUpgradeable",
+            "src": "contracts/dev/functions/AuthorizedOriginReceiverUpgradeable.sol:26"
+          },
+          {
+            "label": "s_donPublicKey",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_bytes_storage",
+            "contract": "FunctionsOracle",
+            "src": "contracts/dev/functions/FunctionsOracle.sol:39"
+          },
+          {
+            "label": "s_registry",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_contract(FunctionsBillingRegistryInterface)10911",
+            "contract": "FunctionsOracle",
+            "src": "contracts/dev/functions/FunctionsOracle.sol:40"
+          },
+          {
+            "label": "s_nodePublicKeys",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_mapping(t_address,t_bytes_storage)",
+            "contract": "FunctionsOracle",
+            "src": "contracts/dev/functions/FunctionsOracle.sol:41"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "15",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "FunctionsOracle",
+            "src": "contracts/dev/functions/FunctionsOracle.sol:271"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_bytes_storage": {
+            "label": "bytes",
+            "numberOfBytes": "32"
+          },
+          "t_contract(FunctionsBillingRegistryInterface)10911": {
+            "label": "contract FunctionsBillingRegistryInterface",
+            "numberOfBytes": "20"
+          },
+          "t_enum(Role)11986": {
+            "label": "enum OCR2BaseUpgradeable.Role",
+            "members": [
+              "Unset",
+              "Signer",
+              "Transmitter"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_bytes_storage)": {
+            "label": "mapping(address => bytes)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(Oracle)11992_storage)": {
+            "label": "mapping(address => struct OCR2BaseUpgradeable.Oracle)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AddressSet)14831_storage": {
+            "label": "struct EnumerableSet.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)14516_storage",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(ConfigInfo)11975_storage": {
+            "label": "struct OCR2BaseUpgradeable.ConfigInfo",
+            "members": [
+              {
+                "label": "latestConfigDigest",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "f",
+                "type": "t_uint8",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "n",
+                "type": "t_uint8",
+                "offset": 1,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Oracle)11992_storage": {
+            "label": "struct OCR2BaseUpgradeable.Oracle",
+            "members": [
+              {
+                "label": "index",
+                "type": "t_uint8",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "role",
+                "type": "t_enum(Role)11986",
+                "offset": 1,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(Set)14516_storage": {
+            "label": "struct EnumerableSet.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_indexes",
+                "type": "t_mapping(t_bytes32,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "0f6ac57c2ab830e5cbfb35d0c8822e9407365a7af40b3e59a6456cae78ffdb14": {
+      "address": "0xC2aF4cF579Fb36154b801eA42aFE29146398BC66",
+      "txHash": "0x020e77ffeb839d8b1cdf282b30b8ad4e4d7102c0eac398d40852ab0cb32b528c",
+      "layout": {
+        "solcVersion": "0.8.7",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "s_owner",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "ConfirmedOwnerUpgradeable",
+            "src": "contracts/dev/functions/ConfirmedOwnerUpgradeable.sol:12"
+          },
+          {
+            "label": "s_pendingOwner",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "ConfirmedOwnerUpgradeable",
+            "src": "contracts/dev/functions/ConfirmedOwnerUpgradeable.sol:13"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_paused",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_bool",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:29"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "53",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:116"
+          },
+          {
+            "label": "s_authorizedSenders",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_struct(AddressSet)14831_storage",
+            "contract": "AuthorizedReceiver",
+            "src": "contracts/dev/AuthorizedReceiver.sol:16"
+          },
+          {
+            "label": "s_authorizedSendersList",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "AuthorizedReceiver",
+            "src": "contracts/dev/AuthorizedReceiver.sol:17"
+          },
+          {
+            "label": "LINK",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_contract(LinkTokenInterface)511",
+            "contract": "FunctionsBillingRegistry",
+            "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:31"
+          },
+          {
+            "label": "LINK_ETH_FEED",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_contract(AggregatorV3Interface)404",
+            "contract": "FunctionsBillingRegistry",
+            "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:32"
+          },
+          {
+            "label": "ORACLE_WITH_ALLOWLIST",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_contract(AuthorizedOriginReceiverInterface)10799",
+            "contract": "FunctionsBillingRegistry",
+            "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:33"
+          },
+          {
+            "label": "s_consumers",
+            "offset": 0,
+            "slot": "108",
+            "type": "t_mapping(t_address,t_mapping(t_uint64,t_uint64))",
+            "contract": "FunctionsBillingRegistry",
+            "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:70"
+          },
+          {
+            "label": "s_subscriptionConfigs",
+            "offset": 0,
+            "slot": "109",
+            "type": "t_mapping(t_uint64,t_struct(SubscriptionConfig)4957_storage)",
+            "contract": "FunctionsBillingRegistry",
+            "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:72"
+          },
+          {
+            "label": "s_subscriptions",
+            "offset": 0,
+            "slot": "110",
+            "type": "t_mapping(t_uint64,t_struct(Subscription)4949_storage)",
+            "contract": "FunctionsBillingRegistry",
+            "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:74"
+          },
+          {
+            "label": "s_currentsubscriptionId",
+            "offset": 0,
+            "slot": "111",
+            "type": "t_uint64",
+            "contract": "FunctionsBillingRegistry",
+            "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:78"
+          },
+          {
+            "label": "s_totalBalance",
+            "offset": 8,
+            "slot": "111",
+            "type": "t_uint96",
+            "contract": "FunctionsBillingRegistry",
+            "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:83"
+          },
+          {
+            "label": "s_withdrawableTokens",
+            "offset": 0,
+            "slot": "112",
+            "type": "t_mapping(t_address,t_uint96)",
+            "contract": "FunctionsBillingRegistry",
+            "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:98"
+          },
+          {
+            "label": "s_requestCommitments",
+            "offset": 0,
+            "slot": "113",
+            "type": "t_mapping(t_bytes32,t_struct(Commitment)5066_storage)",
+            "contract": "FunctionsBillingRegistry",
+            "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:111"
+          },
+          {
+            "label": "s_fallbackWeiPerUnitLink",
+            "offset": 0,
+            "slot": "114",
+            "type": "t_int256",
+            "contract": "FunctionsBillingRegistry",
+            "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:145"
+          },
+          {
+            "label": "s_config",
+            "offset": 0,
+            "slot": "115",
+            "type": "t_struct(Config)5116_storage",
+            "contract": "FunctionsBillingRegistry",
+            "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:146"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "118",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "FunctionsBillingRegistry",
+            "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:871"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(AggregatorV3Interface)404": {
+            "label": "contract AggregatorV3Interface",
+            "numberOfBytes": "20"
+          },
+          "t_contract(AuthorizedOriginReceiverInterface)10799": {
+            "label": "contract AuthorizedOriginReceiverInterface",
+            "numberOfBytes": "20"
+          },
+          "t_contract(LinkTokenInterface)511": {
+            "label": "contract LinkTokenInterface",
+            "numberOfBytes": "20"
+          },
+          "t_int256": {
+            "label": "int256",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_uint64,t_uint64))": {
+            "label": "mapping(address => mapping(uint64 => uint64))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint96)": {
+            "label": "mapping(address => uint96)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Commitment)5066_storage)": {
+            "label": "mapping(bytes32 => struct FunctionsBillingRegistry.Commitment)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint64,t_struct(Subscription)4949_storage)": {
+            "label": "mapping(uint64 => struct FunctionsBillingRegistry.Subscription)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint64,t_struct(SubscriptionConfig)4957_storage)": {
+            "label": "mapping(uint64 => struct FunctionsBillingRegistry.SubscriptionConfig)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint64,t_uint64)": {
+            "label": "mapping(uint64 => uint64)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AddressSet)14831_storage": {
+            "label": "struct EnumerableSet.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)14516_storage",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Commitment)5066_storage": {
+            "label": "struct FunctionsBillingRegistry.Commitment",
+            "members": [
+              {
+                "label": "subscriptionId",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "client",
+                "type": "t_address",
+                "offset": 8,
+                "slot": "0"
+              },
+              {
+                "label": "gasLimit",
+                "type": "t_uint32",
+                "offset": 28,
+                "slot": "0"
+              },
+              {
+                "label": "gasPrice",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "don",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "donFee",
+                "type": "t_uint96",
+                "offset": 20,
+                "slot": "2"
+              },
+              {
+                "label": "registryFee",
+                "type": "t_uint96",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "estimatedCost",
+                "type": "t_uint96",
+                "offset": 12,
+                "slot": "3"
+              },
+              {
+                "label": "timestamp",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(Config)5116_storage": {
+            "label": "struct FunctionsBillingRegistry.Config",
+            "members": [
+              {
+                "label": "maxGasLimit",
+                "type": "t_uint32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "reentrancyLock",
+                "type": "t_bool",
+                "offset": 4,
+                "slot": "0"
+              },
+              {
+                "label": "stalenessSeconds",
+                "type": "t_uint32",
+                "offset": 5,
+                "slot": "0"
+              },
+              {
+                "label": "gasAfterPaymentCalculation",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "gasOverhead",
+                "type": "t_uint32",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "requestTimeoutSeconds",
+                "type": "t_uint32",
+                "offset": 4,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(Set)14516_storage": {
+            "label": "struct EnumerableSet.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_indexes",
+                "type": "t_mapping(t_bytes32,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Subscription)4949_storage": {
+            "label": "struct FunctionsBillingRegistry.Subscription",
+            "members": [
+              {
+                "label": "balance",
+                "type": "t_uint96",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "blockedBalance",
+                "type": "t_uint96",
+                "offset": 12,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(SubscriptionConfig)4957_storage": {
+            "label": "struct FunctionsBillingRegistry.SubscriptionConfig",
+            "members": [
+              {
+                "label": "owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "requestedOwner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "consumers",
+                "type": "t_array(t_address)dyn_storage",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          },
+          "t_uint96": {
+            "label": "uint96",
+            "numberOfBytes": "12"
+          }
+        }
+      }
+    }
+  }
+}
