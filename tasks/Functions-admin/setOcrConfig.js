@@ -17,10 +17,10 @@ task("functions-set-ocr-config", "Sets the OCR config using values from a given 
     }
 
     const oracleFactory = await ethers.getContractFactory("FunctionsOracle")
-    const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracle"])
+    const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
 
     const ocrConfig = require("../../" + taskArgs.configfile)
-    console.log(`Setting oracle OCR config for oracle ${networkConfig[network.name]["functionsOracle"]}`)
+    console.log(`Setting oracle OCR config for oracle ${networkConfig[network.name]["functionsOracleProxy"]}`)
     const setConfigTx = overrides
       ? await oracle.setConfig(
           ocrConfig.signers,

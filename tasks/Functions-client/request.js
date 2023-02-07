@@ -47,7 +47,7 @@ task("functions-request", "Initiates a request from an Functions client contract
     const clientContractFactory = await ethers.getContractFactory("FunctionsConsumer")
     const clientContract = clientContractFactory.attach(contractAddr)
     const OracleFactory = await ethers.getContractFactory("FunctionsOracle")
-    const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracle"])
+    const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
     const registryAddress = await oracle.getRegistry()
     const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
     const registry = await RegistryFactory.attach(registryAddress)

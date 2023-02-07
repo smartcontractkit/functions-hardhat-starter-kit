@@ -12,7 +12,7 @@ task("functions-sub-fund", "Funds a billing subscription for Functions consumer 
     const linkAmount = taskArgs.amount
 
     const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
-    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsOracleRegistry"])
+    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsBillingRegistryProxy"])
 
     // Check that the subscription is valid
     let preSubInfo
@@ -47,7 +47,7 @@ task("functions-sub-fund", "Funds a billing subscription for Functions consumer 
 
     // Fund the subscription with LINK
     const fundTx = await linkToken.transferAndCall(
-      networkConfig[network.name]["functionsOracleRegistry"],
+      networkConfig[network.name]["functionsBillingRegistryProxy"],
       juelsAmount,
       ethers.utils.defaultAbiCoder.encode(["uint64"], [subscriptionId])
     )

@@ -15,9 +15,9 @@ task("functions-set-don-key", "Sets the DON public key in the Functions oracle c
   }
 
   const oracleFactory = await ethers.getContractFactory("FunctionsOracle")
-  const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracle"])
+  const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
 
-  console.log(`Setting DON public key for oracle ${networkConfig[network.name]["functionsOracle"]}`)
+  console.log(`Setting DON public key for oracle ${networkConfig[network.name]["functionsOracleProxy"]}`)
   const setTx = overrides
     ? await oracle.setDONPublicKey("0x" + networkConfig[network.name]["functionsPublicKey"], overrides)
     : await oracle.setDONPublicKey("0x" + networkConfig[network.name]["functionsPublicKey"])

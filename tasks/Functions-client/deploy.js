@@ -12,7 +12,7 @@ task("functions-deploy-client", "Deploys the FunctionsConsumer contract")
 
     console.log(`Deploying FunctionsConsumer contract to ${network.name}`)
 
-    const oracleAddress = networkConfig[network.name]["functionsOracle"]
+    const oracleAddress = networkConfig[network.name]["functionsOracleProxy"]
 
     console.log("\n__Compiling Contracts__")
     await run("compile")

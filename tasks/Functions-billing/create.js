@@ -14,7 +14,7 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
     const consumer = taskArgs.contract
 
     const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
-    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsOracleRegistry"])
+    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsBillingRegistryProxy"])
 
     // TODO: Remove the following 6 lines on open access
     const Oracle = await ethers.getContractFactory("FunctionsOracle")
@@ -62,7 +62,7 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
 
       console.log(`Funding with ${ethers.utils.formatEther(juelsAmount)} LINK`)
       const fundTx = await linkToken.transferAndCall(
-        networkConfig[network.name]["functionsOracleRegistry"],
+        networkConfig[network.name]["functionsBillingRegistryProxy"],
         juelsAmount,
         ethers.utils.defaultAbiCoder.encode(["uint64"], [subscriptionId])
       )

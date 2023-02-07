@@ -28,7 +28,7 @@ task("functions-sub-transfer", "Request ownership of an Functions subscription b
     const newOwner = taskArgs.newowner
 
     const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
-    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsOracleRegistry"])
+    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsBillingRegistryProxy"])
 
     // Check that the subscription is valid
     let subInfo

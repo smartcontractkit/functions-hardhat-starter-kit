@@ -18,7 +18,7 @@ task("functions-set-node-key", "Sets the per-node public key in the Functions or
     }
 
     const oracleFactory = await ethers.getContractFactory("FunctionsOracle")
-    const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracle"])
+    const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
 
     const accounts = await ethers.getSigners()
     const sender = accounts[0]
@@ -26,7 +26,7 @@ task("functions-set-node-key", "Sets the per-node public key in the Functions or
     const nodeAddress = taskArgs.node ?? sender.address
 
     console.log(
-      `Setting node public key to ${taskArgs.key} for oracle ${networkConfig[network.name]["functionsOracle"]}`
+      `Setting node public key to ${taskArgs.key} for oracle ${networkConfig[network.name]["functionsOracleProxy"]}`
     )
     const setTx = overrides
       ? await oracle.setNodePublicKey(nodeAddress, "0x" + taskArgs.key, overrides)

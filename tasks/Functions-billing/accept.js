@@ -10,7 +10,7 @@ task("functions-sub-accept", "Accepts ownership of an Functions subscription aft
     const subscriptionId = taskArgs.subid
 
     const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
-    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsOracleRegistry"])
+    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsBillingRegistryProxy"])
 
     // Check that the subscription is valid
     let preSubInfo

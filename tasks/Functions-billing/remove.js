@@ -14,7 +14,7 @@ task("functions-sub-remove", "Removes a client contract from an Functions billin
     const consumer = taskArgs.contract
 
     const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
-    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsOracleRegistry"])
+    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsBillingRegistryProxy"])
 
     // Check that the subscription is valid
     let preSubInfo
