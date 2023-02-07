@@ -23,9 +23,8 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
 
     if (!isWalletAllowed)
       return console.log(
-        "\nChainlink Functions is currently in a closed testing phase.\nFor access sign up here:\nhttps://chain.link/"
+        "\nChainlink Functions is currently in a closed testing phase.\nFor access sign up here:\nhttps://chainlinkcommunity.typeform.com/requestaccess"
       )
-    // TODO: add sign up URL
 
     console.log("Creating Functions billing subscription")
     const createSubscriptionTx = await registry.createSubscription()
