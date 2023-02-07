@@ -4,9 +4,9 @@
 - [Overview](#overview)
 - [Quickstart](#quickstart)
 - [Command Glossary](#command-glossary)
-  - [Functions Commands](#functions-commands)
-  - [Functions Subscription Management Commands](#functions-subscription-management-commands)
-  - [Admin Commands](#admin-commands)
+    - [Functions Commands](#functions-commands)
+    - [Functions Subscription Management Commands](#functions-subscription-management-commands)
+    - [Admin Commands](#admin-commands)
 - [Request Configuration](#request-configuration)
   - [JavaScript Code](#javascript-code)
     - [Functions Library](#functions-library)
@@ -58,7 +58,7 @@ Example: `npx hardhat functions-read --network goerli --contract 0x787Fe00416140
 | `functions-build-request`          | Creates a JSON file with Functions request parameters                                                                         | `output` (optional): Output file name (defaults to Functions-request.json)                                                                                                                                                                                                                                                                                                                                    |
 | `functions-build-offchain-secrets` | Builds an off-chain secrets object for one or many nodes that can be uploaded and referenced via URL                          | `output` (optional): Output file name (defaults to offchain-secrets.json)                                                                                                                                                                                                                                                                                                                                     |
 | `functions-deploy-auto-client`     | Deploys the AutomatedFunctionsConsumer contract                                                                               | `subid`: Billing subscription ID used to pay for Functions requests, `interval`: Update interval in seconds for Automation to call performUpkeep (default: 300), `gaslimit` (optional): Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 250,000 & must be less than 300,000), `verify` (optional): Set to `true` to verify client contract (default: false) |
-| `functions-check-upkeep`           | Checks if checkUpkeep returns true for an Automation compatible contract                                                      | `address`: Address of the contract to check                                                                                                                                                                                                                                                                                                                                                                   |
+| `functions-check-upkeep`           | Checks if checkUpkeep returns true for an Automation compatible contract                                                      | `address`: Address of the contract to check, `data`: (optional): Hex string representing bytes that are passed to the checkUpkeep function (defaults to empty bytes)                                                                                                                                                                                                                                          |
 | `functions-perform-upkeep`         | Manually call performUpkeep in an Automation compatible contract                                                              | `contract`: Address of the contract to call, `data`: (optional): Hex string representing bytes that are passed to the performUpkeep function (defaults to empty bytes)                                                                                                                                                                                                                                        |
 
 ### Functions Subscription Management Commands
@@ -189,7 +189,7 @@ URLs which host secrets must be available ever time a request is executed by DON
 Chainlink Functions can be used with Chainlink Automation in order to automatically trigger a Functions request.
 
 1. Create & fund a new Functions billing subscription by running:<br>`npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command.<br><br>
-2. Deploy the `AutomationFunctionsConsumer` client contract by running:<br>`npx hardhat functions-deploy-auto-client --network network_name_here --subid subscription_id_number_here --interval time_between_requests_here --verify true`<br>**Note**: Make sure `ETHERSCAN_API_KEY` or `POLYGONSCAN_API_KEY` are set. API keys for these services are freely available to anyone who creates an account.<br><br>
+2. Deploy the `AutomationFunctionsConsumer` client contract by running:<br>`npx hardhat functions-deploy-auto-client --network network_name_here --subid subscription_id_number_here --interval time_between_requests_here --verify true`<br>**Note**: Make sure `ETHERSCAN_API_KEY` or `POLYGONSCAN_API_KEY` environment variables are set. API keys for these services are freely available to anyone who creates an account.<br><br>
 3. Register the contract for upkeep via the Chainlink Automation web app here: [https://automation.chain.link/](https://automation.chain.link/)
    - Find further documentation for working with Chainlink Automation here: [https://docs.chain.link/chainlink-automation/introduction](https://docs.chain.link/chainlink-automation/introduction)
 

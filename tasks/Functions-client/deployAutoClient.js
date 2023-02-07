@@ -22,7 +22,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
   .setAction(async (taskArgs) => {
     // A manual gas limit is required as the gas limit estimated by Ethers is not always accurate
     const overrides = {
-      gasLimit: 500000,
+      gasLimit: 1000000,
     }
 
     if (network.name === "hardhat") {
@@ -69,6 +69,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
       request.args ?? []
     )
 
+    console.log('Setting Functions request')
     const setRequestTx = await autoClientContract.setRequest(functionsRequestBytes)
 
     console.log(
