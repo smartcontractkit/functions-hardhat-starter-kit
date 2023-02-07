@@ -16,10 +16,19 @@ task("functions-set-ocr-config", "Sets the OCR config using values from a given 
       }
     }
 
+    let ocrConfig
+    try {
+      ocrConfig = require("../../FunctionsOracleConfig.json")
+    } catch (error) {
+      console.log(
+        'No Oracle configuration file found. Generate and add "FunctionsOracleConfig.json" to the root of this repository.'
+      )
+      throw new Error(error)
+    }
+
     const oracleFactory = await ethers.getContractFactory("FunctionsOracle")
     const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
 
-    const ocrConfig = require("../../" + taskArgs.configfile)
     console.log(`Setting oracle OCR config for oracle ${networkConfig[network.name]["functionsOracleProxy"]}`)
     const setConfigTx = overrides
       ? await oracle.setConfig(
