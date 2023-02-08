@@ -27,22 +27,14 @@ const networkConfig = {
   mainnet: {
     linkToken: "0x514910771af9ca656af840dff83e8264ecf986ca",
   },
-  goerli: {
-    linkToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
-    linkEthPriceFeed: "0xb4c4a493AB6356497713A78FFA6c60FB53517c63",
-    functionsOracleProxy: "",
-    functionsBillingRegistryProxy: "",
-    functionsPublicKey:
-      "f2f9c47363202d89aa9fa70baf783d70006fe493471ac8cfa82f1426fd09f16a5f6b32b7c4b5d5165cd147a6e513ba4c0efd39d969d6b20a8a21126f0411b9c6",
-  },
   polygon: {
     linkToken: "0xb0897686c545045afc77cf20ec7a532e3120e0f1",
   },
   mumbai: {
     linkToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
     linkEthPriceFeed: "0x12162c3E810393dEC01362aBf156D7ecf6159528",
-    functionsOracleProxy: "",
-    functionsBillingRegistryProxy: "",
+    functionsOracleProxy: "0x992c149a01e2153c606A4f81A203D300F728CCcc",
+    functionsBillingRegistryProxy: "0x14e6E29e1d458F6861C35CdB51Edc763Beef8461",
     functionsPublicKey:
       "f2f9c47363202d89aa9fa70baf783d70006fe493471ac8cfa82f1426fd09f16a5f6b32b7c4b5d5165cd147a6e513ba4c0efd39d969d6b20a8a21126f0411b9c6",
   },
