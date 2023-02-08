@@ -23,7 +23,7 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
 
     if (!isWalletAllowed)
       return console.log(
-        "\nChainlink Functions is currently in a closed testing phase.\nFor access sign up here:\nhttps://chainlinkcommunity.typeform.com/requestaccess"
+        "\nChainlink Functions is currently in a closed testing phase.\nFor access sign up here:\nhttps://functions.chain.link"
       )
 
     console.log("Creating Functions billing subscription")
