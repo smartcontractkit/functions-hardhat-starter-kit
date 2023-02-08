@@ -18,4 +18,4 @@ const balance = response.data.available.find(c => c.currency.toLowerCase() === b
 
 const balanceInCents = Math.round(balance.amount * 100)
 
-return Functions.encodeUint256(balance.amount)
+return Functions.encodeUint256(balanceInCents)
