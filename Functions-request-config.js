@@ -31,16 +31,29 @@ const requestConfig = {
   // code language (only JavaScript is currently supported)
   codeLanguage: CodeLanguage.JavaScript,
   // string containing the source code to be executed
-  source: fs.readFileSync("./Functions-request-source-calculation-example.js").toString(),
-  //source: fs.readFileSync('./Functions-request-source-API-example.js').toString(),
-  // secrets can be accessed within the source code with `secrets.varName` (ie: secrets.apiKey)
-  secrets: { apiKey: process.env.COINMARKETCAP_API_KEY },
+  source: fs.readFileSync("./Functions-request-source-API-example.js").toString(),
+  // secrets can be accessed within the source code with `secrets.varName` (ie: secrets.apiKey). following secrets are required - secretKey, accessKey
+  secrets: {
+    secretKey: process.env.SECRET_KEY,
+    accessKey: process.env.ACCESS_KEY,
+    dataSetID: process.env. DATASET_ID,
+    revisionID: process.env.REVISION_ID,
+    assetID: process.env.ASSET_ID
+  },
   // ETH wallet key used to sign secrets so they cannot be accessed by a 3rd party
   walletPrivateKey: process.env["PRIVATE_KEY"],
   // args (string only array) can be accessed within the source code with `args[index]` (ie: args[0]).
-  args: ["1", "bitcoin", "btc-bitcoin", "btc", "1000000", "450"],
+  args: [
+    "GET", // AWS request method
+    "api-fulfill.dataexchange.us-east-1.amazonaws.com", // Host of AWS service
+    "/v1/currencies/eur/jpy.json", // Data provider API URL. Query params should be part of URL
+    "us-east-1", // AWS service region
+    "dataexchange", // AWS service name
+    "", // request BODY payload. empty string for GET or empty BODY
+    "jpy" // one level result path
+  ],
   // expected type of the returned value
-  expectedReturnType: ReturnType.uint256,
+  expectedReturnType: ReturnType.string,
   // Redundant URLs which point to encrypted off-chain secrets
   secretsURLs: [],
   // Default offchain secrets object used by the `functions-build-offchain-secrets` command
