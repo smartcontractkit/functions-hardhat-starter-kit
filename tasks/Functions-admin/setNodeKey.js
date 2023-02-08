@@ -8,15 +8,6 @@ task("functions-set-node-key", "Sets the per-node public key in the Functions or
       throw Error("This command cannot be used on a local development chain.  Specify a valid network.")
     }
 
-    let overrides = undefined
-    if (network.name === "goerli") {
-      overrides = {
-        // be careful, this may drain your balance quickly
-        maxPriorityFeePerGas: ethers.utils.parseUnits("50", "gwei"),
-        maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
-      }
-    }
-
     const oracleFactory = await ethers.getContractFactory("FunctionsOracle")
     const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
 
@@ -28,9 +19,7 @@ task("functions-set-node-key", "Sets the per-node public key in the Functions or
     console.log(
       `Setting node public key to ${taskArgs.key} for oracle ${networkConfig[network.name]["functionsOracleProxy"]}`
     )
-    const setTx = overrides
-      ? await oracle.setNodePublicKey(nodeAddress, "0x" + taskArgs.key, overrides)
-      : await oracle.setNodePublicKey(nodeAddress, "0x" + taskArgs.key)
+    const setTx = await oracle.setNodePublicKey(nodeAddress, "0x" + taskArgs.key)
 
     console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${setTx.hash} to be confirmed...`)
     await setTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)

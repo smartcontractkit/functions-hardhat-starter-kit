@@ -11,15 +11,6 @@ async function addOrRemove(action, taskArgs) {
     throw Error("This command cannot be used on a local development chain.  Specify a valid network.")
   }
 
-  const overrides = {
-    gasLimit: 1500000,
-  }
-
-  if (network.name === "goerli") {
-    overrides.maxPriorityFeePerGas = ethers.utils.parseUnits("50", "gwei")
-    overrides.maxFeePerGas = ethers.utils.parseUnits("50", "gwei")
-  }
-
   const oracleFactory = await ethers.getContractFactory("FunctionsOracle")
   const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
 
@@ -46,17 +37,13 @@ async function addOrRemove(action, taskArgs) {
       return
     }
     console.log(`Adding addresses ${addresses} to oracle ${networkConfig[network.name]["functionsOracleProxy"]}`)
-    tx = overrides
-      ? await oracle.addAuthorizedSenders(addresses, overrides)
-      : await oracle.addAuthorizedSenders(addresses)
+    tx = await oracle.addAuthorizedSenders(addresses)
   } else {
     if (!addresses) {
       throw Error("No addresses provided")
     }
     console.log(`Removing addresses ${addresses} from oracle ${networkConfig[network.name]["functionsOracleProxy"]}`)
-    tx = overrides
-      ? await oracle.removeAuthorizedSenders(addresses, overrides)
-      : await oracle.removeAuthorizedSenders(addresses)
+    tx = await oracle.removeAuthorizedSenders(addresses)
   }
 
   console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${tx.hash} to be confirmed...`)

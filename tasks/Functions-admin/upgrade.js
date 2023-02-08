@@ -11,15 +11,6 @@ task("functions-upgrade", "Upgrades the implementation of an existing Functions 
       throw Error("This command cannot be used on a local development chain.  Specify a valid network.")
     }
 
-    let overrides = undefined
-    if (network.name === "goerli") {
-      overrides = {
-        // be careful, this may drain your balance quickly
-        maxPriorityFeePerGas: ethers.utils.parseUnits("50", "gwei"),
-        maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
-      }
-    }
-
     let proxyAddress, newImplementationFactory, contractPath
     const { type } = taskArgs
     if (type === "registry" || type === "Registry" || type === "REGISTRY") {

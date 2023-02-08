@@ -20,19 +20,11 @@ task("functions-request", "Initiates a request from an Functions client contract
   .addOptionalParam("requestgas", "Gas limit for calling the executeRequest function", 1500000, types.int)
   .setAction(async (taskArgs, hre) => {
     // A manual gas limit is required as the gas limit estimated by Ethers is not always accurate
-    const overrides = {
-      gasLimit: taskArgs.requestgas,
-    }
 
     if (network.name === "hardhat") {
       throw Error(
         'This command cannot be used on a local development chain.  Specify a valid network or simulate an Functions request locally with "npx hardhat functions-simulate".'
       )
-    }
-
-    if (network.name === "goerli") {
-      overrides.maxPriorityFeePerGas = ethers.utils.parseUnits("50", "gwei")
-      overrides.maxFeePerGas = ethers.utils.parseUnits("50", "gwei")
     }
 
     // Get the required parameters
@@ -241,8 +233,7 @@ task("functions-request", "Initiates a request from an Functions client contract
         requestConfig.secretsLocation,
         request.args ?? [],
         subscriptionId,
-        gasLimit,
-        overrides
+        gasLimit
       )
       // If a response is not received within 5 minutes, the request has failed
       setTimeout(
