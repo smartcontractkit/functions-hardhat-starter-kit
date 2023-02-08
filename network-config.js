@@ -6,7 +6,7 @@ const getLinkEthPriceFeed = () => {
   if (process.env.POLYGON_MAINNET_RPC_URL) return "0xb77fa460604b9c6435a235d057f7d319ac83cb53"
   if (process.env.MUMBAI_RPC_URL) return "0x12162c3E810393dEC01362aBf156D7ecf6159528"
   if (process.env.GOERLI_RPC_URL) return "0xb4c4a493AB6356497713A78FFA6c60FB53517c63"
-  if (process.env.SEPOLIA_RPC_URL) return "NOT_AVAILABLE_YET"
+  if (process.env.SEPOLIA_RPC_URL) return "0x42585eD362B3f1BCa95c640FdFf35Ef899212734"
 }
 
 const networkConfig = {
@@ -43,7 +43,7 @@ const networkConfig = {
   },
   sepolia: {
     linkToken: "0x779877A7B0D9E8603169DdbD7836e478b4624789",
-    linkEthPriceFeed: "",
+    linkEthPriceFeed: "0x42585eD362B3f1BCa95c640FdFf35Ef899212734",
     functionsOracle: "0x88F9Dd856D2c8CeC68569b57858ee953CC2bB4f4",
     functionsOracleFactory: "0x85b44e2A2812E0907136357bb5F536da7cC99c4A",
     functionsOracleRegistry: "0x774Ea40eCC9fBC7861b35d57B5f49E13Ce87d75C",
