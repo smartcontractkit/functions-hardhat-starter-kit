@@ -32,7 +32,7 @@ async function addOrRemove(action, taskArgs) {
       console.log(
         `Adding addresses from allowlist.csv to oracle ${networkConfig[network.name]["functionsOracleProxy"]}`
       )
-      await addFromAllowlist(taskArgs, oracle, overrides)
+      await addFromAllowlist(taskArgs, oracle)
       console.log(`Allowlist updated for oracle ${oracle.address} on ${network.name}`)
       return
     }

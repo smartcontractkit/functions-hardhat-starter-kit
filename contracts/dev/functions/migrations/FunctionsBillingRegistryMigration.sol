@@ -20,7 +20,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
  * @notice Contract that coordinates payment from users to the nodes of the Decentralized Oracle Network (DON).
  * @dev THIS CONTRACT HAS NOT GONE THROUGH ANY SECURITY REVIEW. DO NOT USE IN PROD.
  */
-contract FunctionsBillingRegistryMigration is
+contract FunctionsBillingRegistry is
   Initializable,
   ConfirmedOwnerUpgradeable,
   PausableUpgradeable,
@@ -28,8 +28,8 @@ contract FunctionsBillingRegistryMigration is
   ERC677ReceiverInterface,
   AuthorizedReceiver
 {
-  LinkTokenInterface public LINK;
-  AggregatorV3Interface public LINK_ETH_FEED;
+  LinkTokenInterface private LINK;
+  AggregatorV3Interface private LINK_ETH_FEED;
   AuthorizedOriginReceiverInterface private ORACLE_WITH_ALLOWLIST;
 
   // We need to maintain a list of consuming addresses.
@@ -75,7 +75,7 @@ contract FunctionsBillingRegistryMigration is
     private s_subscriptions;
   // We make the sub count public so that its possible to
   // get all the current subscriptions via getSubscription.
-  uint64 private s_currentsubscriptionIdentifiers;
+  uint64 private s_currentsubscriptionId;
   // s_totalBalance tracks the total link sent to/from
   // this contract through onTokenTransfer, cancelSubscription and oracleWithdraw.
   // A discrepancy with this contract's link balance indicates someone
@@ -206,6 +206,8 @@ contract FunctionsBillingRegistryMigration is
    * @return gasAfterPaymentCalculation gas used in doing accounting after completing the gas measurement
    * @return fallbackWeiPerUnitLink fallback eth/link price in the case of a stale feed
    * @return gasOverhead average gas execution cost used in estimating total cost
+   * @return linkAddress address of contract for the LINK token
+   * @return linkPriceFeed address of contract for a conversion price between LINK token and native token
    */
   function getConfig()
     external
@@ -215,7 +217,9 @@ contract FunctionsBillingRegistryMigration is
       uint32 stalenessSeconds,
       uint256 gasAfterPaymentCalculation,
       int256 fallbackWeiPerUnitLink,
-      uint32 gasOverhead
+      uint32 gasOverhead,
+      address linkAddress,
+      address linkPriceFeed
     )
   {
     return (
@@ -223,7 +227,9 @@ contract FunctionsBillingRegistryMigration is
       s_config.stalenessSeconds,
       s_config.gasAfterPaymentCalculation,
       s_fallbackWeiPerUnitLink,
-      s_config.gasOverhead
+      s_config.gasOverhead,
+      address(LINK),
+      address(LINK_ETH_FEED)
     );
   }
 
@@ -285,7 +291,7 @@ contract FunctionsBillingRegistryMigration is
     FunctionsBillingRegistryInterface.RequestBilling memory /* billing */
   ) public pure override returns (uint96) {
     // NOTE: Optionally, compute additional fee here
-    return 2;
+    return 0;
   }
 
   /**
@@ -578,7 +584,7 @@ contract FunctionsBillingRegistryMigration is
   }
 
   function getCurrentsubscriptionId() external view returns (uint64) {
-    return s_currentsubscriptionIdentifiers;
+    return s_currentsubscriptionId;
   }
 
   /**
@@ -618,8 +624,8 @@ contract FunctionsBillingRegistryMigration is
    * @dev    abi.encode(subscriptionId));
    */
   function createSubscription() external nonReentrant whenNotPaused onlyAuthorizedUsers returns (uint64) {
-    s_currentsubscriptionIdentifiers++;
-    uint64 currentsubscriptionId = s_currentsubscriptionIdentifiers;
+    s_currentsubscriptionId++;
+    uint64 currentsubscriptionId = s_currentsubscriptionId;
     address[] memory consumers = new address[](0);
     s_subscriptions[currentsubscriptionId] = Subscription({balance: 0, blockedBalance: 0});
     s_subscriptionConfigs[currentsubscriptionId] = SubscriptionConfig({

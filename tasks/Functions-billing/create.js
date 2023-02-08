@@ -18,7 +18,7 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
 
     // TODO: Remove the following 6 lines on open access
     const Oracle = await ethers.getContractFactory("FunctionsOracle")
-    const oracle = await Oracle.attach(networkConfig[network.name]["functionsOracle"])
+    const oracle = await Oracle.attach(networkConfig[network.name]["functionsOracleProxy"])
     const isWalletAllowed = await oracle.isAuthorizedSender((await ethers.getSigner()).address)
 
     if (!isWalletAllowed)

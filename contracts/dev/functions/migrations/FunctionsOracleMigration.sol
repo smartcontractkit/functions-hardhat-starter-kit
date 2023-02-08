@@ -11,7 +11,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
  * @notice Contract that nodes of a Decentralized Oracle Network (DON) interact with
  * @dev THIS CONTRACT HAS NOT GONE THROUGH ANY SECURITY REVIEW. DO NOT USE IN PROD.
  */
-contract FunctionsOracleMigration is
+contract FunctionsOracle is
   Initializable,
   FunctionsOracleInterface,
   OCR2BaseUpgradeable,
