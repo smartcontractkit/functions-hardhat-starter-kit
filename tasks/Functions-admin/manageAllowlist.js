@@ -1,9 +1,5 @@
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 const fs = require("fs")
-<<<<<<< HEAD
-=======
-const emailValidator = require("email-validator")
->>>>>>> e5ea59f1 (Added allowlist management script)
 
 const Action = {
   Add: 0,
@@ -15,7 +11,6 @@ async function addOrRemove(action, taskArgs) {
     throw Error("This command cannot be used on a local development chain.  Specify a valid network.")
   }
 
-<<<<<<< HEAD
   const oracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
   const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
 
@@ -49,45 +44,6 @@ async function addOrRemove(action, taskArgs) {
     }
     console.log(`Removing addresses ${addresses} from oracle ${networkConfig[network.name]["functionsOracleProxy"]}`)
     tx = await oracle.removeAuthorizedSenders(addresses)
-=======
-  const overrides = {
-    gasLimit: 1500000,
-  }
-
-  if (network.name === "goerli") {
-    overrides.maxPriorityFeePerGas = ethers.utils.parseUnits("50", "gwei")
-    overrides.maxFeePerGas = ethers.utils.parseUnits("50", "gwei")
-  }
-
-  const oracleFactory = await ethers.getContractFactory("FunctionsOracle")
-  const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracle"])
-
-  let addresses
-  if (taskArgs.addresses) {
-    addresses = taskArgs.addresses.split(",")
-  }
-
-  let tx
-  if (action == Action.Add) {
-    if (!addresses) {
-      console.log(`Adding addresses from allowlist.csv to oracle ${networkConfig[network.name]["functionsOracle"]}`)
-      await addFromAllowlist(taskArgs, oracle, overrides)
-      console.log(`Allowlist updated for oracle ${oracle.address} on ${network.name}`)
-      return
-    }
-    console.log(`Adding addresses ${addresses} to oracle ${networkConfig[network.name]["functionsOracle"]}`)
-    tx = overrides
-      ? await oracle.addAuthorizedSenders(addresses, overrides)
-      : await oracle.addAuthorizedSenders(addresses)
-  } else {
-    if (!addresses) {
-      throw Error('No addresses provided')
-    }
-    console.log(`Removing addresses ${addresses} from oracle ${networkConfig[network.name]["functionsOracle"]}`)
-    tx = overrides
-      ? await oracle.removeAuthorizedSenders(addresses, overrides)
-      : await oracle.removeAuthorizedSenders(addresses)
->>>>>>> e5ea59f1 (Added allowlist management script)
   }
 
   console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${tx.hash} to be confirmed...`)
@@ -96,7 +52,7 @@ async function addOrRemove(action, taskArgs) {
   console.log(`Allowlist updated for oracle ${oracle.address} on ${network.name}`)
 }
 
-<<<<<<< HEAD
+
 task(
   "functions-add-senders",
   "Add wallets to allowlist in the Oracle contract.  In order to add users from allowlist.csv, copy the CSV file into the root directory and do not set the addresses parameter."
@@ -110,11 +66,6 @@ task(
     "eventcodes",
     "Comma-separated list of valid event code that must be provided by the user to be added"
   )
-=======
-task("functions-add-senders", "Add wallets to allowlist in the Oracle contract")
-  .addOptionalParam("addresses", "Comma-separated list of addresses.  If this is not provided, addresses will be pulled from allowlist.csv")
-  .addOptionalParam("eventcodes", "Comma-separated list of valid event code that must be provided by the user to be added")
->>>>>>> e5ea59f1 (Added allowlist management script)
   .setAction(async (taskArgs) => {
       await addOrRemove(Action.Add, taskArgs)
   })
@@ -126,28 +77,14 @@ task("functions-remove-senders", "Remove wallets from allowlist in the Oracle co
   })
 
 const addFromAllowlist = async (taskArgs, oracle, overrides) => {
-<<<<<<< HEAD
   const currentAllowlist = await oracle.getAuthorizedSenders()
 
   const allowlistData = getDataFromAllowlist(taskArgs.eventcodes, taskArgs.filename)
-=======
-  if (!taskArgs.eventcodes) {
-    throw Error('--eventcodes argument not provided')
-  }
-
-  const currentAllowlist = await oracle.getAuthorizedSenders()
-
-  const allowlistData = getDataFromAllowlist(taskArgs.eventcodes)
->>>>>>> e5ea59f1 (Added allowlist management script)
 
   const addressesToAdd = filterAddressesToAdd(currentAllowlist, allowlistData.validUsers)
 
   if (addressesToAdd.length === 0) {
-<<<<<<< HEAD
     console.log("No new valid addresses to add")
-=======
-    console.log('No new valid addresses to add')
->>>>>>> e5ea59f1 (Added allowlist management script)
   } else {
     console.log(`Adding ${addressesToAdd.length} new addresses`)
 
@@ -155,7 +92,6 @@ const addFromAllowlist = async (taskArgs, oracle, overrides) => {
     let tx
     for (let i = 0; i < addressesToAdd.length; i += addressChunkSize) {
       const addressChunk = addressesToAdd.slice(i, Math.min(i + addressChunkSize, addressesToAdd.length))
-<<<<<<< HEAD
 
       console.log("Adding the following addresses:")
       console.log(addressChunk)
@@ -167,19 +103,6 @@ const addFromAllowlist = async (taskArgs, oracle, overrides) => {
       await tx.wait(1)
     }
 
-=======
-      
-      console.log('Adding the following addresses:')
-      console.log(addressChunk)
-  
-      tx = overrides
-        ? await oracle.addAuthorizedSenders(addressChunk, overrides)
-        : await oracle.addAuthorizedSenders(addressChunk)
-  
-      await tx.wait(1)
-    }
-  
->>>>>>> e5ea59f1 (Added allowlist management script)
     tx.wait(VERIFICATION_BLOCK_CONFIRMATIONS - 1)
   }
 
@@ -188,17 +111,10 @@ const addFromAllowlist = async (taskArgs, oracle, overrides) => {
   generateUpdatedAllowlistCsv(updatedAllowlist, allowlistData)
 }
 
-<<<<<<< HEAD
 const getDataFromAllowlist = (requiredEventCodes, allowlistFileName) => {
   const allowList = fs.readFileSync(allowlistFileName ?? "./allowlist.csv").toString()
 
   const allowListLines = allowList.split("\n")
-=======
-const getDataFromAllowlist = (requiredEventCodes) => {
-  let allowList = fs.readFileSync('./allowlist.csv').toString()
-
-  const allowListLines = allowList.split('\n')
->>>>>>> e5ea59f1 (Added allowlist management script)
   // Ignore the first line which contains column titles
   const titles = allowListLines[0]
   const lines = allowListLines.slice(1)
