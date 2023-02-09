@@ -1,4 +1,6 @@
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
+const fs = require("fs")
+const emailValidator = require("email-validator")
 
 const Action = {
   Add: 0,
@@ -10,27 +12,39 @@ async function addOrRemove(action, taskArgs) {
     throw Error("This command cannot be used on a local development chain.  Specify a valid network.")
   }
 
-  let overrides = undefined
+  const overrides = {
+    gasLimit: 1500000,
+  }
+
   if (network.name === "goerli") {
-    overrides = {
-      // be careful, this may drain your balance quickly
-      maxPriorityFeePerGas: ethers.utils.parseUnits("50", "gwei"),
-      maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
-    }
+    overrides.maxPriorityFeePerGas = ethers.utils.parseUnits("50", "gwei")
+    overrides.maxFeePerGas = ethers.utils.parseUnits("50", "gwei")
   }
 
   const oracleFactory = await ethers.getContractFactory("FunctionsOracle")
   const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracle"])
 
-  const addresses = taskArgs.addresses.split(",")
-  console.log(addresses)
+  let addresses
+  if (taskArgs.addresses) {
+    addresses = taskArgs.addresses.split(",")
+  }
 
+  let tx
   if (action == Action.Add) {
+    if (!addresses) {
+      console.log(`Adding addresses from allowlist.csv to oracle ${networkConfig[network.name]["functionsOracle"]}`)
+      await addFromAllowlist(taskArgs, oracle, overrides)
+      console.log(`Allowlist updated for oracle ${oracle.address} on ${network.name}`)
+      return
+    }
     console.log(`Adding addresses ${addresses} to oracle ${networkConfig[network.name]["functionsOracle"]}`)
     tx = overrides
       ? await oracle.addAuthorizedSenders(addresses, overrides)
       : await oracle.addAuthorizedSenders(addresses)
   } else {
+    if (!addresses) {
+      throw Error('No addresses provided')
+    }
     console.log(`Removing addresses ${addresses} from oracle ${networkConfig[network.name]["functionsOracle"]}`)
     tx = overrides
       ? await oracle.removeAuthorizedSenders(addresses, overrides)
@@ -44,9 +58,10 @@ async function addOrRemove(action, taskArgs) {
 }
 
 task("functions-add-senders", "Add wallets to allowlist in the Oracle contract")
-  .addParam("addresses", "Comma-separated list of addresses")
+  .addOptionalParam("addresses", "Comma-separated list of addresses.  If this is not provided, addresses will be pulled from allowlist.csv")
+  .addOptionalParam("eventcodes", "Comma-separated list of valid event code that must be provided by the user to be added")
   .setAction(async (taskArgs) => {
-    await addOrRemove(Action.Add, taskArgs)
+      await addOrRemove(Action.Add, taskArgs)
   })
 
 task("functions-remove-senders", "Remove wallets from allowlist in the Oracle contract")
@@ -54,3 +69,176 @@ task("functions-remove-senders", "Remove wallets from allowlist in the Oracle co
   .setAction(async (taskArgs) => {
     await addOrRemove(Action.Remove, taskArgs)
   })
+
+const addFromAllowlist = async (taskArgs, oracle, overrides) => {
+  if (!taskArgs.eventcodes) {
+    throw Error('--eventcodes argument not provided')
+  }
+
+  const currentAllowlist = await oracle.getAuthorizedSenders()
+
+  const allowlistData = getDataFromAllowlist(taskArgs.eventcodes)
+
+  const addressesToAdd = filterAddressesToAdd(currentAllowlist, allowlistData.validUsers)
+
+  if (addressesToAdd.length === 0) {
+    console.log('No new valid addresses to add')
+  } else {
+    console.log(`Adding ${addressesToAdd.length} new addresses`)
+
+    const addressChunkSize = 25
+    let tx
+    for (let i = 0; i < addressesToAdd.length; i += addressChunkSize) {
+      const addressChunk = addressesToAdd.slice(i, Math.min(i + addressChunkSize, addressesToAdd.length))
+      
+      console.log('Adding the following addresses:')
+      console.log(addressChunk)
+  
+      tx = overrides
+        ? await oracle.addAuthorizedSenders(addressChunk, overrides)
+        : await oracle.addAuthorizedSenders(addressChunk)
+  
+      await tx.wait(1)
+    }
+  
+    tx.wait(VERIFICATION_BLOCK_CONFIRMATIONS - 1)
+  }
+
+  const updatedAllowlist = await oracle.getAuthorizedSenders()
+
+  generateUpdatedAllowlistCsv(updatedAllowlist, allowlistData)
+}
+
+const getDataFromAllowlist = (requiredEventCodes) => {
+  let allowList = fs.readFileSync('./allowlist.csv').toString()
+
+  const allowListLines = allowList.split('\n')
+  // Ignore the first line which contains column titles
+  const titles = allowListLines[0]
+  const lines = allowListLines.slice(1)
+
+  // allUsers maintains the list of users in sorted order
+  const allUsers = []
+  const validUsers = []
+  const invalidUsers = []
+
+  // Split address from email and place into an object
+  for (const line of lines) {
+    const columns = line.split(',')
+
+    // Remove extraneous spaces from user's typed entries
+    const user = {
+      approved: columns[0],
+      walletAddress: columns[1].replace(/\s/g, ''),
+      email: columns[2].replace(/\s/g, ''),
+      agreedToTOS: columns[3],
+      eventCode: columns[4].replace(/\s/g, ''),
+      submittedAt: columns[5],
+      token: columns[6],
+      notes: columns[7],
+    }
+    // Maintain a list of all users
+    allUsers.push(user)
+    // Check that user is valid
+    if (!ethers.utils.isAddress(user.walletAddress)) {
+      user.notes = 'INVALID WALLET ADDRESS ' + user.notes
+      invalidUsers.push(user)
+      continue
+    }
+    if (user.agreedToTOS.toLowerCase() !== 'true') {
+      user.notes = 'DID NOT AGREE TO TOS' + user.notes
+      invalidUsers.push(user)
+      continue
+    }
+    if (
+      user.eventCode.toLowerCase() === '' ||
+      !requiredEventCodes.toLowerCase().split(',').includes(user.eventCode.toLowerCase())
+    ) {
+      user.notes = 'INVALID EVENT CODE' + user.notes
+      invalidUsers.push(user)
+      continue
+    }
+    // If user is valid, add them to validUsers
+    validUsers.push(user)
+  }
+
+  return {
+    titles,
+    allUsers,
+    validUsers,
+    invalidUsers,
+  }
+}
+
+const filterAddressesToAdd = (currentAllowlist, validUsers) => {
+  const currentAllowlistMap = {}
+
+  currentAllowlist.forEach((address) => {
+    currentAllowlistMap[address.toLowerCase()] = true
+  })
+
+  const addressesToAdd = []
+
+  for (const user of validUsers) {
+    if (!currentAllowlistMap[user.walletAddress.toLowerCase()]) {
+      addressesToAdd.push(user.walletAddress)
+    }
+  }
+
+  return addressesToAdd
+}
+
+const generateUpdatedAllowlistCsv = (updatedOnChainAllowlist, allowlistData) => {
+  const onChainAllowlistMap = {}
+
+  updatedOnChainAllowlist.forEach((address) => {
+    onChainAllowlistMap[address.toLowerCase()] = true
+  })
+
+  const lines = [ allowlistData.titles ]
+
+  for (let i = 0; i < allowlistData.allUsers.length; i++) {
+    if (onChainAllowlistMap[allowlistData.allUsers[i].walletAddress.toLowerCase()]) {
+      allowlistData.allUsers[i].approved = 'TRUE'
+    } else {
+      allowlistData.allUsers[i].approved = 'FALSE'
+    }
+
+    const {
+      approved,
+      walletAddress,
+      email,
+      agreedToTOS,
+      eventCode,
+      submittedAt,
+      token,
+      notes
+    } = allowlistData.allUsers[i]
+
+    lines.push(`${approved},${walletAddress},${email},${agreedToTOS},${eventCode},${submittedAt},${token},${notes}`)
+  }
+
+  const updatedCsvText = lines.join('\n')
+  fs.writeFileSync('./updatedAllowlist.csv', updatedCsvText)
+
+  const invalidLines = [ allowlistData.titles ]
+
+  for (const invalidUser of allowlistData.invalidUsers) {
+    const {
+      approved,
+      walletAddress,
+      email,
+      agreedToTOS,
+      eventCode,
+      submittedAt,
+      token,
+      notes
+    } = invalidUser
+    
+    invalidLines.push(`${approved},${walletAddress},${email},${agreedToTOS},${eventCode},${submittedAt},${token},${notes}`)
+  }
+
+  const invalidCsvText = invalidLines.join('\n')
+
+  fs.writeFileSync('./invalidUsers.csv', invalidCsvText)
+}
