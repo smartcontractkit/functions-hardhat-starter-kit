@@ -24,6 +24,9 @@
 <p>It works by using a <a href="https://chain.link/education/blockchain-oracles#decentralized-oracles">decentralized oracle network</a> (DON).<br>When a request is initiated, each node in the DON executes the user-provided JavaScript code simultaneously.  Then, nodes use the <a href="https://docs.chain.link/architecture-overview/off-chain-reporting/">Chainlink OCR</a> protocol to come to consensus on the results.  Finally, the median result is returned to the requesting contract via a callback function.</p>
 <p>Chainlink Functions also enables users to share encrypted secrets with each node in the DON.  This allows users to access to APIs that require authentication, without exposing their API keys to the general public.
 
+
+**To learn how to use the sample apps in this repo  please scroll to the bottom of this README to the [Sample Apps](#sample-apps) section.**
+
 # Quickstart
 
 ## Requirements
@@ -203,4 +206,20 @@ To use per-node assigned secrets, enter a list of secrets objects into `perNodeO
 To generate the encrypted secrets JSON file, run the command `npx hardhat functions-build-offchain-secrets --network network_name_here`. This will output the file `offchain-secrets.json` which can be uploaded to S3, Github, or another hosting service that allows the JSON file to be fetched via URL.
 Once the JSON file is uploaded, set `secretsLocation` to `Location.Remote` in `Functions-request-config.js` and enter the URL(s) where the JSON file is hosted into `secretsURLs`. Multiple URLs can be entered as a fallback in case any of the URLs are offline. Each URL should host the exact same JSON file. The tooling will automatically pack the secrets URL(s) into a space-separated string and encrypt the string using the DON public key so no 3rd party can view the URLs. Finally, this encrypted string of URLs is used in the `secrets` parameter when making an on-chain request.
 
-URLs which host secrets must be available every time a request is executed by DON nodes. For optimal security, it is recommended to expire the URLs when the off-chain secrets are no longer in use.
+URLs which host secrets must be available ever time a request is executed by DON nodes. For optimal security, it is recommended to expire the URLs when the off-chain secrets are no longer in use.
+
+
+# Sample Apps
+
+> :warning: **Functions is in Beta**: Some of these use cases are solely to educate developers on functionality, current and proposed, in the rollout of Chainlink Functions. While several of these sample apps demonstrate posting data to external APIs, this functionality is under active development and is not yet recommended for production use. 
+
+*Notes to Repo Developers*:
+- Please make sure this repo is synced to its [upstream repo](https://github.com/smartcontractkit/functions-hardhat-starter-kit) before pulling and adding any code.
+- All sample app use case code goes into the `/samples`directory. Take a look at `/samples/twilio-spotify` to see how to write a sample app.
+
+### How to run a sample app
+
+When running a sample app: 
+- always make sure you comment out the existing `requestConfig` object in the `./Functions-request-config.js` file 
+- Replace it with a correctly set up request configuration object that is specific to your app.  For example, for the twilio-spotify example, the config object for that use case is specified in `./samples/twilio-spotify/twilio-spotify-requestConfig.js`. That object is copied and pasted into `./Functions-request-config.js` to replace the default object.
+
