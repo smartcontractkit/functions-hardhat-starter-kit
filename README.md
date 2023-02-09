@@ -3,10 +3,12 @@
 - [Chainlink Functions Starter Kit](#chainlink-functions-starter-kit)
 - [Overview](#overview)
 - [Quickstart](#quickstart)
+  - [Requirements](#requirements)
+  - [Steps](#steps)
 - [Command Glossary](#command-glossary)
-  - [Functions Commands](#functions-commands)
-  - [Functions Subscription Management Commands](#functions-subscription-management-commands)
-  - [Admin Commands](#admin-commands)
+    - [Functions Commands](#functions-commands)
+    - [Functions Subscription Management Commands](#functions-subscription-management-commands)
+    - [Admin Commands](#admin-commands)
 - [Request Configuration](#request-configuration)
   - [JavaScript Code](#javascript-code)
     - [Functions Library](#functions-library)
@@ -15,6 +17,8 @@
   - [Off-chain Secrets](#off-chain-secrets)
 
 # Overview
+
+<p><b>This project is currently in a closed beta. Request access to send on-chain requests here <a href="https://functions.chain.link/">https://functions.chain.link/</a></b></p>
 
 <p>Chainlink Functions allows users to request data from almost any API and perform custom computation using JavaScript.</p>
 <p>It works by using a <a href="https://chain.link/education/blockchain-oracles#decentralized-oracles">decentralized oracle network</a> (DON).<br>When a request is initiated, each node in the DON executes the user-provided JavaScript code simultaneously.  Then, nodes use the <a href="https://docs.chain.link/architecture-overview/off-chain-reporting/">Chainlink OCR</a> protocol to come to consensus on the results.  Finally, the median result is returned to the requesting contract via a callback function.</p>
@@ -37,7 +41,7 @@
    2. If desired, the `REPORT_GAS`, `ETHERSCAN_API_KEY` and `POLYGONSCAN_API_KEY` can also be set in order to verify contracts, along with any values used in the `secrets` object in `Functions-request-config.js`.<br><br>
 4. There are two files to notice that the default example will use:
    a. `contracts/FunctionsConsumer.sol` contains the smart contract that will receive the data.
-   b. `Functions-request-source-calculation-example.js` contains JavaScript code that will be executed by each node of the DON.
+   b. `calculation-example.js` contains JavaScript code that will be executed by each node of the DON.
 5. Test an end-to-end request and fulfillment to this contract locally by simulating it using:<br>`npx hardhat functions-simulate`<br><br>
 6. Deploy and verify the consuming contract to an actual blockchain network by running:<br>`npx hardhat functions-deploy-client --network network_name_here --verify true`<br>**Note**: Make sure `ETHERSCAN_API_KEY` or `POLYGONSCAN_API_KEY` are set if using `--verify true`, depending on which network is used.<br><br>
 7. Create, fund & authorize a new Functions billing subscription by running:<br> `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0xDeployed_client_contract_address_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command.<br><br>
@@ -82,15 +86,14 @@ Example: `npx hardhat functions-read --network goerli --contract 0x787Fe00416140
 
 ### Admin Commands
 
-| Command                    | Description                                                                                                                                                | Parameters                                                                                                                                                             |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `functions-deploy-oracle`  | Deploys & configures a new FunctionsRegistry, FunctionsOracleFactory and FunctionsOracle (`functions-set-ocr-config` must still be run after this command) |                                                                                                                                                                        |
-| `functions-set-ocr-config` | Sets the OCR config using values from FunctionsOracleConfig.json                                                                                           |                                                                                                                                                                        |
-| `functions-add-senders`    | Add wallets to allowlist in the Oracle contract                                                                                                            | `addresses`: Comma-separated list of addresses                                                                                                                         |
-| `functions-set-don-key`    | Sets the DON public key in the Functions oracle contract using value from     // TODO: add sign up URL
-network-config.js                                                                |                                                                                                                                                                        |
-| `functions-remove-senders` | Remove wallets from allowlist in the Oracle contract                                                                                                       | `addresses`: Comma-separated list of addresses                                                                                                                         |
-| `functions-set-node-key`   | Sets the per-node public key in the Functions oracle contract                                                                                              | `key`: Node-assigned public key (_not_ preceeded with 0x), `node` (optional): Address of the node for which the public key is to be set (defaults to caller's address) |
+| Command                    | Description                                                                                                                                                                     | Parameters                                                                                                                                                                                                                                                                        |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `functions-deploy-oracle`  | Deploys & configures a new FunctionsRegistry, FunctionsOracleFactory and FunctionsOracle (`functions-set-ocr-config` must still be run after this command)                      |                                                                                                                                                                                                                                                                                   |
+| `functions-set-ocr-config` | Sets the OCR config using values from FunctionsOracleConfig.json                                                                                                                |                                                                                                                                                                                                                                                                                   |
+| `functions-add-senders`    | Add wallets to allowlist in the Oracle contract.  In order to add users from allowlist.csv, copy the CSV file into the root directory and do not set the `addresses` parameter. | `addresses` (optional): Comma-separated list of addresses. If this is not provided, addresses will be pulled from allowlist.csv, `eventcodes` (optional): Comma-separated list of valid event code that must be provided by the user when addresses are pulled from allowlist.csv |
+| `functions-remove-senders` | Remove wallets from allowlist in the Oracle contract                                                                                                                            | `addresses`: Comma-separated list of addresses                                                                                                                                                                                                                                    |
+| `functions-set-don-key`    | Sets the DON public key in the Functions oracle contract using value from network-config.js                                                                                     |                                                                                                                                                                                                                                                                                   |
+| `functions-set-node-key`   | Sets the per-node public key in the Functions oracle contract                                                                                                                   | `key`: Node-assigned public key (_not_ preceeded with 0x), `node` (optional): Address of the node for which the public key is to be set (defaults to caller's address)                                                                                                            |
 
 # Request Configuration
 
@@ -118,7 +121,7 @@ Encoding functions are provided in the [Functions library](#functions-library).
 Additionally, the script must return in **less than 10 seconds** or it will be terminated and send back an error to the requesting contract.
 
 In order to make HTTP requests, the source code must use the `Functions.makeHttpRequest` function from the exposed [Functions library](#functions-library).
-Asynchronous code with top-level `await` statements is supported, as shown in the file `Functions-request-source-API-example.js`.
+Asynchronous code with top-level `await` statements is supported, as shown in the file `API-request-example.js`.
 
 ### Functions Library
 
@@ -174,8 +177,7 @@ This library also exposes functions for encoding JavaScript values into Buffers 
 
 Client contracts which initiate a request and receive a fulfillment can be modified for specific use cases. The only requirements are that the client contract extends the `FunctionsClient` contract and the `fulfillRequest` callback function never uses more than 300,000 gas.
 
-## Simulating Requests    // TODO: add sign up URL
-
+## Simulating Requests
 
 An end-to-end request initiation and fulfillment can be simulated using the `npx hardhat functions-simulate` command. This command will report the total estimated cost of a request in LINK using the latest on-chain gas prices. Costs are based on the amount of gas used to validate the response and call the client contract's `fulfillRequest` function, plus a flat fee. Please note that actual request costs can vary based on gas prices when a request is initiated on-chain.
 
