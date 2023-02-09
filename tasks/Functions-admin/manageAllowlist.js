@@ -1,5 +1,9 @@
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 const fs = require("fs")
+<<<<<<< HEAD
+=======
+const emailValidator = require("email-validator")
+>>>>>>> e5ea59f1 (Added allowlist management script)
 
 const Action = {
   Add: 0,
@@ -66,7 +70,7 @@ task(
     "Comma-separated list of valid event code that must be provided by the user to be added"
   )
   .setAction(async (taskArgs) => {
-    await addOrRemove(Action.Add, taskArgs)
+      await addOrRemove(Action.Add, taskArgs)
   })
 
 task("functions-remove-senders", "Remove wallets from allowlist in the Oracle contract")
