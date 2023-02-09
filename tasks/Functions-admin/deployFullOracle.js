@@ -50,25 +50,6 @@ task(
   await registry.deployTransaction.wait(1)
   console.log(`FunctionsBillingRegistry deployed to ${registry.address} on ${network.name}`)
 
-  console.log("Setting registy configuration")
-  const config = {
-    maxGasLimit: 450_000,
-    stalenessSeconds: 86_400,
-    gasAfterPaymentCalculation: 21_000 + 5_000 + 2_100 + 20_000 + 2 * 2_100 - 15_000 + 7_315,
-    weiPerUnitLink: ethers.BigNumber.from("5000000000000000"),
-    gasOverhead: 100_000,
-    requestTimeoutSeconds: 300,
-  }
-  await registry.setConfig(
-    config.maxGasLimit,
-    config.stalenessSeconds,
-    config.gasAfterPaymentCalculation,
-    config.weiPerUnitLink,
-    config.gasOverhead,
-    config.requestTimeoutSeconds
-  )
-  console.log("Registry configuration set")
-
   // Set up Functions Oracle
   console.log(`Accepting oracle contract ownership`)
   const acceptTx = overrides ? await oracle.acceptOwnership(overrides) : await oracle.acceptOwnership()
