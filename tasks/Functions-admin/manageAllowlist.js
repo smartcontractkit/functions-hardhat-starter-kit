@@ -1,5 +1,9 @@
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 const fs = require("fs")
+<<<<<<< HEAD
+=======
+const emailValidator = require("email-validator")
+>>>>>>> e5ea59f1 (Added allowlist management script)
 
 const Action = {
   Add: 0,
