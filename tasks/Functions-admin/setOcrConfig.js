@@ -1,7 +1,8 @@
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 
-task("functions-set-ocr-config", "Sets the OCR config using values from FunctionsOracleConfig.json").setAction(
-  async () => {
+task("functions-set-ocr-config", "Sets the OCR config using values from a given JSON file")
+  .addParam("configfile", "Generated JSON config file")
+  .setAction(async (taskArgs) => {
     if (network.name === "hardhat") {
       throw Error("This command cannot be used on a local development chain.  Specify a valid network.")
     }
@@ -18,7 +19,7 @@ task("functions-set-ocr-config", "Sets the OCR config using values from Function
     const oracleFactory = await ethers.getContractFactory("FunctionsOracle")
     const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracle"])
 
-    const ocrConfig = require("../../FunctionsOracleConfig.json")
+    const ocrConfig = require("../../" + taskArgs.configfile)
     console.log(`Setting oracle OCR config for oracle ${networkConfig[network.name]["functionsOracle"]}`)
     const setConfigTx = overrides
       ? await oracle.setConfig(
