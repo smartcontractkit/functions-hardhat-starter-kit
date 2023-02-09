@@ -1,6 +1,5 @@
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 const fs = require("fs")
-const emailValidator = require("email-validator")
 
 const Action = {
   Add: 0,
@@ -57,7 +56,7 @@ async function addOrRemove(action, taskArgs) {
   console.log(`Allowlist updated for oracle ${oracle.address} on ${network.name}`)
 }
 
-task("functions-add-senders", "Add wallets to allowlist in the Oracle contract")
+task("functions-add-senders", "Add wallets to allowlist in the Oracle contract.  In order to add users from allowlist.csv, copy the CSV file into the root directory and do not set the addresses parameter.")
   .addOptionalParam("addresses", "Comma-separated list of addresses.  If this is not provided, addresses will be pulled from allowlist.csv")
   .addOptionalParam("eventcodes", "Comma-separated list of valid event code that must be provided by the user to be added")
   .setAction(async (taskArgs) => {
