@@ -71,8 +71,7 @@ const secretsRedactorFactory = (secrets) => {
       // Make a deep copy to avoid modifying the original string
       let newData = data.slice()
       for (const secret of secretsToRedact) {
-        const re = new RegExp(`${secret}`, "g")
-        newData = newData.replace(re, "<REDACTED SECRET>")
+        newData = newData.split(secret).join('<REDACTED SECRET>')
       }
       return newData
     }
