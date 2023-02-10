@@ -26,7 +26,10 @@ const latestListenerCount = await getLatestMonthlyListenerCount()
 // - Functions.encodeInt256
 // - Functions.encodeString
 // Or return a custom Buffer for a custom byte encoding
-return Functions.encodeString(latestListenerCount.toString())
+return Functions.encodeUint256(latestListenerCount)
+
+
+
 
 // ====================
 // Helper Functions
@@ -58,11 +61,11 @@ async function getLatestMonthlyListenerCount() {
   }
 
   newListenerCount = soundchartsResponse.data.items[0].value
-  console.log(`\nNew Listener Count: ${newListenerCount} vs last listener count: ${lastListenerCount}`)
+  console.log(`\nNew Listener Count: ${newListenerCount}. Last Listener Count: ${lastListenerCount}. Diff: ${newListenerCount - lastListenerCount}.`)
 
   if (newListenerCount > lastListenerCount) {
     console.log(
-      `\nArist is due some payments for an additional ${
+      `\nArist is due payments for an additional ${
         newListenerCount - lastListenerCount
       } listeners. Sending email...`
     )

@@ -37,10 +37,10 @@ const requestConfig = {
   // ETH wallet key used to sign secrets so they cannot be accessed by a 3rd party
   walletPrivateKey: process.env["PRIVATE_KEY"],
   // args (string only array) can be accessed within the source code with `args[index]` (ie: args[0]).
-  // args in sequence are: ArtistID, artistname,  lastMonthlyListenerCount, artist email
-  args: ["ca22091a-3c00-11e9-974f-549f35141000", "Zubin P", "14045928", "zubin.pratap+demos@smartcontract.com"], // TONES_AND_I // TODO @ Zubin fix email
+  // artistID is the externally supplied Arg. Artist details are stored on contract.
+  args: ["ca22091a-3c00-11e9-974f-549f35141000", "Tones&I", "14045928", process.env.ARTIST_EMAIL], // TONES_AND_I // TODO @ Zubin fix email
   // expected type of the returned value
-  expectedReturnType: ReturnType.string,
+  expectedReturnType: ReturnType.uint256,
   // Redundant URLs which point to encrypted off-chain secrets
   secretsURLs: [],
   // Default offchain secrets object used by the `functions-build-offchain-secrets` command
