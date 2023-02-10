@@ -52,7 +52,6 @@ async function addOrRemove(action, taskArgs) {
   console.log(`Allowlist updated for oracle ${oracle.address} on ${network.name}`)
 }
 
-
 task(
   "functions-add-senders",
   "Add wallets to allowlist in the Oracle contract.  In order to add users from allowlist.csv, copy the CSV file into the root directory and do not set the addresses parameter."
