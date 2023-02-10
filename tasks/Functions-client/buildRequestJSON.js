@@ -7,11 +7,6 @@ const fs = require("fs")
 task("functions-build-request", "Creates a JSON file with Functions request parameters")
   .addOptionalParam("output", "Output file name (defaults to Functions-request.json)")
   .setAction(async (taskArgs, hre) => {
-    if (network.name === "hardhat") {
-      throw Error(
-        'This command cannot be used on a local development chain.  Specify a valid network or simulate an Functions request locally with "npx hardhat functions-simulate".'
-      )
-    }
 
     const OracleFactory = await ethers.getContractFactory("FunctionsOracle")
     const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracle"])
