@@ -26,6 +26,9 @@ async function addOrRemove(action, taskArgs) {
   let addresses
   if (taskArgs.addresses) {
     addresses = taskArgs.addresses.split(",")
+    addresses = addresses.filter((a) => { return ethers.utils.isAddress(a)})
+    const invalidAddresses = addresses.filter((a) => { return !ethers.utils.isAddress(a)})
+    console.log(`The following addresses are invalid and will be ignored: ${invalidAddresses}`)
   }
 
   let tx
@@ -57,7 +60,8 @@ async function addOrRemove(action, taskArgs) {
 }
 
 task("functions-add-senders", "Add wallets to allowlist in the Oracle contract.  In order to add users from allowlist.csv, copy the CSV file into the root directory and do not set the addresses parameter.")
-  .addOptionalParam("addresses", "Comma-separated list of addresses.  If this is not provided, addresses will be pulled from allowlist.csv")
+  .addOptionalParam("addresses", "Comma-separated list of addresses.  If this is not provided, addresses will be pulled from the allowlist CSV file")
+  .addOptionalParam("filename", "Name of the allowlist CSV file (defaults to allowlist.csv)")
   .addOptionalParam("eventcodes", "Comma-separated list of valid event code that must be provided by the user to be added")
   .setAction(async (taskArgs) => {
       await addOrRemove(Action.Add, taskArgs)
@@ -70,13 +74,9 @@ task("functions-remove-senders", "Remove wallets from allowlist in the Oracle co
   })
 
 const addFromAllowlist = async (taskArgs, oracle, overrides) => {
-  if (!taskArgs.eventcodes) {
-    throw Error('--eventcodes argument not provided')
-  }
-
   const currentAllowlist = await oracle.getAuthorizedSenders()
 
-  const allowlistData = getDataFromAllowlist(taskArgs.eventcodes)
+  const allowlistData = getDataFromAllowlist(taskArgs.eventcodes, taskArgs.filename)
 
   const addressesToAdd = filterAddressesToAdd(currentAllowlist, allowlistData.validUsers)
 
@@ -108,8 +108,8 @@ const addFromAllowlist = async (taskArgs, oracle, overrides) => {
   generateUpdatedAllowlistCsv(updatedAllowlist, allowlistData)
 }
 
-const getDataFromAllowlist = (requiredEventCodes) => {
-  let allowList = fs.readFileSync('./allowlist.csv').toString()
+const getDataFromAllowlist = (requiredEventCodes, allowlistFileName) => {
+  const allowList = fs.readFileSync(allowlistFileName ?? './allowlist.csv').toString()
 
   const allowListLines = allowList.split('\n')
   // Ignore the first line which contains column titles
@@ -150,8 +150,11 @@ const getDataFromAllowlist = (requiredEventCodes) => {
       continue
     }
     if (
-      user.eventCode.toLowerCase() === '' ||
-      !requiredEventCodes.toLowerCase().split(',').includes(user.eventCode.toLowerCase())
+      requiredEventCodes &&
+      (
+        user.eventCode.toLowerCase() === '' ||
+        !requiredEventCodes.toLowerCase().split(',').includes(user.eventCode.toLowerCase())
+      )
     ) {
       user.notes = 'INVALID EVENT CODE' + user.notes
       invalidUsers.push(user)
