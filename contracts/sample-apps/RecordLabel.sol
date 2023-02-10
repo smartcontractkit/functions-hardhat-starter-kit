@@ -20,7 +20,7 @@ contract RecordLabel is FunctionsClient, ConfirmedOwner {
   bytes32 public latestRequestId;
   bytes public latestResponse;
   bytes public latestError;
-  string latestArtistRequestedId;
+  string public latestArtistRequestedId;
 
   struct Artist {
     string name;

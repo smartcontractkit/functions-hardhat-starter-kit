@@ -20,6 +20,19 @@ if (isNaN(lastListenerCount)) {
 
 const latestListenerCount = await getLatestMonthlyListenerCount()
 
+if (latestListenerCount > lastListenerCount) {
+  console.log(
+    `\nArist is due payments for an additional ${
+      newListenerCount - lastListenerCount
+    } listeners...`
+  )
+  await sendEmail(newListenerCount)
+} else {
+  console.log(
+    "\nArist is not due additional payments..."
+  )
+}
+
 // The source code MUST return a Buffer or the request will return an error message
 // Use one of the following functions to convert to a Buffer representing the response bytes that are returned to the client smart contract:
 // - Functions.encodeUint256
@@ -63,29 +76,22 @@ async function getLatestMonthlyListenerCount() {
   newListenerCount = soundchartsResponse.data.items[0].value
   console.log(`\nNew Listener Count: ${newListenerCount}. Last Listener Count: ${lastListenerCount}. Diff: ${newListenerCount - lastListenerCount}.`)
 
-  if (newListenerCount > lastListenerCount) {
-    console.log(
-      `\nArist is due payments for an additional ${
-        newListenerCount - lastListenerCount
-      } listeners. Sending email...`
-    )
-    await sendEmail(newListenerCount)
-  }
-
   return newListenerCount
 }
 
 // Uses Twilio Sendgrid API to send emails.
 // https://sendgrid.com/solutions/email-api
 async function sendEmail(latestListenerCount) {
+  if(!secrets.twilioApiKey) {
+    return
+  };
+
   const sendgridURL = "https://api.sendgrid.com/v3/mail/send"
   // Use the verified sender email address
-  const VERIFIED_SENDER = "zubin.pratap+noreply@smartcontract.com" // TODO @zubin remove
-
-  if (!secrets.twilioApiKey) {
-    throw new Error("Missing Twilio API key")
-  }
+  const VERIFIED_SENDER = "" // TODO Put your Sendgrid Twilio-verified sender email address here.
   const authHeader = "Bearer " + secrets.twilioApiKey
+
+  if (!VERIFIED_SENDER) throw new Error("VERIFIED_SENDER constant not set")
 
   // Structure for POSTING email data to Sendgrid.
   // Reference: https://docs.sendgrid.com/api-reference/mail-send/mail-send
@@ -126,6 +132,7 @@ TwiLink Records
     },
   }
 
+  // Build the config object to pass to makeHttpRequest().
   const functionsReqData = {
     url: sendgridURL,
     method: "POST",
@@ -139,6 +146,8 @@ TwiLink Records
     if (sendgridResponse.errors && sendgridResponse.errors.length > 0) {
       throw new Error("Sendgrid API responded with error: " + JSON.stringify(sendgridResponse.errors[0]))
     }
+
+    console.log(`\n Email sent to ${artistName}...`)
   } catch (error) {
     console.log("\nFailed when sending email.")
     throw error

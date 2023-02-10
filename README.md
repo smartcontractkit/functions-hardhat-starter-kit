@@ -216,10 +216,12 @@ URLs which host secrets must be available ever time a request is executed by DON
 *Notes to Repo Developers*:
 - Please make sure this repo is synced to its [upstream repo](https://github.com/smartcontractkit/functions-hardhat-starter-kit) before pulling and adding any code.
 - All sample app use case code goes into the `/samples`directory. Take a look at `/samples/twilio-spotify` to see how to write a sample app.
+- Please add instructions to a separate README inside your sample app directory.  For example `./samples/twilio-spotify/README.md`
 
 ### How to run a sample app
 
 When running a sample app: 
+- Take a look at the README file inside the sample app's directory in the `./samples/...` path.
 - always make sure you comment out the existing `requestConfig` object in the `./Functions-request-config.js` file 
 - Replace it with a correctly set up request configuration object that is specific to your app.  For example, for the twilio-spotify example, the config object for that use case is specified in `./samples/twilio-spotify/twilio-spotify-requestConfig.js`. That object is copied and pasted into `./Functions-request-config.js` to replace the default object.
 - when running the CLI commands (which are Hardhat [tasks](https://hardhat.org/hardhat-runner/docs/guides/tasks-and-scripts)), be sure to find the script that implements the task in `/tasks` directory, and change the Contract name in the line that looks like this `const clientFactory = await ethers.getContractFactory("FunctionsConsumer")`. In the Twilio-spotify sample, the contract in this line will read as `const clientFactory = await ethers.getContractFactory("RecordLabel")`
