@@ -28,11 +28,11 @@ task(
       (!requestConfig.perNodeOffchainSecrets || requestConfig.perNodeOffchainSecrets.length === 0) &&
       (!requestConfig.globalOffchainSecrets || Object.keys(requestConfig.globalOffchainSecrets).length === 0)
     ) {
-      throw Error("Neither perNodeOffchainSecrets nor secrets is specified")
+      throw Error("Neither perNodeOffchainSecrets nor globalSecrets is specified")
     }
 
     const globalOffchainSecretsObjectKeys = requestConfig.globalOffchainSecrets
-      ? JSON.stringify(Object.keys(requestConfig.globalOffchainSecrets).sort())
+      ? Object.keys(requestConfig.globalOffchainSecrets).sort()
       : undefined
 
     if (!requestConfig.globalOffchainSecrets || globalOffchainSecretsObjectKeys.length === 0) {
@@ -42,9 +42,7 @@ task(
     }
 
     if (requestConfig.perNodeOffchainSecrets && requestConfig.perNodeOffchainSecrets.length > 0) {
-      const firstperNodeOffchainSecretsKeys = JSON.stringify(
-        Object.keys(requestConfig.perNodeOffchainSecrets[0]).sort()
-      )
+      const firstperNodeOffchainSecretsKeys = Object.keys(requestConfig.perNodeOffchainSecrets[0]).sort()
 
       for (const assignedSecrets of requestConfig.perNodeOffchainSecrets) {
         if (typeof assignedSecrets !== "object") {
@@ -57,19 +55,19 @@ task(
           throw Error("In the config file, perNodeOffchainSecrets contains an empty object.")
         }
 
-        const secretsObjectKeys = JSON.stringify(Object.keys(assignedSecrets).sort())
+        const secretsObjectKeys = Object.keys(assignedSecrets).sort()
 
         if (
           requestConfig.globalOffchainSecrets &&
           globalOffchainSecretsObjectKeys.length > 0 &&
-          globalOffchainSecretsObjectKeys !== secretsObjectKeys
+          JSON.stringify(globalOffchainSecretsObjectKeys) !== JSON.stringify(secretsObjectKeys)
         ) {
           throw Error(
-            "In the config file, not all objects in `perNodeOffchainSecrets` have the same object keys as default `secrets`. (The values can be different, but the keys should be the same between all objects.)"
+            "In the config file, not all objects in `perNodeOffchainSecrets` have the same object keys as `globalSecrets`. (The values can be different, but the keys should be the same between all objects.)"
           )
         }
 
-        if (firstperNodeOffchainSecretsKeys !== secretsObjectKeys) {
+        if (JSON.stringify(firstperNodeOffchainSecretsKeys) !== JSON.stringify(secretsObjectKeys)) {
           throw Error(
             "In the config file, not all objects in `perNodeOffchainSecrets` have the same object keys. (The values can be different, but the keys should be the same between all objects.)"
           )
