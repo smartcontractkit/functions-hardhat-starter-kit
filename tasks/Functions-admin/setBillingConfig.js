@@ -27,5 +27,4 @@ task("functions-set-billing-config", "Sets the BillingRegistry config using valu
     await setConfigTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
 
     console.log("Registry configuration set")
-  }
-)
+  })
