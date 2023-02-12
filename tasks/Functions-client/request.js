@@ -11,6 +11,7 @@ const readline = require("readline-promise").default
 task("functions-request", "Initiates a request from an Functions client contract")
   .addParam("contract", "Address of the client contract to call")
   .addParam("subid", "Billing subscription ID used to pay for the request")
+  .addOptionalParam("simulate", "Flag indicating if simulation should be run before making an on-chain request", true, types.boolean)
   .addOptionalParam(
     "simulate",
     "Flag indicating if simulation should be run before making an on-chain request",
