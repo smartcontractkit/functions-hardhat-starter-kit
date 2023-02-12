@@ -45,5 +45,4 @@ task("functions-set-ocr-config", "Sets the OCR config using values from a given 
     await setConfigTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
 
     console.log(`\nOCR2Oracle config set for oracle ${oracle.address} on ${network.name}`)
-  }
-)
+  })

@@ -13,12 +13,15 @@ task("functions-request", "Initiates a request from an Functions client contract
   .addParam("subid", "Billing subscription ID used to pay for the request")
   .addOptionalParam(
     "gaslimit",
-    "Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000)"
+    "Maximum amount of gas that can be used to call fulfillRequest in the client contract",
+    100000,
+    types.int
   )
+  .addOptionalParam("requestgas", "Gas limit for calling the executeRequest function", 1500000, types.int)
   .setAction(async (taskArgs, hre) => {
     // A manual gas limit is required as the gas limit estimated by Ethers is not always accurate
     const overrides = {
-      gasLimit: 1500000,
+      gasLimit: taskArgs.requestgas,
     }
 
     if (network.name === "hardhat") {
@@ -35,7 +38,7 @@ task("functions-request", "Initiates a request from an Functions client contract
     // Get the required parameters
     const contractAddr = taskArgs.contract
     const subscriptionId = taskArgs.subid
-    const gasLimit = parseInt(taskArgs.gaslimit ?? "100000")
+    const gasLimit = taskArgs.gaslimit
     if (gasLimit > 300000) {
       throw Error("Gas limit must be less than or equal to 300,000")
     }
