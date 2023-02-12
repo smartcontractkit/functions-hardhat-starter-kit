@@ -13,11 +13,15 @@ import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
   using Functions for Functions.Request;
 
+  uint256 public charity1Votes;
+  uint256 public charity2Votes;
+  string public winner;
   bytes32 public latestRequestId;
-  bytes public latestResponse;
   bytes public latestError;
 
   event OCRResponse(bytes32 indexed requestId, bytes result, bytes err);
+  event VoteCount(uint256 charity1Votes, uint256 charity2Votes);
+  event WinnerDeclared(string winner);
 
   /**
    * @notice Executes once when a contract is created to initialize state variables
@@ -70,10 +74,28 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
     bytes memory response,
     bytes memory err
   ) internal override {
-    // revert('test');
-    latestResponse = response;
-    latestError = err;
     emit OCRResponse(requestId, response, err);
+
+    (charity1Votes, charity2Votes) = abi.decode(response, (uint256, uint256));
+    latestError = err;
+
+    emit VoteCount(charity1Votes, charity2Votes);
+  }
+  
+  function declareWinner() public onlyOwner {
+    if (charity1Votes == charity2Votes) {
+      winner = 'Charity #1 and #2 tied!';
+    }
+
+    if (charity1Votes > charity2Votes) {
+      winner = 'Charity #1 won!';
+    }
+
+    if (charity1Votes > charity2Votes) {
+      winner = 'Charity #2 won!';
+    }
+
+    emit WinnerDeclared(winner);
   }
 
   function updateOracleAddress(address oracle) public onlyOwner {

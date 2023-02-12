@@ -1,12 +1,10 @@
 const crypto = require('crypto')
 const querystring = require('querystring')
 
-// Replace , character with newline character
+// Replace \n character with actual newline character
 const privateKey = secrets.key.replace(/\\n/g,'\n')
 
-const jwtHeader = '{"alg":"RS256","typ":"JWT"}'
-
-const jwtBase64Headers = Buffer.from(jwtHeader).toString('base64')
+const jwtBase64Headers = Buffer.from('{"alg":"RS256","typ":"JWT"}').toString('base64')
 
 const currentTimeInSeconds = Math.round(Date.now() / 1000)
 
@@ -18,19 +16,15 @@ const jwtClaimSetObj = {
   "iat": currentTimeInSeconds
 }
 
-const jwtClaimSetString = JSON.stringify(jwtClaimSetObj)
-
-const jwtBase64ClaimSet = Buffer.from(jwtClaimSetString).toString('base64')
+const jwtBase64ClaimSet = Buffer.from(JSON.stringify(jwtClaimSetObj)).toString('base64')
 
 const stringToSign = `${jwtBase64Headers}.${jwtBase64ClaimSet}`
 
 const jwtBase64Signature = crypto.sign('RSA-SHA256', stringToSign, privateKey).toString('base64')
 
-const assertion = `${jwtBase64Headers}.${jwtBase64ClaimSet}.${jwtBase64Signature}`
-
 const jwtRequest = {
   grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-  assertion
+  assertion: `${jwtBase64Headers}.${jwtBase64ClaimSet}.${jwtBase64Signature}`
 }
 
 const jwtRequestString = querystring.stringify(jwtRequest)
@@ -43,8 +37,7 @@ const tokenResponse = await Functions.makeHttpRequest({
 
 const accessToken = tokenResponse.data.access_token
 
-const googleAnalyticsResponse = await Functions.makeHttpRequest({
-  url: 'https://analyticsdata.googleapis.com/v1beta/properties/353119413:runRealtimeReport',
+const requestConfig = {
   method: 'post',
   headers: {
     "Authorization": `Bearer ${accessToken}`,
@@ -53,21 +46,35 @@ const googleAnalyticsResponse = await Functions.makeHttpRequest({
   },
   data: {
     "metrics": [{"name":"activeUsers"}],
-    //"metrics": [{ "name": "rt:pageviews" }],
-    //"metricAggregations": ["TOTAL"],
-    //"dimensions": [{"name": "deviceCategory"}],
     "minuteRanges":[{"startMinutesAgo":29,"endMinutesAgo":0}]
   }
-})
-
-console.log(googleAnalyticsResponse.data.rows[0])
-console.log(googleAnalyticsResponse.response.data)
-
-let usersInLast15Min
-try {
-  usersInLast15Min = parseInt(googleAnalyticsResponse.data.rows[0].metricValues[0].value)
-} catch {
-  usersInLast15Min = 0
 }
 
-return Functions.encodeUint256(usersInLast15Min)
+requestConfig.url = `https://analyticsdata.googleapis.com/v1beta/properties/${secrets.property1}:runRealtimeReport`
+const request1 = Functions.makeHttpRequest(requestConfig)
+
+requestConfig.url = `https://analyticsdata.googleapis.com/v1beta/properties/${secrets.property2}:runRealtimeReport`
+const request2 = Functions.makeHttpRequest(requestConfig)
+
+const responses = await Promise.all([ request1, request2 ])
+
+console.log(responses[0])
+console.log(responses[1])
+
+let item1Votes
+try {
+  item1Votes = parseInt(responses[0].data.rows[0].metricValues[0].value)
+} catch {
+  item1Votes = 0
+}
+
+let item2Votes
+try {
+  item2Votes = parseInt(responses[1].data.rows[0].metricValues[0].value)
+} catch {
+  item2Votes = 0
+}
+
+console.log(`Item 1 votes: ${item1Votes}\nItem 2 votes: ${item2Votes}`)
+
+return Buffer.concat([ Functions.encodeUint256(item1Votes), Functions.encodeUint256(item2Votes) ])
