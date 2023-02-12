@@ -71,7 +71,6 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
     bytes memory response,
     bytes memory err
   ) internal override {
-    // revert('test');
     latestResponse = response;
     latestError = err;
     emit OCRResponse(requestId, response, err);
