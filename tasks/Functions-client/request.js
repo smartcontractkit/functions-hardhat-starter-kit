@@ -11,7 +11,12 @@ const readline = require("readline-promise").default
 task("functions-request", "Initiates a request from an Functions client contract")
   .addParam("contract", "Address of the client contract to call")
   .addParam("subid", "Billing subscription ID used to pay for the request")
-  .addOptionalParam("simulate", "Flag indicating if simulation should be run before making an on-chain request", true, types.boolean)
+  .addOptionalParam(
+    "simulate",
+    "Flag indicating if simulation should be run before making an on-chain request",
+    true,
+    types.boolean
+  )
   .addOptionalParam(
     "gaslimit",
     "Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000)"
@@ -52,7 +57,7 @@ task("functions-request", "Initiates a request from an Functions client contract
 
     const unvalidatedRequestConfig = require("../../Functions-request-config.js")
     const requestConfig = getRequestConfig(unvalidatedRequestConfig)
-    
+
     if (requestConfig.secretsLocation === 1) {
       requestConfig.secrets = undefined
       if (!requestConfig.globalOffchainSecrets || Object.keys(requestConfig.globalOffchainSecrets).length === 0) {
@@ -77,7 +82,7 @@ task("functions-request", "Initiates a request from an Functions client contract
       console.log("Simulating Functions request locally...")
       const { success, resultLog } = await simulateRequest(requestConfig)
       console.log(`\n${resultLog}`)
-  
+
       // If the simulated JavaScript source code contains an error, confirm the user still wants to continue
       if (!success) {
         const rl = readline.createInterface({
