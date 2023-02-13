@@ -6,9 +6,9 @@
   - [Requirements](#requirements)
   - [Steps](#steps)
 - [Command Glossary](#command-glossary)
-    - [Functions Commands](#functions-commands)
-    - [Functions Subscription Management Commands](#functions-subscription-management-commands)
-    - [Admin Commands](#admin-commands)
+  - [Functions Commands](#functions-commands)
+  - [Functions Subscription Management Commands](#functions-subscription-management-commands)
+  - [Admin Commands](#admin-commands)
 - [Request Configuration](#request-configuration)
   - [JavaScript Code](#javascript-code)
     - [Functions Library](#functions-library)
@@ -90,14 +90,15 @@ Example: `npx hardhat functions-read --network goerli --contract 0x787Fe00416140
 
 ### Admin Commands
 
-| Command                    | Description                                                                                                                                                                     | Parameters                                                                                                                                                                                                                                                                        |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `functions-deploy-oracle`  | Deploys & configures a new FunctionsRegistry, FunctionsOracleFactory and FunctionsOracle (`functions-set-ocr-config` must still be run after this command)                      |                                                                                                                                                                                                                                                                                   |
-| `functions-set-ocr-config` | Sets the OCR config using values from FunctionsOracleConfig.json                                                                                                                |                                                                                                                                                                                                                                                                                   |
-| `functions-add-senders`    | Add wallets to allowlist in the Oracle contract.  In order to add users from allowlist.csv, copy the CSV file into the root directory and do not set the `addresses` parameter. | `addresses` (optional): Comma-separated list of addresses. If this is not provided, addresses will be pulled from allowlist.csv, `filename` (optional): Name of the allowlist CSV file (defaults to allowlist.csv), `eventcodes` (optional): Comma-separated list of valid event code that must be provided by the user when addresses are pulled from allowlist.csv |
-| `functions-remove-senders` | Remove wallets from allowlist in the Oracle contract                                                                                                                            | `addresses`: Comma-separated list of addresses                                                                                                                                                                                                                                    |
-| `functions-set-don-key`    | Sets the DON public key in the Functions oracle contract using value from network-config.js                                                                                     |                                                                                                                                                                                                                                                                                   |
-| `functions-set-node-key`   | Sets the per-node public key in the Functions oracle contract                                                                                                                   | `key`: Node-assigned public key (_not_ preceeded with 0x), `node` (optional): Address of the node for which the public key is to be set (defaults to caller's address)                                                                                                            |
+| Command                        | Description                                                                                                                                          | Parameters                                                                                                                                                             |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `functions-deploy-oracle`      | Deploys & configures a new FunctionsRegistry, FunctionsOracleFactory and FunctionsOracle (OCR and Billing configs must be set separately afterwards) |                                                                                                                                                                        |
+| `functions-set-ocr-config`     | Sets the OCR config using values from FunctionsOracleConfig.json                                                                                     | `configfile`: JSON file with generated OCR config                                                                                                                      |
+| `functions-set-billing-config` | Sets the OCR config using values from FunctionsOracleConfig.json                                                                                     | `configfile`: JSON file containing billing config in a 'BillingRegistryConfig' field                                                                                   |
+| `functions-set-don-key`        | Sets the DON public key in the Functions oracle contract using value from network-config.js                                                          |                                                                                                                                                                        |
+| `functions-add-senders`        | Add wallets to allowlist in the Oracle contract                                                                                                      | `addresses`: Comma-separated list of addresses                                                                                                                         |
+| `functions-remove-senders`     | Remove wallets from allowlist in the Oracle contract                                                                                                 | `addresses`: Comma-separated list of addresses                                                                                                                         |
+| `functions-set-node-key`       | Sets the per-node public key in the Functions oracle contract                                                                                        | `key`: Node-assigned public key (_not_ preceeded with 0x), `node` (optional): Address of the node for which the public key is to be set (defaults to caller's address) |
 
 In order to use an allowlist CSV file to add users to the whitelist:
 1. Download the allowlist CSV file and add it to the root of this repository
@@ -106,7 +107,6 @@ In order to use an allowlist CSV file to add users to the whitelist:
 4. This command will produce the files `updatedAllowlist.csv` and `invalidUsers.csv`.
   - `updatedAllowlist.csv` will contain the contents of `allowlist.csv`, but will accurately update the `Approved/Added` column as well as add to the `Notes` column if the user was not added and indicate the reason of either invalid address, TOS agreement or event code.
   - `invalidUsers.csv` will contain any users from `allowlist.csv` who were not added due to invalid address, TOS agreement or event code, with the reason indicated in the `Notes` column.
-
 
 # Request Configuration
 
