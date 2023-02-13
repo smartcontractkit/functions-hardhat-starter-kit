@@ -6,7 +6,8 @@ const {
   getDecodedResultLog,
   getRequestConfig,
 } = require("../../FunctionsSandboxLibrary")
-const { verifyOffchainSecrets } = require("./buildRequestJSON")
+const { generateRequest } = require("./request")
+const { addClientConsumerToSubscription } = require("../Functions-billing/add")
 const readline = require("readline-promise").default
 
 task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer contract")
@@ -50,7 +51,13 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
 
     await addClientConsumerToSubscription(taskArgs.subid, autoClientContract.address)
 
-    const request = await generateRequest()
+    const OracleFactory = await ethers.getContractFactory("FunctionsOracle")
+    const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracle"])
+
+    const unvalidatedRequestConfig = require("../../Functions-request-config.js")
+    const requestConfig = getRequestConfig(unvalidatedRequestConfig)
+
+    const request = await generateRequest(oracle, requestConfig)
 
     const functionsRequestBytes = await autoClientContract.generateRequest(
       request.source,
@@ -92,58 +99,3 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
 
     console.log(`\nAutomatedFunctionsConsumer contract deployed to ${autoClientContract.address} on ${network.name}`)
   })
-
-const generateRequest = async () => {
-  console.log("Simulating Functions request locally...")
-  const unvalidatedRequestConfig = require("../../Functions-request-config.js")
-  const requestConfig = getRequestConfig(unvalidatedRequestConfig)
-
-  if (requestConfig.secretsLocation === 1) {
-    requestConfig.secrets = undefined
-    if (!requestConfig.globalOffchainSecrets || Object.keys(requestConfig.globalOffchainSecrets).length === 0) {
-      if (
-        requestConfig.perNodeOffchainSecrets &&
-        requestConfig.perNodeOffchainSecrets[0] &&
-        Object.keys(requestConfig.perNodeOffchainSecrets[0]).length > 0
-      ) {
-        requestConfig.secrets = requestConfig.perNodeOffchainSecrets[0]
-      }
-    } else {
-      requestConfig.secrets = requestConfig.globalOffchainSecrets
-    }
-    // Get node addresses for off-chain secrets
-    const [nodeAddresses, publicKeys] = await oracle.getAllNodePublicKeys()
-    if (requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0) {
-      await verifyOffchainSecrets(requestConfig.secretsURLs, nodeAddresses)
-    }
-  }
-
-  const { success, resultLog } = await simulateRequest(requestConfig)
-  console.log(`\n${resultLog}`)
-
-  // If the simulated JavaScript source code contains an error, confirm the user still wants to continue
-  if (!success) {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    })
-    const q1answer = await rl.questionAsync(
-      "There was an error when running the JavaScript source code for the request.\nContinue? (y) Yes / (n) No\n"
-    )
-    rl.close()
-    if (q1answer.toLowerCase() !== "y" && q1answer.toLowerCase() !== "yes") {
-      return
-    }
-  }
-
-  const OracleFactory = await ethers.getContractFactory("FunctionsOracle")
-  const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracle"])
-  // Fetch the DON public key from on-chain
-  const DONPublicKey = await oracle.getDONPublicKey()
-  // Remove the preceding 0x from the DON public key
-  requestConfig.DONPublicKey = DONPublicKey.slice(2)
-  // Build the parameters to make a request from the client contract
-  const request = await buildRequest(requestConfig)
-  request.secretsLocation = requestConfig.secretsLocation
-  return request
-}

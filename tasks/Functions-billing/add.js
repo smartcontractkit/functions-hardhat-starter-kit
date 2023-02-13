@@ -14,7 +14,7 @@ task("functions-sub-add", "Adds a client contract to the Functions billing subsc
     await addClientConsumerToSubscription(subscriptionId, consumer)
   })
 
-export const addClientConsumerToSubscription = async (subscriptionId, consumer) => {
+const addClientConsumerToSubscription = async (subscriptionId, consumer) => {
   const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
   const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsOracleRegistry"])
 
@@ -58,3 +58,5 @@ export const addClientConsumerToSubscription = async (subscriptionId, consumer) 
   )
   console.log(postSubInfo[2])
 }
+
+module.exports.addClientConsumerToSubscription = addClientConsumerToSubscription
