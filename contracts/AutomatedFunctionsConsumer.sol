@@ -137,7 +137,6 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
     bytes memory response,
     bytes memory err
   ) internal override {
-    // revert('test');
     latestResponse = response;
     latestError = err;
     responseCounter = responseCounter + 1;

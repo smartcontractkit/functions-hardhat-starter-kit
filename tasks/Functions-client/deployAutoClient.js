@@ -20,20 +20,10 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     types.int
   )
   .setAction(async (taskArgs) => {
-    // A manual gas limit is required as the gas limit estimated by Ethers is not always accurate
-    const overrides = {
-      gasLimit: 1000000,
-    }
-
     if (network.name === "hardhat") {
       throw Error(
         'This command cannot be used on a local hardhat chain.  Specify a valid network or simulate an FunctionsConsumer request locally with "npx hardhat functions-simulate".'
       )
-    }
-
-    if (network.name === "goerli") {
-      overrides.maxPriorityFeePerGas = ethers.utils.parseUnits("50", "gwei")
-      overrides.maxFeePerGas = ethers.utils.parseUnits("50", "gwei")
     }
 
     if (taskArgs.gaslimit > 300000) {
@@ -58,7 +48,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     console.log(`\nWaiting 1 block for transaction ${autoClientContract.deployTransaction.hash} to be confirmed...`)
     await autoClientContract.deployTransaction.wait(1)
 
-    await addAutoClientToSubscription(autoClientContract.address, taskArgs.subid)
+    await addClientConsumerToSubscription(taskArgs.subid, autoClientContract.address)
 
     const request = await generateRequest()
 
@@ -69,7 +59,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
       request.args ?? []
     )
 
-    console.log('Setting Functions request')
+    console.log("Setting Functions request")
     const setRequestTx = await autoClientContract.setRequest(functionsRequestBytes)
 
     console.log(
@@ -102,51 +92,6 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
 
     console.log(`\nAutomatedFunctionsConsumer contract deployed to ${autoClientContract.address} on ${network.name}`)
   })
-
-const addAutoClientToSubscription = async (consumer, subscriptionId) => {
-  const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
-  const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsOracleRegistry"])
-
-  // Check that the subscription is valid
-  let preSubInfo
-  try {
-    preSubInfo = await registry.getSubscription(subscriptionId)
-  } catch (error) {
-    if (error.errorName === "InvalidSubscription") {
-      throw Error(`Subscription ID "${subscriptionId}" is invalid or does not exist`)
-    }
-    throw error
-  }
-
-  // Check that the requesting wallet is the owner of the subscription
-  const accounts = await ethers.getSigners()
-  const signer = accounts[0]
-  if (preSubInfo[1] !== signer.address) {
-    throw Error("The current wallet is not the owner of the subscription")
-  }
-
-  // Check that the consumer is not already authorized (for convenience)
-  const existingConsumers = preSubInfo[2].map((addr) => addr.toLowerCase())
-  if (existingConsumers.includes(consumer.toLowerCase())) {
-    throw Error(`Consumer ${consumer} is already authorized to use subscription ${subscriptionId}`)
-  }
-
-  console.log(`Adding consumer contract address ${consumer} to subscription ${subscriptionId}`)
-  const addTx = await registry.addConsumer(subscriptionId, consumer)
-
-  console.log(`Waiting 1 block for transaction ${addTx.hash} to be confirmed...`)
-  await addTx.wait(1)
-  console.log(`\nAdded consumer contract address ${consumer} to subscription ${subscriptionId}`)
-
-  // Print information about the subscription
-  const postSubInfo = await registry.getSubscription(subscriptionId)
-  console.log(
-    `${postSubInfo[2].length} authorized consumer contract${
-      postSubInfo[2].length === 1 ? "" : "s"
-    } for subscription ${subscriptionId}:`
-  )
-  console.log(postSubInfo[2])
-}
 
 const generateRequest = async () => {
   console.log("Simulating Functions request locally...")

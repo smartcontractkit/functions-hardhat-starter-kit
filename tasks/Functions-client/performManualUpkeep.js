@@ -18,11 +18,6 @@ task("functions-perform-upkeep", "Manually call performUpkeep in an Automation c
       )
     }
 
-    if (network.name === "goerli") {
-      overrides.maxPriorityFeePerGas = ethers.utils.parseUnits("50", "gwei")
-      overrides.maxFeePerGas = ethers.utils.parseUnits("50", "gwei")
-    }
-
     const performData = taskArgs.data ?? []
 
     console.log(
