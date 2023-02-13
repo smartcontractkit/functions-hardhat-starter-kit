@@ -85,12 +85,6 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
     setOracle(oracle);
   }
 
-  /**
-   * @notice Allows for simulating fulfillRequest locally with `npx hardhat functions-simulate`
-   *
-   * @param oracleAddress Simulated oracle address
-   * @param requestId Simulated requestId
-   */
   function addSimulatedRequestId(address oracleAddress, bytes32 requestId) public onlyOwner {
     addExternalRequest(oracleAddress, requestId);
   }
