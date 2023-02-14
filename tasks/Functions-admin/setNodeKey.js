@@ -8,7 +8,7 @@ task("functions-set-node-key", "Sets the per-node public key in the Functions or
       throw Error("This command cannot be used on a local development chain.  Specify a valid network.")
     }
 
-    const oracleFactory = await ethers.getContractFactory("FunctionsOracle")
+    const oracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
     const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
 
     const accounts = await ethers.getSigners()

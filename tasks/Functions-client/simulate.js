@@ -207,33 +207,35 @@ const deployMockOracle = async () => {
   const linkTokenFactory = await ethers.getContractFactory("LinkToken")
   const linkToken = await linkTokenFactory.deploy()
   const linkEthFeedAddress = networkConfig["hardhat"]["linkEthPriceFeed"]
-  // Deploy the mock oracle factory contract
-  const oracleFactoryFactory = await ethers.getContractFactory("FunctionsOracleFactory")
-  const oracleFactory = await oracleFactoryFactory.deploy()
-  await oracleFactory.deployTransaction.wait(1)
-  // Deploy the mock oracle contract
-  const accounts = await ethers.getSigners()
-  const deployer = accounts[0]
-  const OracleDeploymentTransaction = await oracleFactory.deployNewOracle()
-  const OracleDeploymentReceipt = await OracleDeploymentTransaction.wait(1)
-  const FunctionsOracleAddress = OracleDeploymentReceipt.events[1].args.don
-  const oracle = await ethers.getContractAt("FunctionsOracle", FunctionsOracleAddress, deployer)
-  // Accept ownership of the mock oracle contract
-  const acceptTx = await oracle.acceptOwnership()
-  await acceptTx.wait(1)
+  // Deploy proxy admin
+  await upgrades.deployProxyAdmin()
+  // Deploy the oracle contract
+  const oracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
+  const oracleProxy = await upgrades.deployProxy(oracleFactory, [], {
+    kind: "transparent",
+  })
+  await oracleProxy.deployTransaction.wait(1)
   // Set the secrets encryption public DON key in the mock oracle contract
   await oracle.setDONPublicKey("0x" + networkConfig["hardhat"]["functionsPublicKey"])
   // Deploy the mock registry billing contract
-  const registryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
-  const registry = await registryFactory.deploy(linkToken.address, linkEthFeedAddress, FunctionsOracleAddress)
+  const registryFactory = await ethers.getContractFactory(
+    "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
+  )
+  const registry = await upgrades.deployProxy(
+    registryFactory,
+    [linkToken.address, linkEthFeedAddress, oracleProxy.address],
+    {
+      kind: "transparent",
+    }
+  )
   await registry.deployTransaction.wait(1)
   // Set registry configuration
   const config = {
-    maxGasLimit: 400_000,
+    maxGasLimit: 300_000,
     stalenessSeconds: 86_400,
-    gasAfterPaymentCalculation: 21_000 + 5_000 + 2_100 + 20_000 + 2 * 2_100 - 15_000 + 7_315,
+    gasAfterPaymentCalculation: 39_173,
     weiPerUnitLink: ethers.BigNumber.from("5000000000000000"),
-    gasOverhead: 100_000,
+    gasOverhead: 519_719,
     requestTimeoutSeconds: 300,
   }
   await registry.setConfig(

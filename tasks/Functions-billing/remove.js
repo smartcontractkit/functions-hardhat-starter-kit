@@ -13,7 +13,9 @@ task("functions-sub-remove", "Removes a client contract from an Functions billin
     const subscriptionId = taskArgs.subid
     const consumer = taskArgs.contract
 
-    const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
+    const RegistryFactory = await ethers.getContractFactory(
+      "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
+    )
     const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsBillingRegistryProxy"])
 
     // Check that the subscription is valid

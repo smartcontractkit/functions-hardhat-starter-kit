@@ -13,11 +13,13 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
     const linkAmount = taskArgs.amount
     const consumer = taskArgs.contract
 
-    const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
+    const RegistryFactory = await ethers.getContractFactory(
+      "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
+    )
     const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsBillingRegistryProxy"])
 
     // TODO: Remove the following 6 lines on open access
-    const Oracle = await ethers.getContractFactory("FunctionsOracle")
+    const Oracle = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
     const oracle = await Oracle.attach(networkConfig[network.name]["functionsOracleProxy"])
     const isWalletAllowed = await oracle.isAuthorizedSender((await ethers.getSigner()).address)
 

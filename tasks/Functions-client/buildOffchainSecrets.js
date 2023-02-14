@@ -80,7 +80,7 @@ task(
         networkConfig[network.name]["functionsOracleProxy"]
       } on network ${network.name}`
     )
-    const OracleFactory = await ethers.getContractFactory("FunctionsOracle")
+    const OracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
     const oracleContract = await OracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
 
     const [nodeAddresses, publicKeys] = await oracleContract.getAllNodePublicKeys()

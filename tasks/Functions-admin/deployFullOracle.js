@@ -15,7 +15,7 @@ task(
   const proxyAdmin = await ethers.getContractAt("ProxyAdmin", proxyAdminAddress, await ethers.getSigner())
 
   let oracleProxy
-  const FunctionsOracle = await ethers.getContractFactory("FunctionsOracle")
+  const FunctionsOracle = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
   console.log("Deploying Functions Oracle Proxy & implementation contract")
   oracleProxy = await upgrades.deployProxy(FunctionsOracle, [], {
     kind: "transparent",
@@ -28,7 +28,10 @@ task(
   )
 
   console.log("Deploying Functions registry", linkEthFeedAddress, linkTokenAddress)
-  const registryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
+
+  const registryFactory = await ethers.getContractFactory(
+    "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
+  )
   const registryProxy = await upgrades.deployProxy(
     registryFactory,
     [linkTokenAddress, linkEthFeedAddress, oracleProxy.address],

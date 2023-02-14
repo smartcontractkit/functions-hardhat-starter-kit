@@ -13,7 +13,7 @@ task("functions-build-request", "Creates a JSON file with Functions request para
       )
     }
 
-    const OracleFactory = await ethers.getContractFactory("FunctionsOracle")
+    const OracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
     const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
 
     console.log("Simulating Functions request locally...")

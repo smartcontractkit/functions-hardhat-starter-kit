@@ -11,7 +11,9 @@ task("functions-sub-fund", "Funds a billing subscription for Functions consumer 
     const subscriptionId = taskArgs.subid
     const linkAmount = taskArgs.amount
 
-    const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
+    const RegistryFactory = await ethers.getContractFactory(
+      "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
+    )
     const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsBillingRegistryProxy"])
 
     // Check that the subscription is valid

@@ -5,7 +5,7 @@ task("functions-set-don-key", "Sets the DON public key in the Functions oracle c
     throw Error("This command cannot be used on a local development chain.  Specify a valid network.")
   }
 
-  const oracleFactory = await ethers.getContractFactory("FunctionsOracle")
+  const oracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
   const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
 
   console.log(`Setting DON public key for oracle ${networkConfig[network.name]["functionsOracleProxy"]}`)

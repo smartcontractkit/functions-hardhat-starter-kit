@@ -17,7 +17,7 @@ task("functions-set-ocr-config", "Sets the OCR config using values from a given 
       throw new Error(error)
     }
 
-    const oracleFactory = await ethers.getContractFactory("FunctionsOracle")
+    const oracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
     const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
 
     console.log(`Setting oracle OCR config for oracle ${networkConfig[network.name]["functionsOracleProxy"]}`)

@@ -11,7 +11,7 @@ async function addOrRemove(action, taskArgs) {
     throw Error("This command cannot be used on a local development chain.  Specify a valid network.")
   }
 
-  const oracleFactory = await ethers.getContractFactory("FunctionsOracle")
+  const oracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
   const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
 
   let addresses
