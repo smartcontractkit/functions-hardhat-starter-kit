@@ -4,9 +4,16 @@ require("dotenv").config()
 const getLinkEthPriceFeed = () => {
   if (process.env.MAINNET_RPC_URL) return "0xdc530d9457755926550b59e8eccdae7624181557"
   if (process.env.POLYGON_MAINNET_RPC_URL) return "0xb77fa460604b9c6435a235d057f7d319ac83cb53"
-  if (process.env.MUMBAI_RPC_URL) return "0x12162c3E810393dEC01362aBf156D7ecf6159528"
-  if (process.env.GOERLI_RPC_URL) return "0xb4c4a493AB6356497713A78FFA6c60FB53517c63"
-  if (process.env.SEPOLIA_RPC_URL) return "0x42585eD362B3f1BCa95c640FdFf35Ef899212734"
+  // Ignore the default example RPC URLs in .env
+  if (process.env.MUMBAI_RPC_URL && process.env.MUMBAI_RPC_URL !== "https://polygon-mumbai.g.alchemy.com/v2/ExampleKey")
+    return "0x12162c3E810393dEC01362aBf156D7ecf6159528"
+  if (process.env.GOERLI_RPC_URL && process.env.GOERLI_RPC_URL !== "https://sepolia.infura.io/v3/ExampleKey")
+    return "0xb4c4a493AB6356497713A78FFA6c60FB53517c63"
+  if (
+    process.env.SEPOLIA_RPC_URL &&
+    process.env.SEPOLIA_RPC_URL !== "https://polygon-mumbai.g.alchemy.com/v2/ExampleKey"
+  )
+    return "0x42585eD362B3f1BCa95c640FdFf35Ef899212734"
 }
 
 const networkConfig = {
