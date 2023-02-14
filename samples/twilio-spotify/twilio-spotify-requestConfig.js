@@ -32,7 +32,7 @@ const requestConfig = {
     // DON level API Keys
     soundchartAppId: process.env.SOUNDCHART_APP_ID,
     soundchartApiKey: process.env.SOUNDCHART_API_KEY,
-    twilioApiKey: "",
+    twilioApiKey: process.env.TWILIO_API_KEY,
   },
   // Per-node offchain secrets objects used by the `functions-build-offchain-secrets` command
   perNodeOffchainSecrets: [
