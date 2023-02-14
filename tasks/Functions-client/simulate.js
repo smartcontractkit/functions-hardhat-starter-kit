@@ -30,8 +30,7 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
     // Deploy a mock oracle & registry contract to simulate a fulfillment
     const { oracle, registry, linkToken } = await deployMockOracle()
     // Deploy the client contract
-    // const clientFactory = await ethers.getContractFactory("FunctionsConsumer")
-    const clientFactory = await ethers.getContractFactory("RecordLabel") // TODO @zubin
+    const clientFactory = await ethers.getContractFactory("FunctionsConsumer")
     const client = await clientFactory.deploy(oracle.address)
     await client.deployTransaction.wait(1)
 
