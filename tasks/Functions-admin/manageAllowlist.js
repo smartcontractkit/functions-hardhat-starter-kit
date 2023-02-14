@@ -132,9 +132,14 @@ const getDataFromAllowlist = (requiredEventCodes, allowlistFileName) => {
       email: columns[2].replace(/\s/g, ''),
       agreedToTOS: columns[3],
       eventCode: columns[4].replace(/\s/g, ''),
-      submittedAt: columns[5],
-      token: columns[6],
-      notes: columns[7],
+      utm_medium: columns[5],
+      utm_source: columns[6],
+      utm_content: columns[7],
+      utm_term: columns[8],
+      utm_campaign: columns[9],
+      submittedAt: columns[10],
+      token: columns[11],
+      notes: columns[12],
     }
     // Maintain a list of all users
     allUsers.push(user)
@@ -201,23 +206,12 @@ const generateUpdatedAllowlistCsv = (updatedOnChainAllowlist, allowlistData) => 
 
   for (let i = 0; i < allowlistData.allUsers.length; i++) {
     if (onChainAllowlistMap[allowlistData.allUsers[i].walletAddress.toLowerCase()]) {
-      allowlistData.allUsers[i].approved = 'TRUE'
+      allowlistData.allUsers[i].approved = 'Yes'
     } else {
-      allowlistData.allUsers[i].approved = 'FALSE'
+      allowlistData.allUsers[i].approved = ''
     }
 
-    const {
-      approved,
-      walletAddress,
-      email,
-      agreedToTOS,
-      eventCode,
-      submittedAt,
-      token,
-      notes
-    } = allowlistData.allUsers[i]
-
-    lines.push(`${approved},${walletAddress},${email},${agreedToTOS},${eventCode},${submittedAt},${token},${notes}`)
+    lines.push(createEntryLine(allowlistData.allUsers[i]))
   }
 
   const updatedCsvText = lines.join('\n')
@@ -226,21 +220,30 @@ const generateUpdatedAllowlistCsv = (updatedOnChainAllowlist, allowlistData) => 
   const invalidLines = [ allowlistData.titles ]
 
   for (const invalidUser of allowlistData.invalidUsers) {
-    const {
-      approved,
-      walletAddress,
-      email,
-      agreedToTOS,
-      eventCode,
-      submittedAt,
-      token,
-      notes
-    } = invalidUser
-    
-    invalidLines.push(`${approved},${walletAddress},${email},${agreedToTOS},${eventCode},${submittedAt},${token},${notes}`)
+    invalidLines.push(createEntryLine(invalidUser))
   }
 
   const invalidCsvText = invalidLines.join('\n')
 
   fs.writeFileSync('./invalidUsers.csv', invalidCsvText)
+}
+
+const createEntryLine = (user) => {
+  const {
+    approved,
+    walletAddress,
+    email,
+    agreedToTOS,
+    eventCode,
+    utm_medium,
+    utm_source,
+    utm_content,
+    utm_term,
+    utm_campaign,
+    submittedAt,
+    token,
+    notes
+  } = user
+
+  return `${approved},${walletAddress},${email},${agreedToTOS},${eventCode},${utm_medium},${utm_source},${utm_content},${utm_term},${utm_campaign},${submittedAt},${token},${notes}`
 }
