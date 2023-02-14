@@ -18,6 +18,7 @@ task("functions-deploy-client", "Deploys the FunctionsConsumer contract")
     await run("compile")
 
     const clientContractFactory = await ethers.getContractFactory("FunctionsConsumer")
+
     const clientContract = await clientContractFactory.deploy(oracleAddress)
 
     console.log(
