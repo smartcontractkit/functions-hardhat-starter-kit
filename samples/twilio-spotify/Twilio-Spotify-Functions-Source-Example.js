@@ -88,10 +88,10 @@ async function sendEmail(latestListenerCount) {
 
   const sendgridURL = "https://api.sendgrid.com/v3/mail/send"
   // Use the verified sender email address
-  const VERIFIED_SENDER = "" // TODO Put your Sendgrid Twilio-verified sender email address here.
+  const VERIFIED_SENDER = "VERIFIED_EMAIL_HERE" // TODO Put your Sendgrid Twilio-verified sender email address here.
   const authHeader = "Bearer " + secrets.twilioApiKey
 
-  if (!VERIFIED_SENDER) throw new Error("VERIFIED_SENDER constant not set")
+  if (!VERIFIED_SENDER || VERIFIED_SENDER ==="VERIFIED_EMAIL_HERE") throw new Error("VERIFIED_SENDER constant not set")
 
   // Structure for POSTING email data to Sendgrid.
   // Reference: https://docs.sendgrid.com/api-reference/mail-send/mail-send
