@@ -9,10 +9,10 @@ task("functions-set-ocr-config", "Sets the OCR config using values from a given 
 
     let ocrConfig
     try {
-      ocrConfig = require("../../FunctionsOracleConfig.json")
+      ocrConfig = require("../../" + taskArgs.configfile)
     } catch (error) {
       console.log(
-        'No Oracle configuration file found. Generate and add "FunctionsOracleConfig.json" to the root of this repository.'
+        `No Oracle configuration file found. Generate and add ${taskArgs.configfile} to the root of this repository.`
       )
       throw new Error(error)
     }
