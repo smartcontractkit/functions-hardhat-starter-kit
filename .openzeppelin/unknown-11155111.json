@@ -1,25 +1,35 @@
 {
   "manifestVersion": "3.2",
   "admin": {
-    "address": "0xd7e7793317e9D6A7769D47934541700434706348",
-    "txHash": "0xae96f206030ffd22a91ddc1d7b933bfbbacd99fb9fde395acd9ccd3dd2c62265"
+    "address": "0x1e531A9635741Ee668114E5EeF039aC086265d5e",
+    "txHash": "0xda64e51dfbd5dfb745349f148c45615dfe43130b3cc3616a78e848b87375964d"
   },
   "proxies": [
     {
-      "address": "0x4376D88149b066aE97bD182cC139E235B755b0cc",
-      "txHash": "0x4010589dba05bce54e3a9e888ef764c54654e926d11b11fe07fc6bedae482460",
+      "address": "0xeA6721aC65BCeD841B8ec3fc5fEdeA6141a0aDE4",
+      "txHash": "0xe606c15a4f7f20fa7938df0859e7af6841405f50cc5717660c0d00b7d805eef9",
       "kind": "transparent"
     },
     {
-      "address": "0x1609Da181EC35E5E66b7E49ab2B03Bc76339890B",
-      "txHash": "0xa0003e63833be0f92c8696d99d830d50618a7398634a9b89ba5942194ab3e6e5",
+      "address": "0xEe9Bf52E5Ea228404bB54BCFbbDa8c21131b9039",
+      "txHash": "0x377395e49adb749fffda2533610a748b88bf9750ee2b2e8982529335b4a157e7",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x649a2C205BE7A3d5e99206CEEFF30c794f0E31EC",
+      "txHash": "0x972d9d580736d5ddf330ef22e3aed29d4569fcb7c708c8db9d32d102cd93e1bd",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x3c79f56407DCB9dc9b852D139a317246f43750Cc",
+      "txHash": "0x8682e9ffa72c87b1f35082372e264bd85611f0d496cff3d56f68af22a4e2453f",
       "kind": "transparent"
     }
   ],
   "impls": {
-    "12ca483ac4f8fa3e28586cc70d2adb060ef3be819aed6447610e32f16af0fc18": {
-      "address": "0x9FDA09e4e270c58dA6D60113c820fdd876e82335",
-      "txHash": "0xfc4625085aa32acf3764defef1ce313da5afce31e31becba01cb4fa703adc6cd",
+    "b181641d2d6ef8096e8a733cdb08cd1a5abf5744b841acd64bca9b1a9e739849": {
+      "address": "0xAc3e75a84F684493d46Aa5Fc0bbdEbC5f9082947",
+      "txHash": "0xfad9b46383b92318f6118bd749be2adcd61c2a1e588527acd1bd2165c939beba",
       "layout": {
         "solcVersion": "0.8.7",
         "storage": [
@@ -68,7 +78,7 @@
             "label": "s_configInfo",
             "offset": 0,
             "slot": "2",
-            "type": "t_struct(ConfigInfo)11975_storage",
+            "type": "t_struct(ConfigInfo)12045_storage",
             "contract": "OCR2BaseUpgradeable",
             "src": "contracts/dev/ocr2/OCR2BaseUpgradeable.sol:41"
           },
@@ -92,7 +102,7 @@
             "label": "s_oracles",
             "offset": 0,
             "slot": "5",
-            "type": "t_mapping(t_address,t_struct(Oracle)11992_storage)",
+            "type": "t_mapping(t_address,t_struct(Oracle)12062_storage)",
             "contract": "OCR2BaseUpgradeable",
             "src": "contracts/dev/ocr2/OCR2BaseUpgradeable.sol:68"
           },
@@ -113,7 +123,7 @@
             "src": "contracts/dev/ocr2/OCR2BaseUpgradeable.sol:76"
           },
           {
-            "label": "_active",
+            "label": "s_active",
             "offset": 0,
             "slot": "8",
             "type": "t_bool",
@@ -124,7 +134,7 @@
             "label": "s_authorizedSenders",
             "offset": 0,
             "slot": "9",
-            "type": "t_struct(AddressSet)14831_storage",
+            "type": "t_struct(AddressSet)14901_storage",
             "contract": "AuthorizedOriginReceiverUpgradeable",
             "src": "contracts/dev/functions/AuthorizedOriginReceiverUpgradeable.sol:25"
           },
@@ -148,7 +158,7 @@
             "label": "s_registry",
             "offset": 0,
             "slot": "13",
-            "type": "t_contract(FunctionsBillingRegistryInterface)10911",
+            "type": "t_contract(FunctionsBillingRegistryInterface)10981",
             "contract": "FunctionsOracle",
             "src": "contracts/dev/functions/FunctionsOracle.sol:40"
           },
@@ -198,11 +208,11 @@
             "label": "bytes",
             "numberOfBytes": "32"
           },
-          "t_contract(FunctionsBillingRegistryInterface)10911": {
+          "t_contract(FunctionsBillingRegistryInterface)10981": {
             "label": "contract FunctionsBillingRegistryInterface",
             "numberOfBytes": "20"
           },
-          "t_enum(Role)11986": {
+          "t_enum(Role)12056": {
             "label": "enum OCR2BaseUpgradeable.Role",
             "members": [
               "Unset",
@@ -215,7 +225,7 @@
             "label": "mapping(address => bytes)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_address,t_struct(Oracle)11992_storage)": {
+          "t_mapping(t_address,t_struct(Oracle)12062_storage)": {
             "label": "mapping(address => struct OCR2BaseUpgradeable.Oracle)",
             "numberOfBytes": "32"
           },
@@ -223,19 +233,19 @@
             "label": "mapping(bytes32 => uint256)",
             "numberOfBytes": "32"
           },
-          "t_struct(AddressSet)14831_storage": {
+          "t_struct(AddressSet)14901_storage": {
             "label": "struct EnumerableSet.AddressSet",
             "members": [
               {
                 "label": "_inner",
-                "type": "t_struct(Set)14516_storage",
+                "type": "t_struct(Set)14586_storage",
                 "offset": 0,
                 "slot": "0"
               }
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(ConfigInfo)11975_storage": {
+          "t_struct(ConfigInfo)12045_storage": {
             "label": "struct OCR2BaseUpgradeable.ConfigInfo",
             "members": [
               {
@@ -259,7 +269,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(Oracle)11992_storage": {
+          "t_struct(Oracle)12062_storage": {
             "label": "struct OCR2BaseUpgradeable.Oracle",
             "members": [
               {
@@ -270,14 +280,14 @@
               },
               {
                 "label": "role",
-                "type": "t_enum(Role)11986",
+                "type": "t_enum(Role)12056",
                 "offset": 1,
                 "slot": "0"
               }
             ],
             "numberOfBytes": "32"
           },
-          "t_struct(Set)14516_storage": {
+          "t_struct(Set)14586_storage": {
             "label": "struct EnumerableSet.Set",
             "members": [
               {
@@ -310,9 +320,9 @@
         }
       }
     },
-    "0f6ac57c2ab830e5cbfb35d0c8822e9407365a7af40b3e59a6456cae78ffdb14": {
-      "address": "0x6a4Ba486D908d7A7866891DA7619B24aA725E3CE",
-      "txHash": "0x079e8efee3ad66f33abfd30322eafb62e2a12c0d7145877c7a45cbb27dab247a",
+    "c589ed83335cc510a3014c2bf177e8a2c5138911af8749fafa8db0e1525384d5": {
+      "address": "0xF09bF312fd559f4bD15c62Aaf213539691719142",
+      "txHash": "0x38217afda3afe2dcc2981e38df6a10a055c352a68594836ac37148db2b2746ef",
       "layout": {
         "solcVersion": "0.8.7",
         "storage": [
@@ -377,7 +387,7 @@
             "label": "s_authorizedSenders",
             "offset": 0,
             "slot": "102",
-            "type": "t_struct(AddressSet)14831_storage",
+            "type": "t_struct(AddressSet)14901_storage",
             "contract": "AuthorizedReceiver",
             "src": "contracts/dev/AuthorizedReceiver.sol:16"
           },
@@ -409,7 +419,7 @@
             "label": "ORACLE_WITH_ALLOWLIST",
             "offset": 0,
             "slot": "107",
-            "type": "t_contract(AuthorizedOriginReceiverInterface)10799",
+            "type": "t_contract(AuthorizedOriginReceiverInterface)10869",
             "contract": "FunctionsBillingRegistry",
             "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:33"
           },
@@ -425,7 +435,7 @@
             "label": "s_subscriptionConfigs",
             "offset": 0,
             "slot": "109",
-            "type": "t_mapping(t_uint64,t_struct(SubscriptionConfig)4957_storage)",
+            "type": "t_mapping(t_uint64,t_struct(SubscriptionConfig)5003_storage)",
             "contract": "FunctionsBillingRegistry",
             "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:72"
           },
@@ -433,7 +443,7 @@
             "label": "s_subscriptions",
             "offset": 0,
             "slot": "110",
-            "type": "t_mapping(t_uint64,t_struct(Subscription)4949_storage)",
+            "type": "t_mapping(t_uint64,t_struct(Subscription)4995_storage)",
             "contract": "FunctionsBillingRegistry",
             "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:74"
           },
@@ -465,7 +475,7 @@
             "label": "s_requestCommitments",
             "offset": 0,
             "slot": "113",
-            "type": "t_mapping(t_bytes32,t_struct(Commitment)5066_storage)",
+            "type": "t_mapping(t_bytes32,t_struct(Commitment)5112_storage)",
             "contract": "FunctionsBillingRegistry",
             "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:111"
           },
@@ -481,7 +491,7 @@
             "label": "s_config",
             "offset": 0,
             "slot": "115",
-            "type": "t_struct(Config)5116_storage",
+            "type": "t_struct(Config)5162_storage",
             "contract": "FunctionsBillingRegistry",
             "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:146"
           },
@@ -491,7 +501,7 @@
             "slot": "118",
             "type": "t_array(t_uint256)49_storage",
             "contract": "FunctionsBillingRegistry",
-            "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:871"
+            "src": "contracts/dev/functions/FunctionsBillingRegistry.sol:877"
           }
         ],
         "types": {
@@ -527,7 +537,7 @@
             "label": "contract AggregatorV3Interface",
             "numberOfBytes": "20"
           },
-          "t_contract(AuthorizedOriginReceiverInterface)10799": {
+          "t_contract(AuthorizedOriginReceiverInterface)10869": {
             "label": "contract AuthorizedOriginReceiverInterface",
             "numberOfBytes": "20"
           },
@@ -547,7 +557,7 @@
             "label": "mapping(address => uint96)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_bytes32,t_struct(Commitment)5066_storage)": {
+          "t_mapping(t_bytes32,t_struct(Commitment)5112_storage)": {
             "label": "mapping(bytes32 => struct FunctionsBillingRegistry.Commitment)",
             "numberOfBytes": "32"
           },
@@ -555,11 +565,11 @@
             "label": "mapping(bytes32 => uint256)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint64,t_struct(Subscription)4949_storage)": {
+          "t_mapping(t_uint64,t_struct(Subscription)4995_storage)": {
             "label": "mapping(uint64 => struct FunctionsBillingRegistry.Subscription)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint64,t_struct(SubscriptionConfig)4957_storage)": {
+          "t_mapping(t_uint64,t_struct(SubscriptionConfig)5003_storage)": {
             "label": "mapping(uint64 => struct FunctionsBillingRegistry.SubscriptionConfig)",
             "numberOfBytes": "32"
           },
@@ -567,19 +577,19 @@
             "label": "mapping(uint64 => uint64)",
             "numberOfBytes": "32"
           },
-          "t_struct(AddressSet)14831_storage": {
+          "t_struct(AddressSet)14901_storage": {
             "label": "struct EnumerableSet.AddressSet",
             "members": [
               {
                 "label": "_inner",
-                "type": "t_struct(Set)14516_storage",
+                "type": "t_struct(Set)14586_storage",
                 "offset": 0,
                 "slot": "0"
               }
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(Commitment)5066_storage": {
+          "t_struct(Commitment)5112_storage": {
             "label": "struct FunctionsBillingRegistry.Commitment",
             "members": [
               {
@@ -639,7 +649,7 @@
             ],
             "numberOfBytes": "160"
           },
-          "t_struct(Config)5116_storage": {
+          "t_struct(Config)5162_storage": {
             "label": "struct FunctionsBillingRegistry.Config",
             "members": [
               {
@@ -681,7 +691,7 @@
             ],
             "numberOfBytes": "96"
           },
-          "t_struct(Set)14516_storage": {
+          "t_struct(Set)14586_storage": {
             "label": "struct EnumerableSet.Set",
             "members": [
               {
@@ -699,7 +709,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(Subscription)4949_storage": {
+          "t_struct(Subscription)4995_storage": {
             "label": "struct FunctionsBillingRegistry.Subscription",
             "members": [
               {
@@ -717,7 +727,7 @@
             ],
             "numberOfBytes": "32"
           },
-          "t_struct(SubscriptionConfig)4957_storage": {
+          "t_struct(SubscriptionConfig)5003_storage": {
             "label": "struct FunctionsBillingRegistry.SubscriptionConfig",
             "members": [
               {
