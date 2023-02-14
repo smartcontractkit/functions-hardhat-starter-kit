@@ -216,19 +216,19 @@ const deployMockOracle = async () => {
   })
   await oracleProxy.deployTransaction.wait(1)
   // Set the secrets encryption public DON key in the mock oracle contract
-  await oracle.setDONPublicKey("0x" + networkConfig["hardhat"]["functionsPublicKey"])
+  await oracleProxy.setDONPublicKey("0x" + networkConfig["hardhat"]["functionsPublicKey"])
   // Deploy the mock registry billing contract
   const registryFactory = await ethers.getContractFactory(
     "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
   )
-  const registry = await upgrades.deployProxy(
+  const registryProxy = await upgrades.deployProxy(
     registryFactory,
     [linkToken.address, linkEthFeedAddress, oracleProxy.address],
     {
       kind: "transparent",
     }
   )
-  await registry.deployTransaction.wait(1)
+  await registryProxy.deployTransaction.wait(1)
   // Set registry configuration
   const config = {
     maxGasLimit: 300_000,
@@ -238,7 +238,7 @@ const deployMockOracle = async () => {
     gasOverhead: 519_719,
     requestTimeoutSeconds: 300,
   }
-  await registry.setConfig(
+  await registryProxy.setConfig(
     config.maxGasLimit,
     config.stalenessSeconds,
     config.gasAfterPaymentCalculation,
@@ -247,7 +247,9 @@ const deployMockOracle = async () => {
     config.requestTimeoutSeconds
   )
   // Set the current account as an authorized sender in the mock registry to allow for simulated local fulfillments
-  await registry.setAuthorizedSenders([oracle.address, deployer.address])
-  await oracle.setRegistry(registry.address)
-  return { oracle, registry, linkToken }
+  const accounts = await ethers.getSigners()
+  const deployer = accounts[0]
+  await registryProxy.setAuthorizedSenders([oracleProxy.address, deployer.address])
+  await oracleProxy.setRegistry(registryProxy.address)
+  return { oracle: oracleProxy, registry: registryProxy, linkToken }
 }
