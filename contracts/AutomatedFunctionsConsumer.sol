@@ -15,17 +15,21 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
   using Functions for Functions.Request;
 
   bytes public requestCBOR;
-  bytes32 public latestRequestId;
-  bytes public latestResponse;
-  bytes public latestError;
   uint64 public subscriptionId;
   uint32 public fulfillGasLimit;
   uint256 public updateInterval;
   uint256 public lastUpkeepTimeStamp;
   uint256 public upkeepCounter;
-  uint256 public responseCounter;
+
+  uint256 public charity1Votes;
+  uint256 public charity2Votes;
+  string public winner;
+  bytes32 public latestRequestId;
+  bytes public latestError;
 
   event OCRResponse(bytes32 indexed requestId, bytes result, bytes err);
+  event VoteCount(uint256 charity1Votes, uint256 charity2Votes);
+  event WinnerDeclared(string winner);
 
   /**
    * @notice Executes once when a contract is created to initialize state variables
@@ -115,8 +119,7 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
     bytes32 requestId = s_oracle.sendRequest(
       subscriptionId,
       requestCBOR,
-      fulfillGasLimit,
-      tx.gasprice
+      fulfillGasLimit
     );
 
     s_pendingRequests[requestId] = s_oracle.getRegistry();
@@ -137,10 +140,28 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
     bytes memory response,
     bytes memory err
   ) internal override {
-    latestResponse = response;
-    latestError = err;
-    responseCounter = responseCounter + 1;
     emit OCRResponse(requestId, response, err);
+
+    (charity1Votes, charity2Votes) = abi.decode(response, (uint256, uint256));
+    latestError = err;
+
+    emit VoteCount(charity1Votes, charity2Votes);
+  }
+  
+  function declareWinner() public onlyOwner {
+    if (charity1Votes == charity2Votes) {
+      winner = 'Charity #1 and #2 tied!';
+    }
+
+    if (charity1Votes > charity2Votes) {
+      winner = 'Charity #1 won!';
+    }
+
+    if (charity1Votes > charity2Votes) {
+      winner = 'Charity #2 won!';
+    }
+
+    emit WinnerDeclared(winner);
   }
 
   /**
