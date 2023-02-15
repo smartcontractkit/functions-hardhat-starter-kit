@@ -214,12 +214,14 @@ URLs which host secrets must be available ever time a request is executed by DON
 > :warning: **Functions is in Beta**: Some of these use cases are solely to educate developers on functionality, current and proposed, in the rollout of Chainlink Functions. While several of these sample apps demonstrate posting data to external APIs, this functionality is under active development and is not yet recommended for production use. 
 
 *Notes to Repo Developers*:
+- Currently, we follow this [workflow for forks & syncing](https://www.atlassian.com/git/tutorials/git-forks-and-upstreams). These instructions use the same terminology from that article regarding "origin" and "upstream" repos. Please add the `upstream` repo as indicated in the article.
 - Please make sure the `main` branch of this repo is synced to `main` of its [upstream repo](https://github.com/smartcontractkit/functions-hardhat-starter-kit) before pulling and adding any code.
 - once you have synced to `main` of upstream, create  a new local branch on your machine with `git checkout -b <<YOUR DEV BRANCH NAME>>`
 - As you develop locally, the `main` branch in the upstream may progress, so make sure you sync this fork via the Github UI and the `git pull` into your `main` branch. To get those changes patched into your dev branch, change to your dev branch and then run `git rebase main`.  This will apply all your changes "on top of" the latest syncs.
-- Ideally do not push your dev branch to this repo until you're ready to submit a PR. Complete your development, and rebase your dev branch onto `main` before you push and request a PR   :warning: **If you have already pushed and have more changes your local branch and the remove will have a "has divered" error.** 
+- Ideally do not push your dev branch to this repo until you're ready to submit a PR. Complete your development, and rebase your dev branch onto `main` before you push and request a PR   :warning: **If you have already pushed and have more changes your local branch and the remove will have a "has diverged" error.** You may need to follow the `git merge` workflow referred to in article mentioned above, to resolve conflicts.
 - All sample app use case code goes into the `/samples`directory. Take a look at `/samples/twilio-spotify` to see how to write a sample app.
 - Please add sample-specific instructions to a separate README inside your sample app directory.  For example `./samples/twilio-spotify/README.md`
+- when submitting a PR for approval :warning: **make sure you set the base repo to this samples repo and NOT the upstream. Make sure you set the base branch as `main`**
 
 ### How to run a sample app
 
