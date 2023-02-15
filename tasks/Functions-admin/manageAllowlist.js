@@ -11,17 +11,8 @@ async function addOrRemove(action, taskArgs) {
     throw Error("This command cannot be used on a local development chain.  Specify a valid network.")
   }
 
-  const overrides = {
-    gasLimit: 1500000,
-  }
-
-  if (network.name === "goerli") {
-    overrides.maxPriorityFeePerGas = ethers.utils.parseUnits("50", "gwei")
-    overrides.maxFeePerGas = ethers.utils.parseUnits("50", "gwei")
-  }
-
-  const oracleFactory = await ethers.getContractFactory("FunctionsOracle")
-  const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracle"])
+  const oracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
+  const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
 
   let addresses
   if (taskArgs.addresses) {
@@ -38,23 +29,21 @@ async function addOrRemove(action, taskArgs) {
   let tx
   if (action == Action.Add) {
     if (!addresses) {
-      console.log(`Adding addresses from allowlist.csv to oracle ${networkConfig[network.name]["functionsOracle"]}`)
-      await addFromAllowlist(taskArgs, oracle, overrides)
+      console.log(
+        `Adding addresses from allowlist.csv to oracle ${networkConfig[network.name]["functionsOracleProxy"]}`
+      )
+      await addFromAllowlist(taskArgs, oracle)
       console.log(`Allowlist updated for oracle ${oracle.address} on ${network.name}`)
       return
     }
-    console.log(`Adding addresses ${addresses} to oracle ${networkConfig[network.name]["functionsOracle"]}`)
-    tx = overrides
-      ? await oracle.addAuthorizedSenders(addresses, overrides)
-      : await oracle.addAuthorizedSenders(addresses)
+    console.log(`Adding addresses ${addresses} to oracle ${networkConfig[network.name]["functionsOracleProxy"]}`)
+    tx = await oracle.addAuthorizedSenders(addresses)
   } else {
     if (!addresses) {
       throw Error("No addresses provided")
     }
-    console.log(`Removing addresses ${addresses} from oracle ${networkConfig[network.name]["functionsOracle"]}`)
-    tx = overrides
-      ? await oracle.removeAuthorizedSenders(addresses, overrides)
-      : await oracle.removeAuthorizedSenders(addresses)
+    console.log(`Removing addresses ${addresses} from oracle ${networkConfig[network.name]["functionsOracleProxy"]}`)
+    tx = await oracle.removeAuthorizedSenders(addresses)
   }
 
   console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${tx.hash} to be confirmed...`)
