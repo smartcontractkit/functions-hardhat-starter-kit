@@ -239,7 +239,7 @@ const generateRequest = async (oracleContract, requestConfig) => {
       requestConfig.secrets = requestConfig.globalOffchainSecrets
     }
     // Get node addresses for off-chain secrets
-    const [ nodeAddresses ] = await oracleContract.getAllNodePublicKeys()
+    const [nodeAddresses] = await oracleContract.getAllNodePublicKeys()
     if (requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0) {
       await verifyOffchainSecrets(requestConfig.secretsURLs, nodeAddresses)
     }
