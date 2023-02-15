@@ -115,7 +115,7 @@ task("functions-request", "Initiates a request from an Functions client contract
     const q2answer = await rl.questionAsync("Continue? (y) Yes / (n) No\n")
     rl.close()
     if (q2answer.toLowerCase() !== "y" && q2answer.toLowerCase() !== "yes") {
-      return
+      process.exit(1)
     }
 
     // Use a promise to wait & listen for the fulfillment event before returning
@@ -259,7 +259,7 @@ const generateRequest = async (oracleContract, requestConfig) => {
     )
     rl.close()
     if (q1answer.toLowerCase() !== "y" && q1answer.toLowerCase() !== "yes") {
-      return
+      process.exit(1)
     }
   }
 

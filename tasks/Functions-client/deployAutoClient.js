@@ -8,7 +8,6 @@ const {
 } = require("../../FunctionsSandboxLibrary")
 const { generateRequest } = require("./request")
 const { addClientConsumerToSubscription } = require("../Functions-billing/add")
-const readline = require("readline-promise").default
 
 task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer contract")
   .addParam("subid", "Billing subscription ID used to pay for Functions requests")
