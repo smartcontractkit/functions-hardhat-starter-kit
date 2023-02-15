@@ -163,5 +163,7 @@ if (secrets.securityToken) {
 const response = await Functions.makeHttpRequest(config)
 
 console.log(response)
+const price = Math.round(response.data[resultPath || ''] * 100)
 
-return Functions.encodeString(response.data[resultPath || ''].toString())
+
+return Functions.encodeUint256(price)
