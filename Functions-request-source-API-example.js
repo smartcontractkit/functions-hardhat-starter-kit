@@ -162,6 +162,4 @@ if (secrets.securityToken) {
 
 const response = await Functions.makeHttpRequest(config)
 
-console.log(response)
-
 return Functions.encodeString(response.data[resultPath || ''].toString())
