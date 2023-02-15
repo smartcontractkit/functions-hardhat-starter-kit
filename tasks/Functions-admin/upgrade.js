@@ -13,14 +13,13 @@ task("functions-upgrade", "Upgrades the implementation of an existing Functions 
 
     let proxyAddress, newImplementationFactory, contractPath
     const { type } = taskArgs
-    if (type === "registry" || type === "Registry" || type === "REGISTRY") {
+    if (type.toLowerCase() === "registry") {
       proxyAddress = networkConfig[network.name]["functionsBillingRegistryProxy"]
-      contractPath =
-        "contracts/dev/functions/migrations/FunctionsBillingRegistryMigration.sol:FunctionsBillingRegistryMigration"
+      contractPath = "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
       newImplementationFactory = await ethers.getContractFactory(contractPath)
-    } else if (type === "oracle" || type === "Oracle" || type === "ORACLE") {
+    } else if (type.toLowerCase() === "oracle") {
       proxyAddress = networkConfig[network.name]["functionsOracleProxy"]
-      contractPath = "contracts/dev/functions/migrations/FunctionsOracleMigration.sol:FunctionsOracleMigration"
+      contractPath = "contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle"
       newImplementationFactory = await ethers.getContractFactory(contractPath)
     } else {
       throw Error("The parameter for '--contract' must be one of: oracle, registry.")
