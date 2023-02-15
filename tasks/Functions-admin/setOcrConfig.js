@@ -7,38 +7,28 @@ task("functions-set-ocr-config", "Sets the OCR config using values from a given 
       throw Error("This command cannot be used on a local development chain.  Specify a valid network.")
     }
 
-    let overrides = undefined
-    if (network.name === "goerli") {
-      overrides = {
-        // be careful, this may drain your balance quickly
-        maxPriorityFeePerGas: ethers.utils.parseUnits("50", "gwei"),
-        maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
-      }
+    let ocrConfig
+    try {
+      ocrConfig = require("../../" + taskArgs.configfile)
+    } catch (error) {
+      console.log(
+        `No Oracle configuration file found. Generate and add ${taskArgs.configfile} to the root of this repository.`
+      )
+      throw new Error(error)
     }
 
-    const oracleFactory = await ethers.getContractFactory("FunctionsOracle")
-    const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracle"])
+    const oracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
+    const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
 
-    const ocrConfig = require("../../" + taskArgs.configfile)
-    console.log(`Setting oracle OCR config for oracle ${networkConfig[network.name]["functionsOracle"]}`)
-    const setConfigTx = overrides
-      ? await oracle.setConfig(
-          ocrConfig.signers,
-          ocrConfig.transmitters,
-          ocrConfig.f,
-          ocrConfig.onchainConfig,
-          ocrConfig.offchainConfigVersion,
-          ocrConfig.offchainConfig,
-          overrides
-        )
-      : await oracle.setConfig(
-          ocrConfig.signers,
-          ocrConfig.transmitters,
-          ocrConfig.f,
-          ocrConfig.onchainConfig,
-          ocrConfig.offchainConfigVersion,
-          ocrConfig.offchainConfig
-        )
+    console.log(`Setting oracle OCR config for oracle ${networkConfig[network.name]["functionsOracleProxy"]}`)
+    const setConfigTx = await oracle.setConfig(
+      ocrConfig.signers,
+      ocrConfig.transmitters,
+      ocrConfig.f,
+      ocrConfig.onchainConfig,
+      ocrConfig.offchainConfigVersion,
+      ocrConfig.offchainConfig
+    )
     console.log(
       `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${setConfigTx.hash} to be confirmed...`
     )

@@ -12,12 +12,18 @@ task("functions-request", "Initiates a request from an Functions client contract
   .addParam("contract", "Address of the client contract to call")
   .addParam("subid", "Billing subscription ID used to pay for the request")
   .addOptionalParam(
+    "simulate",
+    "Flag indicating if simulation should be run before making an on-chain request",
+    true,
+    types.boolean
+  )
+  .addOptionalParam(
     "gaslimit",
     "Maximum amount of gas that can be used to call fulfillRequest in the client contract",
     100000,
     types.int
   )
-  .addOptionalParam("requestgas", "Gas limit for calling the executeRequest function", 1500000, types.int)
+  .addOptionalParam("requestgas", "Gas limit for calling the executeRequest function", 1_500_000, types.int)
   .setAction(async (taskArgs, hre) => {
     // A manual gas limit is required as the gas limit estimated by Ethers is not always accurate
     const overrides = {
@@ -28,11 +34,6 @@ task("functions-request", "Initiates a request from an Functions client contract
       throw Error(
         'This command cannot be used on a local development chain.  Specify a valid network or simulate an Functions request locally with "npx hardhat functions-simulate".'
       )
-    }
-
-    if (network.name === "goerli") {
-      overrides.maxPriorityFeePerGas = ethers.utils.parseUnits("50", "gwei")
-      overrides.maxFeePerGas = ethers.utils.parseUnits("50", "gwei")
     }
 
     // Get the required parameters
@@ -46,13 +47,14 @@ task("functions-request", "Initiates a request from an Functions client contract
     // Attach to the required contracts
     const clientContractFactory = await ethers.getContractFactory("FunctionsConsumer")
     const clientContract = clientContractFactory.attach(contractAddr)
-    const OracleFactory = await ethers.getContractFactory("FunctionsOracle")
-    const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracle"])
+    const OracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
+    const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
     const registryAddress = await oracle.getRegistry()
-    const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
+    const RegistryFactory = await ethers.getContractFactory(
+      "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
+    )
     const registry = await RegistryFactory.attach(registryAddress)
 
-    console.log("Simulating Functions request locally...")
     const unvalidatedRequestConfig = require("../../Functions-request-config.js")
     const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
@@ -76,21 +78,24 @@ task("functions-request", "Initiates a request from an Functions client contract
       }
     }
 
-    const { success, resultLog } = await simulateRequest(requestConfig)
-    console.log(`\n${resultLog}`)
+    if (taskArgs.simulate) {
+      console.log("Simulating Functions request locally...")
+      const { success, resultLog } = await simulateRequest(requestConfig)
+      console.log(`\n${resultLog}`)
 
-    // If the simulated JavaScript source code contains an error, confirm the user still wants to continue
-    if (!success) {
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      })
-      const q1answer = await rl.questionAsync(
-        "There was an error when running the JavaScript source code for the request.\nContinue? (y) Yes / (n) No\n"
-      )
-      rl.close()
-      if (q1answer.toLowerCase() !== "y" && q1answer.toLowerCase() !== "yes") {
-        return
+      // If the simulated JavaScript source code contains an error, confirm the user still wants to continue
+      if (!success) {
+        const rl = readline.createInterface({
+          input: process.stdin,
+          output: process.stdout,
+        })
+        const q1answer = await rl.questionAsync(
+          "There was an error when running the JavaScript source code for the request.\nContinue? (y) Yes / (n) No\n"
+        )
+        rl.close()
+        if (q1answer.toLowerCase() !== "y" && q1answer.toLowerCase() !== "yes") {
+          return
+        }
       }
     }
 

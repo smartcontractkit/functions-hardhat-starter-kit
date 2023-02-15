@@ -37,7 +37,7 @@
 3. Set the required environment variables.
    1. This can be done by renaming the file `.env.example` to `.env` (this renaming is important so that it does not get checked in with git!) and then changing the following values:
       a. `PRIVATE_KEY` for your development wallet.
-      b. One of either `GOERLI_RPC_URL`, `MUMBAI_RPC_URL` or `SEPOLIA_RPC_URL` for the network that you intend to use.
+      b. One of either `MUMBAI_RPC_URL` or `SEPOLIA_RPC_URL` for the network that you intend to use.
    2. If desired, the `REPORT_GAS`, `ETHERSCAN_API_KEY` and `POLYGONSCAN_API_KEY` can also be set in order to verify contracts, along with any values used in the `secrets` object in `Functions-request-config.js`.<br><br>
 4. There are two files to notice that the default example will use:
    a. `contracts/FunctionsConsumer.sol` contains the smart contract that will receive the data.
@@ -95,12 +95,14 @@ Example: `npx hardhat functions-read --network mumbai --contract 0x787Fe00416140
 | `functions-set-node-key`       | Sets the per-node public key in the Functions oracle contract                                                                                        | `network`: Name of blockchain network, `key`: Node-assigned public key (_not_ preceeded with 0x), `node` (optional): Address of the node for which the public key is to be set (defaults to caller's address) |
 
 In order to use an allowlist CSV file to add users to the whitelist:
+
 1. Download the allowlist CSV file and add it to the root of this repository
 2. Rename the file to `allowlist.csv` (or pass the file name for the `--filename` argument in the command below)
 3. Run the command `npx hardhat functions-add-senders --network network_name_here --eventcodes comma-separated_list_of_valid_event_codes_here`
 4. This command will produce the files `updatedAllowlist.csv` and `invalidUsers.csv`.
-  - `updatedAllowlist.csv` will contain the contents of `allowlist.csv`, but will accurately update the `Approved/Added` column as well as add to the `Notes` column if the user was not added and indicate the reason of either invalid address, TOS agreement or event code.
-  - `invalidUsers.csv` will contain any users from `allowlist.csv` who were not added due to invalid address, TOS agreement or event code, with the reason indicated in the `Notes` column.
+
+- `updatedAllowlist.csv` will contain the contents of `allowlist.csv`, but will accurately update the `Approved/Added` column as well as add to the `Notes` column if the user was not added and indicate the reason of either invalid address, TOS agreement or event code.
+- `invalidUsers.csv` will contain any users from `allowlist.csv` who were not added due to invalid address, TOS agreement or event code, with the reason indicated in the `Notes` column.
 
 # Request Configuration
 
@@ -199,4 +201,4 @@ To use per-node assigned secrets, enter a list of secrets objects into `perNodeO
 To generate the encrypted secrets JSON file, run the command `npx hardhat functions-build-offchain-secrets --network network_name_here`. This will output the file `offchain-secrets.json` which can be uploaded to S3, Github, or another hosting service that allows the JSON file to be fetched via URL.
 Once the JSON file is uploaded, set `secretsLocation` to `Location.Remote` in `Functions-request-config.js` and enter the URL(s) where the JSON file is hosted into `secretsURLs`. Multiple URLs can be entered as a fallback in case any of the URLs are offline. Each URL should host the exact same JSON file. The tooling will automatically pack the secrets URL(s) into a space-separated string and encrypt the string using the DON public key so no 3rd party can view the URLs. Finally, this encrypted string of URLs is used in the `secrets` parameter when making an on-chain request.
 
-URLs which host secrets must be available ever time a request is executed by DON nodes. For optimal security, it is recommended to expire the URLs when the off-chain secrets are no longer in use.
+URLs which host secrets must be available every time a request is executed by DON nodes. For optimal security, it is recommended to expire the URLs when the off-chain secrets are no longer in use.
