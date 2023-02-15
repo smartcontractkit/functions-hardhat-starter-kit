@@ -17,9 +17,12 @@ task("functions-request", "Initiates a request from an Functions client contract
     100000,
     types.int
   )
-  .addOptionalParam("requestgas", "Gas limit for calling the executeRequest function", 1500000, types.int)
+  .addOptionalParam("requestgas", "Gas limit for calling the executeRequest function", 1_500_000, types.int)
   .setAction(async (taskArgs, hre) => {
     // A manual gas limit is required as the gas limit estimated by Ethers is not always accurate
+    const overrides = {
+      gasLimit: taskArgs.requestgas,
+    }
 
     if (network.name === "hardhat") {
       throw Error(
@@ -235,7 +238,8 @@ task("functions-request", "Initiates a request from an Functions client contract
         requestConfig.secretsLocation,
         request.args ?? [],
         subscriptionId,
-        gasLimit
+        gasLimit,
+        overrides
       )
       // If a response is not received within 5 minutes, the request has failed
       setTimeout(
