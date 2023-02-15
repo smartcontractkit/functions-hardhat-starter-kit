@@ -134,6 +134,7 @@ const getDataFromAllowlist = (requiredEventCodes, allowlistFileName) => {
       email: columns[2].replace(/\s/g, ""),
       agreedToTOS: columns[3],
       eventCode: columns[4].replace(/\s/g, ""),
+<<<<<<< HEAD
       utm_medium: columns[5],
       utm_source: columns[6],
       utm_content: columns[7],
@@ -142,6 +143,11 @@ const getDataFromAllowlist = (requiredEventCodes, allowlistFileName) => {
       submittedAt: columns[10],
       token: columns[11],
       notes: columns[12],
+=======
+      submittedAt: columns[5],
+      token: columns[6],
+      notes: columns[7],
+>>>>>>> 9e7e712c (Add OpenZeppelin Upgradable (#73))
     }
     // Maintain a list of all users
     allUsers.push(user)
