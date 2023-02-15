@@ -18,18 +18,6 @@ task("functions-request", "Initiates a request from an Functions client contract
     types.boolean
   )
   .addOptionalParam(
-    "simulate",
-    "Flag indicating if simulation should be run before making an on-chain request",
-    true,
-    types.boolean
-  )
-  .addOptionalParam(
-    "simulate",
-    "Flag indicating if simulation should be run before making an on-chain request",
-    true,
-    types.boolean
-  )
-  .addOptionalParam(
     "gaslimit",
     "Maximum amount of gas that can be used to call fulfillRequest in the client contract",
     100000,

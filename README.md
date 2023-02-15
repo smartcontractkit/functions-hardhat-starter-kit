@@ -96,12 +96,14 @@ Example: `npx hardhat functions-read --network mumbai --contract 0x787Fe00416140
 | `functions-set-node-key`       | Sets the per-node public key in the Functions oracle contract                                                                                        | `network`: Name of blockchain network, `key`: Node-assigned public key (_not_ preceeded with 0x), `node` (optional): Address of the node for which the public key is to be set (defaults to caller's address) |
 
 In order to use an allowlist CSV file to add users to the whitelist:
+
 1. Download the allowlist CSV file and add it to the root of this repository
 2. Rename the file to `allowlist.csv` (or pass the file name for the `--filename` argument in the command below)
 3. Run the command `npx hardhat functions-add-senders --network network_name_here --eventcodes comma-separated_list_of_valid_event_codes_here`
 4. This command will produce the files `updatedAllowlist.csv` and `invalidUsers.csv`.
-  - `updatedAllowlist.csv` will contain the contents of `allowlist.csv`, but will accurately update the `Approved/Added` column as well as add to the `Notes` column if the user was not added and indicate the reason of either invalid address, TOS agreement or event code.
-  - `invalidUsers.csv` will contain any users from `allowlist.csv` who were not added due to invalid address, TOS agreement or event code, with the reason indicated in the `Notes` column.
+
+- `updatedAllowlist.csv` will contain the contents of `allowlist.csv`, but will accurately update the `Approved/Added` column as well as add to the `Notes` column if the user was not added and indicate the reason of either invalid address, TOS agreement or event code.
+- `invalidUsers.csv` will contain any users from `allowlist.csv` who were not added due to invalid address, TOS agreement or event code, with the reason indicated in the `Notes` column.
 
 # Request Configuration
 
