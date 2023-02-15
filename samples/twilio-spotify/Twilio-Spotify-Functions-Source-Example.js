@@ -143,11 +143,11 @@ TwiLink Records
   let sendgridResponse
   try {
     sendgridResponse = await Functions.makeHttpRequest(functionsReqData)
-    if (sendgridResponse.error || sendgridResponse.response.data.errors.length > 0) {
+
+    if (sendgridResponse.error) {
       throw new Error("Sendgrid API responded with error: " + JSON.stringify(sendgridResponse.response.data.errors[0]))
     }
 
-    console.log(`\n Email sent to ${artistName}...`)
   } catch (error) {
     console.log("\nFailed when sending email.")
     throw error
