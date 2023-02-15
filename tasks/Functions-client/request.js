@@ -12,6 +12,12 @@ task("functions-request", "Initiates a request from an Functions client contract
   .addParam("contract", "Address of the client contract to call")
   .addParam("subid", "Billing subscription ID used to pay for the request")
   .addOptionalParam(
+    "simulate",
+    "Flag indicating if simulation should be run before making an on-chain request",
+    true,
+    types.boolean
+  )
+  .addOptionalParam(
     "gaslimit",
     "Maximum amount of gas that can be used to call fulfillRequest in the client contract",
     100000,
@@ -49,7 +55,6 @@ task("functions-request", "Initiates a request from an Functions client contract
     )
     const registry = await RegistryFactory.attach(registryAddress)
 
-    console.log("Simulating Functions request locally...")
     const unvalidatedRequestConfig = require("../../Functions-request-config.js")
     const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
@@ -73,21 +78,24 @@ task("functions-request", "Initiates a request from an Functions client contract
       }
     }
 
-    const { success, resultLog } = await simulateRequest(requestConfig)
-    console.log(`\n${resultLog}`)
+    if (taskArgs.simulate) {
+      console.log("Simulating Functions request locally...")
+      const { success, resultLog } = await simulateRequest(requestConfig)
+      console.log(`\n${resultLog}`)
 
-    // If the simulated JavaScript source code contains an error, confirm the user still wants to continue
-    if (!success) {
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      })
-      const q1answer = await rl.questionAsync(
-        "There was an error when running the JavaScript source code for the request.\nContinue? (y) Yes / (n) No\n"
-      )
-      rl.close()
-      if (q1answer.toLowerCase() !== "y" && q1answer.toLowerCase() !== "yes") {
-        return
+      // If the simulated JavaScript source code contains an error, confirm the user still wants to continue
+      if (!success) {
+        const rl = readline.createInterface({
+          input: process.stdin,
+          output: process.stdout,
+        })
+        const q1answer = await rl.questionAsync(
+          "There was an error when running the JavaScript source code for the request.\nContinue? (y) Yes / (n) No\n"
+        )
+        rl.close()
+        if (q1answer.toLowerCase() !== "y" && q1answer.toLowerCase() !== "yes") {
+          return
+        }
       }
     }
 
