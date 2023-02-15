@@ -18,7 +18,7 @@ task("functions-request", "Initiates a request from an Functions client contract
   .setAction(async (taskArgs, hre) => {
     // A manual gas limit is required as the gas limit estimated by Ethers is not always accurate
     const overrides = {
-      gasLimit: 500000,
+      gasLimit: 1500000,
     }
 
     if (network.name === "hardhat") {
