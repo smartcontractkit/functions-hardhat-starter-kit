@@ -52,7 +52,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     await addClientConsumerToSubscription(taskArgs.subid, autoClientContract.address)
 
     const OracleFactory = await ethers.getContractFactory("FunctionsOracle")
-    const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracle"])
+    const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
 
     const unvalidatedRequestConfig = require("../../Functions-request-config.js")
     const requestConfig = getRequestConfig(unvalidatedRequestConfig)
