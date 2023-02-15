@@ -73,7 +73,7 @@ contract RecordLabel is FunctionsClient, ConfirmedOwner {
     if (args.length > 0) req.addArgs(args);
 
     // Update storage variables.
-    bytes32 assignedReqID = sendRequest(req, subscriptionId, gasLimit, tx.gasprice);
+    bytes32 assignedReqID = sendRequest(req, subscriptionId, gasLimit);
     latestRequestId = assignedReqID;
     latestArtistRequestedId = args[0];
 

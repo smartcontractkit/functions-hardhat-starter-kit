@@ -104,3 +104,6 @@ contracts/test/fuzzing/crytic-export
 
 Functions-request.json
 offchain-secrets.json
+
+# OpenZeppelin Upgrades local network artifacts
+.openzeppelin/unknown-31337.json

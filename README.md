@@ -40,7 +40,7 @@
 3. Set the required environment variables.
    1. This can be done by renaming the file `.env.example` to `.env` (this renaming is important so that it does not get checked in with git!) and then changing the following values:
       a. `PRIVATE_KEY` for your development wallet.
-      b. One of either `GOERLI_RPC_URL`, `MUMBAI_RPC_URL` or `SEPOLIA_RPC_URL` for the network that you intend to use.
+      b. One of either `MUMBAI_RPC_URL` or `SEPOLIA_RPC_URL` for the network that you intend to use.
    2. If desired, the `REPORT_GAS`, `ETHERSCAN_API_KEY` and `POLYGONSCAN_API_KEY` can also be set in order to verify contracts, along with any values used in the `secrets` object in `Functions-request-config.js`.<br><br>
 4. There are two files to notice that the default example will use:
    a. `contracts/FunctionsConsumer.sol` contains the smart contract that will receive the data.
@@ -58,7 +58,7 @@ Each of these commands can be executed in the following format.
 
 Be sure to specify the desired network using the `--network` parameter when running these commands (except for `compile` and `functions-simulate`, which only run locally).
 
-Example: `npx hardhat functions-read --network goerli --contract 0x787Fe00416140b37B026f3605c6C72d096110Bb8`
+Example: `npx hardhat functions-read --network sepolia --contract 0x787Fe00416140b37B026f3605c6C72d096110Bb8`
 
 ### Functions Commands
 
@@ -100,12 +100,14 @@ Example: `npx hardhat functions-read --network goerli --contract 0x787Fe00416140
 | `functions-set-node-key`       | Sets the per-node public key in the Functions oracle contract                                                                                        | `key`: Node-assigned public key (_not_ preceeded with 0x), `node` (optional): Address of the node for which the public key is to be set (defaults to caller's address) |
 
 In order to use an allowlist CSV file to add users to the whitelist:
+
 1. Download the allowlist CSV file and add it to the root of this repository
 2. Rename the file to `allowlist.csv` (or pass the file name for the `--filename` argument in the command below)
 3. Run the command `npx hardhat functions-add-senders --network network_name_here --eventcodes comma-separated_list_of_valid_event_codes_here`
 4. This command will produce the files `updatedAllowlist.csv` and `invalidUsers.csv`.
-  - `updatedAllowlist.csv` will contain the contents of `allowlist.csv`, but will accurately update the `Approved/Added` column as well as add to the `Notes` column if the user was not added and indicate the reason of either invalid address, TOS agreement or event code.
-  - `invalidUsers.csv` will contain any users from `allowlist.csv` who were not added due to invalid address, TOS agreement or event code, with the reason indicated in the `Notes` column.
+
+- `updatedAllowlist.csv` will contain the contents of `allowlist.csv`, but will accurately update the `Approved/Added` column as well as add to the `Notes` column if the user was not added and indicate the reason of either invalid address, TOS agreement or event code.
+- `invalidUsers.csv` will contain any users from `allowlist.csv` who were not added due to invalid address, TOS agreement or event code, with the reason indicated in the `Notes` column.
 
 # Request Configuration
 

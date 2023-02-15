@@ -2,77 +2,61 @@ const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../netwo
 
 task(
   "functions-deploy-oracle",
-  "Deploys & configures a new FunctionsBillingRegistry, FunctionsOracleFactory and FunctionsOracle (functions-set-ocr-config must still be run after this command)"
+  "Deploys & configures a new FunctionsBillingRegistry and FunctionsOracle (functions-set-ocr-config must still be run after this command)"
 ).setAction(async () => {
   console.log("\n__Recompiling Contracts__")
   await run("compile")
 
   const linkEthFeedAddress = networkConfig[network.name]["linkEthPriceFeed"]
   const linkTokenAddress = networkConfig[network.name]["linkToken"]
-  let overrides = undefined
-  if (network.name === "goerli") {
-    overrides = {
-      // be careful, this may drain your balance quickly
-      maxPriorityFeePerGas: ethers.utils.parseUnits("50", "gwei"),
-      maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
-    }
-  }
 
-  if (network.name === "mumbai") {
-    overrides = { gasLimit: 5000000 }
-  }
+  const proxyAdminAddress = await upgrades.deployProxyAdmin()
+  console.log(`Proxy Admin contract is deployed at ${proxyAdminAddress} on ${network.name}`)
+  const proxyAdmin = await ethers.getContractAt("ProxyAdmin", proxyAdminAddress, await ethers.getSigner())
 
-  console.log("Deploying Functions oracle factory")
-  const oracleFactoryFactory = await ethers.getContractFactory("FunctionsOracleFactory")
-  const oracleFactory = overrides ? await oracleFactoryFactory.deploy(overrides) : await oracleFactoryFactory.deploy()
-  console.log(`Waiting for transaction ${oracleFactory.deployTransaction.hash} to be confirmed...`)
-  await oracleFactory.deployTransaction.wait(2)
-  console.log(`FunctionsOracleFactory deployed to ${oracleFactory.address} on ${network.name}`)
-
-  console.log("Deploying Functions oracle")
-  const accounts = await ethers.getSigners()
-  const deployer = accounts[0]
-  const OracleDeploymentTransaction = overrides
-    ? await oracleFactory.deployNewOracle(overrides)
-    : await oracleFactory.deployNewOracle()
-  console.log(`Waiting for transaction ${OracleDeploymentTransaction.hash} to be confirmed...`)
-  const OracleDeploymentReceipt = await OracleDeploymentTransaction.wait(1)
-  const FunctionsOracleAddress = OracleDeploymentReceipt.events[1].args.don
-  const oracle = await ethers.getContractAt("FunctionsOracle", FunctionsOracleAddress, deployer)
-  console.log(`FunctionsOracle deployed to ${oracle.address} on ${network.name}`)
+  let oracleProxy
+  const FunctionsOracle = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
+  console.log("Deploying Functions Oracle Proxy & implementation contract")
+  oracleProxy = await upgrades.deployProxy(FunctionsOracle, [], {
+    kind: "transparent",
+  })
+  console.log(`Waiting for the transaction ${oracleProxy.deployTransaction.hash} to be confirmed`)
+  await oracleProxy.deployTransaction.wait(1)
+  const oracleImplementation = await proxyAdmin.getProxyImplementation(oracleProxy.address)
+  console.log(
+    `FunctionsOracle proxy deployed to ${oracleProxy.address} using the implementation at ${oracleImplementation} on ${network.name}`
+  )
 
   console.log("Deploying Functions registry", linkEthFeedAddress, linkTokenAddress)
-  const registryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
-  const registry = overrides
-    ? await registryFactory.deploy(linkTokenAddress, linkEthFeedAddress, oracle.address, overrides)
-    : await registryFactory.deploy(linkTokenAddress, linkEthFeedAddress, oracle.address)
-  console.log(`Waiting for transaction ${registry.deployTransaction.hash} to be confirmed...`)
-  await registry.deployTransaction.wait(1)
-  console.log(`FunctionsBillingRegistry deployed to ${registry.address} on ${network.name}`)
+
+  const registryFactory = await ethers.getContractFactory(
+    "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
+  )
+  const registryProxy = await upgrades.deployProxy(
+    registryFactory,
+    [linkTokenAddress, linkEthFeedAddress, oracleProxy.address],
+    {
+      kind: "transparent",
+    }
+  )
+  console.log(`Waiting for the transaction ${registryProxy.deployTransaction.hash} to be confirmed`)
+  await registryProxy.deployTransaction.wait(1)
+  const registryImplementation = await proxyAdmin.getProxyImplementation(registryProxy.address)
+  console.log(
+    `FunctionsBillingRegistry proxy deployed to ${registryProxy.address} using the implementation at ${registryImplementation} on ${network.name}`
+  )
 
   // Set up Functions Oracle
-  console.log(`Accepting oracle contract ownership`)
-  const acceptTx = overrides ? await oracle.acceptOwnership(overrides) : await oracle.acceptOwnership()
-  console.log(`Waiting for transaction ${acceptTx.hash} to be confirmed...`)
-  await acceptTx.wait(1)
-  console.log("Oracle ownership accepted")
-
   console.log(`Setting DON public key to ${networkConfig[network.name]["functionsPublicKey"]}`)
-  overrides
-    ? await oracle.setDONPublicKey("0x" + networkConfig[network.name]["functionsPublicKey"], overrides)
-    : await oracle.setDONPublicKey("0x" + networkConfig[network.name]["functionsPublicKey"])
+  await oracleProxy.setDONPublicKey("0x" + networkConfig[network.name]["functionsPublicKey"])
   console.log("DON public key set")
 
   console.log("Authorizing oracle with registry")
-  overrides
-    ? await registry.setAuthorizedSenders([oracle.address], overrides)
-    : await registry.setAuthorizedSenders([oracle.address])
+  await registryProxy.setAuthorizedSenders([oracleProxy.address])
   console.log("Oracle authorized with registry")
 
-  console.log(`Setting oracle registry to ${registry.address}`)
-  const setRegistryTx = overrides
-    ? await oracle.setRegistry(registry.address, overrides)
-    : await oracle.setRegistry(registry.address)
+  console.log(`Setting oracle registry to ${registryProxy.address}`)
+  const setRegistryTx = await oracleProxy.setRegistry(registryProxy.address)
   console.log("Oracle registry set")
 
   if (process.env.ETHERSCAN_API_KEY || process.env.POLYGONSCAN_API_KEY) {
@@ -80,33 +64,25 @@ task(
     await setRegistryTx.wait(6)
 
     try {
-      console.log("Verifying registry contract...")
+      console.log("Verifying registry contracts...")
       await run("verify:verify", {
-        address: registry.address,
-        constructorArguments: [linkTokenAddress, linkEthFeedAddress, oracle.address],
+        address: registryProxy.address,
+        contract: "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry",
       })
-      console.log("Billing registry contract verified")
+      console.log("Billing registry contracts verified")
 
-      console.log("Verifying oracle factory contract...")
+      console.log("Verifying oracle contracts...")
       await run("verify:verify", {
-        address: oracleFactory.address,
-        constructorArguments: [],
+        address: oracleProxy.address,
+        contract: "contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle",
       })
-      console.log("Oracle factory contract verified")
-
-      console.log("Verifying oracle contract...")
-      await run("verify:verify", {
-        address: oracle.address,
-        constructorArguments: [],
-      })
-      console.log("Oracle contract verified")
+      console.log("Oracle contracts verified")
     } catch (error) {
       console.log("Error verifying contracts.  Delete the ./build folder and try again.")
       console.log(error)
     }
   }
 
-  console.log(`\nFunctionsBillingRegistry successfully deployed to ${registry.address} on ${network.name}`)
-  console.log(`FunctionsOracleFactory successfully deployed to ${oracleFactory.address} on ${network.name}`)
-  console.log(`FunctionsOracle successfully deployed to ${oracle.address} on ${network.name}`)
+  console.log(`\nFunctionsBillingRegistry successfully deployed to ${registryProxy.address} on ${network.name}`)
+  console.log(`FunctionsOracle successfully deployed to ${oracleProxy.address} on ${network.name}`)
 })
