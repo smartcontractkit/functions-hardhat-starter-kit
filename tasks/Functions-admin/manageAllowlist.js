@@ -11,17 +11,8 @@ async function addOrRemove(action, taskArgs) {
     throw Error("This command cannot be used on a local development chain.  Specify a valid network.")
   }
 
-  const overrides = {
-    gasLimit: 1500000,
-  }
-
-  if (network.name === "goerli") {
-    overrides.maxPriorityFeePerGas = ethers.utils.parseUnits("50", "gwei")
-    overrides.maxFeePerGas = ethers.utils.parseUnits("50", "gwei")
-  }
-
-  const oracleFactory = await ethers.getContractFactory("FunctionsOracle")
-  const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracle"])
+  const oracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
+  const oracle = oracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
 
   let addresses
   if (taskArgs.addresses) {
@@ -38,23 +29,21 @@ async function addOrRemove(action, taskArgs) {
   let tx
   if (action == Action.Add) {
     if (!addresses) {
-      console.log(`Adding addresses from allowlist.csv to oracle ${networkConfig[network.name]["functionsOracle"]}`)
-      await addFromAllowlist(taskArgs, oracle, overrides)
+      console.log(
+        `Adding addresses from allowlist.csv to oracle ${networkConfig[network.name]["functionsOracleProxy"]}`
+      )
+      await addFromAllowlist(taskArgs, oracle)
       console.log(`Allowlist updated for oracle ${oracle.address} on ${network.name}`)
       return
     }
-    console.log(`Adding addresses ${addresses} to oracle ${networkConfig[network.name]["functionsOracle"]}`)
-    tx = overrides
-      ? await oracle.addAuthorizedSenders(addresses, overrides)
-      : await oracle.addAuthorizedSenders(addresses)
+    console.log(`Adding addresses ${addresses} to oracle ${networkConfig[network.name]["functionsOracleProxy"]}`)
+    tx = await oracle.addAuthorizedSenders(addresses)
   } else {
     if (!addresses) {
       throw Error("No addresses provided")
     }
-    console.log(`Removing addresses ${addresses} from oracle ${networkConfig[network.name]["functionsOracle"]}`)
-    tx = overrides
-      ? await oracle.removeAuthorizedSenders(addresses, overrides)
-      : await oracle.removeAuthorizedSenders(addresses)
+    console.log(`Removing addresses ${addresses} from oracle ${networkConfig[network.name]["functionsOracleProxy"]}`)
+    tx = await oracle.removeAuthorizedSenders(addresses)
   }
 
   console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${tx.hash} to be confirmed...`)
@@ -145,6 +134,7 @@ const getDataFromAllowlist = (requiredEventCodes, allowlistFileName) => {
       email: columns[2].replace(/\s/g, ""),
       agreedToTOS: columns[3],
       eventCode: columns[4].replace(/\s/g, ""),
+<<<<<<< HEAD
       utm_medium: columns[5],
       utm_source: columns[6],
       utm_content: columns[7],
@@ -153,6 +143,11 @@ const getDataFromAllowlist = (requiredEventCodes, allowlistFileName) => {
       submittedAt: columns[10],
       token: columns[11],
       notes: columns[12],
+=======
+      submittedAt: columns[5],
+      token: columns[6],
+      notes: columns[7],
+>>>>>>> 9e7e712c (Add OpenZeppelin Upgradable (#73))
     }
     // Maintain a list of all users
     allUsers.push(user)

@@ -23,7 +23,7 @@ task("functions-request", "Initiates a request from an Functions client contract
     100000,
     types.int
   )
-  .addOptionalParam("requestgas", "Gas limit for calling the executeRequest function", 1500000, types.int)
+  .addOptionalParam("requestgas", "Gas limit for calling the executeRequest function", 1_500_000, types.int)
   .setAction(async (taskArgs, hre) => {
     // A manual gas limit is required as the gas limit estimated by Ethers is not always accurate
     const overrides = {
@@ -34,11 +34,6 @@ task("functions-request", "Initiates a request from an Functions client contract
       throw Error(
         'This command cannot be used on a local development chain.  Specify a valid network or simulate an Functions request locally with "npx hardhat functions-simulate".'
       )
-    }
-
-    if (network.name === "goerli") {
-      overrides.maxPriorityFeePerGas = ethers.utils.parseUnits("50", "gwei")
-      overrides.maxFeePerGas = ethers.utils.parseUnits("50", "gwei")
     }
 
     // Get the required parameters
@@ -52,10 +47,12 @@ task("functions-request", "Initiates a request from an Functions client contract
     // Attach to the required contracts
     const clientContractFactory = await ethers.getContractFactory("FunctionsConsumer")
     const clientContract = clientContractFactory.attach(contractAddr)
-    const OracleFactory = await ethers.getContractFactory("FunctionsOracle")
-    const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracle"])
+    const OracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
+    const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
     const registryAddress = await oracle.getRegistry()
-    const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
+    const RegistryFactory = await ethers.getContractFactory(
+      "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
+    )
     const registry = await RegistryFactory.attach(registryAddress)
 
     const unvalidatedRequestConfig = require("../../Functions-request-config.js")

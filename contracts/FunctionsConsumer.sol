@@ -53,7 +53,7 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
     }
     if (args.length > 0) req.addArgs(args);
 
-    bytes32 assignedReqID = sendRequest(req, subscriptionId, gasLimit, tx.gasprice);
+    bytes32 assignedReqID = sendRequest(req, subscriptionId, gasLimit);
     latestRequestId = assignedReqID;
     return assignedReqID;
   }
