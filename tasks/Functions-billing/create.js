@@ -13,12 +13,14 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
     const linkAmount = taskArgs.amount
     const consumer = taskArgs.contract
 
-    const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
-    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsOracleRegistry"])
+    const RegistryFactory = await ethers.getContractFactory(
+      "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
+    )
+    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsBillingRegistryProxy"])
 
     // TODO: Remove the following 6 lines on open access
-    const Oracle = await ethers.getContractFactory("FunctionsOracle")
-    const oracle = await Oracle.attach(networkConfig[network.name]["functionsOracle"])
+    const Oracle = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
+    const oracle = await Oracle.attach(networkConfig[network.name]["functionsOracleProxy"])
     const isWalletAllowed = await oracle.isAuthorizedSender((await ethers.getSigner()).address)
 
     if (!isWalletAllowed)
@@ -62,7 +64,7 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
 
       console.log(`Funding with ${ethers.utils.formatEther(juelsAmount)} LINK`)
       const fundTx = await linkToken.transferAndCall(
-        networkConfig[network.name]["functionsOracleRegistry"],
+        networkConfig[network.name]["functionsBillingRegistryProxy"],
         juelsAmount,
         ethers.utils.defaultAbiCoder.encode(["uint64"], [subscriptionId])
       )
