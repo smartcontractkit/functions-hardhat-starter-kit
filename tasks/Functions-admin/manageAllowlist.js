@@ -66,7 +66,7 @@ task(
     "Comma-separated list of valid event code that must be provided by the user to be added"
   )
   .setAction(async (taskArgs) => {
-      await addOrRemove(Action.Add, taskArgs)
+    await addOrRemove(Action.Add, taskArgs)
   })
 
 task("functions-remove-senders", "Remove wallets from allowlist in the Oracle contract")
@@ -134,7 +134,6 @@ const getDataFromAllowlist = (requiredEventCodes, allowlistFileName) => {
       email: columns[2].replace(/\s/g, ""),
       agreedToTOS: columns[3],
       eventCode: columns[4].replace(/\s/g, ""),
-<<<<<<< HEAD
       utm_medium: columns[5],
       utm_source: columns[6],
       utm_content: columns[7],
@@ -143,11 +142,6 @@ const getDataFromAllowlist = (requiredEventCodes, allowlistFileName) => {
       submittedAt: columns[10],
       token: columns[11],
       notes: columns[12],
-=======
-      submittedAt: columns[5],
-      token: columns[6],
-      notes: columns[7],
->>>>>>> 9e7e712c (Add OpenZeppelin Upgradable (#73))
     }
     // Maintain a list of all users
     allUsers.push(user)
