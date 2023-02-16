@@ -157,7 +157,7 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
       winner = 'Cats won!';
     }
 
-    if (catVotes > dogVotes) {
+    if (catVotes < dogVotes) {
       winner = 'Dogs won!';
     }
 
