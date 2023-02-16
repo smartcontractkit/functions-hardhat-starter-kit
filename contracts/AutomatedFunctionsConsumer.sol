@@ -21,14 +21,14 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
   uint256 public lastUpkeepTimeStamp;
   uint256 public upkeepCounter;
 
-  uint256 public charity1Votes;
-  uint256 public charity2Votes;
+  uint256 public catVotes;
+  uint256 public dogVotes;
   string public winner;
   bytes32 public latestRequestId;
   bytes public latestError;
 
   event OCRResponse(bytes32 indexed requestId, bytes result, bytes err);
-  event VoteCount(uint256 charity1Votes, uint256 charity2Votes);
+  event VoteCount(uint256 catVotes, uint256 dogVotes);
   event WinnerDeclared(string winner);
 
   /**
@@ -142,23 +142,23 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
   ) internal override {
     emit OCRResponse(requestId, response, err);
 
-    (charity1Votes, charity2Votes) = abi.decode(response, (uint256, uint256));
+    (catVotes, dogVotes) = abi.decode(response, (uint256, uint256));
     latestError = err;
 
-    emit VoteCount(charity1Votes, charity2Votes);
+    emit VoteCount(catVotes, dogVotes);
   }
   
   function declareWinner() public onlyOwner {
-    if (charity1Votes == charity2Votes) {
-      winner = 'Charity #1 and #2 tied!';
+    if (catVotes == dogVotes) {
+      winner = 'Dogs & cats are tied!';
     }
 
-    if (charity1Votes > charity2Votes) {
-      winner = 'Charity #1 won!';
+    if (catVotes > dogVotes) {
+      winner = 'Cats won!';
     }
 
-    if (charity1Votes > charity2Votes) {
-      winner = 'Charity #2 won!';
+    if (catVotes > dogVotes) {
+      winner = 'Dogs won!';
     }
 
     emit WinnerDeclared(winner);
