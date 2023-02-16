@@ -21,16 +21,10 @@ if (isNaN(lastListenerCount)) {
 const latestListenerCount = await getLatestMonthlyListenerCount()
 
 if (latestListenerCount > lastListenerCount) {
-  console.log(
-    `\nArist is due payments for an additional ${
-      newListenerCount - lastListenerCount
-    } listeners...`
-  )
+  console.log(`\nArist is due payments for an additional ${newListenerCount - lastListenerCount} listeners...`)
   await sendEmail(newListenerCount)
 } else {
-  console.log(
-    "\nArist is not due additional payments..."
-  )
+  console.log("\nArist is not due additional payments...")
 }
 
 // The source code MUST return a Buffer or the request will return an error message
@@ -40,9 +34,6 @@ if (latestListenerCount > lastListenerCount) {
 // - Functions.encodeString
 // Or return a custom Buffer for a custom byte encoding
 return Functions.encodeUint256(latestListenerCount)
-
-
-
 
 // ====================
 // Helper Functions
@@ -74,7 +65,11 @@ async function getLatestMonthlyListenerCount() {
   }
 
   newListenerCount = soundchartsResponse.data.items[0].value
-  console.log(`\nNew Listener Count: ${newListenerCount}. Last Listener Count: ${lastListenerCount}. Diff: ${newListenerCount - lastListenerCount}.`)
+  console.log(
+    `\nNew Listener Count: ${newListenerCount}. Last Listener Count: ${lastListenerCount}. Diff: ${
+      newListenerCount - lastListenerCount
+    }.`
+  )
 
   return newListenerCount
 }
@@ -82,16 +77,16 @@ async function getLatestMonthlyListenerCount() {
 // Uses Twilio Sendgrid API to send emails.
 // https://sendgrid.com/solutions/email-api
 async function sendEmail(latestListenerCount) {
-  if(!secrets.twilioApiKey) {
+  if (!secrets.twilioApiKey) {
     return
-  };
+  }
 
   const sendgridURL = "https://api.sendgrid.com/v3/mail/send"
   // Use the verified sender email address
   const VERIFIED_SENDER = "VERIFIED_EMAIL_HERE" // TODO Put your Sendgrid Twilio-verified sender email address here.
   const authHeader = "Bearer " + secrets.twilioApiKey
 
-  if (!VERIFIED_SENDER || VERIFIED_SENDER ==="VERIFIED_EMAIL_HERE") throw new Error("VERIFIED_SENDER constant not set")
+  if (!VERIFIED_SENDER || VERIFIED_SENDER === "VERIFIED_EMAIL_HERE") throw new Error("VERIFIED_SENDER constant not set")
 
   // Structure for POSTING email data to Sendgrid.
   // Reference: https://docs.sendgrid.com/api-reference/mail-send/mail-send
@@ -142,12 +137,12 @@ TwiLink Records
 
   let sendgridResponse
   try {
+    console.log("\nSending email...")
     sendgridResponse = await Functions.makeHttpRequest(functionsReqData)
 
     if (sendgridResponse.error) {
       throw new Error("Sendgrid API responded with error: " + JSON.stringify(sendgridResponse.response.data.errors[0]))
     }
-
   } catch (error) {
     console.log("\nFailed when sending email.")
     throw error
