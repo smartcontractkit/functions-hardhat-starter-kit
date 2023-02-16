@@ -8,7 +8,6 @@
 - [Command Glossary](#command-glossary)
     - [Functions Commands](#functions-commands)
     - [Functions Subscription Management Commands](#functions-subscription-management-commands)
-    - [Admin Commands](#admin-commands)
 - [Request Configuration](#request-configuration)
   - [JavaScript Code](#javascript-code)
     - [Functions Library](#functions-library)
@@ -37,12 +36,12 @@
 2. Open this directory in your command line, then run `npm install` to install all dependencies.<br><br>
 3. Set the required environment variables.
    1. This can be done by renaming the file `.env.example` to `.env` (this renaming is important so that it does not get checked in with git!) and then changing the following values:
-      a. `PRIVATE_KEY` for your development wallet.
-      b. One of either `MUMBAI_RPC_URL` or `SEPOLIA_RPC_URL` for the network that you intend to use.
-   2. If desired, the `REPORT_GAS`, `ETHERSCAN_API_KEY` and `POLYGONSCAN_API_KEY` can also be set in order to verify contracts, along with any values used in the `secrets` object in `Functions-request-config.js`.<br><br>
+      - `PRIVATE_KEY` for your development wallet.
+      - One of either `MUMBAI_RPC_URL` or `SEPOLIA_RPC_URL` for the network that you intend to use.
+   2. If desired, the `ETHERSCAN_API_KEY` or `POLYGONSCAN_API_KEY` can also be set in order to verify contracts, along with any values used in the `secrets` object in `Functions-request-config.js`.<br><br>
 4. There are two files to notice that the default example will use:
-   a. `contracts/FunctionsConsumer.sol` contains the smart contract that will receive the data.
-   b. `calculation-example.js` contains JavaScript code that will be executed by each node of the DON.
+   - `contracts/FunctionsConsumer.sol` contains the smart contract that will receive the data.
+   - `calculation-example.js` contains JavaScript code that will be executed by each node of the DON.
 5. Test an end-to-end request and fulfillment to this contract locally by simulating it using:<br>`npx hardhat functions-simulate`<br><br>
 6. Deploy and verify the consuming contract to an actual blockchain network by running:<br>`npx hardhat functions-deploy-client --network network_name_here --verify true`<br>**Note**: Make sure `ETHERSCAN_API_KEY` or `POLYGONSCAN_API_KEY` are set if using `--verify true`, depending on which network is used.<br><br>
 7. Create, fund & authorize a new Functions billing subscription by running:<br> `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0xDeployed_client_contract_address_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command.<br><br>
@@ -82,28 +81,6 @@ Example: `npx hardhat functions-read --network mumbai --contract 0x787Fe00416140
 | `functions-sub-remove`   | Removes a client contract from an Functions billing subscription                                                                   | `network`: Name of blockchain network, `subid`: Subscription ID, `contract`: Address of the client contract to remove from billing subscription                                                                                                        |
 | `functions-sub-transfer` | Request ownership of an Functions subscription be transferred to a new address                                                     | `network`: Name of blockchain network, `subid`: Subscription ID, `newowner`: Address of the new owner                                                                                                                                                  |
 | `functions-sub-accept`   | Accepts ownership of an Functions subscription after a transfer is requested                                                       | `network`: Name of blockchain network, `subid`: Subscription ID                                                                                                                                                                                        |
-
-### Admin Commands
-
-| Command                        | Description                                                                                                                                          | Parameters                                                                                                                                                                                                    |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `functions-deploy-oracle`      | Deploys & configures a new FunctionsRegistry, FunctionsOracleFactory and FunctionsOracle (OCR and Billing configs must be set separately afterwards) | `network`: Name of blockchain network,                                                                                                                                                                        |
-| `functions-set-ocr-config`     | Sets the OCR config using values from FunctionsOracleConfig.json                                                                                     | `network`: Name of blockchain network, `configfile`: JSON file with generated OCR config                                                                                                                      |
-| `functions-set-billing-config` | Sets the OCR config using values from FunctionsOracleConfig.json                                                                                     | `network`: Name of blockchain network, `configfile`: JSON file containing billing config in a 'BillingRegistryConfig' field                                                                                   |
-| `functions-set-don-key`        | Sets the DON public key in the Functions oracle contract using value from network-config.js                                                          | `network`: Name of blockchain network,                                                                                                                                                                        |
-| `functions-add-senders`        | Add wallets to allowlist in the Oracle contract                                                                                                      | `network`: Name of blockchain network, `addresses`: Comma-separated list of addresses                                                                                                                         |
-| `functions-remove-senders`     | Remove wallets from allowlist in the Oracle contract                                                                                                 | `network`: Name of blockchain network, `addresses`: Comma-separated list of addresses                                                                                                                         |
-| `functions-set-node-key`       | Sets the per-node public key in the Functions oracle contract                                                                                        | `network`: Name of blockchain network, `key`: Node-assigned public key (_not_ preceeded with 0x), `node` (optional): Address of the node for which the public key is to be set (defaults to caller's address) |
-
-In order to use an allowlist CSV file to add users to the whitelist:
-
-1. Download the allowlist CSV file and add it to the root of this repository
-2. Rename the file to `allowlist.csv` (or pass the file name for the `--filename` argument in the command below)
-3. Run the command `npx hardhat functions-add-senders --network network_name_here --eventcodes comma-separated_list_of_valid_event_codes_here`
-4. This command will produce the files `updatedAllowlist.csv` and `invalidUsers.csv`.
-
-- `updatedAllowlist.csv` will contain the contents of `allowlist.csv`, but will accurately update the `Approved/Added` column as well as add to the `Notes` column if the user was not added and indicate the reason of either invalid address, TOS agreement or event code.
-- `invalidUsers.csv` will contain any users from `allowlist.csv` who were not added due to invalid address, TOS agreement or event code, with the reason indicated in the `Notes` column.
 
 # Request Configuration
 

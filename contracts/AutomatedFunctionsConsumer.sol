@@ -115,8 +115,7 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
     bytes32 requestId = s_oracle.sendRequest(
       subscriptionId,
       requestCBOR,
-      fulfillGasLimit,
-      tx.gasprice
+      fulfillGasLimit
     );
 
     s_pendingRequests[requestId] = s_oracle.getRegistry();

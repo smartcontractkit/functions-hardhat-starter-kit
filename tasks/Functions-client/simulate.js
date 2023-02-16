@@ -36,9 +36,9 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
 
     const accounts = await ethers.getSigners()
     const deployer = accounts[0]
-    // Add the wallet initiating the request to the oracle whitelist
-    const whitelistTx = await oracle.addAuthorizedSenders([deployer.address])
-    await whitelistTx.wait(1)
+    // Add the wallet initiating the request to the oracle allowlist
+    const allowlistTx = await oracle.addAuthorizedSenders([deployer.address])
+    await allowlistTx.wait(1)
 
     // Create & fund a subscription
     const createSubscriptionTx = await registry.createSubscription()
