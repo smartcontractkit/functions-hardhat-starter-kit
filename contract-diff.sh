@@ -20,4 +20,3 @@ do
 	echo "\n\n######################## DIFF for ${f}"
 	diff ${f} ~/chainlink/contracts/src/v0.8/dev/interfaces/${f}
 done
-

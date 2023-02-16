@@ -1,6 +1,9 @@
 const { getDecodedResultLog } = require("../../FunctionsSandboxLibrary")
 
-task("functions-read", "Reads the latest response returned to a FunctionsConsumer client contract")
+task(
+  "functions-read",
+  "Reads the latest response returned to a FunctionsConsumer or AutomatedFunctionsConsumer client contract"
+)
   .addParam("contract", "Address of the client contract to read")
   .setAction(async (taskArgs) => {
     if (network.name === "hardhat") {

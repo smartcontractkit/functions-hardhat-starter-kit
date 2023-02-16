@@ -28,6 +28,7 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
 
   /**
    * @notice Send a simple request
+   * 
    * @param source JavaScript source code
    * @param secrets Encrypted secrets payload
    * @param args List of arguments accessible from within the source code
@@ -75,6 +76,11 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
     emit OCRResponse(requestId, response, err);
   }
 
+  /**
+   * @notice Allows the Functions oracle address to be updated
+   *
+   * @param oracle New oracle address
+   */
   function updateOracleAddress(address oracle) public onlyOwner {
     setOracle(oracle);
   }
