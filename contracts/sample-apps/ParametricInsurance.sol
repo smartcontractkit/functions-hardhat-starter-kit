@@ -155,11 +155,6 @@ contract ParametricInsurance is FunctionsClient {
     }
 
     /**
-     * @dev Fallback function so contrat can receive ether when required
-     */
-    fallback() external payable {}
-
-        /**
      * @dev Receive function so contrat can receive ether when required
      */
     receive() external payable {}
