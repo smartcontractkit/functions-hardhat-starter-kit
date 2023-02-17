@@ -7,8 +7,6 @@ const getLinkEthPriceFeed = () => {
   // Ignore the default example RPC URLs in .env
   if (process.env.MUMBAI_RPC_URL && process.env.MUMBAI_RPC_URL !== "https://polygon-mumbai.g.alchemy.com/v2/ExampleKey")
     return "0x12162c3E810393dEC01362aBf156D7ecf6159528"
-  if (process.env.GOERLI_RPC_URL && process.env.GOERLI_RPC_URL !== "https://sepolia.infura.io/v3/ExampleKey")
-    return "0xb4c4a493AB6356497713A78FFA6c60FB53517c63"
   if (
     process.env.SEPOLIA_RPC_URL &&
     process.env.SEPOLIA_RPC_URL !== "https://polygon-mumbai.g.alchemy.com/v2/ExampleKey"
