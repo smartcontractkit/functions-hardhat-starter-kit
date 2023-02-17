@@ -48,7 +48,7 @@ await run("verify:verify", {
 ```
 
 4. Update "FunctionConsumer" to "ParametricInsurance" in task files
-When you execute the tasks defined under `./task/Function-client`, all `"FunctionConsumer"` has to be updated to `"ParametricInsurance"`. For example,
+When you execute the tasks defined under `./task/Function-client`(like `./task/Function-client/Function-client/request.js`), all `"FunctionConsumer"` has to be updated to `"ParametricInsurance"`. For example,
 `const clientFactory = await ethers.getContractFactory("FunctionsConsumer")` needs to be updated to `const clientFactory = await ethers.getContractFactory("ParametricInsurance")`.
 
 ## Tips
@@ -56,3 +56,4 @@ The default gaslimit for callback function is 100,000 and it may be insufficient
 ```
 npx hardhat functions-request --network {network name} --contract {your contract addr} --subid {your subid} --gaslimit 300000
 ```
+Want to check if the client paid by the parametric contract? Please transfer some native token on your network to the insurance contract before the number of consecutive days reach 3, and you can check if the token transferred to client address when the number of consucutive days reach 3.
