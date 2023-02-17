@@ -13,8 +13,8 @@ contract ParametricInsurance is FunctionsClient {
     bytes public latestError;
     event OCRResponse(bytes32 indexed requestId, bytes result, bytes err);
 
-    // Number of consecutive days with temperature below threshhold
-    uint256 public constant COLD_DAYS_THRESHHOLD = 3;
+    // Number of consecutive days with temperature below threshold
+    uint256 public constant COLD_DAYS_THRESHOLD = 3;
 
     // Number of seconds in a day. 60 for testing, 86400 for Production
     uint256 public constant DAY_IN_SECONDS = 60; 
@@ -33,7 +33,7 @@ contract ParametricInsurance is FunctionsClient {
     // how many days with cold weather in a row
     uint256 public consecutiveColdDays = 0;
 
-    // the temperature below threshhold is considered as cold(in Fahrenheit)
+    // the temperature below threshold is considered as cold(in Fahrenheit)
     uint256 public coldTemp = 60;
     
     // current temperature for the location
@@ -127,7 +127,7 @@ contract ParametricInsurance is FunctionsClient {
       }
 
       // pay the client and shut down the contract
-      if(consecutiveColdDays >= COLD_DAYS_THRESHHOLD) {
+      if(consecutiveColdDays >= COLD_DAYS_THRESHOLD) {
           payoutContract();
       }
     }
@@ -142,7 +142,7 @@ contract ParametricInsurance is FunctionsClient {
     }
 
     /**
-     * @dev Receive function so contrat can receive ether when required
+     * @dev Receive function so contract can receive ether when required
      */
     receive() external payable {}
 }
