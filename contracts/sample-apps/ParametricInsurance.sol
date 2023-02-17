@@ -69,19 +69,6 @@ contract ParametricInsurance is FunctionsClient {
     }
 
     /**
-     * @dev Prevents a function being run unless it's called by the Insurance Provider
-     */
-    modifier onlyOwner() {
-		require(insurer == msg.sender,'Only Insurance provider can do this');
-        _;
-    }
-
-    // function setClientAddr(address _client) public onlyOwner() {
-    //   client = _client;
-    //   client = 0x0F1aF0A5d727b53dA44bBDE16843B3BA7F98Af68;
-    // }
-
-    /**
      * @notice Send a simple request
      * @param source JavaScript source code
      * @param secrets Encrypted secrets payload
