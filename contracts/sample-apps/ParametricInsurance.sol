@@ -53,10 +53,9 @@ contract ParametricInsurance is FunctionsClient {
 
     /**
      * @dev Prevents a data request to be called unless it's been a day since the last call (to avoid spamming and spoofing results)
-     * apply a tolerance of 2/24 of a day or 2 hours.
      */
     modifier callFrequencyOncePerDay() {
-        require(block.timestamp.sub(currentTempDateChecked) > (DAY_IN_SECONDS.sub(DAY_IN_SECONDS.div(12))),'Can only check temperature once per day');
+        require(block.timestamp.sub(currentTempDateChecked) > DAY_IN_SECONDS,'Can only check temperature once per day');
         _;
     }
 
