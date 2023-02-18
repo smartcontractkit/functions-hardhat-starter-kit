@@ -169,9 +169,10 @@ task("functions-request", "Initiates a request from an Functions client contract
           eventSuccess
         ) => {
           if (requestId == eventRequestId) {
+            const baseFee = eventTotalCost.sub(eventTransmitterPayment)
             // Check for a successful request & log a mesage if the fulfillment was not successful
             console.log(`Transmission cost: ${hre.ethers.utils.formatUnits(eventTransmitterPayment, 18)} LINK`)
-            console.log(`Base fee: ${hre.ethers.utils.formatUnits(eventSignerPayment, 18)} LINK`)
+            console.log(`Base fee: ${hre.ethers.utils.formatUnits(baseFee, 18)} LINK`)
             console.log(`Total cost: ${hre.ethers.utils.formatUnits(eventTotalCost, 18)} LINK\n`)
             if (!eventSuccess) {
               console.log(
