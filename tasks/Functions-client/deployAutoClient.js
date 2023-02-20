@@ -33,8 +33,6 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
 
     console.log(`Deploying AutomatedFunctionsConsumer contract to ${network.name}`)
 
-    const oracleAddress = networkConfig[network.name]["functionsOracleProxy"]
-
     console.log("\n__Compiling Contracts__")
     await run("compile")
 
