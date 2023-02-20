@@ -35,7 +35,6 @@ contract RecordLabel is FunctionsClient, ConfirmedOwner {
   mapping(string => Artist) public artistData; // Mapping that uses the ArtistID as the key.
 
   event OCRResponse(bytes32 indexed requestId, bytes result, bytes err);
-  event ReceivedFunding(uint256 amount);
 
   /**
    * @notice Executes once when a contract is created to initialize state variables

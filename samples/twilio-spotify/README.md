@@ -9,7 +9,7 @@ Chainlink Functions is used to poll the latest monthly streaming numbers for the
 
 If the artist has acquired new streams since last measured, the Chainlink Functions code will use the Twilio-Sendgrid email API to send the artist an email informing them that some payments are coming their way.  The Functions code will also send the latest stream count back to the smart contract so it can be recorded immutably on the blockchain. The returned value is passed through [Chainlink's Off Chain Reporting consensus mechanism](https://docs.chain.link/architecture-overview/off-chain-reporting/) - which the nodes in the [Decentralized Oracle Network](https://chain.link/whitepaper) that are returning this streams data achieve a cryptographically verifiable consensus on that returned data!  
 
-The smart contract can then calculate how much LINK to send to the artist. The record label and the artist have an agreed payment rate:  for example, the artist gets 0.01 LINK tokens for every 1000 additional steams.  This rate is part of the smart contract's code and represents a trust-minimized, verifiable, on-chain record of the agreement. 
+The smart contract can then calculate how much payment to send to the artist (the payment could be in the form of a stablecoin such as USDC). The record label and the artist have an agreed payment rate:  for example, the artist gets 1 USDC for every 10000 additional streams for every 1000 additional steams.  This rate is part of the smart contract's code and represents a trust-minimized, verifiable, on-chain record of the agreement. 
 
 ## Instructions to run this sample
 
