@@ -52,9 +52,9 @@ task("functions-set-auto-request", "Updates the Functions request in deployed Au
 
     console.log("Setting Functions request")
     const setRequestTx = await autoClientContract.setRequest(
-      // taskArgs.subid,
-      // taskArgs.gaslimit,
-      // taskArgs.interval,
+      taskArgs.subid,
+      taskArgs.gaslimit,
+      taskArgs.interval,
       functionsRequestBytes
     )
 
