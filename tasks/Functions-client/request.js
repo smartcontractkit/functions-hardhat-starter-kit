@@ -1,11 +1,6 @@
-const {
-  simulateRequest,
-  buildRequest,
-  getDecodedResultLog,
-  getRequestConfig,
-} = require("../../FunctionsSandboxLibrary")
+const { getDecodedResultLog, getRequestConfig } = require("../../FunctionsSandboxLibrary")
+const { generateRequest } = require("./buildRequestJSON")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
-const { verifyOffchainSecrets } = require("./buildRequestJSON")
 const readline = require("readline-promise").default
 
 task("functions-request", "Initiates a request from an Functions client contract")
@@ -58,7 +53,7 @@ task("functions-request", "Initiates a request from an Functions client contract
     const unvalidatedRequestConfig = require("../../Functions-request-config.js")
     const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
-    const request = await generateRequest(oracle, requestConfig)
+    const request = await generateRequest(requestConfig, taskArgs)
 
     // Check that the subscription is valid
     let subInfo
@@ -221,56 +216,3 @@ task("functions-request", "Initiates a request from an Functions client contract
       console.log(`Waiting for fulfillment...\n`)
     })
   })
-
-const generateRequest = async (oracleContract, requestConfig) => {
-  console.log("Simulating Functions request locally...")
-
-  if (requestConfig.secretsLocation === 1) {
-    requestConfig.secrets = undefined
-    if (!requestConfig.globalOffchainSecrets || Object.keys(requestConfig.globalOffchainSecrets).length === 0) {
-      if (
-        requestConfig.perNodeOffchainSecrets &&
-        requestConfig.perNodeOffchainSecrets[0] &&
-        Object.keys(requestConfig.perNodeOffchainSecrets[0]).length > 0
-      ) {
-        requestConfig.secrets = requestConfig.perNodeOffchainSecrets[0]
-      }
-    } else {
-      requestConfig.secrets = requestConfig.globalOffchainSecrets
-    }
-    // Get node addresses for off-chain secrets
-    const [nodeAddresses] = await oracleContract.getAllNodePublicKeys()
-    if (requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0) {
-      await verifyOffchainSecrets(requestConfig.secretsURLs, nodeAddresses)
-    }
-  }
-
-  const { success, resultLog } = await simulateRequest(requestConfig)
-  console.log(`\n${resultLog}`)
-
-  // If the simulated JavaScript source code contains an error, confirm the user still wants to continue
-  if (!success) {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    })
-    const q1answer = await rl.questionAsync(
-      "There was an error when running the JavaScript source code for the request.\nContinue? (y) Yes / (n) No\n"
-    )
-    rl.close()
-    if (q1answer.toLowerCase() !== "y" && q1answer.toLowerCase() !== "yes") {
-      process.exit(1)
-    }
-  }
-
-  // Fetch the DON public key from on-chain
-  const DONPublicKey = await oracleContract.getDONPublicKey()
-  // Remove the preceding 0x from the DON public key
-  requestConfig.DONPublicKey = DONPublicKey.slice(2)
-  // Build the parameters to make a request from the client contract
-  const request = await buildRequest(requestConfig)
-  request.secretsLocation = requestConfig.secretsLocation
-  return request
-}
-
-module.exports.generateRequest = generateRequest
