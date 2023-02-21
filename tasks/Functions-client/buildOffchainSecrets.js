@@ -54,21 +54,19 @@ task(
     if (requestConfig.perNodeOffchainSecrets && requestConfig.perNodeOffchainSecrets.length > 0) {
       const firstperNodeOffchainSecretsKeys = Object.keys(requestConfig.perNodeOffchainSecrets[0]).sort()
 
-      const firstperNodeOffchainSecretsValues = Object.values(requestConfig.perNodeOffchainSecrets[0])
-
-      if (
-        !firstperNodeOffchainSecretsValues.every((s) => {
-          return typeof s === "string"
-        })
-      ) {
-        throw Error("Only string values are supported in secrets objects.")
-      }
-
       for (const assignedSecrets of requestConfig.perNodeOffchainSecrets) {
         if (typeof assignedSecrets !== "object") {
           throw Error(
             "perNodeOffchainSecrets is not correctly specified in config file.  It must be an array of objects."
           )
+        }
+
+        if (
+          !Object.values(assignedSecrets).every((s) => {
+            return typeof s === "string"
+          })
+        ) {
+          throw Error("Only string values are supported in secrets objects.")
         }
 
         if (Object.keys(assignedSecrets).length === 0) {
