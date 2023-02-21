@@ -93,10 +93,10 @@ const generateRequest = async (requestConfig, taskArgs) => {
 
   if (taskArgs.simulate !== false) {
     console.log("Simulating Functions request locally...")
-    
+
     const { success, resultLog } = await simulateRequest(requestConfig)
     console.log(`\n${resultLog}`)
-  
+
     // If the simulated JavaScript source code contains an error, confirm the user still wants to continue
     if (!success) {
       const rl = readline.createInterface({
