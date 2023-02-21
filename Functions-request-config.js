@@ -33,7 +33,7 @@ const requestConfig = {
   // string containing the source code to be executed
   source: fs.readFileSync("./calculation-example.js").toString(),
   //source: fs.readFileSync('./API-request-example.js').toString(),
-  // secrets can be accessed within the source code with `secrets.varName` (ie: secrets.apiKey)
+  // secrets can be accessed within the source code with `secrets.varName` (ie: secrets.apiKey). The secrets object can only contain string values.
   secrets: { apiKey: process.env.COINMARKETCAP_API_KEY },
   // ETH wallet key used to sign secrets so they cannot be accessed by a 3rd party
   walletPrivateKey: process.env["PRIVATE_KEY"],
