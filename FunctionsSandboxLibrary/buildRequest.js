@@ -6,7 +6,10 @@ const encryptSecrets_1 = require("./encryptSecrets")
 const buildRequest = async (unvalidatedConfig) => {
   const config = (0, getRequestConfig_1.getRequestConfig)(unvalidatedConfig)
   const request = { source: config.source }
-  if (config.secrets) {
+  if (
+    (config.secrets && Object.keys(config.secrets).length > 0) ||
+    (config.secretsURLs && config.secretsURLs.length > 0)
+  ) {
     if (!config.DONPublicKey) {
       throw Error(`DONPublicKey not in config`)
     }
