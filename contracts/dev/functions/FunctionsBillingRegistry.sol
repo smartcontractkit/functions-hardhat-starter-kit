@@ -291,7 +291,7 @@ contract FunctionsBillingRegistry is
     FunctionsBillingRegistryInterface.RequestBilling memory /* billing */
   ) public pure override returns (uint96) {
     // NOTE: Optionally, compute additional fee here
-    return 0;
+    return 200_000_000_000_000_000; // 0.2 LINK
   }
 
   /**
