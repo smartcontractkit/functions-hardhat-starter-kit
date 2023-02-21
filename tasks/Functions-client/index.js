@@ -1,5 +1,4 @@
-exports.readError = require("./read-error.js")
-exports.readData = require("./read-latest.js")
+exports.readResultAndError = require("./readResultAndError.js")
 exports.requestData = require("./request.js")
 exports.simulate = require("./simulate.js")
 exports.deployClient = require("./deployClient.js")

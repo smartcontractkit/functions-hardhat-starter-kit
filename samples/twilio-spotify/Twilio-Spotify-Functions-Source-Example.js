@@ -110,7 +110,7 @@ async function sendEmail(latestListenerCount) {
 You've got ${latestListenerCount} listeners which is ${
           latestListenerCount - lastListenerCount
         } more than when we last checked!
-So you can expect some cool crypto to be sent to your wallet soon!
+So you can expect some a payment to be sent to your wallet soon!
 
 Best,
 TwiLink Records
