@@ -838,40 +838,6 @@ contract FunctionsBillingRegistry is
   }
 
   /**
-   * @notice Gets the latest nonce for a particular consumer contract and subscription
-   * @return Most recent nonce
-   */
-  function getLatestNonce(
-    address consumer,
-    uint64 subscriptionId
-  ) external view onlySubOwner(subscriptionId) returns (uint64) {
-    return s_consumers[consumer][subscriptionId];
-  }
-
-  /**
-   * @notice Checks which requestIds are expired and need to be timed out
-   * @param requestIds Array of requestIds to check
-   * @return Boolean array indicating if the corresponding requestId should be timed out
-   */
-  function checkRequestIdsToTimeout(
-    bytes32[] calldata requestIds
-  ) external view returns (bool[] memory) {
-    bool[] memory requestIdsToTimeout = new bool[](requestIds.length);
-
-    for (uint256 i = 0; i < requestIds.length; i++) {
-      uint256 requestStartTime = s_requestCommitments[requestIds[i]].timestamp;
-      requestIdsToTimeout[i] = (
-        // Checks if the request actually exists
-        requestStartTime > 0 &&
-        // Checks if the request is expired
-        block.timestamp > requestStartTime + s_config.requestTimeoutSeconds
-      );
-    }
-
-    return requestIdsToTimeout;
-  }
-
-  /**
    * @dev The allow list is kept on the Oracle contract. This modifier checks if a user is authorized from there.
    */
   modifier onlyAuthorizedUsers() {
