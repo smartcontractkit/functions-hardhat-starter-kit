@@ -2,10 +2,8 @@
 pragma solidity ^0.8.7;
 
 import "../dev/functions/FunctionsClient.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract ParametricInsurance is FunctionsClient {
-    using SafeMath for uint;
     using Functions for Functions.Request;
 
     bytes32 public latestRequestId;
@@ -55,7 +53,7 @@ contract ParametricInsurance is FunctionsClient {
      * @dev Prevents a data request to be called unless it's been a day since the last call (to avoid spamming and spoofing results)
      */
     modifier callFrequencyOncePerDay() {
-        require(block.timestamp.sub(currentTempDateChecked) > DAY_IN_SECONDS,'Can only check temperature once per day');
+        require((block.timestamp- currentTempDateChecked) > DAY_IN_SECONDS,'Can only check temperature once per day');
         _;
     }
 
@@ -135,9 +133,9 @@ contract ParametricInsurance is FunctionsClient {
      * @dev Insurance conditions have been met, do payout of total cover amount to client
      */
     function payoutContract() onContractActive() internal {
-      payable(client).transfer(address(this).balance);
-      contractActive = false;
-      shouldPayClient = true;
+      (bool sent, /*bytes memory data*/) = client.call{value: address(this).balance}("");
+      contractActive = sent;
+      shouldPayClient = !sent;
     }
 
     /**
