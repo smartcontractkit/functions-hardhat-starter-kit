@@ -32,7 +32,7 @@
 
 ## Steps
 
-1. Clone this repository to your local machine
+1. Clone this repository to your local machine<br><br>
 2. Open this directory in your command line, then run `npm install` to install all dependencies.<br><br>
 3. Set the required environment variables.
    1. This can be done by renaming the file `.env.example` to `.env` (this renaming is important so that it does not get checked in with git!) and then changing the following values:
@@ -41,7 +41,7 @@
    2. If desired, the `ETHERSCAN_API_KEY` or `POLYGONSCAN_API_KEY` can also be set in order to verify contracts, along with any values used in the `secrets` object in `Functions-request-config.js`.<br><br>
 4. There are two files to notice that the default example will use:
    - `contracts/FunctionsConsumer.sol` contains the smart contract that will receive the data.
-   - `calculation-example.js` contains JavaScript code that will be executed by each node of the DON.
+   - `calculation-example.js` contains JavaScript code that will be executed by each node of the DON.<br><br>
 5. Test an end-to-end request and fulfillment to this contract locally by simulating it using:<br>`npx hardhat functions-simulate`<br><br>
 6. Deploy and verify the consuming contract to an actual blockchain network by running:<br>`npx hardhat functions-deploy-client --network network_name_here --verify true`<br>**Note**: Make sure `ETHERSCAN_API_KEY` or `POLYGONSCAN_API_KEY` are set if using `--verify true`, depending on which network is used.<br><br>
 7. Create, fund & authorize a new Functions billing subscription by running:<br> `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0xDeployed_client_contract_address_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command.  Testnet link can be obtained at <a href="https://faucets.chain.link/">faucets.chain.link</a>.<br><br>
