@@ -31,6 +31,16 @@ task(
       throw Error("Neither perNodeOffchainSecrets nor globalSecrets is specified")
     }
 
+    const globalOffchainSecretsObjectValues = Object.values(requestConfig.globalOffchainSecrets)
+
+    if (
+      !globalOffchainSecretsObjectValues.every((s) => {
+        return typeof s === "string"
+      })
+    ) {
+      throw Error("Only string values are supported in secrets objects.")
+    }
+
     const globalOffchainSecretsObjectKeys = requestConfig.globalOffchainSecrets
       ? Object.keys(requestConfig.globalOffchainSecrets).sort()
       : undefined
@@ -49,6 +59,14 @@ task(
           throw Error(
             "perNodeOffchainSecrets is not correctly specified in config file.  It must be an array of objects."
           )
+        }
+
+        if (
+          !Object.values(assignedSecrets).every((s) => {
+            return typeof s === "string"
+          })
+        ) {
+          throw Error("Only string values are supported in secrets objects.")
         }
 
         if (Object.keys(assignedSecrets).length === 0) {

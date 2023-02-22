@@ -1,12 +1,7 @@
 const { types } = require("hardhat/config")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
-const {
-  simulateRequest,
-  buildRequest,
-  getDecodedResultLog,
-  getRequestConfig,
-} = require("../../FunctionsSandboxLibrary")
-const { generateRequest } = require("./request")
+const { getRequestConfig } = require("../../FunctionsSandboxLibrary")
+const { generateRequest } = require("./buildRequestJSON")
 const { addClientConsumerToSubscription } = require("../Functions-billing/add")
 
 task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer contract")
@@ -18,6 +13,12 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     "Maximum amount of gas that can be used to call fulfillRequest in the client contract",
     250000,
     types.int
+  )
+  .addOptionalParam(
+    "simulate",
+    "Flag indicating if simulation should be run before making an on-chain request",
+    true,
+    types.boolean
   )
   .setAction(async (taskArgs) => {
     if (network.name === "hardhat") {
@@ -31,8 +32,6 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     }
 
     console.log(`Deploying AutomatedFunctionsConsumer contract to ${network.name}`)
-
-    const oracleAddress = networkConfig[network.name]["functionsOracleProxy"]
 
     console.log("\n__Compiling Contracts__")
     await run("compile")
@@ -56,7 +55,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     const unvalidatedRequestConfig = require("../../Functions-request-config.js")
     const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
-    const request = await generateRequest(oracle, requestConfig)
+    const request = await generateRequest(requestConfig, taskArgs)
 
     const functionsRequestBytes = await autoClientContract.generateRequest(
       request.source,
