@@ -1,8 +1,7 @@
 const { types } = require("hardhat/config")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
-const { getRequestConfig } = require("../../FunctionsSandboxLibrary")
-const { generateRequest } = require("./buildRequestJSON")
 const { addClientConsumerToSubscription } = require("../Functions-billing/add")
+const { setAutoRequest } = require("./setAutoRequest")
 
 task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer contract")
   .addParam("subid", "Billing subscription ID used to pay for Functions requests")
@@ -38,7 +37,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
 
     const autoClientContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
     const autoClientContract = await autoClientContractFactory.deploy(
-      oracleAddress,
+      networkConfig[network.name]["functionsOracleProxy"],
       taskArgs.subid,
       taskArgs.gaslimit,
       taskArgs.interval
@@ -49,28 +48,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
 
     await addClientConsumerToSubscription(taskArgs.subid, autoClientContract.address)
 
-    const OracleFactory = await ethers.getContractFactory("FunctionsOracle")
-    const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
-
-    const unvalidatedRequestConfig = require("../../Functions-request-config.js")
-    const requestConfig = getRequestConfig(unvalidatedRequestConfig)
-
-    const request = await generateRequest(requestConfig, taskArgs)
-
-    const functionsRequestBytes = await autoClientContract.generateRequest(
-      request.source,
-      request.secrets ?? [],
-      request.secretsLocation,
-      request.args ?? []
-    )
-
-    console.log("Setting Functions request")
-    const setRequestTx = await autoClientContract.setRequest(functionsRequestBytes)
-
-    console.log(
-      `\nWaiting ${VERIFICATION_BLOCK_CONFIRMATIONS} block for transaction ${setRequestTx.hash} to be confirmed...`
-    )
-    await setRequestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+    await setAutoRequest(autoClientContract.address, taskArgs)
 
     const verifyContract = taskArgs.verify
 
@@ -80,7 +58,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
         await autoClientContract.deployTransaction.wait(Math.max(6 - VERIFICATION_BLOCK_CONFIRMATIONS, 0))
         await run("verify:verify", {
           address: autoClientContract.address,
-          constructorArguments: [oracleAddress, taskArgs.subid, taskArgs.gaslimit, taskArgs.interval],
+          constructorArguments: [networkConfig[network.name]["functionsOracleProxy"], taskArgs.subid, taskArgs.gaslimit, taskArgs.interval],
         })
         console.log("Contract verified")
       } catch (error) {
