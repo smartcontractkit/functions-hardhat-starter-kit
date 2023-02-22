@@ -19,6 +19,6 @@ task("functions-timeout-requests", "Times out expired requests")
     await registry.timeoutRequests(taskArgs.requestids)
 
     console.log(
-      `Successfully timed out request ${taskArgs.requestids}`
+      `Requests ${taskArgs.requestids} are no longer pending or have been timed out`
     )
   })
