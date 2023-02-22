@@ -1,5 +1,3 @@
-const { getDecodedResultLog } = require("../../FunctionsSandboxLibrary")
-
 task("functions-check-upkeep", "Checks if checkUpkeep returns true for an Automation compatible contract")
   .addParam("contract", "Address of the contract to check")
   .addOptionalParam(
