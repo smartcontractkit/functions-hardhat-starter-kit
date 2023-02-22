@@ -1,6 +1,6 @@
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 
-task("functions-timeout-requests", "Times out required requests for a given client contract and subscription ID")
+task("functions-timeout-requests", "Times out expired requests for a given client contract and subscription ID")
   .addParam("contract", "Address of the client contract")
   .addParam("subid", "Subscription ID")
   .setAction(async (taskArgs) => {
