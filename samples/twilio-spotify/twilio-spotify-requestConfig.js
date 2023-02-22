@@ -25,7 +25,7 @@ const requestConfig = {
   expectedReturnType: ReturnType.uint256,
   // Redundant URLs which point to encrypted off-chain secrets
   secretsURLs: [ 
-    "https://gist.githubusercontent.com/zeuslawyer/b307549406ad4c72b741efc5b1547332/raw/b977d4a9493faa17e4469cfdb01e260fec9c5df5/POLY",
+    "https://gist.githubusercontent.com/zeuslawyer/b307549406ad4c72b741efc5b1547332/raw/b977d4a9493faa17e4469cfdb01e260fec9c5df5/ETH.txt",
   ],
   // Default offchain secrets object used by the `functions-build-offchain-secrets` command
   globalOffchainSecrets: {
