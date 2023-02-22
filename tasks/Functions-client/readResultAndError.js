@@ -17,13 +17,13 @@ task(
     const clientContract = await clientContractFactory.attach(taskArgs.contract)
 
     let latestError = await clientContract.latestError()
-    if (latestError.length > 0 && latestError !== '0x') {
+    if (latestError.length > 0 && latestError !== "0x") {
       const errorString = Buffer.from(latestError.slice(2), "hex").toString()
       console.log(`\nOn-chain error message: ${Buffer.from(latestError.slice(2), "hex").toString()}`)
     }
 
     let latestResponse = await clientContract.latestResponse()
-    if (latestResponse.length > 0 && latestResponse !== '0x') {
+    if (latestResponse.length > 0 && latestResponse !== "0x") {
       const requestConfig = require("../../Functions-request-config")
       console.log(
         `\nOn-chain response represented as a hex string: ${latestResponse}\n${getDecodedResultLog(

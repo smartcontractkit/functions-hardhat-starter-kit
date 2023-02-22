@@ -36,7 +36,7 @@ const simulateRequest = async (unvalidatedConfig) => {
       exports.getDecodedResultLog)(config, result.success)}`,
     }
   }
-  const { name, message } = result.error
+  const { message } = result.error
   const errorString = `${message}`.slice(0, config.maxResponseBytes)
   return {
     success: false,
