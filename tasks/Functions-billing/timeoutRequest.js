@@ -1,4 +1,4 @@
-const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
+const { networkConfig } = require("../../network-config")
 
 task("functions-timeout-requests", "Times out expired requests")
   .addParam("requestids", "1 or more request IDs to timeout")
