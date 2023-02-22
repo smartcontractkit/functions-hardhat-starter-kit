@@ -134,8 +134,8 @@ contract ParametricInsurance is FunctionsClient {
      */
     function payoutContract() onContractActive() internal {
       (bool sent, /*bytes memory data*/) = client.call{value: address(this).balance}("");
-      contractActive = sent;
-      shouldPayClient = !sent;
+      contractActive = !sent;
+      shouldPayClient = sent;
     }
 
     /**
