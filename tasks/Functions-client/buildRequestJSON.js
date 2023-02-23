@@ -1,6 +1,6 @@
 const { simulateRequest, buildRequest, getRequestConfig } = require("../../FunctionsSandboxLibrary")
 const { networkConfig } = require("../../network-config")
-const readline = require("readline-promise").default
+// const readline = require("readline-promise").default
 const axios = require("axios")
 const fs = require("fs")
 
@@ -98,19 +98,19 @@ const generateRequest = async (requestConfig, taskArgs) => {
     console.log(`\n${resultLog}`)
 
     // If the simulated JavaScript source code contains an error, confirm the user still wants to continue
-    if (!success) {
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      })
-      const q1answer = await rl.questionAsync(
-        "There was an error when running the JavaScript source code for the request.\nContinue? (y) Yes / (n) No\n"
-      )
-      rl.close()
-      if (q1answer.toLowerCase() !== "y" && q1answer.toLowerCase() !== "yes") {
-        process.exit(1)
-      }
-    }
+    // if (!success) {
+    //   const rl = readline.createInterface({
+    //     input: process.stdin,
+    //     output: process.stdout,
+    //   })
+    //   const q1answer = await rl.questionAsync(
+    //     "There was an error when running the JavaScript source code for the request.\nContinue? (y) Yes / (n) No\n"
+    //   )
+    //   rl.close()
+    //   if (q1answer.toLowerCase() !== "y" && q1answer.toLowerCase() !== "yes") {
+    //     process.exit(1)
+    //   }
+    // }
   }
 
   // Fetch the DON public key from on-chain

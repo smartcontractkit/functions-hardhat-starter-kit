@@ -1,7 +1,8 @@
 const { getDecodedResultLog, getRequestConfig } = require("../../FunctionsSandboxLibrary")
 const { generateRequest } = require("./buildRequestJSON")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
-const readline = require("readline-promise").default
+const utils = require("../utils")
+const chalk = require("chalk")
 
 task("functions-request", "Initiates a request from an Functions client contract")
   .addParam("contract", "Address of the client contract to call")
@@ -90,28 +91,36 @@ task("functions-request", "Initiates a request from an Functions client contract
     const linkBalance = subInfo[0]
     if (subInfo[0].lt(estimatedCostJuels)) {
       throw Error(
-        `Subscription ${subscriptionId} does not have sufficient funds. The estimated cost is ${estimatedCostJuels} Juels LINK, but has balance of ${linkBalance}`
+        `Subscription ${subscriptionId} does not have sufficient funds. The estimated cost is ${estimatedCostJuels} Juels LINK, but the subscription only has a balance of ${linkBalance} Juels LINK`
       )
     }
 
-    // Print the estimated cost of the request
-    console.log(
-      `\nIf all ${gasLimit} callback gas is used, this request is estimated to cost ${hre.ethers.utils.formatUnits(
-        estimatedCostJuels,
-        18
-      )} LINK`
+    const transactionEstimateGas = await clientContract.estimateGas.executeRequest(
+      request.source,
+      request.secrets ?? [],
+      requestConfig.secretsLocation,
+      request.args ?? [],
+      subscriptionId,
+      gasLimit,
+      overrides
     )
+
+    await utils.promptTxCost(transactionEstimateGas, hre, true)
+
+    const estimatedCostLink = hre.ethers.utils.formatUnits(estimatedCostJuels, 18)
+    // Print the estimated cost of the request
     // Ask for confirmation before initiating the request on-chain
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
+    await utils.prompt(
+      `If the request's callback uses all ${utils.numberWithCommas(
+        gasLimit
+      )} gas, this request will charge the subscription:\n${chalk.blue(estimatedCostLink + " LINK")}`
+    )
+    //  TODO: add cost of this LINK in USD
+
+    console.log("\n")
+    const spinner = utils.spin({
+      text: `Submitting transaction for FunctionsConsumer contract ${contractAddr} on network ${network.name}`,
     })
-    let cont = false
-    const q2answer = await rl.questionAsync("Continue? (y) Yes / (n) No\n")
-    rl.close()
-    if (q2answer.toLowerCase() !== "y" && q2answer.toLowerCase() !== "yes") {
-      process.exit(1)
-    }
 
     // Use a promise to wait & listen for the fulfillment event before returning
     await new Promise(async (resolve, reject) => {
@@ -121,13 +130,13 @@ task("functions-request", "Initiates a request from an Functions client contract
       // Listen for fulfillment errors
       oracle.on("UserCallbackError", async (eventRequestId, msg) => {
         if (requestId == eventRequestId) {
-          console.log("Error in client contract callback function")
+          spinner.error("Error in client contract callback function")
           console.log(msg)
         }
       })
       oracle.on("UserCallbackRawError", async (eventRequestId, msg) => {
         if (requestId == eventRequestId) {
-          console.log("Raw error in client contract callback function")
+          spinner.error("Raw error in client contract callback function")
           console.log(Buffer.from(msg, "hex").toString())
         }
       })
@@ -140,7 +149,7 @@ task("functions-request", "Initiates a request from an Functions client contract
           return
         }
 
-        console.log(`Request ${requestId} fulfilled!`)
+        spinner.succeed(`Request ${requestId} fulfilled! Data has been written on-chain.\n`)
         if (result !== "0x") {
           console.log(
             `Response returned to client contract represented as a hex string: ${result}\n${getDecodedResultLog(
@@ -154,8 +163,12 @@ task("functions-request", "Initiates a request from an Functions client contract
         }
         ocrResponseEventReceived = true
         if (billingEndEventReceived) {
+          spinner.stop()
           return resolve()
         }
+
+        // Start spinner again if billing contract has emitted
+        spinner.start()
       })
       // Listen for the BillingEnd event, log cost breakdown & resolve
       registry.on(
@@ -170,12 +183,22 @@ task("functions-request", "Initiates a request from an Functions client contract
         ) => {
           if (requestId == eventRequestId) {
             const baseFee = eventTotalCost.sub(eventTransmitterPayment)
+            spinner.stop()
+            console.log(`Actual amount billed to subscription #${subscriptionId}:`)
+            const costBreakdownData = [
+              {
+                Type: "Transmission cost:",
+                Amount: `${hre.ethers.utils.formatUnits(eventTransmitterPayment, 18)} LINK`,
+              },
+              { Type: "Base fee:", Amount: `${hre.ethers.utils.formatUnits(baseFee, 18)} LINK` },
+              { Type: "", Amount: "" },
+              { Type: "Total cost:", Amount: `${hre.ethers.utils.formatUnits(eventTotalCost, 18)} LINK` },
+            ]
+            utils.logger.table(costBreakdownData)
+
             // Check for a successful request & log a mesage if the fulfillment was not successful
-            console.log(`Transmission cost: ${hre.ethers.utils.formatUnits(eventTransmitterPayment, 18)} LINK`)
-            console.log(`Base fee: ${hre.ethers.utils.formatUnits(baseFee, 18)} LINK`)
-            console.log(`Total cost: ${hre.ethers.utils.formatUnits(eventTotalCost, 18)} LINK\n`)
             if (!eventSuccess) {
-              console.log(
+              spinner.error(
                 "Error encountered when calling fulfillRequest in client contract.\n" +
                   "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient."
               )
@@ -183,13 +206,16 @@ task("functions-request", "Initiates a request from an Functions client contract
             }
             billingEndEventReceived = true
             if (ocrResponseEventReceived) {
+              spinner.stop()
               return resolve()
             }
+            // Start spinner again if client contract has not received a response
+            spinner.start()
           }
         }
       )
+
       // Initiate the on-chain request after all listeners are initialized
-      console.log(`\nRequesting new data for FunctionsConsumer contract ${contractAddr} on network ${network.name}`)
       const requestTx = await clientContract.executeRequest(
         request.source,
         request.secrets ?? [],
@@ -199,21 +225,25 @@ task("functions-request", "Initiates a request from an Functions client contract
         gasLimit,
         overrides
       )
-      // If a response is not received within 5 minutes, the request has failed
-      setTimeout(
-        () =>
-          reject(
-            "A response not received within 5 minutes of the request being initiated and has been canceled. Your subscription was not charged. Please make a new request."
-          ),
-        300_000
-      )
-      console.log(
-        `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${requestTx.hash} to be confirmed...`
+
+      // If a response is not received in time, the request has exceeded the Service Level Agreement
+      setTimeout(() => {
+        spinner.error(
+          "A response has not been received within 5 minutes of the request being initiated and has been canceled. Your subscription was not charged. Please make a new request."
+        )
+        reject()
+      }, 300_000) // TODO: use registry timeout seconds
+
+      spinner.text = `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction to be confirmed...`
+      const requestTxReceipt = await requestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+      spinner.info(
+        `Transaction confirmed, see ${
+          utils.getEtherscanURL(network.config.chainId) + "tx/" + requestTx.hash
+        } for more details.\n`
       )
 
-      const requestTxReceipt = await requestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
       requestId = requestTxReceipt.events[2].args.id
-      console.log(`\nRequest ${requestId} initiated`)
-      console.log(`Waiting for fulfillment...\n`)
+      spinner.text = `Request ${requestId} has been initiated. Waiting for fulfillment from the Decentralized Oracle Network...`
+      spinner.start()
     })
   })
