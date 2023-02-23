@@ -7,7 +7,7 @@ const coinPaprikaCoinId = args[2]
 const badApiCoinId = args[3]
 
 if (
-  !secrets.apiKey ||
+  secrets.apiKey == "" ||
   secrets.apiKey === "Your coinmarketcap API key (get a free one: https://coinmarketcap.com/api/)"
 ) {
   throw Error(

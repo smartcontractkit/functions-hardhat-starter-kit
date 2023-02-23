@@ -78,8 +78,14 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
    * @param newRequestCBOR Bytes representing the CBOR-encoded Functions.Request
    */
   function setRequest(
+    uint64 _subscriptionId,
+    uint32 _fulfillGasLimit,
+    uint256 _updateInterval,
     bytes calldata newRequestCBOR
   ) external onlyOwner {
+    updateInterval = _updateInterval;
+    subscriptionId = _subscriptionId;
+    fulfillGasLimit = _fulfillGasLimit;
     requestCBOR = newRequestCBOR;
   }
 
