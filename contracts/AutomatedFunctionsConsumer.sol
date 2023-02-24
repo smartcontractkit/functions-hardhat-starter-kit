@@ -14,6 +14,10 @@ import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, AutomationCompatibleInterface {
   using Functions for Functions.Request;
 
+  uint256 public catVotes;
+  uint256 public dogVotes;
+  string public winner;
+
   bytes public requestCBOR;
   bytes32 public latestRequestId;
   bytes public latestResponse;
@@ -142,10 +146,28 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
     bytes memory response,
     bytes memory err
   ) internal override {
-    latestResponse = response;
-    latestError = err;
-    responseCounter = responseCounter + 1;
     emit OCRResponse(requestId, response, err);
+
+    (catVotes, dogVotes) = abi.decode(response, (uint256, uint256));
+    latestError = err;
+
+    emit VoteCount(catVotes, dogVotes);
+  }
+  
+  function declareWinner() public onlyOwner {
+    if (catVotes == dogVotes) {
+      winner = 'Dogs & cats are tied!';
+    }
+
+    if (catVotes > dogVotes) {
+      winner = 'Cats won!';
+    }
+
+    if (catVotes < dogVotes) {
+      winner = 'Dogs won!';
+    }
+
+    emit WinnerDeclared(winner);
   }
 
   /**
