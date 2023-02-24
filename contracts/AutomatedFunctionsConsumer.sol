@@ -177,6 +177,12 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
     emit WinnerDeclared(charityWinner);
   }
 
+  function reset() public onlyOwner {
+    aggregatedCatVotes = 0;
+    aggregatedDogVotes = 0;
+    charityWinner = 'Cast your vote at https://www.dogorcat.xyz/';
+  }
+
   /**
    * @notice Allows the Functions oracle address to be updated
    *
