@@ -14,9 +14,9 @@ import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, AutomationCompatibleInterface {
   using Functions for Functions.Request;
 
-  uint256 public catVotes;
-  uint256 public dogVotes;
-  string public winner;
+  uint256 public aggregatedCatVotes;
+  uint256 public aggregatedDogVotes;
+  string public charityWinner;
 
   bytes public requestCBOR;
   bytes32 public latestRequestId;
@@ -28,6 +28,9 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
   uint256 public lastUpkeepTimeStamp;
   uint256 public upkeepCounter;
   uint256 public responseCounter;
+
+  event VoteCount(uint256 aggregatedCatVotes, uint256 aggregatedDogVotes);
+  event WinnerDeclared(string charityWinner);
 
   event OCRResponse(bytes32 indexed requestId, bytes result, bytes err);
 
@@ -148,26 +151,30 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
   ) internal override {
     emit OCRResponse(requestId, response, err);
 
-    (catVotes, dogVotes) = abi.decode(response, (uint256, uint256));
+    (
+      aggregatedCatVotes,
+      aggregatedDogVotes
+    ) = abi.decode(response, (uint256, uint256));
+
     latestError = err;
 
-    emit VoteCount(catVotes, dogVotes);
+    emit VoteCount(aggregatedCatVotes, aggregatedDogVotes);
   }
   
   function declareWinner() public onlyOwner {
-    if (catVotes == dogVotes) {
-      winner = 'Dogs & cats are tied!';
+    if (aggregatedCatVotes == aggregatedDogVotes) {
+      charityWinner = 'Dogs & cats are tied!';
     }
 
-    if (catVotes > dogVotes) {
-      winner = 'Cats won!';
+    if (aggregatedCatVotes > aggregatedDogVotes) {
+      charityWinner = 'Cats won!';
     }
 
-    if (catVotes < dogVotes) {
-      winner = 'Dogs won!';
+    if (aggregatedCatVotes < aggregatedDogVotes) {
+      charityWinner = 'Dogs won!';
     }
 
-    emit WinnerDeclared(winner);
+    emit WinnerDeclared(charityWinner);
   }
 
   /**

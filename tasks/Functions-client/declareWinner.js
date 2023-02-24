@@ -14,7 +14,7 @@ task("functions-declare-winner", "Declare the winner of the Google Analytics vot
 
     const declareWinnerTx = await autoClientContract.declareWinner()
 
-    const declareWinnerTxResult = declareWinnerTx.wait(1)
+    const declareWinnerTxResult = await declareWinnerTx.wait(1)
 
-    console.log(declareWinnerTxResult.events[0])
+    console.log(`\n${declareWinnerTxResult.events[0].args.winner}`)
   })
