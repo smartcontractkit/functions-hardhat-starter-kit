@@ -36,15 +36,16 @@ const requestConfig = {
   secrets: {
     key: process.env.GOOGLE_KEY,
     iss: process.env.GOOGLE_ISS,
-    // property1: process.env.GOOGLE_PROPERTY_1,
-    // property2: process.env.GOOGLE_PROPERTY_2,
+    projectId: process.env.GOOGLE_PROJECT_ID,
+    property1: process.env.GOOGLE_PROPERTY_1,
+    property2: process.env.GOOGLE_PROPERTY_2,
   },
   // ETH wallet key used to sign secrets so they cannot be accessed by a 3rd party
   walletPrivateKey: process.env["PRIVATE_KEY"],
   // args (string only array) can be accessed within the source code with `args[index]` (ie: args[0]).
-  args: [],
+  args: [ '2', '24' ],
   // expected type of the returned value
-  expectedReturnType: ReturnType.uint256,
+  expectedReturnType: ReturnType.bytes,
   // Redundant URLs which point to encrypted off-chain secrets
   secretsURLs: [],
   // Default offchain secrets object used by the `functions-build-offchain-secrets` command
