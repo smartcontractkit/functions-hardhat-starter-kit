@@ -45,7 +45,7 @@ const getOauthToken = async (iss, key) => {
 }
 
 const getSQLQuery = (propertyId) => {
-  return `SELECT COUNT(DISTINCT user_pseudo_id) AS votes FROM \`${secrets.projectId}.analytics_${propertyId}.events_intraday_2023${month}${day}\` WHERE event_name = 'page_view' OR event_name = 'user_engagement'`
+  return `SELECT COUNT(DISTINCT user_pseudo_id) AS votes FROM \`${secrets.projectId}.analytics_${propertyId}.events_intraday_*\` WHERE event_name = 'page_view' OR event_name = 'user_engagement'`
 }
 
 const requestConfig = {
