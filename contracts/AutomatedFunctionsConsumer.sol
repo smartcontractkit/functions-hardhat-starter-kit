@@ -31,6 +31,8 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
    * @notice Executes once when a contract is created to initialize state variables
    * 
    * @param oracle The FunctionsOracle contract
+   * @param _subscriptionId The Functions billing subscription ID used to pay for Functions requests
+   * @param _fulfillGasLimit Maximum amount of gas used to call the client contract's `handleOracleFulfillment` function
    * @param _updateInterval Time interval at which Chainlink Automation should call performUpkeep
    */
   constructor(
@@ -74,7 +76,10 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
 
   /**
    * @notice Sets the bytes representing the CBOR-encoded Functions.Request that is sent when performUpkeep is called
-   * 
+
+   * @param _subscriptionId The Functions billing subscription ID used to pay for Functions requests
+   * @param _fulfillGasLimit Maximum amount of gas used to call the client contract's `handleOracleFulfillment` function
+   * @param _updateInterval Time interval at which Chainlink Automation should call performUpkeep
    * @param newRequestCBOR Bytes representing the CBOR-encoded Functions.Request
    */
   function setRequest(
@@ -108,7 +113,7 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
    * @notice Called by Automation to trigger a Functions request
    * 
    * The function's argument is unused in this example, but there is an option to have Automation pass custom data
-   * returned by checkUpkeep
+   * returned by checkUpkeep (See Chainlink Automation documentation)
    */
   function performUpkeep(
     bytes calldata
