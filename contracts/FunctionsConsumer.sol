@@ -31,8 +31,11 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
    * 
    * @param source JavaScript source code
    * @param secrets Encrypted secrets payload
+   * @param secretsLocation Location of encrypted secrets (0 for inline, 1 for remote)
    * @param args List of arguments accessible from within the source code
-   * @param subscriptionId Billing ID
+   * @param subscriptionId Funtions billing subscription ID
+   * @param gasLimit Maximum amount of gas used to call the client contract's `handleOracleFulfillment` function
+   * @return Functions request ID
    */
   function executeRequest(
     string calldata source,
