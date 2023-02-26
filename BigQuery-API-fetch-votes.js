@@ -1,11 +1,6 @@
 const crypto = require('crypto')
 const querystring = require('querystring')
 
-const month = args[0].padStart(2, '0')
-const day = args[1].padStart(2, '0')
-
-console.log(`Using month ${month} and day ${day}\n`)
-
 const getOauthToken = async (iss, key) => {
   // Replace \n character with actual newline character
   const privateKey = key.replace(/\\n/g,'\n')
