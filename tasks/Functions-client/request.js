@@ -3,7 +3,7 @@ const { generateRequest } = require("./buildRequestJSON")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 const readline = require("readline-promise").default
 
-task("functions-request", "Initiates a request from an Functions client contract")
+task("functions-request", "Initiates a request from a Functions client contract")
   .addParam("contract", "Address of the client contract to call")
   .addParam("subid", "Billing subscription ID used to pay for the request")
   .addOptionalParam(

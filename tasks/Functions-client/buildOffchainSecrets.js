@@ -5,7 +5,7 @@ const fs = require("fs")
 
 task(
   "functions-build-offchain-secrets",
-  "Builds an off-chain secrets object for one or many nodes that can be uploaded and referenced via URL"
+  "Builds an off-chain secrets object that can be uploaded and referenced via URL"
 )
   .addOptionalParam("output", "Output file name (defaults to offchain-secrets.json)")
   .setAction(async (taskArgs) => {
