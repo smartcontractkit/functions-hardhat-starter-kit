@@ -107,7 +107,7 @@ Chainlink Functions requests can be configured by modifying values in the `reque
 
 ## JavaScript Code
 
-The JavaScript source code for an Functions request can use vanilla Node.js features, but cannot use any imported modules or `require` statements.
+The JavaScript source code for a Functions request can use vanilla Node.js features, but cannot use any `require` statements or imported modules other than the built-in modules `buffer`, `crypto`, `querystring`, `string_decoder`, `url`, and `util`.
 It must return a JavaScript Buffer which represents the response bytes that are sent back to the requesting contract.
 Encoding functions are provided in the [Functions library](#functions-library).
 Additionally, the script must return in **less than 10 seconds** or it will be terminated and send back an error to the requesting contract.
