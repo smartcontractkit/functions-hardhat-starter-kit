@@ -1,3 +1,4 @@
+// Use subscription ID 145 & interval 10
 const fs = require("fs")
 
 // Loads environment variables from .env file (if it exists)
