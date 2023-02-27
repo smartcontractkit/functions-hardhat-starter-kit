@@ -168,7 +168,7 @@ Remember, it is not required to use these encoding functions.  The JavaScript co
 
 ## Modifying Contracts
 
-Client contracts which initiate a request and receive a fulfillment can be modified for specific use cases. The only requirements are that the contract sucessfully calls *sendRequest* in the *FunctionsOracle* contract and correctly implement their own *handleOracleFulfillment* function.  At this time, the maximum amount of gas that *handleOracleFulfillment* can use is 300,000. See *FunctionsClient.sol* for details.
+Client contracts which initiate a request and receive a fulfillment can be modified for specific use cases. The only requirements are that the contract successfully calls *sendRequest* in the *FunctionsOracle* contract and correctly implements their own *handleOracleFulfillment* function.  At this time, the maximum amount of gas that *handleOracleFulfillment* can use is 300,000. See *FunctionsClient.sol* for details.
 
 ## Simulating Requests
 
