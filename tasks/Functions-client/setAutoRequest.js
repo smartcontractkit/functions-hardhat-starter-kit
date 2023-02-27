@@ -3,7 +3,7 @@ const { VERIFICATION_BLOCK_CONFIRMATIONS } = require("../../network-config")
 const { getRequestConfig } = require("../../FunctionsSandboxLibrary")
 const { generateRequest } = require("./buildRequestJSON")
 
-task("functions-set-auto-request", "Updates the Functions request in deployed AutomatedFunctionsConsumer contract")
+task("functions-set-auto-request", "Updates the Functions request in a deployed AutomatedFunctionsConsumer contract")
   .addParam("contract", "Address of the client contract")
   .addParam("subid", "Billing subscription ID used to pay for Functions requests", undefined, types.int)
   .addOptionalParam("interval", "Update interval in seconds for Automation to call performUpkeep", 300, types.int)
