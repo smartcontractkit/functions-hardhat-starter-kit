@@ -35,15 +35,15 @@
 1. Clone this repository to your local machine<br><br>
 2. Open this directory in your command line, then run `npm install` to install all dependencies.<br><br>
 3. Set the required environment variables.
-   1. This can be done by renaming the file *.env.example* to *.env* (this renaming is important so that it won't get pushed to GitHub) and then changing the following values:
+   1. This can be done by copying the file *.env.example* to a new file named *.env*. (This renaming is important so that it won't be tracked by Git.) Then, change the following values:
       - *PRIVATE_KEY* for your development wallet
       - *MUMBAI_RPC_URL* or *SEPOLIA_RPC_URL* for the network that you intend to use
-   2. If desired, the *ETHERSCAN_API_KEY* or *POLYGONSCAN_API_KEY* can also be set in order to verify contracts, along with any values used in the *secrets* object in *Functions-request-config.js*.<br><br>
+   2. If desired, the *ETHERSCAN_API_KEY* or *POLYGONSCAN_API_KEY* can be set in order to verify contracts, along with any values used in the *secrets* object in *Functions-request-config.js* such as *COINMARKETCAP_API_KEY*.<br><br>
 4. There are two files to notice that the default example will use:
    - *contracts/FunctionsConsumer.sol* contains the smart contract that will receive the data
    - *calculation-example.js* contains JavaScript code that will be executed by each node of the DON<br><br>
 5. Test an end-to-end request and fulfillment locally by simulating it using:<br>`npx hardhat functions-simulate`<br><br>
-6. Deploy and verify the consuming contract to an actual blockchain network by running:<br>`npx hardhat functions-deploy-client --network network_name_here --verify true`<br>**Note**: Make sure *ETHERSCAN_API_KEY* or *POLYGONSCAN_API_KEY* are set if using `--verify true`, depending on which network is used.<br><br>
+6. Deploy and verify the client contract to an actual blockchain network by running:<br>`npx hardhat functions-deploy-client --network network_name_here --verify true`<br>**Note**: Make sure *ETHERSCAN_API_KEY* or *POLYGONSCAN_API_KEY* are set if using `--verify true`, depending on which network is used.<br><br>
 7. Create, fund & authorize a new Functions billing subscription by running:<br> `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0xDeployed_client_contract_address_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command.  Testnet LINK can be obtained at <a href="https://faucets.chain.link/">faucets.chain.link</a>.<br><br>
 8. Make an on-chain request by running:<br>`npx hardhat functions-request --network network_name_here --contract 0xDeployed_client_contract_address_here --subid subscription_id_number_here`
 
@@ -175,7 +175,7 @@ Client contracts which initiate a request and receive a fulfillment can be modif
 An end-to-end request initiation and fulfillment can be simulated for the default *FunctionsConsumer* contract using the `functions-simulate` command. This command will report the total estimated gas use.
 If the *FunctionsConsumer* client contract is modified, this task must also be modified to accomodate the changes. See `tasks/Functions-client/simulate` for details.
 
-**Note:** The actual gas use can vary depending on the amount of data, how much data is stored on-chain and warm or cold storage slots. See the [EVM opcode gas costs](https://ethereum.org/en/developers/docs/evm/opcodes/) for details.
+**Note:** The actual gas use on-chain can vary, so it is recommended to set a higher fulfillment gas limit when making a request to account for any differences.
 
 ## Off-chain Secrets
 
