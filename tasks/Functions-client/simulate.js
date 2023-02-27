@@ -36,7 +36,7 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
 
     const accounts = await ethers.getSigners()
     const deployer = accounts[0]
-    // Add the wallet initiating the request to the oracle allowlist
+    // Add the wallet initiating the request to the oracle allowlist to authorize a simulated fulfillment
     const allowlistTx = await oracle.addAuthorizedSenders([deployer.address])
     await allowlistTx.wait(1)
 
@@ -56,7 +56,7 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
     // Build the parameters to make a request from the client contract
     const requestConfig = require("../../Functions-request-config.js")
     const validatedRequestConfig = getRequestConfig(requestConfig)
-    // Fetch the DON public key from on-chain
+    // Fetch the mock DON public key
     const DONPublicKey = await oracle.getDONPublicKey()
     // Remove the preceding 0x from the DON public key
     requestConfig.DONPublicKey = DONPublicKey.slice(2)
