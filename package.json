@@ -4,11 +4,18 @@
   "version": "0.1.0",
   "description": "Tooling for interacting with Chainlink Functions",
   "scripts": {
+    "prepare": "husky install",
     "compile": "hardhat compile",
+    "test": "npm run test:unit",
+    "test:unit": "hardhat test test/unit/*.spec.js",
     "functions-simulate-javascript": "node scripts/simulateFunctionsJavaScript.js",
     "functions-gen-keys": "node scripts/generateKeypair.js",
-    "lint": "solhint 'contracts/*.sol'",
-    "lint:fix": "solhint 'contracts/**/*.sol' --fix"
+    "lint": "npm run lint:contracts && npm run format:check",
+    "lint:fix": "solhint 'contracts/**/*.sol' --fix",
+    "lint:contracts": "solhint 'contracts/*.sol'",
+    "lint:contracts:fix": "solhint 'contracts/**/*.sol' --fix",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write ."
   },
   "devDependencies": {
     "@chainlink/contracts": "0.5.1",

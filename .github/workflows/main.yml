@@ -1,0 +1,28 @@
+name: Test & build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: ~
+
+concurrency:
+  group: main-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run-unit-tests:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup
+      - run: npm run test:unit
+
+  run-basic-checks:
+    name: Run linters
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup
+      - run: npm run lint
