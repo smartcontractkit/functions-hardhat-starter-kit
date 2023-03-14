@@ -2,7 +2,7 @@ const { types } = require("hardhat/config")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 
 task("functions-deploy-client", "Deploys the FunctionsConsumer contract")
-  .addOptionalParam("verify", "Set to true to verify your client contract", false, types.boolean)
+  .addOptionalParam("verify", "Set to true to verify client contract", false, types.boolean)
   .setAction(async (taskArgs) => {
     if (network.name === "hardhat") {
       throw Error(
@@ -12,7 +12,7 @@ task("functions-deploy-client", "Deploys the FunctionsConsumer contract")
 
     console.log(`Deploying FunctionsConsumer contract to ${network.name}`)
 
-    const oracleAddress = networkConfig[network.name]["functionsOracle"]
+    const oracleAddress = networkConfig[network.name]["functionsOracleProxy"]
 
     console.log("\n__Compiling Contracts__")
     await run("compile")

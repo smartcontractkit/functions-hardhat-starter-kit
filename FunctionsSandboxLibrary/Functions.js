@@ -75,11 +75,7 @@ class FunctionsModule {
             const redactedQuery = {
               url: this.secretsRedactor(url),
               method,
-              params: this.secretsRedactor(params),
-              headers: this.secretsRedactor(headers),
-              data: this.secretsRedactor(data),
               timeout,
-              responseType,
               success,
             }
             Log_1.Log.trace(`HTTP Query: ${JSON.stringify(redactedQuery)}`, this.requestId)

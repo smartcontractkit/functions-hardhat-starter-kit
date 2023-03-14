@@ -1,24 +1,28 @@
-const {
-  simulateRequest,
-  buildRequest,
-  getDecodedResultLog,
-  getRequestConfig,
-} = require("../../FunctionsSandboxLibrary")
+const { getDecodedResultLog, getRequestConfig } = require("../../FunctionsSandboxLibrary")
+const { generateRequest } = require("./buildRequestJSON")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
-const { verifyOffchainSecrets } = require("./buildRequestJSON")
 const readline = require("readline-promise").default
 
-task("functions-request", "Initiates a request from an Functions client contract")
+task("functions-request", "Initiates a request from a Functions client contract")
   .addParam("contract", "Address of the client contract to call")
   .addParam("subid", "Billing subscription ID used to pay for the request")
   .addOptionalParam(
-    "gaslimit",
-    "Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000)"
+    "simulate",
+    "Flag indicating if simulation should be run before making an on-chain request",
+    true,
+    types.boolean
   )
+  .addOptionalParam(
+    "gaslimit",
+    "Maximum amount of gas that can be used to call fulfillRequest in the client contract",
+    100000,
+    types.int
+  )
+  .addOptionalParam("requestgas", "Gas limit for calling the executeRequest function", 1_500_000, types.int)
   .setAction(async (taskArgs, hre) => {
     // A manual gas limit is required as the gas limit estimated by Ethers is not always accurate
     const overrides = {
-      gasLimit: 500000,
+      gasLimit: taskArgs.requestgas,
     }
 
     if (network.name === "hardhat") {
@@ -27,15 +31,10 @@ task("functions-request", "Initiates a request from an Functions client contract
       )
     }
 
-    if (network.name === "goerli") {
-      overrides.maxPriorityFeePerGas = ethers.utils.parseUnits("50", "gwei")
-      overrides.maxFeePerGas = ethers.utils.parseUnits("50", "gwei")
-    }
-
     // Get the required parameters
     const contractAddr = taskArgs.contract
     const subscriptionId = taskArgs.subid
-    const gasLimit = parseInt(taskArgs.gaslimit ?? "100000")
+    const gasLimit = taskArgs.gaslimit
     if (gasLimit > 300000) {
       throw Error("Gas limit must be less than or equal to 300,000")
     }
@@ -43,44 +42,18 @@ task("functions-request", "Initiates a request from an Functions client contract
     // Attach to the required contracts
     const clientContractFactory = await ethers.getContractFactory("FunctionsConsumer")
     const clientContract = clientContractFactory.attach(contractAddr)
-    const OracleFactory = await ethers.getContractFactory("FunctionsOracle")
-    const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracle"])
+    const OracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
+    const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
     const registryAddress = await oracle.getRegistry()
-    const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
+    const RegistryFactory = await ethers.getContractFactory(
+      "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
+    )
     const registry = await RegistryFactory.attach(registryAddress)
 
-    console.log("Simulating Functions request locally...")
     const unvalidatedRequestConfig = require("../../Functions-request-config.js")
     const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
-    if (requestConfig.secretsLocation === 1) {
-      if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
-        requestConfig.secrets = requestConfig.perNodeSecrets[0] ?? {}
-      }
-      // Get node addresses for off-chain secrets
-      const [nodeAddresses, publicKeys] = await oracle.getAllNodePublicKeys()
-      if (requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0) {
-        await verifyOffchainSecrets(requestConfig.secretsURLs, nodeAddresses)
-      }
-    }
-
-    const { success, resultLog } = await simulateRequest(requestConfig)
-    console.log(`\n${resultLog}`)
-
-    // If the simulated JavaScript source code contains an error, confirm the user still wants to continue
-    if (!success) {
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      })
-      const q1answer = await rl.questionAsync(
-        "There was an error when running the JavaScript source code for the request.\nContinue? (y) Yes / (n) No\n"
-      )
-      rl.close()
-      if (q1answer.toLowerCase() !== "y" && q1answer.toLowerCase() !== "yes") {
-        return
-      }
-    }
+    const request = await generateRequest(requestConfig, taskArgs)
 
     // Check that the subscription is valid
     let subInfo
@@ -97,13 +70,6 @@ task("functions-request", "Initiates a request from an Functions client contract
     if (!existingConsumers.includes(contractAddr.toLowerCase())) {
       throw Error(`Consumer contract ${contractAddr} is not registered to use subscription ${subscriptionId}`)
     }
-
-    // Fetch the DON public key from on-chain
-    const DONPublicKey = await oracle.getDONPublicKey()
-    // Remove the preceding 0x from the DON public key
-    requestConfig.DONPublicKey = DONPublicKey.slice(2)
-    // Build the parameters to make a request from the client contract
-    const request = await buildRequest(requestConfig)
 
     // Estimate the cost of the request
     const { lastBaseFeePerGas, maxPriorityFeePerGas } = await hre.ethers.provider.getFeeData()
@@ -144,7 +110,7 @@ task("functions-request", "Initiates a request from an Functions client contract
     const q2answer = await rl.questionAsync("Continue? (y) Yes / (n) No\n")
     rl.close()
     if (q2answer.toLowerCase() !== "y" && q2answer.toLowerCase() !== "yes") {
-      return
+      process.exit(1)
     }
 
     // Use a promise to wait & listen for the fulfillment event before returning
@@ -226,6 +192,7 @@ task("functions-request", "Initiates a request from an Functions client contract
       const requestTx = await clientContract.executeRequest(
         request.source,
         request.secrets ?? [],
+        requestConfig.secretsLocation,
         request.args ?? [],
         subscriptionId,
         gasLimit,

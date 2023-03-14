@@ -6,7 +6,7 @@ import "./dev/functions/FunctionsClient.sol";
 import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 
 /**
- * @title Functions Copns contract
+ * @title Functions Consumer contract
  * @notice This contract is a demonstration of using Functions.
  * @notice NOT FOR PRODUCTION USE
  */
@@ -28,24 +28,35 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
 
   /**
    * @notice Send a simple request
+   * 
    * @param source JavaScript source code
    * @param secrets Encrypted secrets payload
+   * @param secretsLocation Location of encrypted secrets (0 for inline, 1 for remote)
    * @param args List of arguments accessible from within the source code
-   * @param subscriptionId Billing ID
+   * @param subscriptionId Funtions billing subscription ID
+   * @param gasLimit Maximum amount of gas used to call the client contract's `handleOracleFulfillment` function
+   * @return Functions request ID
    */
   function executeRequest(
     string calldata source,
     bytes calldata secrets,
+    Functions.Location secretsLocation,
     string[] calldata args,
     uint64 subscriptionId,
     uint32 gasLimit
   ) public onlyOwner returns (bytes32) {
     Functions.Request memory req;
     req.initializeRequest(Functions.Location.Inline, Functions.CodeLanguage.JavaScript, source);
-    if (secrets.length > 0) req.addInlineSecrets(secrets);
+    if (secrets.length > 0) {
+      if (secretsLocation == Functions.Location.Inline) {
+        req.addInlineSecrets(secrets);
+      } else {
+        req.addRemoteSecrets(secrets);
+      }
+    }
     if (args.length > 0) req.addArgs(args);
 
-    bytes32 assignedReqID = sendRequest(req, subscriptionId, gasLimit, tx.gasprice);
+    bytes32 assignedReqID = sendRequest(req, subscriptionId, gasLimit);
     latestRequestId = assignedReqID;
     return assignedReqID;
   }
@@ -63,13 +74,21 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
     bytes memory response,
     bytes memory err
   ) internal override {
-    // revert('test');
     latestResponse = response;
     latestError = err;
     emit OCRResponse(requestId, response, err);
   }
 
+  /**
+   * @notice Allows the Functions oracle address to be updated
+   *
+   * @param oracle New oracle address
+   */
   function updateOracleAddress(address oracle) public onlyOwner {
     setOracle(oracle);
+  }
+
+  function addSimulatedRequestId(address oracleAddress, bytes32 requestId) public onlyOwner {
+    addExternalRequest(oracleAddress, requestId);
   }
 }

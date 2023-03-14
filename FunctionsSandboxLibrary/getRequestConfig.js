@@ -36,7 +36,13 @@ const getRequestConfig = (unvalidatedConfig) => {
     if (config.secretsLocation !== Location_.Inline && config.secretsLocation !== Location_.Remote) {
       throw Error("secretsLocation is not correctly specified in config file")
     }
-    if (config.secretsLocation === Location_.Inline && typeof config.secrets !== "object") {
+    if (
+      config.secretsLocation === Location_.Inline &&
+      (typeof config.secrets !== "object" ||
+        !Object.values(config.secrets).every((s) => {
+          return typeof s === "string"
+        }))
+    ) {
       throw Error("secrets object is not correctly specified in config file")
     }
     if (config.secretsLocation === Location_.Remote) {

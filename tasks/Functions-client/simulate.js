@@ -36,9 +36,9 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
 
     const accounts = await ethers.getSigners()
     const deployer = accounts[0]
-    // Add the wallet initiating the request to the oracle whitelist
-    const whitelistTx = await oracle.addAuthorizedSenders([deployer.address])
-    await whitelistTx.wait(1)
+    // Add the wallet initiating the request to the oracle allowlist to authorize a simulated fulfillment
+    const allowlistTx = await oracle.addAuthorizedSenders([deployer.address])
+    await allowlistTx.wait(1)
 
     // Create & fund a subscription
     const createSubscriptionTx = await registry.createSubscription()
@@ -55,9 +55,10 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
 
     // Build the parameters to make a request from the client contract
     const requestConfig = require("../../Functions-request-config.js")
-    // Fetch the DON public key from on-chain
+    const validatedRequestConfig = getRequestConfig(requestConfig)
+    // Fetch the mock DON public key
     const DONPublicKey = await oracle.getDONPublicKey()
-    // Remove the preceeding 0x from the DON public key
+    // Remove the preceding 0x from the DON public key
     requestConfig.DONPublicKey = DONPublicKey.slice(2)
     const request = await buildRequest(requestConfig)
 
@@ -68,12 +69,14 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
       const requestTx = await clientContract.executeRequest(
         request.source,
         request.secrets ?? [],
+        validatedRequestConfig.secretsLocation,
         request.args ?? [],
         subscriptionId,
         gasLimit
       )
       const requestTxReceipt = await requestTx.wait(1)
       const requestId = requestTxReceipt.events[2].args.id
+      const requestGasUsed = requestTxReceipt.gasUsed.toString()
 
       // Simulating the JavaScript code locally
       console.log("\nExecuting JavaScript request source code locally...")
@@ -81,9 +84,19 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
       const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
       if (requestConfig.secretsLocation === 1) {
-        if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
-          console.log("Using secrets assigned to the first node as no default secrets were provided")
-          requestConfig.secrets = requestConfig.perNodeSecrets[0] ?? {}
+        requestConfig.secrets = undefined
+
+        if (!requestConfig.globalOffchainSecrets || Object.keys(requestConfig.globalOffchainSecrets).length === 0) {
+          console.log("Using secrets assigned to the first node as no global secrets were provided")
+          if (
+            requestConfig.perNodeOffchainSecrets &&
+            requestConfig.perNodeOffchainSecrets[0] &&
+            Object.keys(requestConfig.perNodeOffchainSecrets[0]).length > 0
+          ) {
+            requestConfig.secrets = requestConfig.perNodeOffchainSecrets[0]
+          }
+        } else {
+          requestConfig.secrets = requestConfig.globalOffchainSecrets
         }
       }
 
@@ -109,7 +122,7 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
             gasLimit: 500_000,
           }
         )
-        const fulfillTxData = await fulfillTx.wait(1)
+        await fulfillTx.wait(1)
       } catch (fulfillError) {
         // Catch & report any unexpected fulfillment errors
         console.log("\nUnexpected error encountered when calling fulfillRequest in client contract.")
@@ -150,21 +163,17 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
           eventSuccess
         ) => {
           if (requestId == eventRequestId) {
-            // Check for a successful request & log a mesage if the fulfillment was not successful
+            // Check for a successful request & log a message if the fulfillment was not successful
             if (!eventSuccess) {
               console.log(
                 "\nError encountered when calling fulfillRequest in client contract.\n" +
-                  "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficent.\n"
+                  "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient.\n"
               )
             }
-            console.log(
-              `Estimated transmission cost: ${hre.ethers.utils.formatUnits(
-                eventTransmitterPayment,
-                18
-              )} LINK (This will vary based on gas price)`
-            )
-            console.log(`Base fee: ${hre.ethers.utils.formatUnits(eventSignerPayment, 18)} LINK`)
-            console.log(`Total estimated cost: ${hre.ethers.utils.formatUnits(eventTotalCost, 18)} LINK`)
+
+            const fulfillGasUsed = await getGasUsedForFulfillRequest(success, result)
+            console.log(`Gas used by sendRequest: ${requestGasUsed}`)
+            console.log(`Gas used by client callback function: ${fulfillGasUsed}`)
             return resolve()
           }
         }
@@ -172,41 +181,64 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
     })
   })
 
+const getGasUsedForFulfillRequest = async (success, result) => {
+  const accounts = await ethers.getSigners()
+  const deployer = accounts[0]
+  const simulatedRequestId = "0x0000000000000000000000000000000000000000000000000000000000000001"
+
+  const clientFactory = await ethers.getContractFactory("FunctionsConsumer")
+  const client = await clientFactory.deploy(deployer.address)
+  client.addSimulatedRequestId(deployer.address, simulatedRequestId)
+  await client.deployTransaction.wait(1)
+
+  let txReceipt
+  if (success) {
+    txReceipt = await client.handleOracleFulfillment(simulatedRequestId, result, [])
+  } else {
+    txReceipt = await client.handleOracleFulfillment(simulatedRequestId, [], result)
+  }
+  const txResult = await txReceipt.wait(1)
+
+  return txResult.gasUsed.toString()
+}
+
 const deployMockOracle = async () => {
   // Deploy a mock LINK token contract
   const linkTokenFactory = await ethers.getContractFactory("LinkToken")
   const linkToken = await linkTokenFactory.deploy()
   const linkEthFeedAddress = networkConfig["hardhat"]["linkEthPriceFeed"]
-  // Deploy the mock oracle factory contract
-  const oracleFactoryFactory = await ethers.getContractFactory("FunctionsOracleFactory")
-  const oracleFactory = await oracleFactoryFactory.deploy()
-  await oracleFactory.deployTransaction.wait(1)
-  // Deploy the mock oracle contract
-  const accounts = await ethers.getSigners()
-  const deployer = accounts[0]
-  const OracleDeploymentTransaction = await oracleFactory.deployNewOracle()
-  const OracleDeploymentReceipt = await OracleDeploymentTransaction.wait(1)
-  const FunctionsOracleAddress = OracleDeploymentReceipt.events[1].args.don
-  const oracle = await ethers.getContractAt("FunctionsOracle", FunctionsOracleAddress, deployer)
-  // Accept ownership of the mock oracle contract
-  const acceptTx = await oracle.acceptOwnership()
-  await acceptTx.wait(1)
+  // Deploy proxy admin
+  await upgrades.deployProxyAdmin()
+  // Deploy the oracle contract
+  const oracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
+  const oracleProxy = await upgrades.deployProxy(oracleFactory, [], {
+    kind: "transparent",
+  })
+  await oracleProxy.deployTransaction.wait(1)
   // Set the secrets encryption public DON key in the mock oracle contract
-  await oracle.setDONPublicKey("0x" + networkConfig["hardhat"]["functionsPublicKey"])
+  await oracleProxy.setDONPublicKey("0x" + networkConfig["hardhat"]["functionsPublicKey"])
   // Deploy the mock registry billing contract
-  const registryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
-  const registry = await registryFactory.deploy(linkToken.address, linkEthFeedAddress, FunctionsOracleAddress)
-  await registry.deployTransaction.wait(1)
+  const registryFactory = await ethers.getContractFactory(
+    "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
+  )
+  const registryProxy = await upgrades.deployProxy(
+    registryFactory,
+    [linkToken.address, linkEthFeedAddress, oracleProxy.address],
+    {
+      kind: "transparent",
+    }
+  )
+  await registryProxy.deployTransaction.wait(1)
   // Set registry configuration
   const config = {
-    maxGasLimit: 400_000,
+    maxGasLimit: 300_000,
     stalenessSeconds: 86_400,
-    gasAfterPaymentCalculation: 21_000 + 5_000 + 2_100 + 20_000 + 2 * 2_100 - 15_000 + 7_315,
+    gasAfterPaymentCalculation: 39_173,
     weiPerUnitLink: ethers.BigNumber.from("5000000000000000"),
-    gasOverhead: 100_000,
+    gasOverhead: 519_719,
     requestTimeoutSeconds: 300,
   }
-  await registry.setConfig(
+  await registryProxy.setConfig(
     config.maxGasLimit,
     config.stalenessSeconds,
     config.gasAfterPaymentCalculation,
@@ -215,7 +247,9 @@ const deployMockOracle = async () => {
     config.requestTimeoutSeconds
   )
   // Set the current account as an authorized sender in the mock registry to allow for simulated local fulfillments
-  await registry.setAuthorizedSenders([oracle.address, deployer.address])
-  await oracle.setRegistry(registry.address)
-  return { oracle, registry, linkToken }
+  const accounts = await ethers.getSigners()
+  const deployer = accounts[0]
+  await registryProxy.setAuthorizedSenders([oracleProxy.address, deployer.address])
+  await oracleProxy.setRegistry(registryProxy.address)
+  return { oracle: oracleProxy, registry: registryProxy, linkToken }
 }

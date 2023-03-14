@@ -9,21 +9,28 @@ import "../interfaces/FunctionsClientInterface.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/TypeAndVersionInterface.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/ERC677ReceiverInterface.sol";
 import "../interfaces/AuthorizedOriginReceiverInterface.sol";
-import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
+import "./ConfirmedOwnerUpgradeable.sol";
 import "../AuthorizedReceiver.sol";
 import "../vendor/openzeppelin-solidity/v.4.8.0/contracts/utils/SafeCast.sol";
-import "../vendor/openzeppelin-solidity/v.4.8.0/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
+/**
+ * @title Functions Billing Registry contract
+ * @notice Contract that coordinates payment from users to the nodes of the Decentralized Oracle Network (DON).
+ * @dev THIS CONTRACT HAS NOT GONE THROUGH ANY SECURITY REVIEW. DO NOT USE IN PROD.
+ */
 contract FunctionsBillingRegistry is
-  ConfirmedOwner,
-  Pausable,
+  Initializable,
+  ConfirmedOwnerUpgradeable,
+  PausableUpgradeable,
   FunctionsBillingRegistryInterface,
   ERC677ReceiverInterface,
   AuthorizedReceiver
 {
-  LinkTokenInterface public immutable LINK;
-  AggregatorV3Interface public immutable LINK_ETH_FEED;
-  AuthorizedOriginReceiverInterface private immutable ORACLE_WITH_ALLOWLIST;
+  LinkTokenInterface private LINK;
+  AggregatorV3Interface private LINK_ETH_FEED;
+  AuthorizedOriginReceiverInterface private ORACLE_WITH_ALLOWLIST;
 
   // We need to maintain a list of consuming addresses.
   // This bound ensures we are able to loop over them as needed.
@@ -145,11 +152,16 @@ contract FunctionsBillingRegistry is
     uint32 gasOverhead
   );
 
-  constructor(
+  /**
+   * @dev Initializes the contract.
+   */
+  function initialize(
     address link,
     address linkEthFeed,
     address oracle
-  ) ConfirmedOwner(msg.sender) {
+  ) public initializer {
+    __Pausable_init();
+    __ConfirmedOwner_initialize(msg.sender, address(0));
     LINK = LinkTokenInterface(link);
     LINK_ETH_FEED = AggregatorV3Interface(linkEthFeed);
     ORACLE_WITH_ALLOWLIST = AuthorizedOriginReceiverInterface(oracle);
@@ -194,6 +206,8 @@ contract FunctionsBillingRegistry is
    * @return gasAfterPaymentCalculation gas used in doing accounting after completing the gas measurement
    * @return fallbackWeiPerUnitLink fallback eth/link price in the case of a stale feed
    * @return gasOverhead average gas execution cost used in estimating total cost
+   * @return linkAddress address of contract for the LINK token
+   * @return linkPriceFeed address of contract for a conversion price between LINK token and native token
    */
   function getConfig()
     external
@@ -203,7 +217,9 @@ contract FunctionsBillingRegistry is
       uint32 stalenessSeconds,
       uint256 gasAfterPaymentCalculation,
       int256 fallbackWeiPerUnitLink,
-      uint32 gasOverhead
+      uint32 gasOverhead,
+      address linkAddress,
+      address linkPriceFeed
     )
   {
     return (
@@ -211,7 +227,9 @@ contract FunctionsBillingRegistry is
       s_config.stalenessSeconds,
       s_config.gasAfterPaymentCalculation,
       s_fallbackWeiPerUnitLink,
-      s_config.gasOverhead
+      s_config.gasOverhead,
+      address(LINK),
+      address(LINK_ETH_FEED)
     );
   }
 
@@ -273,7 +291,7 @@ contract FunctionsBillingRegistry is
     FunctionsBillingRegistryInterface.RequestBilling memory /* billing */
   ) public pure override returns (uint96) {
     // NOTE: Optionally, compute additional fee here
-    return 0;
+    return 200_000_000_000_000_000; // 0.2 LINK
   }
 
   /**
@@ -799,7 +817,7 @@ contract FunctionsBillingRegistry is
    * @param requestIdsToTimeout - A list of request IDs to time out
    */
 
-  function timeoutRequests(bytes32[] calldata requestIdsToTimeout) external {
+  function timeoutRequests(bytes32[] calldata requestIdsToTimeout) external whenNotPaused {
     for (uint256 i = 0; i < requestIdsToTimeout.length; i++) {
       bytes32 requestId = requestIdsToTimeout[i];
       Commitment memory commitment = s_requestCommitments[requestId];
@@ -850,4 +868,11 @@ contract FunctionsBillingRegistry is
   function _canSetAuthorizedSenders() internal view override onlyOwner returns (bool) {
     return true;
   }
+
+  /**
+   * @dev This empty reserved space is put in place to allow future versions to add new
+   * variables without shifting down storage in the inheritance chain.
+   * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+   */
+  uint256[49] private __gap;
 }

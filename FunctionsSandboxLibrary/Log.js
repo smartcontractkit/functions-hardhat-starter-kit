@@ -58,64 +58,19 @@ Log.trace = (message, requestId) => {
   }
 }
 const secretsRedactorFactory = (secrets) => {
-  const secretsToRedact = Array.from(new Set(getSecretsToRedact(secrets))).filter((s) => s !== "<REDACTED SECRET>")
-  return function secretsRedactor(data) {
-    if (typeof data === "number") {
-      for (const secret of secretsToRedact) {
-        if (data.toString() === secret) {
-          return 0
-        }
-      }
+  const allSecretsToRedact = Array.from(new Set(getSecretsToRedact(secrets))).filter((s) => s !== "<REDACTED SECRET>")
+  return function secretsRedactor(stringToRedact) {
+    let redactedString = stringToRedact
+    for (const secret of allSecretsToRedact) {
+      redactedString = redactedString.split(secret).join("<REDACTED SECRET>").slice(0, 2048)
     }
-    if (typeof data === "string") {
-      // Make a deep copy to avoid modifying the original string
-      let newData = data.slice()
-      for (const secret of secretsToRedact) {
-        const re = new RegExp(`${secret}`, "g")
-        newData = newData.replace(re, "<REDACTED SECRET>")
-      }
-      return newData
-    }
-    if (Array.isArray(data)) {
-      // Make a copy to avoid modifying the original array
-      const newData = Array.from(data)
-      for (let i = 0; i < newData.length; i++) {
-        // Make a recursive call
-        newData[i] = secretsRedactor(newData[i])
-      }
-      return newData
-    }
-    if (typeof data === "object") {
-      // Make a copy to avoid modifying the original object
-      const newData = { ...data }
-      for (const key in newData) {
-        newData[key] = secretsRedactor(newData[key])
-      }
-      return newData
-    }
-    return data
+    // Curtail the URL length to prevent excess logging
+    return redactedString
   }
 }
 exports.secretsRedactorFactory = secretsRedactorFactory
 const getSecretsToRedact = (secrets) => {
-  if (typeof secrets === "string") {
-    return [secrets]
-  }
-  if (typeof secrets === "number") {
-    return [secrets.toString()]
-  }
-  let secretsArray = []
-  if (Array.isArray(secrets)) {
-    for (const secret of secrets) {
-      secretsArray = secretsArray.concat(getSecretsToRedact(secret))
-    }
-    return secretsArray
-  }
-  if (typeof secrets === "object") {
-    for (const key in secrets) {
-      secretsArray = secretsArray.concat(getSecretsToRedact(secrets[key]))
-    }
-    return secretsArray
-  }
-  return []
+  const secretsKeys = Object.keys(secrets)
+  const secretsValues = Object.values(secrets)
+  return secretsKeys.concat(secretsValues)
 }

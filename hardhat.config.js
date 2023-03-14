@@ -1,5 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox")
 require("hardhat-contract-sizer")
+require("@openzeppelin/hardhat-upgrades")
 require("./tasks")
 require("dotenv").config()
 
@@ -10,13 +11,9 @@ const isTestEnvironment = npmCommand == "test" || npmCommand == "test:unit"
 let MAINNET_RPC_URL = process.env.MAINNET_RPC_URL
 let POLYGON_MAINNET_RPC_URL = process.env.POLYGON_MAINNET_RPC_URL
 let MUMBAI_RPC_URL = process.env.MUMBAI_RPC_URL
-let GOERLI_RPC_URL = process.env.GOERLI_RPC_URL
 let SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL
 
 // Ignore default values from .env.example
-if (GOERLI_RPC_URL === "https://goerli.infura.io/v3/ExampleKey") {
-  GOERLI_RPC_URL = undefined
-}
 if (SEPOLIA_RPC_URL === "https://sepolia.infura.io/v3/ExampleKey") {
   SEPOLIA_RPC_URL = undefined
 }
@@ -30,11 +27,10 @@ if (
   !MAINNET_RPC_URL &&
   !POLYGON_MAINNET_RPC_URL &&
   !MUMBAI_RPC_URL &&
-  !GOERLI_RPC_URL &&
   !SEPOLIA_RPC_URL
 ) {
   throw Error(
-    "One of the following environment variables must be set: MAINNET_RPC_URL, GOERLI_RPC_URL, SEPOLIA_RPC_URL, POLYGON_MAINNET_RPC_URL, or MUMBAI_RPC_URL"
+    "One of the following environment variables must be set: MAINNET_RPC_URL, SEPOLIA_RPC_URL, POLYGON_MAINNET_RPC_URL, or MUMBAI_RPC_URL"
   )
 }
 
@@ -95,7 +91,7 @@ module.exports = {
       allowUnlimitedContractSize: true,
       hardfork: "merge",
       forking: {
-        url: MAINNET_RPC_URL ?? POLYGON_MAINNET_RPC_URL ?? MUMBAI_RPC_URL ?? GOERLI_RPC_URL ?? SEPOLIA_RPC_URL ?? "",
+        url: MAINNET_RPC_URL ?? POLYGON_MAINNET_RPC_URL ?? MUMBAI_RPC_URL ?? SEPOLIA_RPC_URL ?? "",
         blockNumber: FORKING_BLOCK_NUMBER,
         enabled: isTestEnvironment === false,
       },
@@ -108,11 +104,6 @@ module.exports = {
             },
           ]
         : {},
-    },
-    goerli: {
-      url: GOERLI_RPC_URL ?? "UNSET",
-      accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-      chainId: 5,
     },
     mainnet: {
       url: MAINNET_RPC_URL ?? "UNSET",
@@ -139,7 +130,6 @@ module.exports = {
     apiKey: {
       mainnet: ETHERSCAN_API_KEY,
       polygon: POLYGONSCAN_API_KEY,
-      goerli: ETHERSCAN_API_KEY,
       sepolia: ETHERSCAN_API_KEY,
       polygonMumbai: POLYGONSCAN_API_KEY,
     },
