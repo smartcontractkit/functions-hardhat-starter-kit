@@ -87,11 +87,13 @@ task("functions-request", "Initiates a request from an Functions client contract
       gasLimit,
       maxPriorityFeePerGas.add(lastBaseFeePerGas)
     )
-    // Ensure the subscription has a sufficent balance
-    const linkBalance = subInfo[0]
-    if (subInfo[0].lt(estimatedCostJuels)) {
+    const estimatedCostLink = hre.ethers.utils.formatUnits(estimatedCostJuels, 18)
+
+    // Ensure that the subscription has a sufficent balance
+    const linkBalance = hre.ethers.utils.formatUnits(linkBalance, 18)
+    if (linkBalance.lt(estimatedCostLink)) {
       throw Error(
-        `Subscription ${subscriptionId} does not have sufficient funds. The estimated cost is ${estimatedCostJuels} Juels LINK, but the subscription only has a balance of ${linkBalance} Juels LINK`
+        `Subscription ${subscriptionId} does not have sufficient funds. The estimated cost is ${estimatedCostLink} LINK, but the subscription only has a balance of ${linkBalance} LINK`
       )
     }
 
@@ -107,7 +109,6 @@ task("functions-request", "Initiates a request from an Functions client contract
 
     await utils.promptTxCost(transactionEstimateGas, hre, true)
 
-    const estimatedCostLink = hre.ethers.utils.formatUnits(estimatedCostJuels, 18)
     // Print the estimated cost of the request
     // Ask for confirmation before initiating the request on-chain
     await utils.prompt(
