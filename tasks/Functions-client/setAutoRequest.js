@@ -34,9 +34,7 @@ const setAutoRequest = async (contract, taskArgs) => {
     throw Error("Gas limit must be less than or equal to 300,000")
   }
 
-  console.log(
-    `Setting the Functions request in AutomatedFunctionsConsumer contract ${contract} on ${network.name}`
-  )
+  console.log(`Setting the Functions request in AutomatedFunctionsConsumer contract ${contract} on ${network.name}`)
 
   const autoClientContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
   const autoClientContract = await autoClientContractFactory.attach(contract)

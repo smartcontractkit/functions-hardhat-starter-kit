@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "./dev/functions/FunctionsClient.sol";
+import {Functions, FunctionsClient} from "./dev/functions/FunctionsClient.sol";
 // import "@chainlink/contracts/src/v0.8/dev/functions/FunctionsClient.sol"; // Once published
-import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
-import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
+import {ConfirmedOwner} from "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
+import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 
 /**
  * @title Automated Functions Consumer contract
@@ -29,7 +29,7 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
 
   /**
    * @notice Executes once when a contract is created to initialize state variables
-   * 
+   *
    * @param oracle The FunctionsOracle contract
    * @param _subscriptionId The Functions billing subscription ID used to pay for Functions requests
    * @param _fulfillGasLimit Maximum amount of gas used to call the client contract's `handleOracleFulfillment` function
@@ -49,12 +49,12 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
 
   /**
    * @notice Generates a new Functions.Request. This pure function allows the request CBOR to be generated off-chain, saving gas.
-   * 
+   *
    * @param source JavaScript source code
    * @param secrets Encrypted secrets payload
    * @param args List of arguments accessible from within the source code
    */
-  function generateRequest (
+  function generateRequest(
     string calldata source,
     bytes calldata secrets,
     Functions.Location secretsLocation,
@@ -96,38 +96,30 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
 
   /**
    * @notice Used by Automation to check if performUpkeep should be called.
-   * 
+   *
    * The function's argument is unused in this example, but there is an option to have Automation pass custom data
    * that can be used by the checkUpkeep function.
-   * 
+   *
    * Returns a tuple where the first element is a boolean which determines if upkeep is needed and the
    * second element contains custom bytes data which is passed to performUpkeep when it is called by Automation.
    */
-  function checkUpkeep(
-    bytes memory
-  ) public view override returns (bool upkeepNeeded, bytes memory) {
+  function checkUpkeep(bytes memory) public view override returns (bool upkeepNeeded, bytes memory) {
     upkeepNeeded = (block.timestamp - lastUpkeepTimeStamp) > updateInterval;
   }
 
   /**
    * @notice Called by Automation to trigger a Functions request
-   * 
+   *
    * The function's argument is unused in this example, but there is an option to have Automation pass custom data
    * returned by checkUpkeep (See Chainlink Automation documentation)
    */
-  function performUpkeep(
-    bytes calldata
-  ) external override {
+  function performUpkeep(bytes calldata) external override {
     (bool upkeepNeeded, ) = checkUpkeep("");
     require(upkeepNeeded, "Time interval not met");
     lastUpkeepTimeStamp = block.timestamp;
     upkeepCounter = upkeepCounter + 1;
 
-    bytes32 requestId = s_oracle.sendRequest(
-      subscriptionId,
-      requestCBOR,
-      fulfillGasLimit
-    );
+    bytes32 requestId = s_oracle.sendRequest(subscriptionId, requestCBOR, fulfillGasLimit);
 
     s_pendingRequests[requestId] = s_oracle.getRegistry();
     emit RequestSent(requestId);

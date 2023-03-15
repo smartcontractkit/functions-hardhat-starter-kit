@@ -58,7 +58,12 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
         await autoClientContract.deployTransaction.wait(Math.max(6 - VERIFICATION_BLOCK_CONFIRMATIONS, 0))
         await run("verify:verify", {
           address: autoClientContract.address,
-          constructorArguments: [networkConfig[network.name]["functionsOracleProxy"], taskArgs.subid, taskArgs.gaslimit, taskArgs.interval],
+          constructorArguments: [
+            networkConfig[network.name]["functionsOracleProxy"],
+            taskArgs.subid,
+            taskArgs.gaslimit,
+            taskArgs.interval,
+          ],
         })
         console.log("Contract verified")
       } catch (error) {

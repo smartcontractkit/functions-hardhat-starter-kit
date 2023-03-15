@@ -22,13 +22,7 @@ if (MUMBAI_RPC_URL === "https://polygon-mumbai.g.alchemy.com/v2/ExampleKey") {
 }
 
 // Ensure one of the RPC endpoints has been set
-if (
-  !isTestEnvironment &&
-  !MAINNET_RPC_URL &&
-  !POLYGON_MAINNET_RPC_URL &&
-  !MUMBAI_RPC_URL &&
-  !SEPOLIA_RPC_URL
-) {
+if (!isTestEnvironment && !MAINNET_RPC_URL && !POLYGON_MAINNET_RPC_URL && !MUMBAI_RPC_URL && !SEPOLIA_RPC_URL) {
   throw Error(
     "One of the following environment variables must be set: MAINNET_RPC_URL, SEPOLIA_RPC_URL, POLYGON_MAINNET_RPC_URL, or MUMBAI_RPC_URL"
   )
