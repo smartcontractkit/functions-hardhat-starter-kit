@@ -24,9 +24,9 @@ const getRequestConfig = (unvalidatedConfig) => {
   if (config.codeLanguage !== CodeLanguage.JavaScript) {
     throw Error(`codeLanguage is not correctly specified in config file`)
   }
-  if (typeof config.source !== "string") {
-    throw Error(`source is not correctly specified in config file`)
-  }
+  //if (typeof config.args[0] !== "string") { // config.source
+  //  throw Error(`source is not correctly specified in config file`)
+  //}
   if (config.numAllowedQueries) {
     if (typeof config.numAllowedQueries !== "number" || !Number.isInteger(config.numAllowedQueries)) {
       throw Error(`numAllowedQueries is not correctly specified in config file`)

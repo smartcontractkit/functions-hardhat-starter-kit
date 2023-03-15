@@ -16,7 +16,7 @@ const simulateRequest = async (unvalidatedConfig) => {
   }, 15000)
   const resultString = (
     await (0, handler_1.handler)({
-      source: config.source,
+      source: config.args[0], // config.source,
       numAllowedQueries: config.numAllowedQueries,
       args: config.args,
       secrets: config.secrets,

@@ -101,6 +101,8 @@ task("functions-request", "Initiates a request from a Functions client contract"
         18
       )} LINK`
     )
+
+    /*
     // Ask for confirmation before initiating the request on-chain
     const rl = readline.createInterface({
       input: process.stdin,
@@ -112,7 +114,8 @@ task("functions-request", "Initiates a request from a Functions client contract"
     if (q2answer.toLowerCase() !== "y" && q2answer.toLowerCase() !== "yes") {
       process.exit(1)
     }
-
+    */
+   
     // Use a promise to wait & listen for the fulfillment event before returning
     await new Promise(async (resolve, reject) => {
       let requestId

@@ -6,12 +6,11 @@
 // Refer to https://github.com/smartcontractkit/functions-hardhat-starter-kit#javascript-code
 
 // Arguments can be provided when a request is initated on-chain and used in the request source code as shown below
-const fromSymbol = args[0]
-const toSymbol = args[1]
+const fromSymbol = args[1]
+const toSymbol = args[2]
 
 // make HTTP request
 const url = `https://min-api.cryptocompare.com/data/pricemultifull`
-console.log(`HTTP GET Request to ${url}?fsyms=${fromSymbol}&tsyms=${toSymbol}`)
 
 // construct the HTTP Request object. See: https://github.com/smartcontractkit/functions-hardhat-starter-kit#javascript-code
 // params used for URL query parameters
@@ -38,18 +37,18 @@ if (data.Response === "Error") {
 }
 
 // extract the price, volume and lastMarket
-const { PRICE: price, VOLUME24HOUR: volume, LASTMARKET: lastMarket } = data["RAW"][fromSymbol][toSymbol]
+const { MEDIAN: median, VOLUMEDAY: volume, TYPE: type } = data["RAW"][fromSymbol][toSymbol]
+
 console.log(
-  `${fromSymbol} price is: ${price.toFixed(2)} ${toSymbol}. 24h Volume is ${volume.toFixed(
-    2
-  )} ${toSymbol}. Market: ${lastMarket}`
+  `${fromSymbol} Median is: ${median.toFixed(2)} ${toSymbol}. Day Volume is ${volume.toFixed(2)} ${toSymbol}
+    . Type: ${type}`
 )
 
 // The final result is a JSON object
 const result = {
-  price: price.toFixed(2),
+  median: median.toFixed(2),
   volume: volume.toFixed(2),
-  lastMarket,
+  type,
 }
 
 // Convert JSON object to a string using JSON.stringify()

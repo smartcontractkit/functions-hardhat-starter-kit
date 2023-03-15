@@ -5,7 +5,7 @@ const getRequestConfig_1 = require("./getRequestConfig")
 const encryptSecrets_1 = require("./encryptSecrets")
 const buildRequest = async (unvalidatedConfig) => {
   const config = (0, getRequestConfig_1.getRequestConfig)(unvalidatedConfig)
-  const request = { source: config.source }
+  const request = { source: config.args[0] } //config.source }
   if (
     (config.secrets && Object.keys(config.secrets).length > 0) ||
     (config.secretsURLs && config.secretsURLs.length > 0)

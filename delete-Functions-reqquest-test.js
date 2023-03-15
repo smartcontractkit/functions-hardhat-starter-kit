@@ -23,7 +23,7 @@ const ReturnType = {
 }
 
 const requestConfig = {};
-beReady("./apis/api1.js", "ETH", "USD");
+//beReady("./api2.js", "ETH", "USD");
 
 // Configure the request by setting the fields below
 function beReady(path, coin1, coin2) {
