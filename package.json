@@ -52,7 +52,8 @@
     "dotenv": "^16.0.3",
     "is-http-url": "^2.0.0",
     "jsrsasign": "^10.6.0",
-    "readline-promise": "^1.0.5",
+    "ora": "5.4.1",
+    "readline": "^1.3.0",
     "vm2": "^3.9.11"
   },
   "lint-staged": {
