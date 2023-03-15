@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "./dev/functions/FunctionsClient.sol";
+import {Functions, FunctionsClient} from "./dev/functions/FunctionsClient.sol";
 // import "@chainlink/contracts/src/v0.8/dev/functions/FunctionsClient.sol"; // Once published
-import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
+import {ConfirmedOwner} from "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 
 /**
  * @title Functions Consumer contract
@@ -24,11 +24,13 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
    *
    * @param oracle - The FunctionsOracle contract
    */
+  // https://github.com/protofire/solhint/issues/242
+  // solhint-disable-next-line no-empty-blocks
   constructor(address oracle) FunctionsClient(oracle) ConfirmedOwner(msg.sender) {}
 
   /**
    * @notice Send a simple request
-   * 
+   *
    * @param source JavaScript source code
    * @param secrets Encrypted secrets payload
    * @param secretsLocation Location of encrypted secrets (0 for inline, 1 for remote)
