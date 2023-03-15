@@ -89,9 +89,11 @@ task("functions-request", "Initiates a request from an Functions client contract
     )
     const estimatedCostLink = hre.ethers.utils.formatUnits(estimatedCostJuels, 18)
 
-    // Ensure that the subscription has a sufficent balance
-    const linkBalance = hre.ethers.utils.formatUnits(linkBalance, 18)
-    if (linkBalance.lt(estimatedCostLink)) {
+    // Ensure that the subscription has a sufficient balance
+    const subBalanceInJules = subInfo[0]
+    const linkBalance = hre.ethers.utils.formatUnits(subBalanceInJules, 18)
+
+    if (subBalanceInJules.lt(estimatedCostJuels)) {
       throw Error(
         `Subscription ${subscriptionId} does not have sufficient funds. The estimated cost is ${estimatedCostLink} LINK, but the subscription only has a balance of ${linkBalance} LINK`
       )
