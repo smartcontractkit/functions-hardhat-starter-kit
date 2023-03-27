@@ -42,12 +42,20 @@ const setAutoRequest = async (contract, taskArgs) => {
   const unvalidatedRequestConfig = require("../../Functions-request-config.js")
   const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
+  // doGistCleanup indicates if an encrypted secrets Gist was created automatically and should be cleaned up by the user after use
+  let doGistCleanup = !(requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0)
   const request = await generateRequest(requestConfig, taskArgs)
+
+  if (doGistCleanup && request.secrets) {
+    console.log(
+      `Be sure to delete the Gist ${request.secretsURLs[0].slice(0, -4)} once encrypted secrets are no longer in use!\n`
+    )
+  }
 
   const functionsRequestBytes = await autoClientContract.generateRequest(
     request.source,
     request.secrets ?? [],
-    request.secretsLocation,
+    1,
     request.args ?? []
   )
 
