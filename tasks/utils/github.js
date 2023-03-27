@@ -53,18 +53,18 @@ export const checkTokenGistScope = async (githubApiToken) => {
 
 export const deleteGist = async (gistURL, githubApiToken) => {
   const headers = {
-    'Authorization': `Bearer ${githubApiToken}`
-  };
+    Authorization: `Bearer ${githubApiToken}`,
+  }
 
   try {
-    const response = await axios.delete(gistURL, { headers });
+    const response = await axios.delete(gistURL, { headers })
 
     if (response.status !== 204) {
-      throw new Error(`Failed to delete Gist: ${response.status} ${response.statusText}`);
+      throw new Error(`Failed to delete Gist: ${response.status} ${response.statusText}`)
     }
 
-    console.log(`Off-chain secrets Gist ${gistURL} deleted successfully`);
+    console.log(`Off-chain secrets Gist ${gistURL} deleted successfully`)
   } catch (error) {
-    console.error('Error deleting Gist', error);
+    console.error("Error deleting Gist", error)
   }
 }
