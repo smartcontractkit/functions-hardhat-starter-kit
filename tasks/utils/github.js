@@ -10,7 +10,7 @@ export const createGist = async (githubApiToken, encryptedOffchainSecrets) => {
   // construct the API endpoint for creating a Gist
   const url = "https://api.github.com/gists"
   const body = {
-    public: true,
+    public: false,
     files: {
       [`encrypted-functions-request-data-${new Date().now()}.json`]: {
         content,
