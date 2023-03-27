@@ -24,6 +24,7 @@ export const createGist = async (githubApiToken, encryptedOffchainSecrets) => {
     return gistUrl
   } catch (error) {
     console.error("Failed to create Gist", error)
+    throw new Error("Failed to create Gist")
   }
 }
 
