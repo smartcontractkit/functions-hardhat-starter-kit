@@ -3,6 +3,7 @@ const { generateRequest } = require("./buildRequestJSON")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 const utils = require("../utils")
 const chalk = require("chalk")
+const { deleteGist } = require("../utils/github")
 
 task("functions-request", "Initiates a request from a Functions client contract")
   .addParam("contract", "Address of the client contract to call")
@@ -51,11 +52,6 @@ task("functions-request", "Initiates a request from a Functions client contract"
     )
     const registry = await RegistryFactory.attach(registryAddress)
 
-    const unvalidatedRequestConfig = require("../../Functions-request-config.js")
-    const requestConfig = getRequestConfig(unvalidatedRequestConfig)
-
-    const request = await generateRequest(requestConfig, taskArgs)
-
     // Check that the subscription is valid
     let subInfo
     try {
@@ -72,6 +68,13 @@ task("functions-request", "Initiates a request from a Functions client contract"
       throw Error(`Consumer contract ${contractAddr} is not registered to use subscription ${subscriptionId}`)
     }
 
+    const unvalidatedRequestConfig = require("../../Functions-request-config.js")
+    const requestConfig = getRequestConfig(unvalidatedRequestConfig)
+
+    const simulatedSecretsURLBytes = `0x${Buffer.from(
+      "https://exampleSecretsURL.com/f09fa0db8d1c8fab8861ec97b1d7fdf1/raw/d49bbd20dc562f035bdf8832399886baefa970c9/encrypted-functions-request-data-1679941580875.json"
+    ).toString("hex")}`
+
     // Estimate the cost of the request
     const { lastBaseFeePerGas, maxPriorityFeePerGas } = await hre.ethers.provider.getFeeData()
     const estimatedCostJuels = await clientContract.estimateCost(
@@ -79,9 +82,9 @@ task("functions-request", "Initiates a request from a Functions client contract"
         0, // Inline
         0, // Inline
         0, // JavaScript
-        request.source,
-        request.secrets ?? [],
-        request.args ?? [],
+        requestConfig.source,
+        requestConfig.secrets && Object.keys(requestConfig.secrets).length > 0 ? simulatedSecretsURLBytes : [],
+        requestConfig.args ?? [],
       ],
       subscriptionId,
       gasLimit,
@@ -100,10 +103,11 @@ task("functions-request", "Initiates a request from a Functions client contract"
     }
 
     const transactionEstimateGas = await clientContract.estimateGas.executeRequest(
-      request.source,
-      request.secrets ?? [],
-      requestConfig.secretsLocation,
-      request.args ?? [],
+      requestConfig.source,
+      requestConfig.secrets && Object.keys(requestConfig.secrets).length > 0 ? simulatedSecretsURLBytes : [],
+      // TODO: update contracts so secretsLocation is no longer required
+      1,
+      requestConfig.args ?? [],
       subscriptionId,
       gasLimit,
       overrides
@@ -119,6 +123,11 @@ task("functions-request", "Initiates a request from a Functions client contract"
       )} gas, this request will charge the subscription:\n${chalk.blue(estimatedCostLink + " LINK")}`
     )
     //  TODO: add cost of this LINK in USD
+
+    // doGistCleanup indicates if an encrypted secrets Gist was created automatically and should be cleaned up once the request is complete
+    let doGistCleanup = !(requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0)
+    const request = await generateRequest(requestConfig, taskArgs)
+    doGistCleanup = doGistCleanup && request.secrets
 
     console.log("\n")
     const spinner = utils.spin({
@@ -198,6 +207,10 @@ task("functions-request", "Initiates a request from a Functions client contract"
               { Type: "Total cost:", Amount: `${hre.ethers.utils.formatUnits(eventTotalCost, 18)} LINK` },
             ]
             utils.logger.table(costBreakdownData)
+
+            if (doGistCleanup) {
+              await deleteGist(process.env["GITHUB_API_TOKEN"], request.secretsURLs[0].slice(0, -4))
+            }
 
             // Check for a successful request & log a mesage if the fulfillment was not successful
             if (!eventSuccess) {

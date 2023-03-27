@@ -1,6 +1,6 @@
 const axios = require("axios")
 
-export const createGist = async (githubApiToken, encryptedOffchainSecrets) => {
+const createGist = async (githubApiToken, encryptedOffchainSecrets) => {
   const content = JSON.stringify(encryptedOffchainSecrets)
 
   const headers = {
@@ -12,7 +12,7 @@ export const createGist = async (githubApiToken, encryptedOffchainSecrets) => {
   const body = {
     public: false,
     files: {
-      [`encrypted-functions-request-data-${new Date().now()}.json`]: {
+      [`encrypted-functions-request-data-${Date.now()}.json`]: {
         content,
       },
     },
@@ -28,7 +28,7 @@ export const createGist = async (githubApiToken, encryptedOffchainSecrets) => {
   }
 }
 
-export const checkTokenGistScope = async (githubApiToken) => {
+const checkTokenGistScope = async (githubApiToken) => {
   const headers = {
     Authorization: `Bearer ${githubApiToken}`,
   }
@@ -52,13 +52,15 @@ export const checkTokenGistScope = async (githubApiToken) => {
   return true
 }
 
-export const deleteGist = async (gistURL, githubApiToken) => {
+const deleteGist = async (githubApiToken, gistURL) => {
   const headers = {
     Authorization: `Bearer ${githubApiToken}`,
   }
 
+  const gistId = gistURL.match(/\/([a-fA-F0-9]+)$/)[1]
+
   try {
-    const response = await axios.delete(gistURL, { headers })
+    const response = await axios.delete(`https://api.github.com/gists/${gistId}`, { headers })
 
     if (response.status !== 204) {
       throw new Error(`Failed to delete Gist: ${response.status} ${response.statusText}`)
@@ -66,6 +68,12 @@ export const deleteGist = async (gistURL, githubApiToken) => {
 
     console.log(`Off-chain secrets Gist ${gistURL} deleted successfully`)
   } catch (error) {
-    console.error("Error deleting Gist", error)
+    console.error(`Error deleting Gist ${gistURL}`, error.response)
   }
+}
+
+module.exports = {
+  createGist,
+  checkTokenGistScope,
+  deleteGist,
 }
