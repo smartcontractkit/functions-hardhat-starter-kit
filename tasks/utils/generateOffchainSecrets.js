@@ -1,6 +1,6 @@
 const { encryptWithSignature } = require('../../FunctionsSandboxLibrary/encryptSecrets')
 
-export const generateOffchainSecrets = async (requestConfig, privateKey, DONPublicKey, nodeAddresses, perNodePublicKeys) => {
+const generateOffchainSecrets = async (requestConfig, privateKey, DONPublicKey, nodeAddresses, perNodePublicKeys) => {
   validateRequestConfig(requestConfig)
 
   if (
@@ -122,3 +122,5 @@ const validateRequestConfig = (requestConfig) => {
     }
   }
 }
+
+module.exports = { generateOffchainSecrets }
