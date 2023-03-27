@@ -10,16 +10,14 @@ const fs_1 = __importDefault(require("fs"))
 const os_1 = __importDefault(require("os"))
 const path_1 = __importDefault(require("path"))
 const vm2_1 = require("vm2")
-const Log_1 = require("./Log")
 const Functions_1 = require("./Functions")
 class Sandbox {
   constructor(disableTmpClearing, enableSandboxedLogging) {
     this.disableTmpClearing = disableTmpClearing
     this.enableSandboxedLogging = enableSandboxedLogging
   }
-  async evaluate(numAllowedQueries, javascriptString, args, secrets, requestId) {
-    const secretsRedactor = (0, Log_1.secretsRedactorFactory)(secrets ?? {})
-    const functionsModule = new Functions_1.FunctionsModule(secretsRedactor, requestId)
+  async evaluate(numAllowedQueries, javascriptString, args, secrets) {
+    const functionsModule = new Functions_1.FunctionsModule()
     const Functions = functionsModule.buildFunctionsmodule(numAllowedQueries)
     // Clear the tmp directory before running the untrusted code to ensure
     // it does not have access to any cached data from the previously run script
