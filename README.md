@@ -6,8 +6,8 @@
   - [Requirements](#requirements)
   - [Steps](#steps)
 - [Command Glossary](#command-glossary)
-  - [Functions Commands](#functions-commands)
-  - [Functions Subscription Management Commands](#functions-subscription-management-commands)
+    - [Functions Commands](#functions-commands)
+    - [Functions Subscription Management Commands](#functions-subscription-management-commands)
 - [Request Configuration](#request-configuration)
   - [JavaScript Code](#javascript-code)
     - [Functions Library](#functions-library)
@@ -34,18 +34,23 @@
 
 1. Clone this repository to your local machine<br><br>
 2. Open this directory in your command line, then run `npm install` to install all dependencies.<br><br>
-3. Set the required environment variables.
+3. Aquire a Github personal access token which allows reading and writing Gists.
+   1. Visit [https://github.com/settings/tokens?type=beta](https://github.com/settings/tokens?type=beta) and click "Generate new token"
+   2. Name the token and enable read & write access for Gists from the "Account permissions" drop-down menu.  Do not enable any additional permissions.
+   3. Click "Generate token" and copy the resulting personal access token for step 4.<br><br>
+4. Set the required environment variables.
    1. This can be done by copying the file _.env.example_ to a new file named _.env_. (This renaming is important so that it won't be tracked by Git.) Then, change the following values:
+      - _GITHUB_API_TOKEN_ for your Github token obtained from step 3
       - _PRIVATE_KEY_ for your development wallet
       - _MUMBAI_RPC_URL_ or _SEPOLIA_RPC_URL_ for the network that you intend to use
    2. If desired, the _ETHERSCAN_API_KEY_ or _POLYGONSCAN_API_KEY_ can be set in order to verify contracts, along with any values used in the _secrets_ object in _Functions-request-config.js_ such as _COINMARKETCAP_API_KEY_.<br><br>
-4. There are two files to notice that the default example will use:
+5. There are two files to notice that the default example will use:
    - _contracts/FunctionsConsumer.sol_ contains the smart contract that will receive the data
    - _calculation-example.js_ contains JavaScript code that will be executed by each node of the DON<br><br>
-5. Test an end-to-end request and fulfillment locally by simulating it using:<br>`npx hardhat functions-simulate`<br><br>
-6. Deploy and verify the client contract to an actual blockchain network by running:<br>`npx hardhat functions-deploy-client --network network_name_here --verify true`<br>**Note**: Make sure _ETHERSCAN_API_KEY_ or _POLYGONSCAN_API_KEY_ are set if using `--verify true`, depending on which network is used.<br><br>
-7. Create, fund & authorize a new Functions billing subscription by running:<br> `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0xDeployed_client_contract_address_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command. Testnet LINK can be obtained at <a href="https://faucets.chain.link/">faucets.chain.link</a>.<br><br>
-8. Make an on-chain request by running:<br>`npx hardhat functions-request --network network_name_here --contract 0xDeployed_client_contract_address_here --subid subscription_id_number_here`
+6. Test an end-to-end request and fulfillment locally by simulating it using:<br>`npx hardhat functions-simulate`<br><br>
+7. Deploy and verify the client contract to an actual blockchain network by running:<br>`npx hardhat functions-deploy-client --network network_name_here --verify true`<br>**Note**: Make sure _ETHERSCAN_API_KEY_ or _POLYGONSCAN_API_KEY_ are set if using `--verify true`, depending on which network is used.<br><br>
+8. Create, fund & authorize a new Functions billing subscription by running:<br> `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0xDeployed_client_contract_address_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command. Testnet LINK can be obtained at <a href="https://faucets.chain.link/">faucets.chain.link</a>.<br><br>
+9.  Make an on-chain request by running:<br>`npx hardhat functions-request --network network_name_here --contract 0xDeployed_client_contract_address_here --subid subscription_id_number_here`
 
 # Command Glossary
 
@@ -92,7 +97,6 @@ Chainlink Functions requests can be configured by modifying values in the `reque
 | Setting Name         | Description                                                                                                                                                                                                                                                                                                                                                           |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `codeLocation`       | This specifies where the JavaScript code for a request is located. Currently, only the `Location.Inline` option is supported (represented by the value `0`). This means the JavaScript string is provided directly in the on-chain request instead of being referenced via a URL.                                                                                     |
-| `secretsLocation`    | This specifies where the encrypted secrets for a request are located. `Location.Inline` (represented by the value `0`) means encrypted secrets are provided directly on-chain, while `Location.Remote` (represented by `1`) means secrets are referenced via encrypted URLs.                                                                                          |
 | `codeLanguage`       | This specifies the language of the source code which is executed in a request. Currently, only `JavaScript` is supported (represented by the value `0`).                                                                                                                                                                                                              |
 | `source`             | This is a string containing the source code which is executed in a request. This must be valid JavaScript code that returns a Buffer. See the [JavaScript Code](#javascript-code) section for more details.                                                                                                                                                           |
 | `secrets`            | This is an object which contains secret values that are injected into the JavaScript source code and can be accessed using the name `secrets`. This object can only contain string values. This object will be automatically encrypted by the tooling using the DON public key before making request. Any DON member can use these secrets when processing a request. |
@@ -178,9 +182,9 @@ If the _FunctionsConsumer_ client contract is modified, this task must also be m
 
 ## Off-chain Secrets
 
-Instead of using encrypted secrets stored directly on the blockchain, encrypted secrets are hosted off-chain and be fetched by DON nodes via HTTP when a request is initiated.
+Instead of using encrypted secrets written directly on the blockchain, encrypted secrets are hosted off-chain and be fetched by DON nodes via HTTP when a request is initiated.  This allows encrypted secrets to be deleted when they are no longer in use.  By default, the tooling automatically uploads secrets to private Github Gists and deletes them once a request is fulfilled unless the secrets are being used for the `AutomatedFunctionsConsumer.sol` contract.  If integrating with Chainlink Automation, it is recommended to delete the secrets Gist manually once it is not longer in use.
 
-Off-chain secrets also enable a separate set of secrets to be assigned to each node in the DON. Each node will not be able to decrypt the set of secrets belonging to another node. Optionally, a set of default secrets encrypted with the DON public key can be used as a fallback by any DON member who does not have a set of secrets assigned to them. This handles the case where a new member is added to the DON, but the assigned secrets have not yet been updated.
+Additionally, per-node secrets allow a separate set of secrets to be assigned to each node in the DON. Each node will not be able to decrypt the set of secrets belonging to another node. Optionally, a set of default secrets encrypted with the DON public key can be used as a fallback by any DON member who does not have a set of secrets assigned to them. This handles the case where a new member is added to the DON, but the assigned secrets have not yet been updated.
 
 To use per-node assigned secrets, enter a list of secrets objects into `perNodeSecrets` in _Functions-request-config.js_ before running the `functions-build-offchain-secrets` command. The number of objects in the array must correspond to the number of nodes in the DON. Default secrets can be entered into the `secrets` parameter of `Functions-request-config.js`. Each secrets object must have the same set of entries, but the values for each entry can be different (ie: `[ { apiKey: '123' }, { apiKey: '456' }, ... ]`). If the per-node secrets feature is not desired, `perNodeSecrets` can be left empty and a single set of secrets can be entered for `secrets`.
 

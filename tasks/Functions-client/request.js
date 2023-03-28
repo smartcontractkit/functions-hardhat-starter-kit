@@ -80,7 +80,7 @@ task("functions-request", "Initiates a request from a Functions client contract"
     const estimatedCostJuels = await clientContract.estimateCost(
       [
         0, // Inline
-        0, // Inline
+        1, // Remote
         0, // JavaScript
         requestConfig.source,
         requestConfig.secrets && Object.keys(requestConfig.secrets).length > 0 ? simulatedSecretsURLBytes : [],
@@ -233,7 +233,6 @@ task("functions-request", "Initiates a request from a Functions client contract"
       const requestTx = await clientContract.executeRequest(
         request.source,
         request.secrets ?? [],
-        1,
         request.args ?? [],
         subscriptionId,
         gasLimit,
