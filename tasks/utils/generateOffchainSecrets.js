@@ -4,38 +4,34 @@ const generateOffchainSecrets = async (requestConfig, privateKey, DONPublicKey, 
   validateRequestConfig(requestConfig)
 
   if (
-    requestConfig.perNodeOffchainSecrets &&
-    requestConfig.perNodeOffchainSecrets.length !== nodeAddresses.length &&
-    requestConfig.perNodeOffchainSecrets.length !== 0
+    requestConfig.perNodeSecrets &&
+    requestConfig.perNodeSecrets.length !== nodeAddresses.length &&
+    requestConfig.perNodeSecrets.length !== 0
   ) {
     throw Error(
-      `The number of per-node secrets must match the number of nodes.  Length of perNodeOffchainSecrets: ${requestConfig.perNodeOffchainSecrets.length} Number of nodes: ${nodeAddresses.length}`
+      `The number of per-node secrets must match the number of nodes.  Length of perNodeSecrets: ${requestConfig.perNodeSecrets.length} Number of nodes: ${nodeAddresses.length}`
     )
   }
 
   const offchainSecrets = {}
 
-  if (requestConfig.perNodeOffchainSecrets && Object.keys(requestConfig.perNodeOffchainSecrets).length > 0) {
+  if (requestConfig.perNodeSecrets && Object.keys(requestConfig.perNodeSecrets).length > 0) {
     for (let i = 0; i < nodeAddresses.length; i++) {
       offchainSecrets[nodeAddresses[i].toLowerCase()] = Buffer.from(
         await encryptWithSignature(
           process.env.PRIVATE_KEY,
           perNodePublicKeys[i].slice(2),
-          JSON.stringify(requestConfig.perNodeOffchainSecrets[i])
+          JSON.stringify(requestConfig.perNodeSecrets[i])
         ),
         "hex"
       ).toString("base64")
     }
   }
 
-  // if globalOffchainSecrets is specified in the config, use those as the default secrets under the 0x0 entry
-  if (requestConfig.globalOffchainSecrets && Object.keys(requestConfig.globalOffchainSecrets).length > 0) {
+  // if secrets is specified in the config, use those as the default secrets under the 0x0 entry
+  if (requestConfig.secrets && Object.keys(requestConfig.secrets).length > 0) {
     offchainSecrets["0x0"] = Buffer.from(
-      await encryptWithSignature(
-        privateKey,
-        DONPublicKey.slice(2),
-        JSON.stringify(requestConfig.globalOffchainSecrets)
-      ),
+      await encryptWithSignature(privateKey, DONPublicKey.slice(2), JSON.stringify(requestConfig.secrets)),
       "hex"
     ).toString("base64")
   }
@@ -44,50 +40,46 @@ const generateOffchainSecrets = async (requestConfig, privateKey, DONPublicKey, 
 }
 
 const validateRequestConfig = (requestConfig) => {
-  // Verify that perNodeOffchainSecrets and/or secrets is correctly specified in the config
-  if (requestConfig.perNodeOffchainSecrets && !Array.isArray(requestConfig.perNodeOffchainSecrets)) {
-    throw Error("perNodeOffchainSecrets is not correctly specified in config file.  It must be an array of objects.")
+  // Verify that perNodeSecrets and/or secrets is correctly specified in the config
+  if (requestConfig.perNodeSecrets && !Array.isArray(requestConfig.perNodeSecrets)) {
+    throw Error("perNodeSecrets is not correctly specified in config file.  It must be an array of objects.")
   }
 
-  if (requestConfig.globalOffchainSecrets && typeof requestConfig.globalOffchainSecrets !== "object") {
-    throw Error("globalOffchainSecrets object is not correctly specified in config file.  It must be an object.")
+  if (requestConfig.secrets && typeof requestConfig.secrets !== "object") {
+    throw Error("secrets object is not correctly specified in config file.  It must be an object.")
   }
 
   if (
-    (!requestConfig.perNodeOffchainSecrets || requestConfig.perNodeOffchainSecrets.length === 0) &&
-    (!requestConfig.globalOffchainSecrets || Object.keys(requestConfig.globalOffchainSecrets).length === 0)
+    (!requestConfig.perNodeSecrets || requestConfig.perNodeSecrets.length === 0) &&
+    (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0)
   ) {
-    throw Error("Neither perNodeOffchainSecrets nor globalSecrets is specified")
+    throw Error("Neither perNodeSecrets nor secrets is specified")
   }
 
-  const globalOffchainSecretsObjectValues = Object.values(requestConfig.globalOffchainSecrets)
+  const secretsObjectValues = Object.values(requestConfig.secrets)
 
   if (
-    !globalOffchainSecretsObjectValues.every((s) => {
+    !secretsObjectValues.every((s) => {
       return typeof s === "string"
     })
   ) {
     throw Error("Only string values are supported in secrets objects.")
   }
 
-  const globalOffchainSecretsObjectKeys = requestConfig.globalOffchainSecrets
-    ? Object.keys(requestConfig.globalOffchainSecrets).sort()
-    : undefined
+  const globalSecretsObjectKeys = requestConfig.secrets ? Object.keys(requestConfig.secrets).sort() : undefined
 
-  if (!requestConfig.globalOffchainSecrets || globalOffchainSecretsObjectKeys.length === 0) {
+  if (!requestConfig.secrets || globalSecretsObjectKeys.length === 0) {
     console.log(
       "\nWARNING: No global secrets provided.  If DON membership changes, the new node will not be able to process requests.\n"
     )
   }
 
-  if (requestConfig.perNodeOffchainSecrets && requestConfig.perNodeOffchainSecrets.length > 0) {
-    const firstperNodeOffchainSecretsKeys = Object.keys(requestConfig.perNodeOffchainSecrets[0]).sort()
+  if (requestConfig.perNodeSecrets && requestConfig.perNodeSecrets.length > 0) {
+    const firstperNodeSecretsKeys = Object.keys(requestConfig.perNodeSecrets[0]).sort()
 
-    for (const assignedSecrets of requestConfig.perNodeOffchainSecrets) {
+    for (const assignedSecrets of requestConfig.perNodeSecrets) {
       if (typeof assignedSecrets !== "object") {
-        throw Error(
-          "perNodeOffchainSecrets is not correctly specified in config file.  It must be an array of objects."
-        )
+        throw Error("perNodeSecrets is not correctly specified in config file.  It must be an array of objects.")
       }
 
       if (
@@ -99,24 +91,24 @@ const validateRequestConfig = (requestConfig) => {
       }
 
       if (Object.keys(assignedSecrets).length === 0) {
-        throw Error("In the config file, perNodeOffchainSecrets contains an empty object.")
+        throw Error("In the config file, perNodeSecrets contains an empty object.")
       }
 
-      const secretsObjectKeys = Object.keys(assignedSecrets).sort()
+      const assignedSecretsObjectKeys = Object.keys(assignedSecrets).sort()
 
       if (
-        requestConfig.globalOffchainSecrets &&
-        globalOffchainSecretsObjectKeys.length > 0 &&
-        JSON.stringify(globalOffchainSecretsObjectKeys) !== JSON.stringify(secretsObjectKeys)
+        requestConfig.secrets &&
+        globalSecretsObjectKeys.length > 0 &&
+        JSON.stringify(globalSecretsObjectKeys) !== JSON.stringify(assignedSecretsObjectKeys)
       ) {
         throw Error(
-          "In the config file, not all objects in `perNodeOffchainSecrets` have the same object keys as `globalSecrets`. (The values can be different, but the keys should be the same between all objects.)"
+          "In the config file, not all objects in `perNodeSecrets` have the same object keys as `globalSecrets`. (The values can be different, but the keys should be the same between all objects.)"
         )
       }
 
-      if (JSON.stringify(firstperNodeOffchainSecretsKeys) !== JSON.stringify(secretsObjectKeys)) {
+      if (JSON.stringify(firstperNodeSecretsKeys) !== JSON.stringify(assignedSecretsObjectKeys)) {
         throw Error(
-          "In the config file, not all objects in `perNodeOffchainSecrets` have the same object keys. (The values can be different, but the keys should be the same between all objects.)"
+          "In the config file, not all objects in `perNodeSecrets` have the same object keys. (The values can be different, but the keys should be the same between all objects.)"
         )
       }
     }

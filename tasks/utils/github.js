@@ -1,6 +1,8 @@
 const axios = require("axios")
 
-export const createGist = async (githubApiToken, encryptedOffchainSecrets) => {
+const createGist = async (githubApiToken, encryptedOffchainSecrets) => {
+  await checkTokenGistScope(githubApiToken)
+
   const content = JSON.stringify(encryptedOffchainSecrets)
 
   const headers = {
@@ -12,7 +14,7 @@ export const createGist = async (githubApiToken, encryptedOffchainSecrets) => {
   const body = {
     public: false,
     files: {
-      [`encrypted-functions-request-data-${new Date().now()}.json`]: {
+      [`encrypted-functions-request-data-${Date.now()}.json`]: {
         content,
       },
     },
@@ -28,7 +30,7 @@ export const createGist = async (githubApiToken, encryptedOffchainSecrets) => {
   }
 }
 
-export const checkTokenGistScope = async (githubApiToken) => {
+const checkTokenGistScope = async (githubApiToken) => {
   const headers = {
     Authorization: `Bearer ${githubApiToken}`,
   }
@@ -38,27 +40,30 @@ export const checkTokenGistScope = async (githubApiToken) => {
   if (response.status !== 200) {
     throw new Error(`Failed to get user data: ${response.status} ${response.statusText}`)
   }
+  // Github's newly-added fine-grained token do not currently allow for verifying that the token scope is restricted to Gists.
+  // This verification feature only works with classic Github tokens and is otherwise ignored
+  const scopes = response.headers["x-oauth-scopes"]?.split(", ")
 
-  const scopes = response.headers["x-oauth-scopes"].split(", ")
-
-  if (scopes?.[0] !== "gist") {
+  if (scopes && scopes?.[0] !== "gist") {
     throw Error("The provided Github API token does not have permissions to read and write Gists")
   }
 
-  if (scopes.length > 1) {
+  if (scopes && scopes.length > 1) {
     console.log("WARNING: The provided Github API token has additional permissions beyond reading and writing to Gists")
   }
 
   return true
 }
 
-export const deleteGist = async (gistURL, githubApiToken) => {
+const deleteGist = async (githubApiToken, gistURL) => {
   const headers = {
     Authorization: `Bearer ${githubApiToken}`,
   }
 
+  const gistId = gistURL.match(/\/([a-fA-F0-9]+)$/)[1]
+
   try {
-    const response = await axios.delete(gistURL, { headers })
+    const response = await axios.delete(`https://api.github.com/gists/${gistId}`, { headers })
 
     if (response.status !== 204) {
       throw new Error(`Failed to delete Gist: ${response.status} ${response.statusText}`)
@@ -66,6 +71,11 @@ export const deleteGist = async (gistURL, githubApiToken) => {
 
     console.log(`Off-chain secrets Gist ${gistURL} deleted successfully`)
   } catch (error) {
-    console.error("Error deleting Gist", error)
+    console.error(`Error deleting Gist ${gistURL}`, error.response)
   }
+}
+
+module.exports = {
+  createGist,
+  deleteGist,
 }
