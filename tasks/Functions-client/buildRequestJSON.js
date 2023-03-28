@@ -70,6 +70,26 @@ const verifyOffchainSecrets = async (secretsURLs, nodeAddresses) => {
 }
 
 const generateRequest = async (requestConfig, taskArgs) => {
+  if (taskArgs.simulate !== false) {
+    console.log("Simulating Functions request locally...")
+
+    if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
+      if (requestConfig.perNodeSecrets && requestConfig.perNodeSecrets[0]) {
+        requestConfig.secrets = requestConfig.perNodeSecrets[0]
+      }
+    }
+
+    const { success, resultLog } = await simulateRequest(requestConfig)
+    console.log(`\n${resultLog}`)
+
+    // If the simulated JavaScript source code contains an error, confirm the user still wants to continue
+    if (!success) {
+      await utils.prompt(
+        "There was an error when running the JavaScript source code for the request.\nContinue? (y) Yes / (n) No\n"
+      )
+    }
+  }
+
   const OracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
   const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
   const [nodeAddresses, perNodePublicKeys] = await oracle.getAllNodePublicKeys()
@@ -99,26 +119,6 @@ const generateRequest = async (requestConfig, taskArgs) => {
     } else {
       // Else, verify the provided off-chain secrets URLs are valid
       await verifyOffchainSecrets(requestConfig.secretsURLs, nodeAddresses)
-    }
-  }
-
-  if (taskArgs.simulate !== false) {
-    console.log("Simulating Functions request locally...")
-
-    if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
-      if (requestConfig.perNodeSecrets && requestConfig.perNodeSecrets[0]) {
-        requestConfig.secrets = requestConfig.perNodeSecrets[0]
-      }
-    }
-
-    const { success, resultLog } = await simulateRequest(requestConfig)
-    console.log(`\n${resultLog}`)
-
-    // If the simulated JavaScript source code contains an error, confirm the user still wants to continue
-    if (!success) {
-      utils.prompt(
-        "There was an error when running the JavaScript source code for the request.\nContinue? (y) Yes / (n) No\n"
-      )
     }
   }
 
