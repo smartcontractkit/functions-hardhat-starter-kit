@@ -57,17 +57,12 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
   function generateRequest(
     string calldata source,
     bytes calldata secrets,
-    Functions.Location secretsLocation,
     string[] calldata args
   ) public pure returns (bytes memory) {
     Functions.Request memory req;
     req.initializeRequest(Functions.Location.Inline, Functions.CodeLanguage.JavaScript, source);
     if (secrets.length > 0) {
-      if (secretsLocation == Functions.Location.Inline) {
-        req.addInlineSecrets(secrets);
-      } else {
-        req.addRemoteSecrets(secrets);
-      }
+      req.addRemoteSecrets(secrets);
     }
     if (args.length > 0) req.addArgs(args);
 
