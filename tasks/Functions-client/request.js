@@ -4,6 +4,7 @@ const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../netwo
 const utils = require("../utils")
 const chalk = require("chalk")
 const { deleteGist } = require("../utils/github")
+const { RequestStore } = require("../utils/artifact")
 
 task("functions-request", "Initiates a request from a Functions client contract")
   .addParam("contract", "Address of the client contract to call")
@@ -79,9 +80,9 @@ task("functions-request", "Initiates a request from a Functions client contract"
     const { lastBaseFeePerGas, maxPriorityFeePerGas } = await hre.ethers.provider.getFeeData()
     const estimatedCostJuels = await clientContract.estimateCost(
       [
-        0, // Inline
-        1, // Remote
-        0, // JavaScript
+        requestConfig.codeLocation,
+        1, // SecretsLocation: Remote
+        requestConfig.codeLanguage,
         requestConfig.source,
         requestConfig.secrets && Object.keys(requestConfig.secrets).length > 0 ? simulatedSecretsURLBytes : [],
         requestConfig.args ?? [],
@@ -127,6 +128,8 @@ task("functions-request", "Initiates a request from a Functions client contract"
     const request = await generateRequest(requestConfig, taskArgs)
     doGistCleanup = doGistCleanup && request.secrets
 
+    const store = RequestStore(hre.network.config.chainId, network.name)
+
     console.log("\n")
     const spinner = utils.spin({
       text: `Submitting transaction for FunctionsConsumer contract ${contractAddr} on network ${network.name}`,
@@ -136,21 +139,37 @@ task("functions-request", "Initiates a request from a Functions client contract"
     await new Promise(async (resolve, reject) => {
       let requestId
 
+      const cleanup = async () => {
+        spinner.stop()
+        if (doGistCleanup) {
+          const success = await deleteGist(process.env["GITHUB_API_TOKEN"], request.secretsURLs[0].slice(0, -4))
+          if (success) await store.update(requestId, { activeManagedSecretsURLs: false })
+        }
+        return resolve()
+      }
+
       // Initiate the listeners before making the request
       // Listen for fulfillment errors
       oracle.on("UserCallbackError", async (eventRequestId, msg) => {
         if (requestId == eventRequestId) {
-          spinner.error("Error in client contract callback function")
+          spinner.error(
+            "Error encountered when calling fulfillRequest in client contract.\n" +
+              "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient."
+          )
           console.log(msg)
+          await store.update(requestId, { status: "failed", error: msg })
+          await cleanup()
         }
       })
       oracle.on("UserCallbackRawError", async (eventRequestId, msg) => {
         if (requestId == eventRequestId) {
-          spinner.error("Raw error in client contract callback function")
+          spinner.error("Raw error in contract request fulfillment. Please contact Chainlink support.")
           console.log(Buffer.from(msg, "hex").toString())
+          await store.update(requestId, { status: "failed", error: msg })
+          await cleanup()
         }
       })
-      // Listen for successful fulfillment
+      // Listen for successful fulfillment, both must be true to be finished
       let billingEndEventReceived = false
       let ocrResponseEventReceived = false
       clientContract.on("OCRResponse", async (eventRequestId, result, err) => {
@@ -173,8 +192,8 @@ task("functions-request", "Initiates a request from a Functions client contract"
         }
         ocrResponseEventReceived = true
         if (billingEndEventReceived) {
-          spinner.stop()
-          return resolve()
+          await store.update(requestId, { status: "complete", result })
+          await cleanup()
         }
 
         // Start spinner again if billing contract has emitted
@@ -206,22 +225,10 @@ task("functions-request", "Initiates a request from a Functions client contract"
             ]
             utils.logger.table(costBreakdownData)
 
-            if (doGistCleanup) {
-              await deleteGist(process.env["GITHUB_API_TOKEN"], request.secretsURLs[0].slice(0, -4))
-            }
-
-            // Check for a successful request & log a mesage if the fulfillment was not successful
-            if (!eventSuccess) {
-              spinner.error(
-                "Error encountered when calling fulfillRequest in client contract.\n" +
-                  "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient."
-              )
-              return resolve()
-            }
+            // Check for a successful request
             billingEndEventReceived = true
             if (ocrResponseEventReceived) {
-              spinner.stop()
-              return resolve()
+              await cleanup()
             }
             // Start spinner again if client contract has not received a response
             spinner.start()
@@ -238,25 +245,44 @@ task("functions-request", "Initiates a request from a Functions client contract"
         gasLimit,
         overrides
       )
+      const earlyTxReceipt = await requestTx.wait(1)
+      requestId = earlyTxReceipt.events[2].args.id
+      await store.create({
+        type: "consumer",
+        id: requestId,
+        transactionReceipt: earlyTxReceipt,
+        taskArgs,
+        codeLocation: requestConfig.codeLocation,
+        codeLanguage: requestConfig.codeLanguage,
+        source: requestConfig.source,
+        secrets: requestConfig.secrets,
+        perNodeSecrets: requestConfig.perNodeSecrets,
+        secretsURLs: request.secretsURLs,
+        activeManagedSecretsURLs: doGistCleanup,
+        args: requestConfig.args,
+        expectedReturnType: requestConfig.expectedReturnType,
+        DONPublicKey: requestConfig.DONPublicKey,
+      })
 
       // If a response is not received in time, the request has exceeded the Service Level Agreement
-      setTimeout(() => {
+      setTimeout(async () => {
         spinner.error(
           "A response has not been received within 5 minutes of the request being initiated and has been canceled. Your subscription was not charged. Please make a new request."
         )
+        await store.update(requestId, { status: "pending_timed_out" })
         reject()
       }, 300_000) // TODO: use registry timeout seconds
 
       spinner.text = `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction to be confirmed...`
-      const requestTxReceipt = await requestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+      await requestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
       spinner.info(
         `Transaction confirmed, see ${
           utils.getEtherscanURL(network.config.chainId) + "tx/" + requestTx.hash
         } for more details.\n`
       )
 
-      requestId = requestTxReceipt.events[2].args.id
-      spinner.text = `Request ${requestId} has been initiated. Waiting for fulfillment from the Decentralized Oracle Network...`
-      spinner.start()
+      spinner.start(
+        `Request ${requestId} has been initiated. Waiting for fulfillment from the Decentralized Oracle Network...`
+      )
     })
   })
