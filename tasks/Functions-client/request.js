@@ -105,8 +105,6 @@ task("functions-request", "Initiates a request from a Functions client contract"
     const transactionEstimateGas = await clientContract.estimateGas.executeRequest(
       requestConfig.source,
       requestConfig.secrets && Object.keys(requestConfig.secrets).length > 0 ? simulatedSecretsURLBytes : [],
-      // TODO: update contracts so secretsLocation is no longer required
-      1,
       requestConfig.args ?? [],
       subscriptionId,
       gasLimit,

@@ -55,7 +55,6 @@ const setAutoRequest = async (contract, taskArgs) => {
   const functionsRequestBytes = await autoClientContract.generateRequest(
     request.source,
     request.secrets ?? [],
-    1,
     request.args ?? []
   )
 
