@@ -128,7 +128,7 @@ task("functions-request", "Initiates a request from a Functions client contract"
     const request = await generateRequest(requestConfig, taskArgs)
     doGistCleanup = doGistCleanup && request.secrets
 
-    const store = RequestStore(hre.network.config.chainId, network.name)
+    const store = RequestStore(hre.network.config.chainId, network.name, "consumer")
 
     console.log("\n")
     const spinner = utils.spin({
@@ -191,8 +191,9 @@ task("functions-request", "Initiates a request from a Functions client contract"
           console.log(`Error message returned to client contract: "${Buffer.from(err.slice(2), "hex")}"\n`)
         }
         ocrResponseEventReceived = true
+        await store.update(requestId, { status: "complete", result })
+
         if (billingEndEventReceived) {
-          await store.update(requestId, { status: "complete", result })
           await cleanup()
         }
 
@@ -249,7 +250,7 @@ task("functions-request", "Initiates a request from a Functions client contract"
       requestId = earlyTxReceipt.events[2].args.id
       await store.create({
         type: "consumer",
-        id: requestId,
+        requestId,
         transactionReceipt: earlyTxReceipt,
         taskArgs,
         codeLocation: requestConfig.codeLocation,

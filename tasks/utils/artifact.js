@@ -5,7 +5,8 @@ const currentVersion = "0"
 
 // export interface RequestData {
 //   type: 'consumer' | 'automatedConsumer'
-//   id: string;
+//   automatedConsumerContractAddress?: string;
+//   requestId?: string;
 //   taskArgs: { };
 //   codeLocation: number;
 //   codeLanguage: number;
@@ -35,23 +36,32 @@ const currentVersion = "0"
 // }
 
 const DEFAULT_DIRECTORY = ".chainlink_functions"
-const DEFAULT_SUBDIRECTORY = "requests"
+const REQUEST_TYPE_TO_ID_KEY = {
+  consumer: "requestId",
+  automatedConsumer: "automatedConsumerContractAddress",
+}
 
 class RequestStore {
   chainId // number;
   chainName // string;
+  requestType // string;
+  idKey // string;
   path // string;
 
   constructor(
     chainId /*: number */,
     chainName /*: string */,
-    directory = DEFAULT_DIRECTORY,
-    subdirectory = DEFAULT_SUBDIRECTORY
+    requestType /*: string */,
+    directory = DEFAULT_DIRECTORY
   ) {
     this.chainId = chainId
     this.chainName = chainName
     const network = `${chainId}-${chainName}`
-    this.path = path.join(directory, subdirectory, network)
+    if (requestType !== "consumer" && requestType !== "automatedConsumer")
+      throw new Error("Unsupported request type, must be one of: consumer, automatedConsumer")
+    this.requestType = requestType
+    this.idKey = REQUEST_TYPE_TO_ID_KEY[requestType]
+    this.path = path.join(directory, network, requestType)
 
     // Set up folders along the path if they don't already exist
     fs.mkdir(this.path, { recursive: true }, (err) => {
@@ -61,11 +71,11 @@ class RequestStore {
 
   async create(data /*: RequestData*/) /*: Promise<void> */ {
     validateDataVersion0(data)
-    if (await this.exists(data.id)) {
-      throw new Error(`Request ${data.id} already exists on chain ${this.chainId}`)
+    if (await this.exists(data[idKey])) {
+      throw new Error(`Request ${data[idKey]} already exists on chain ${this.chainId}`)
     }
     const contents = toRequestArtifact(data)
-    await this.writeFile(data.id, contents)
+    await this.writeFile(data[idKey], contents)
   }
 
   async read(id /*: string*/) /*: Promise<RequestArtifact>*/ {
@@ -85,6 +95,20 @@ class RequestStore {
     const previousData = await this.read(id)
     // NOTE: This is a shallow merge
     const mergedData = { ...previousData, ...data, lastUpdatedAt: Date.now() }
+    await this.writeFile(id, mergedData)
+  }
+
+  async upsert(id /*: string*/, data /*: Fragment<RequestData>*/) /*: Promise<void> */ {
+    let previousData = {}
+    let newData = data
+    try {
+      previousData = await this.read(id)
+    } catch {
+      newData = toRequestArtifact(data)
+    }
+    // NOTE: This is a shallow merge
+    const mergedData = { ...previousData, ...newData, lastUpdatedAt: Date.now() }
+    validateDataVersion0(mergedData)
     await this.writeFile(id, mergedData)
   }
 
@@ -149,7 +173,11 @@ function toRequestArtifact(data /*: RequestData*/) /*: RequestArtifact*/ {
 
 function validateDataVersion0(data /*: RequestData*/) /*: void*/ {
   if (typeof data !== "object") throw new Error("Request data must be an object")
-  if (!data.id) throw new Error("Request data must include the field: id")
+  if (data.type !== "consumer" && data.type !== "automatedConsumer")
+    throw new Error("Request data type must be one of: consumer, automatedConsumer")
+  if (data.type == "consumer" && !data.requestId) throw new Error("Must include field: requestId")
+  if (data.type == "automatedConsumer" && !data.automatedConsumerContractAddress)
+    throw new Error("Must include field: automatedConsumerContractAddress")
 }
 
 function validateRequestArtifactVersion(data /*: RequestArtifact*/) {

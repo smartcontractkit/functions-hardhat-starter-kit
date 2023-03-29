@@ -59,7 +59,7 @@ const setAutoRequest = async (contract, taskArgs) => {
     request.args ?? []
   )
 
-  const store = RequestStore(hre.network.config.chainId, network.name)
+  const store = RequestStore(hre.network.config.chainId, network.name, "automatedConsumer")
 
   console.log("Setting Functions request")
   const setRequestTx = await autoClientContract.setRequest(
@@ -74,9 +74,9 @@ const setAutoRequest = async (contract, taskArgs) => {
   )
   await setRequestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
 
-  await store.create({
+  await store.upsert(taskArgs.contract, {
     type: "automatedConsumer",
-    id: taskArgs.contract,
+    automatedConsumerContractAddress: taskArgs.contract,
     transactionReceipt: setRequestTx,
     taskArgs,
     codeLocation: requestConfig.codeLocation,
