@@ -54,8 +54,8 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
     await registry.addConsumer(subscriptionId, client.address)
 
     // Build the parameters to make a request from the client contract
-    const requestConfig = require("../../Functions-request-config.js")
-    const validatedRequestConfig = getRequestConfig(requestConfig)
+    const unvalidatedRequestConfig = require("../../Functions-request-config.js")
+    const requestConfig = getRequestConfig(unvalidatedRequestConfig)
     // Fetch the mock DON public key
     const DONPublicKey = await oracle.getDONPublicKey()
     // Remove the preceding 0x from the DON public key
@@ -69,7 +69,6 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
       const requestTx = await clientContract.executeRequest(
         request.source,
         request.secrets ?? [],
-        validatedRequestConfig.secretsLocation,
         request.args ?? [],
         subscriptionId,
         gasLimit
@@ -80,8 +79,6 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
 
       // Simulating the JavaScript code locally
       console.log("\nExecuting JavaScript request source code locally...")
-      const unvalidatedRequestConfig = require("../../Functions-request-config.js")
-      const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
       const { success, result, resultLog } = await simulateRequest(requestConfig)
       console.log(`\n${resultLog}`)
