@@ -17,6 +17,9 @@
     "format:check": "prettier --check .",
     "format:fix": "prettier --write ."
   },
+  "bin": {
+    "env-enc": "./libraries/env-enc/cli.js"
+  },
   "devDependencies": {
     "@chainlink/contracts": "0.5.1",
     "@ethersproject/abi": "^5.7.0",

@@ -1,4 +1,4 @@
-const { getDecodedResultLog, getRequestConfig } = require("../../FunctionsSandboxLibrary")
+const { getDecodedResultLog, getRequestConfig } = require("../../libraries/FunctionsSandboxLibrary")
 const { generateRequest } = require("./buildRequestJSON")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 const utils = require("../utils")

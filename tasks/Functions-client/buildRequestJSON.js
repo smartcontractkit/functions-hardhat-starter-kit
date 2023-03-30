@@ -1,4 +1,4 @@
-const { simulateRequest, buildRequest, getRequestConfig } = require("../../FunctionsSandboxLibrary")
+const { simulateRequest, buildRequest, getRequestConfig } = require("../../libraries/FunctionsSandboxLibrary")
 const { generateOffchainSecrets } = require("../utils/generateOffchainSecrets")
 const { networkConfig } = require("../../network-config")
 const utils = require("../utils")
