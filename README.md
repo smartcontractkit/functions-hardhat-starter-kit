@@ -43,7 +43,7 @@
 4. Set the required environment variables.
    1. Set an encryption password for your environment variables to a secure password.
       - On Mac and Linux terminals, or Windows command prompt, run the command: `set ENV_ENC_PASSWORD=YourPasswordHere`
-      - For Windows PowerShell, run the command: `$env:ENV_ENC_PASSWORD=YourPasswordHere`   
+      - For Windows PowerShell, run the command: `$env:ENV_ENC_PASSWORD=YourPasswordHere`
    2. Use the command `npx env-enc set VARIABLE_NAME "variable value"` to set the following environment variables. (For improved security, see [Environment Variable Management Commands](#environment-variable-management-commands)):
       - _GITHUB_API_TOKEN_ for your Github token obtained from step 3
       - _PRIVATE_KEY_ for your development wallet
@@ -84,7 +84,7 @@ By default, all encrypted environment variables will be stored in a file named `
 
 ## Environment Variable Management Commands
 
-The following commands accept an optional `-path` flag followed by a path to the desired encrypted environment variable file.  If one does not exist, it will be created automatically by the `npx env-enc set` command.
+The following commands accept an optional `-path` flag followed by a path to the desired encrypted environment variable file. If one does not exist, it will be created automatically by the `npx env-enc set` command.
 
 | Command                          | Description                                                                                | Parameters                                                                                  |
 | -------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
