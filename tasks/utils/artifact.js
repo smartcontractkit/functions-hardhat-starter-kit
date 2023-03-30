@@ -4,51 +4,64 @@ const fs = require("node:fs/promises")
 const currentVersion = "0"
 
 // export interface RequestData {
-//  // location of source code (only Inline is currently supported)
-//   codeLocation: Location.Inline,
-//  // location of secrets (Inline or Remote)
-//   secretsLocation: Location.Inline,
-//  // code language (only JavaScript is currently supported)
-//   codeLanguage: CodeLanguage.JavaScript,
-//  // string containing the source code to be executed
-//   source: fs.readFileSync("./calculation-example.js").toString(),
-//  // secrets can be accessed within the source code with `secrets.varName` (ie: secrets.apiKey). The secrets object can only contain string values.
-//   secrets: { apiKey: process.env.COINMARKETCAP_API_KEY ?? "" },
-//  // Redundant URLs which point to encrypted off-chain secrets
-//   secretsURLs: [],
-//  // args (string only array) can be accessed within the source code with `args[index]` (ie: args[0]).
-//   args: ["1", "bitcoin", "btc-bitcoin", "btc", "1000000", "450"],
-//  // expected type of the returned value
-//   expectedReturnType: ReturnType.uint256,
-//  // Default offchain secrets object used by the `functions-build-offchain-secrets` command
-//   globalOffchainSecrets: {},
-//  // Per-node offchain secrets objects used by the `functions-build-offchain-secrets` command
-//   perNodeOffchainSecrets: [],
+//   type: 'consumer' | 'automatedConsumer'
+//   automatedConsumerContractAddress?: string;
+//   requestId?: string;
+//   taskArgs: { };
+//   codeLocation: number;
+//   codeLanguage: number;
+//   source: string;
+//   secrets: { };
+//   perNodeSecrets: [];
+//   secretsURLs: [];
+//   activeManagedSecretsURLs: boolean;
+//   args: string[];
+//   expectedReturnType: string;
+//   DONPublicKey: string;
+//   transactionReceipt: ethers.TransactionReceipt;
 // }
 
 // export interface RequestArtifact extends RequestData {
 //   createdAt: number;
 //   lastUpdatedAt: number;
 //   artifactVersion: string;
-//   status: 'pending' | 'complete' | 'failed' | 'timed_out'
-// }
-
-// export interface RequestArtifactUpdateable {
-//   lastUpdatedAt: number;
-//   status: 'pending' | 'complete' | 'failed' | 'timed_out'
+//   status: 'pending' | 'complete' | 'failed' | 'timed_out' | 'pending_timed_out'
 //   result: string
 // }
 
+// export interface RequestArtifactUpdateable {
+//   status: 'pending' | 'complete' | 'failed' | 'timed_out'
+//   result: string
+//   error: string
+// }
+
 const DEFAULT_DIRECTORY = ".chainlink_functions"
-const DEFAULT_SUBDIRECTORY = "requests"
+const REQUEST_TYPE_TO_ID_KEY = {
+  consumer: "requestId",
+  automatedConsumer: "automatedConsumerContractAddress",
+}
 
 class RequestStore {
   chainId // number;
+  chainName // string;
+  requestType // string;
+  idKey // string;
   path // string;
 
-  constructor(chainId /*: number */, directory = DEFAULT_DIRECTORY, subdirectory = DEFAULT_SUBDIRECTORY) {
+  constructor(
+    chainId /*: number */,
+    chainName /*: string */,
+    requestType /*: string */,
+    directory = DEFAULT_DIRECTORY
+  ) {
     this.chainId = chainId
-    this.path = path.join(directory, subdirectory, String(chainId))
+    this.chainName = chainName
+    const network = `${chainId}-${chainName}`
+    if (requestType !== "consumer" && requestType !== "automatedConsumer")
+      throw new Error("Unsupported request type, must be one of: consumer, automatedConsumer")
+    this.requestType = requestType
+    this.idKey = REQUEST_TYPE_TO_ID_KEY[requestType]
+    this.path = path.join(directory, network, requestType)
 
     // Set up folders along the path if they don't already exist
     fs.mkdir(this.path, { recursive: true }, (err) => {
@@ -58,38 +71,52 @@ class RequestStore {
 
   async create(data /*: RequestData*/) /*: Promise<void> */ {
     validateDataVersion0(data)
-    if (await this.exists(data.requestId)) {
-      throw new Error(`Request ${data.requestId} already exists on chain ${this.chainId}`)
+    if (await this.exists(data[idKey])) {
+      throw new Error(`Request ${data[idKey]} already exists on chain ${this.chainId}`)
     }
     const contents = toRequestArtifact(data)
-    await this.writeFile(data.requestId, contents)
+    await this.writeFile(data[idKey], contents)
   }
 
-  async read(requestId /*: string*/) /*: Promise<RequestArtifact>*/ {
+  async read(id /*: string*/) /*: Promise<RequestArtifact>*/ {
     try {
-      const data = JSON.parse(await this.readFile(requestId))
+      const data = JSON.parse(await this.readFile(id))
       return validateRequestArtifactVersion(data)
     } catch (e) {
-      console.error(`Could not find artifact with the request ID of ${requestId}`)
+      console.error(`Could not find artifact with the ID of ${id}`)
       throw e
     }
   }
 
-  async update(requestId /*: string*/, data) /*: Promise<void> */ {
-    if (!(await this.exists(requestId))) {
-      throw new Error(`Request ${requestId} not found on chain ${this.chainId}`)
+  async update(id /*: string*/, data /*: Fragment<RequestArtifactUpdateable>*/) /*: Promise<void> */ {
+    if (!(await this.exists(id))) {
+      throw new Error(`Request ${id} not found on chain ${this.chainId}`)
     }
-    const previousData = await this.read(requestId)
+    const previousData = await this.read(id)
     // NOTE: This is a shallow merge
     const mergedData = { ...previousData, ...data, lastUpdatedAt: Date.now() }
-    await this.writeFile(requestId, mergedData)
+    await this.writeFile(id, mergedData)
   }
 
-  async delete(requestId /*: string*/) /*: Promise<void> */ {
-    if (!(await this.exists(requestId))) {
-      throw new Error(`Request ${requestId} not found on chain ${this.chainId}`)
+  async upsert(id /*: string*/, data /*: Fragment<RequestData>*/) /*: Promise<void> */ {
+    let previousData = {}
+    let newData = data
+    try {
+      previousData = await this.read(id)
+    } catch {
+      newData = toRequestArtifact(data)
     }
-    await this.deleteFile(requestId)
+    // NOTE: This is a shallow merge
+    const mergedData = { ...previousData, ...newData, lastUpdatedAt: Date.now() }
+    validateDataVersion0(mergedData)
+    await this.writeFile(id, mergedData)
+  }
+
+  async delete(id /*: string*/) /*: Promise<void> */ {
+    if (!(await this.exists(id))) {
+      throw new Error(`Request ${id} not found on chain ${this.chainId}`)
+    }
+    await this.deleteFile(id)
   }
 
   /* private */ async exists(name, fileType = ".json") /*: Promise<boolean> */ {
@@ -119,25 +146,17 @@ class RequestStore {
   }
 
   /* private */ async findLatestRequest() /*: Promise<string>*/ {
-    if (this.file === this.fallbackFile) {
-      return await fs.readFile(this.file, "utf8")
-    } else {
-      const fallbackExists = await this.exists(this.fallbackFile)
-      const fileExists = await this.exists(this.file)
-
-      if (fileExists && fallbackExists) {
-        throw new UpgradesError(
-          `Network files with different names ${this.fallbackFile} and ${this.file} were found for the same network.`,
-          () =>
-            `More than one network file was found for chain ID ${this.chainId}. Determine which file is the most up to date version, then take a backup of and delete the other file.`
-        )
-      } else if (fallbackExists) {
-        return await fs.readFile(this.fallbackFile, "utf8")
-      } else {
-        return await fs.readFile(this.file, "utf8")
-      }
-    }
+    const files = await orderReccentFiles(this.path)
+    return files.length ? files[0] : undefined
   }
+}
+
+async function orderReccentFiles(directory /*: string*/) {
+  return await fs
+    .readdir(directory)
+    .filter((f) => fs.lstat(f).isFile())
+    .map((file) => ({ file, mtime: fs.lstat(file).mtime }))
+    .sort((a, b) => b.mtime.getTime() - a.mtime.getTime())
 }
 
 function toRequestArtifact(data /*: RequestData*/) /*: RequestArtifact*/ {
@@ -146,13 +165,19 @@ function toRequestArtifact(data /*: RequestData*/) /*: RequestArtifact*/ {
     lastUpdatedAt: Date.now(),
     artifactVersion: currentVersion,
     status: "pending",
+    result: null,
+    error: null,
     ...data,
   }
 }
 
 function validateDataVersion0(data /*: RequestData*/) /*: void*/ {
   if (typeof data !== "object") throw new Error("Request data must be an object")
-  if (!data.requestId) throw new Error("Request data must include a requestId")
+  if (data.type !== "consumer" && data.type !== "automatedConsumer")
+    throw new Error("Request data type must be one of: consumer, automatedConsumer")
+  if (data.type == "consumer" && !data.requestId) throw new Error("Must include field: requestId")
+  if (data.type == "automatedConsumer" && !data.automatedConsumerContractAddress)
+    throw new Error("Must include field: automatedConsumerContractAddress")
 }
 
 function validateRequestArtifactVersion(data /*: RequestArtifact*/) {

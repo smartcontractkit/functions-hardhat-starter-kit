@@ -2,6 +2,7 @@ const { types } = require("hardhat/config")
 const { VERIFICATION_BLOCK_CONFIRMATIONS } = require("../../network-config")
 const { getRequestConfig } = require("../../FunctionsSandboxLibrary")
 const { generateRequest } = require("./buildRequestJSON")
+const { RequestStore } = require("../utils/artifact")
 
 task("functions-set-auto-request", "Updates the Functions request in a deployed AutomatedFunctionsConsumer contract")
   .addParam("contract", "Address of the client contract")
@@ -58,6 +59,8 @@ const setAutoRequest = async (contract, taskArgs) => {
     request.args ?? []
   )
 
+  const store = RequestStore(hre.network.config.chainId, network.name, "automatedConsumer")
+
   console.log("Setting Functions request")
   const setRequestTx = await autoClientContract.setRequest(
     taskArgs.subid,
@@ -70,6 +73,23 @@ const setAutoRequest = async (contract, taskArgs) => {
     `\nWaiting ${VERIFICATION_BLOCK_CONFIRMATIONS} block for transaction ${setRequestTx.hash} to be confirmed...`
   )
   await setRequestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+
+  await store.upsert(taskArgs.contract, {
+    type: "automatedConsumer",
+    automatedConsumerContractAddress: taskArgs.contract,
+    transactionReceipt: setRequestTx,
+    taskArgs,
+    codeLocation: requestConfig.codeLocation,
+    codeLanguage: requestConfig.codeLanguage,
+    source: requestConfig.source,
+    secrets: requestConfig.secrets,
+    perNodeSecrets: requestConfig.perNodeSecrets,
+    secretsURLs: request.secretsURLs,
+    activeManagedSecretsURLs: doGistCleanup,
+    args: requestConfig.args,
+    expectedReturnType: requestConfig.expectedReturnType,
+    DONPublicKey: requestConfig.DONPublicKey,
+  })
 
   console.log(
     `\nSet new Functions request in AutomatedFunctionsConsumer contract ${autoClientContract.address} on ${network.name}`
