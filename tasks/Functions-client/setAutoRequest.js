@@ -1,6 +1,6 @@
 const { types } = require("hardhat/config")
 const { VERIFICATION_BLOCK_CONFIRMATIONS } = require("../../network-config")
-const { getRequestConfig } = require("../../libraries/FunctionsSandboxLibrary")
+const { getRequestConfig } = require("../../FunctionsSandboxLibrary")
 const { generateRequest } = require("./buildRequestJSON")
 
 task("functions-set-auto-request", "Updates the Functions request in a deployed AutomatedFunctionsConsumer contract")

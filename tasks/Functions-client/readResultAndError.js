@@ -1,4 +1,4 @@
-const { getDecodedResultLog } = require("../../libraries/FunctionsSandboxLibrary")
+const { getDecodedResultLog } = require("../../FunctionsSandboxLibrary")
 
 task(
   "functions-read",

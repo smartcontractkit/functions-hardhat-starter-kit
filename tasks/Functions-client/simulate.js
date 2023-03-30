@@ -3,7 +3,7 @@ const {
   buildRequest,
   getDecodedResultLog,
   getRequestConfig,
-} = require("../../libraries/FunctionsSandboxLibrary")
+} = require("../../FunctionsSandboxLibrary")
 const { networkConfig } = require("../../network-config")
 
 task("functions-simulate", "Simulates an end-to-end fulfillment locally for the FunctionsConsumer contract")

@@ -1,4 +1,4 @@
-const { encryptWithSignature } = require("../../libraries/FunctionsSandboxLibrary/encryptSecrets")
+const { encryptWithSignature } = require("../../FunctionsSandboxLibrary/encryptSecrets")
 
 const generateOffchainSecrets = async (requestConfig, privateKey, DONPublicKey, nodeAddresses, perNodePublicKeys) => {
   validateRequestConfig(requestConfig)
