@@ -62,11 +62,6 @@ class RequestStore {
     this.requestType = requestType
     this.idKey = REQUEST_TYPE_TO_ID_KEY[requestType]
     this.path = path.join(directory, network, requestType)
-
-    // Set up folders along the path if they don't already exist
-    fs.mkdir(this.path, { recursive: true }, (err) => {
-      if (err) throw err
-    })
   }
 
   async create(data /*: RequestData*/) /*: Promise<void> */ {
@@ -83,7 +78,6 @@ class RequestStore {
       const data = JSON.parse(await this.readFile(id))
       return validateRequestArtifactVersion(data)
     } catch (e) {
-      console.error(`Could not find artifact with the ID of ${id}`)
       throw e
     }
   }
@@ -98,18 +92,21 @@ class RequestStore {
     await this.writeFile(id, mergedData)
   }
 
-  async upsert(id /*: string*/, data /*: Fragment<RequestData>*/) /*: Promise<void> */ {
+  async upsert(id /*: string*/, data /*: Fragment<RequestData>*/) /*: Promise<boolean> */ {
+    let created = false
     let previousData = {}
     let newData = data
     try {
       previousData = await this.read(id)
     } catch {
+      created = true
       newData = toRequestArtifact(data)
     }
     // NOTE: This is a shallow merge
     const mergedData = { ...previousData, ...newData, lastUpdatedAt: Date.now() }
     validateDataVersion0(mergedData)
     await this.writeFile(id, mergedData)
+    return created
   }
 
   async delete(id /*: string*/) /*: Promise<void> */ {
@@ -135,6 +132,7 @@ class RequestStore {
   }
 
   /* private */ async writeFile(name, data, fileType = ".json") /*: Promise<void>*/ {
+    await this.validatePath()
     const location = path.join(this.path, `${name}${fileType}`)
     const contents = JSON.stringify(data, null, 2) + "\n"
     await fs.writeFile(location, contents)
@@ -148,6 +146,13 @@ class RequestStore {
   /* private */ async findLatestRequest() /*: Promise<string>*/ {
     const files = await orderReccentFiles(this.path)
     return files.length ? files[0] : undefined
+  }
+
+  /* private */ async validatePath() /*: Promise<void>*/ {
+    // Set up folders along the path if they don't already exist
+    await fs.mkdir(this.path, { recursive: true }, (err) => {
+      if (err) throw err
+    })
   }
 }
 
