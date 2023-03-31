@@ -24,11 +24,19 @@ task(
       return console.log(`Automated Consumer ${taskArgs.contract} does not have active secret Gists.`)
     }
 
+    let success = true
     await Promise.all(
       gist.secretsURLs.map(async (url) => {
-        return await deleteGist(process.env["GITHUB_API_TOKEN"], url.slice(0, -4))
+        const succeeded = await deleteGist(process.env["GITHUB_API_TOKEN"], url.slice(0, -4))
+        if (!succeeded) success = succeeded
+        return
       })
     )
+
+    if (!success)
+      return console.log(
+        `\nSome off-chain secret Gists for Automated Consumer ${taskArgs.contract} could not be deleted. Please re-try or delete manually.`
+      )
 
     await store.update(taskArgs.contract, { activeManagedSecretsURLs: false })
 
