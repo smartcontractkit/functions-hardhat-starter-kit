@@ -1,3 +1,4 @@
+const axios = require("axios")
 const { deleteGist } = require("../utils/github")
 const { RequestStore } = require("../utils/artifact")
 
@@ -27,9 +28,11 @@ task(
     let success = true
     await Promise.all(
       gist.secretsURLs.map(async (url) => {
-        const succeeded = await deleteGist(process.env["GITHUB_API_TOKEN"], url.slice(0, -4))
-        if (!succeeded) success = succeeded
-        return
+        const exists = axios.get(url)
+        if (exists) {
+          const succeeded = await deleteGist(process.env["GITHUB_API_TOKEN"], url.slice(0, -4))
+          if (!succeeded) success = succeeded
+        }
       })
     )
 
