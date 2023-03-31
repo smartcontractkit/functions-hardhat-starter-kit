@@ -74,7 +74,7 @@ const setAutoRequest = async (contract, taskArgs) => {
   )
   await setRequestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
 
-  await store.upsert(taskArgs.contract, {
+  const create = await store.upsert(taskArgs.contract, {
     type: "automatedConsumer",
     automatedConsumerContractAddress: taskArgs.contract,
     transactionReceipt: setRequestTx,
@@ -92,7 +92,9 @@ const setAutoRequest = async (contract, taskArgs) => {
   })
 
   console.log(
-    `\nSet new Functions request in AutomatedFunctionsConsumer contract ${autoClientContract.address} on ${network.name}`
+    `\n${create ? "Created new" : "Updated"} Functions request in AutomatedFunctionsConsumer contract ${
+      autoClientContract.address
+    } on ${network.name}`
   )
 }
 
