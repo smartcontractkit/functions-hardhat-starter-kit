@@ -128,7 +128,7 @@ task("functions-request", "Initiates a request from a Functions client contract"
     const request = await generateRequest(requestConfig, taskArgs)
     doGistCleanup = doGistCleanup && request.secrets
 
-    const store = RequestStore(hre.network.config.chainId, network.name, "consumer")
+    const store = new RequestStore(hre.network.config.chainId, network.name, "consumer")
 
     console.log("\n")
     const spinner = utils.spin({

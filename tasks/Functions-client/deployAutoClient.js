@@ -48,6 +48,8 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
 
     await addClientConsumerToSubscription(taskArgs.subid, autoClientContract.address)
 
+    taskArgs.contract = autoClientContract.address
+
     await setAutoRequest(autoClientContract.address, taskArgs)
 
     const verifyContract = taskArgs.verify
