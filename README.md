@@ -5,7 +5,9 @@
 - [Quickstart](#quickstart)
   - [Requirements](#requirements)
   - [Steps](#steps)
-- [Command Glossary](#command-glossary)
+- [Environment Variable Management](#environment-variable-management)
+  - [Environment Variable Management Commands](#environment-variable-management-commands)
+- [Functions Command Glossary](#functions-command-glossary)
   - [Functions Commands](#functions-commands)
   - [Functions Subscription Management Commands](#functions-subscription-management-commands)
 - [Request Configuration](#request-configuration)
@@ -39,11 +41,14 @@
    2. Name the token and enable read & write access for Gists from the "Account permissions" drop-down menu. Do not enable any additional permissions.
    3. Click "Generate token" and copy the resulting personal access token for step 4.<br><br>
 4. Set the required environment variables.
-   1. This can be done by copying the file _.env.example_ to a new file named _.env_. (This renaming is important so that it won't be tracked by Git.) Then, change the following values:
+   1. Set an encryption password for your environment variables to a secure password.
+      - On Mac and Linux terminals, or Windows command prompt, run the command: `set ENV_ENC_PASSWORD=YourPasswordHere`
+      - For Windows PowerShell, run the command: `$env:ENV_ENC_PASSWORD=YourPasswordHere`
+   2. Use the command `npx env-enc set VARIABLE_NAME "variable value"` to set the following environment variables. (For improved security, see [Environment Variable Management Commands](#environment-variable-management-commands)):
       - _GITHUB_API_TOKEN_ for your Github token obtained from step 3
       - _PRIVATE_KEY_ for your development wallet
       - _MUMBAI_RPC_URL_ or _SEPOLIA_RPC_URL_ for the network that you intend to use
-   2. If desired, the _ETHERSCAN_API_KEY_ or _POLYGONSCAN_API_KEY_ can be set in order to verify contracts, along with any values used in the _secrets_ object in _Functions-request-config.js_ such as _COINMARKETCAP_API_KEY_.<br><br>
+   3. If desired, the _ETHERSCAN_API_KEY_ or _POLYGONSCAN_API_KEY_ can be set in order to verify contracts, along with any values used in the _secrets_ object in _Functions-request-config.js_ such as _COINMARKETCAP_API_KEY_.<br><br>
 5. There are two files to notice that the default example will use:
    - _contracts/FunctionsConsumer.sol_ contains the smart contract that will receive the data
    - _calculation-example.js_ contains JavaScript code that will be executed by each node of the DON<br><br>
@@ -52,14 +57,50 @@
 8. Create, fund & authorize a new Functions billing subscription by running:<br> `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0xDeployed_client_contract_address_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command. Testnet LINK can be obtained at <a href="https://faucets.chain.link/">faucets.chain.link</a>.<br><br>
 9. Make an on-chain request by running:<br>`npx hardhat functions-request --network network_name_here --contract 0xDeployed_client_contract_address_here --subid subscription_id_number_here`
 
-# Command Glossary
+# Environment Variable Management
 
-Each of these commands can be executed in the following format:
+This repo uses the NPM package `env-enc` for keeping environment variables such as wallet private keys, RPC URLs, and other secrets encrypted at rest. This reduces the risk of credential exposure by ensuring credentials are not visible in plaintext.
+
+By default, all encrypted environment variables will be stored in a file named `.env.enc` in the root directory of this repo.
+
+> **NOTE:** If you are using Mac or Linux, be sure to prevent the `ENV_ENC_PASSWORD` environment variable or `env-set` commands from being stored in your shell history.
+>
+> **Bash** _(ie: standard terminal)_
+>
+> - Add the line `HISTIGNORE="*ENV_ENC_PASSWORD*:npx env-enc set*"` to your shell config file (`~/.bashrc`, `~/.bash_profile`, or `~/.profile` depending on your system)
+>
+> **Zsh**
+>
+> - Open your ~/.zshrc file in a text editor
+> - Add the following code to the file:
+>   ```
+>   function zshaddhistory() {
+>     case $1 in
+>     (*ENV_ENC_PASSWORD*|npx env-enc set*) return 1 ;;
+>     (*) return 0 ;;
+>     esac
+>   }
+>   ```
+
+## Environment Variable Management Commands
+
+The following commands accept an optional `-path` flag followed by a path to the desired encrypted environment variable file. If one does not exist, it will be created automatically by the `npx env-enc set` command.
+
+| Command                          | Description                                                                                | Parameters                                                                                  |
+| -------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| `npx env-enc set <name> <value>` | Saves a new variable to the encrypted environment variable file                            | `name`: Environment variable name (must be upper-case), `value`: Environment variable value |
+| `npx env-enc view`               | Shows all currently saved environment variables in the encrypted environment variable file |                                                                                             |
+| `npx env-enc remove <name>`      | Removes a variable from the encrypted environment variable file                            | `name`: Environment variable name                                                           |
+| `npx env-enc remove-all`         | Deletes the encrypted environment variable file                                            |                                                                                             |
+
+# Functions Command Glossary
+
+The Functions and Functions subscription management commands commands can be executed in the following format:
 `npx hardhat command_here --parameter1 parameter_1_value_here --parameter2 parameter_2_value_here`
 
 Example: `npx hardhat functions-read --network mumbai --contract 0x787Fe00416140b37B026f3605c6C72d096110Bb8`
 
-### Functions Commands
+## Functions Commands
 
 | Command                            | Description                                                                                                                      | Parameters                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -76,7 +117,7 @@ Example: `npx hardhat functions-read --network mumbai --contract 0x787Fe00416140
 | `functions-build-request`          | Creates a JSON file with Functions request parameters including encrypted secrets, using data from _Functions-request-config.js_ | `network`: Name of blockchain network, `output` (optional): Output JSON file name (defaults to _Functions-request.json_), `simulate` (optional): Flag indicating if simulation should be run before building the request JSON file (defaults to true)                                                                                                                                                                                                                                                                                                                                                                |
 | `functions-build-offchain-secrets` | Builds an off-chain secrets object that can be uploaded and referenced via URL                                                   | `network`: Name of blockchain network, `output` (optional): Output JSON file name (defaults to _offchain-secrets.json_)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
-### Functions Subscription Management Commands
+## Functions Subscription Management Commands
 
 | Command                      | Description                                                                                                                              | Parameters                                                                                                                                                                                                                 |
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -182,13 +223,13 @@ If the _FunctionsConsumer_ client contract is modified, this task must also be m
 
 ## Off-chain Secrets
 
-Instead of using encrypted secrets written directly on the blockchain, encrypted secrets are hosted off-chain and be fetched by DON nodes via HTTP when a request is initiated. This allows encrypted secrets to be deleted when they are no longer in use. By default, the tooling automatically uploads secrets to private Github Gists and deletes them once a request is fulfilled unless the secrets are being used for the `AutomatedFunctionsConsumer.sol` contract. If integrating with Chainlink Automation, it is recommended to delete the secrets Gist manually once it is not longer in use.
+Instead of using encrypted secrets written directly on the blockchain, encrypted secrets are hosted off-chain and be fetched by DON nodes via HTTP when a request is initiated. This allows encrypted secrets to be deleted when they are no longer in use. By default, the tooling automatically uploads secrets to private Github Gists and deletes them once a request is fulfilled unless the secrets are being used for an `AutomatedFunctionsConsumer.sol` contract. If integrating with Chainlink Automation, it is recommended to delete the secrets Gist manually once it is not longer in use.
 
 Additionally, per-node secrets allow a separate set of secrets to be assigned to each node in the DON. Each node will not be able to decrypt the set of secrets belonging to another node. Optionally, a set of default secrets encrypted with the DON public key can be used as a fallback by any DON member who does not have a set of secrets assigned to them. This handles the case where a new member is added to the DON, but the assigned secrets have not yet been updated.
 
-To use per-node assigned secrets, enter a list of secrets objects into `perNodeSecrets` in _Functions-request-config.js_ before running the `functions-build-offchain-secrets` command. The number of objects in the array must correspond to the number of nodes in the DON. Default secrets can be entered into the `secrets` parameter of `Functions-request-config.js`. Each secrets object must have the same set of entries, but the values for each entry can be different (ie: `[ { apiKey: '123' }, { apiKey: '456' }, ... ]`). If the per-node secrets feature is not desired, `perNodeSecrets` can be left empty and a single set of secrets can be entered for `secrets`.
+To use per-node assigned secrets, enter a list of secrets objects into `perNodeSecrets` in _Functions-request-config.js_. The number of objects in the array must correspond to the number of nodes in the DON. Default secrets can be entered into the `secrets` parameter of `Functions-request-config.js`. Each secrets object must have the same set of entries, but the values for each entry can be different (ie: `[ { apiKey: '123' }, { apiKey: '456' }, ... ]`). If the per-node secrets feature is not desired, `perNodeSecrets` can be left empty and a single set of secrets can be entered for `secrets`.
 
-To generate the encrypted secrets JSON file, run the command `npx hardhat functions-build-offchain-secrets --network network_name_here`. This will output the file _offchain-secrets.json_ which can be uploaded to S3, Github, or another hosting service that allows the JSON file to be fetched via URL.
+If you prefer to host secrets elsewhere instead of having them automatically uploaded to a Github Gist, generate the encrypted secrets JSON file by running the command `npx hardhat functions-build-offchain-secrets --network network_name_here`. This will output the file _offchain-secrets.json_ which can be uploaded to any other hosting service that allows the JSON file to be fetched via URL.
 Once the JSON file is uploaded, enter the URL(s) where the JSON file is hosted into `secretsURLs`. Multiple URLs can be entered as a fallback in case any of the URLs are offline. Each URL should host the exact same JSON file. The tooling will automatically pack the secrets URL(s) into a space-separated string and encrypt the string using the DON public key so no 3rd party can view the URLs. Finally, this encrypted string of URLs is used in the `secrets` parameter when making an on-chain request.
 
 URLs which host secrets must be available every time a request is executed by DON nodes. For optimal security, it is recommended to expire the URLs when the off-chain secrets are no longer in use.
