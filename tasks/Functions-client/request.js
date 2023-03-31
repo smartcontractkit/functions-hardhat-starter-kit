@@ -128,7 +128,7 @@ task("functions-request", "Initiates a request from a Functions client contract"
     const request = await generateRequest(requestConfig, taskArgs)
     doGistCleanup = doGistCleanup && request.secrets
 
-    const store = RequestStore(hre.network.config.chainId, network.name, "consumer")
+    const store = new RequestStore(hre.network.config.chainId, network.name, "consumer")
 
     console.log("\n")
     const spinner = utils.spin({
@@ -152,7 +152,7 @@ task("functions-request", "Initiates a request from a Functions client contract"
       // Listen for fulfillment errors
       oracle.on("UserCallbackError", async (eventRequestId, msg) => {
         if (requestId == eventRequestId) {
-          spinner.error(
+          spinner.fail(
             "Error encountered when calling fulfillRequest in client contract.\n" +
               "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient."
           )
@@ -163,7 +163,7 @@ task("functions-request", "Initiates a request from a Functions client contract"
       })
       oracle.on("UserCallbackRawError", async (eventRequestId, msg) => {
         if (requestId == eventRequestId) {
-          spinner.error("Raw error in contract request fulfillment. Please contact Chainlink support.")
+          spinner.fail("Raw error in contract request fulfillment. Please contact Chainlink support.")
           console.log(Buffer.from(msg, "hex").toString())
           await store.update(requestId, { status: "failed", error: msg })
           await cleanup()
@@ -267,7 +267,7 @@ task("functions-request", "Initiates a request from a Functions client contract"
 
       // If a response is not received in time, the request has exceeded the Service Level Agreement
       setTimeout(async () => {
-        spinner.error(
+        spinner.fail(
           "A response has not been received within 5 minutes of the request being initiated and has been canceled. Your subscription was not charged. Please make a new request."
         )
         await store.update(requestId, { status: "pending_timed_out" })

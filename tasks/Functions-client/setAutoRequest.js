@@ -59,7 +59,7 @@ const setAutoRequest = async (contract, taskArgs) => {
     request.args ?? []
   )
 
-  const store = RequestStore(hre.network.config.chainId, network.name, "automatedConsumer")
+  const store = new RequestStore(hre.network.config.chainId, network.name, "automatedConsumer")
 
   console.log("Setting Functions request")
   const setRequestTx = await autoClientContract.setRequest(
