@@ -14,23 +14,26 @@ task(
 
     const store = new RequestStore(hre.network.config.chainId, network.name, "automatedConsumer")
 
-    let gist
+    let artifact
     try {
-      gist = await store.read(taskArgs.contract)
+      artifact = await store.read(taskArgs.contract)
     } catch {
       return console.log(`Automated Consumer ${taskArgs.contract} not found.`)
     }
 
-    if (!gist.activeManagedSecretsURLs || gist.secretsURLs.length < 1) {
+    if (!artifact.activeManagedSecretsURLs || artifact.secretsURLs.length < 1) {
       return console.log(`Automated Consumer ${taskArgs.contract} does not have active secret Gists.`)
     }
 
     let success = true
     await Promise.all(
-      gist.secretsURLs.map(async (url) => {
+      artifact.secretsURLs.map(async (url) => {
+        if (!url.includes("github")) return console.log(`\n${url} is not a GitHub Gist - skipping`)
         const exists = axios.get(url)
         if (exists) {
-          const succeeded = await deleteGist(process.env["GITHUB_API_TOKEN"], url.slice(0, -4))
+          // Gist URLs end with '/raw', remove this
+          const urlNoRaw = url.slice(0, -4)
+          const succeeded = await deleteGist(process.env["GITHUB_API_TOKEN"], urlNoRaw)
           if (!succeeded) success = succeeded
         }
       })

@@ -74,12 +74,8 @@ class RequestStore {
   }
 
   async read(id /*: string*/) /*: Promise<RequestArtifact>*/ {
-    try {
-      const data = JSON.parse(await this.readFile(id))
-      return validateRequestArtifactVersion(data)
-    } catch (e) {
-      throw e
-    }
+    const data = JSON.parse(await this.readFile(id))
+    return validateRequestArtifactVersion(data)
   }
 
   async update(id /*: string*/, data /*: Fragment<RequestArtifactUpdateable>*/) /*: Promise<void> */ {
