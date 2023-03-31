@@ -71,11 +71,11 @@ class RequestStore {
 
   async create(data /*: RequestData*/) /*: Promise<void> */ {
     validateDataVersion0(data)
-    if (await this.exists(data[idKey])) {
-      throw new Error(`Request ${data[idKey]} already exists on chain ${this.chainId}`)
+    if (await this.exists(data[this.idKey])) {
+      throw new Error(`Request ${data[this.idKey]} already exists on chain ${this.chainId}`)
     }
     const contents = toRequestArtifact(data)
-    await this.writeFile(data[idKey], contents)
+    await this.writeFile(data[this.idKey], contents)
   }
 
   async read(id /*: string*/) /*: Promise<RequestArtifact>*/ {
