@@ -61,9 +61,11 @@ const verifyOffchainSecrets = async (secretsURLs, nodeAddresses) => {
         if (!secrets["0x0"]) {
           throw Error(`No secrets specified for node ${nodeAddress.toLowerCase()} and no default secrets found.`)
         }
-        console.log(
-          `WARNING: No secrets found for node ${nodeAddress.toLowerCase()}.  That node will use default secrets specified by the "0x0" entry.`
-        )
+        if (Object.keys(secrets) > 1) {
+          console.log(
+            `WARNING: No secrets found for node ${nodeAddress.toLowerCase()}.  That node will use default secrets specified by the "0x0" entry.`
+          )
+        }
       }
     }
   }
