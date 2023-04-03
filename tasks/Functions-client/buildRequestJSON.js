@@ -86,9 +86,7 @@ const generateRequest = async (requestConfig, taskArgs) => {
 
     // If the simulated JavaScript source code contains an error, confirm the user still wants to continue
     if (!success) {
-      await utils.prompt(
-        "There was an error when running the JavaScript source code for the request.\nContinue? (y) Yes / (n) No\n"
-      )
+      await utils.prompt("There was an error when running the JavaScript source code for the request.")
     }
   }
 
