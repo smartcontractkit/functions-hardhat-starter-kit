@@ -3,6 +3,7 @@ const { VERIFICATION_BLOCK_CONFIRMATIONS } = require("../../network-config")
 const { getRequestConfig } = require("../../FunctionsSandboxLibrary")
 const { generateRequest } = require("./buildRequestJSON")
 const { RequestStore } = require("../utils/artifact")
+const { deleteGist } = require("../utils/github")
 
 task("functions-set-auto-request", "Updates the Functions request in a deployed AutomatedFunctionsConsumer contract")
   .addParam("contract", "Address of the client contract")
@@ -60,6 +61,13 @@ const setAutoRequest = async (contract, taskArgs) => {
   )
 
   const store = new RequestStore(hre.network.config.chainId, network.name, "automatedConsumer")
+  const previousSecretURLs = []
+  try {
+    const artifact = await store.read(taskArgs.contract)
+    if (artifact.activeManagedSecretsURLs) previousSecretURLs = artifact.secretsURLs
+  } catch {
+    /* new request, continue */
+  }
 
   console.log("Setting Functions request")
   const setRequestTx = await autoClientContract.setRequest(
@@ -90,6 +98,22 @@ const setAutoRequest = async (contract, taskArgs) => {
     expectedReturnType: requestConfig.expectedReturnType,
     DONPublicKey: requestConfig.DONPublicKey,
   })
+
+  // Clean up previous secretsURLs
+  if (!create) {
+    console.log(`Attempting to clean up previous GitHub Gist secrets`)
+    await Promise.all(
+      previousSecretURLs.map(async (url) => {
+        if (!url.includes("github")) return console.log(`\n${url} is not a GitHub Gist - skipping`)
+        const exists = axios.get(url)
+        if (exists) {
+          // Gist URLs end with '/raw', remove this
+          const urlNoRaw = url.slice(0, -4)
+          await deleteGist(process.env["GITHUB_API_TOKEN"], urlNoRaw)
+        }
+      })
+    )
+  }
 
   console.log(
     `\n${create ? "Created new" : "Updated"} Functions request in AutomatedFunctionsConsumer contract ${
