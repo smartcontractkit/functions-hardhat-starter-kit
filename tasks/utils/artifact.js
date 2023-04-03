@@ -161,6 +161,8 @@ async function orderReccentFiles(directory /*: string*/) {
 }
 
 function toRequestArtifact(data /*: RequestData*/) /*: RequestArtifact*/ {
+  const secrets = data.secrets ?? {}
+  const secretsNoValues = Object.fromEntries(Object.entries(secrets).map(([key, value]) => [key, "[REDACTED]"]))
   return {
     createdAt: Date.now(),
     lastUpdatedAt: Date.now(),
@@ -169,6 +171,7 @@ function toRequestArtifact(data /*: RequestData*/) /*: RequestArtifact*/ {
     result: null,
     error: null,
     ...data,
+    secrets: secretsNoValues,
   }
 }
 
