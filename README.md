@@ -42,7 +42,8 @@
    3. Click "Generate token" and copy the resulting personal access token for step 4.<br><br>
 4. Set the required environment variables.
    1. Set an encryption password for your environment variables to a secure password.
-      - On Mac and Linux terminals, or Windows command prompt, run the command: `set ENV_ENC_PASSWORD=YourPasswordHere`
+      - On Mac and Linux terminals, run the command: `export ENV_ENC_PASSWORD=YourPasswordHere`
+      - On Windows command prompt, run the command: `set ENV_ENC_PASSWORD=YourPasswordHere`
       - For Windows PowerShell, run the command: `$env:ENV_ENC_PASSWORD=YourPasswordHere`
    2. Use the command `npx env-enc set VARIABLE_NAME "variable value"` to set the following environment variables. (For improved security, see [Environment Variable Management Commands](#environment-variable-management-commands)):
       - _GITHUB_API_TOKEN_ for your Github token obtained from step 3
@@ -81,6 +82,7 @@ By default, all encrypted environment variables will be stored in a file named `
 >     esac
 >   }
 >   ```
+>   **For other terminals, please find the relevant documentation for preventing commands from being stored in your shell history**
 
 ## Environment Variable Management Commands
 

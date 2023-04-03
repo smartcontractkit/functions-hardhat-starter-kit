@@ -246,12 +246,15 @@ task("functions-request", "Initiates a request from a Functions client contract"
         gasLimit,
         overrides
       )
-      const earlyTxReceipt = await requestTx.wait(1)
-      requestId = earlyTxReceipt.events[2].args.id
+      const requestTxReceipt = await requestTx.wait(2)
+      requestId = requestTxReceipt.events[2].args.id
+      spinner.start(
+        `Request ${requestId} has been initiated. Waiting for fulfillment from the Decentralized Oracle Network...`
+      )
       await store.create({
         type: "consumer",
         requestId,
-        transactionReceipt: earlyTxReceipt,
+        transactionReceipt: requestTxReceipt,
         taskArgs,
         codeLocation: requestConfig.codeLocation,
         codeLanguage: requestConfig.codeLanguage,
@@ -274,16 +277,11 @@ task("functions-request", "Initiates a request from a Functions client contract"
         reject()
       }, 300_000) // TODO: use registry timeout seconds
 
-      spinner.text = `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction to be confirmed...`
-      await requestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+      spinner.text = `Waiting 2 blocks for transaction to be confirmed...`
       spinner.info(
         `Transaction confirmed, see ${
           utils.getEtherscanURL(network.config.chainId) + "tx/" + requestTx.hash
         } for more details.\n`
-      )
-
-      spinner.start(
-        `Request ${requestId} has been initiated. Waiting for fulfillment from the Decentralized Oracle Network...`
       )
     })
   })
