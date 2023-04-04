@@ -130,7 +130,6 @@ task("functions-request", "Initiates a request from a Functions client contract"
 
     const store = new RequestStore(hre.network.config.chainId, network.name, "consumer")
 
-    console.log("\n")
     const spinner = utils.spin({
       text: `Submitting transaction for FunctionsConsumer contract ${contractAddr} on network ${network.name}`,
     })
@@ -156,7 +155,7 @@ task("functions-request", "Initiates a request from a Functions client contract"
             "Error encountered when calling fulfillRequest in client contract.\n" +
               "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient."
           )
-          console.log(msg)
+          console.log(`${msg}\n`)
           await store.update(requestId, { status: "failed", error: msg })
           await cleanup()
         }
@@ -196,9 +195,6 @@ task("functions-request", "Initiates a request from a Functions client contract"
         if (billingEndEventReceived) {
           await cleanup()
         }
-
-        // Start spinner again if billing contract has emitted
-        spinner.start()
       })
       // Listen for the BillingEnd event, log cost breakdown & resolve
       registry.on(
@@ -231,8 +227,6 @@ task("functions-request", "Initiates a request from a Functions client contract"
             if (ocrResponseEventReceived) {
               await cleanup()
             }
-            // Start spinner again if client contract has not received a response
-            spinner.start()
           }
         }
       )
@@ -246,12 +240,22 @@ task("functions-request", "Initiates a request from a Functions client contract"
         gasLimit,
         overrides
       )
-      const earlyTxReceipt = await requestTx.wait(1)
-      requestId = earlyTxReceipt.events[2].args.id
+      spinner.start("Waiting 2 blocks for transaction to be confirmed...")
+      const requestTxReceipt = await requestTx.wait(2)
+      spinner.info(
+        `Transaction confirmed, see ${
+          utils.getEtherscanURL(network.config.chainId) + "tx/" + requestTx.hash
+        } for more details.`
+      )
+      spinner.stop()
+      requestId = requestTxReceipt.events[2].args.id
+      spinner.start(
+        `Request ${requestId} has been initiated. Waiting for fulfillment from the Decentralized Oracle Network...\n`
+      )
       await store.create({
         type: "consumer",
         requestId,
-        transactionReceipt: earlyTxReceipt,
+        transactionReceipt: requestTxReceipt,
         taskArgs,
         codeLocation: requestConfig.codeLocation,
         codeLanguage: requestConfig.codeLanguage,
@@ -264,7 +268,6 @@ task("functions-request", "Initiates a request from a Functions client contract"
         expectedReturnType: requestConfig.expectedReturnType,
         DONPublicKey: requestConfig.DONPublicKey,
       })
-
       // If a response is not received in time, the request has exceeded the Service Level Agreement
       setTimeout(async () => {
         spinner.fail(
@@ -273,17 +276,5 @@ task("functions-request", "Initiates a request from a Functions client contract"
         await store.update(requestId, { status: "pending_timed_out" })
         reject()
       }, 300_000) // TODO: use registry timeout seconds
-
-      spinner.text = `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction to be confirmed...`
-      await requestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
-      spinner.info(
-        `Transaction confirmed, see ${
-          utils.getEtherscanURL(network.config.chainId) + "tx/" + requestTx.hash
-        } for more details.\n`
-      )
-
-      spinner.start(
-        `Request ${requestId} has been initiated. Waiting for fulfillment from the Decentralized Oracle Network...`
-      )
     })
   })
