@@ -41,8 +41,8 @@
    2. Name the token and enable read & write access for Gists from the "Account permissions" drop-down menu. Do not enable any additional permissions.
    3. Click "Generate token" and copy the resulting personal access token for step 4.<br><br>
 4. Set the required environment variables.
-   1. Set an encryption password for your environment variables to a secure password by running:<br>`npx env-enc set-pw`<br><br>
-   2. Use the command `npx env-enc set` to set the following environment variables. (For improved security, see [Environment Variable Management Commands](#environment-variable-management-commands)):
+   1. Set an encryption password for your environment variables to a secure password by running:<br>`npx env-enc set-pw`<br>
+   2. Use the command `npx env-enc set` to set the following environment variables. (See [Environment Variable Management Commands](#environment-variable-management-commands)):
       - _GITHUB_API_TOKEN_ for your Github token obtained from step 3
       - _PRIVATE_KEY_ for your development wallet
       - _MUMBAI_RPC_URL_ or _SEPOLIA_RPC_URL_ for the network that you intend to use
