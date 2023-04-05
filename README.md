@@ -41,8 +41,8 @@
    2. Name the token and enable read & write access for Gists from the "Account permissions" drop-down menu. Do not enable any additional permissions.
    3. Click "Generate token" and copy the resulting personal access token for step 4.<br><br>
 4. Set the required environment variables.
-   1. Set an encryption password for your environment variables to a secure password by running:<br>`npx env-enc set-pw`<br>
-   2. Use the command `npx env-enc set` to set the required environment variables (see [Environment Variable Management](#environment-variable-management)):
+   1. Set an encryption password for your environment variables to a secure password by running:<br>`npx @chainlink/env-enc set-pw`<br>
+   2. Use the command `npx @chainlink/env-enc set` to set the required environment variables (see [Environment Variable Management](#environment-variable-management)):
       - _GITHUB_API_TOKEN_ for your Github token obtained from step 3
       - _PRIVATE_KEY_ for your development wallet
       - _MUMBAI_RPC_URL_ or _SEPOLIA_RPC_URL_ for the network that you intend to use
@@ -57,20 +57,20 @@
 
 # Environment Variable Management
 
-This repo uses the NPM package `env-enc` for keeping environment variables such as wallet private keys, RPC URLs, and other secrets encrypted at rest. This reduces the risk of credential exposure by ensuring credentials are not visible in plaintext.
+This repo uses the NPM package `@chainlink/env-enc` for keeping environment variables such as wallet private keys, RPC URLs, and other secrets encrypted at rest. This reduces the risk of credential exposure by ensuring credentials are not visible in plaintext.
 
 By default, all encrypted environment variables will be stored in a file named `.env.enc` in the root directory of this repo.
 
-First, set the encryption password by running the command `npx env-enc set-password`.
+First, set the encryption password by running the command `npx @chainlink/env-enc set-password`.
 The password must be set at the beginning of each new session.
 If this password is lost, there will be no way to recover the encrypted environment variables.
 
-Run the command `npx env-enc set` to set and save environment variables.
+Run the command `npx @chainlink/env-enc set` to set and save environment variables.
 These variables will be loaded into your environment when the `config()` method is called at the top of `hardhat.config.js`.
-Use `npx env-enc view` to view all currently saved environment variables.
+Use `npx @chainlink/env-enc view` to view all currently saved environment variables.
 When pressing _ENTER_, the terminal will be cleared to prevent these values from remaining visible.
-Running `npx env-enc remove VAR_NAME_HERE` deletes the specified environment variable.
-The command `npx env-enc remove-all` deletes the entire saved environment variable file.
+Running `npx @chainlink/env-enc remove VAR_NAME_HERE` deletes the specified environment variable.
+The command `npx @chainlink/env-enc remove-all` deletes the entire saved environment variable file.
 
 When running this command on a Windows machine, you may receive a security confirmation prompt. Enter `r` to proceed.
 
@@ -79,17 +79,17 @@ When running this command on a Windows machine, you may receive a security confi
 ## Environment Variable Management Commands
 
 The following commands accept an optional `--path` flag followed by a path to the desired encrypted environment variable file.
-If one does not exist, it will be created automatically by the `npx env-enc set` command.
+If one does not exist, it will be created automatically by the `npx @chainlink/env-enc set` command.
 
-The `--path` flag has no effect on the `npx env-enc set-pw` command as the password is stored as an ephemeral environment variable for the current terminal session.
+The `--path` flag has no effect on the `npx @chainlink/env-enc set-pw` command as the password is stored as an ephemeral environment variable for the current terminal session.
 
 | Command                     | Description                                                                                                                                       | Parameters            |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
-| `npx env-enc set-pw`        | Sets the password to encrypt and decrypt the environment variable file **NOTE:** On Windows, this command may show a security confirmation prompt |                       |
-| `npx env-enc set`           | Sets and saves variables to the encrypted environment variable file                                                                               |                       |
-| `npx env-enc view`          | Shows all currently saved variables in the encrypted environment variable file                                                                    |                       |
-| `npx env-enc remove <name>` | Removes a variable from the encrypted environment variable file                                                                                   | `name`: Variable name |
-| `npx env-enc remove-all`    | Deletes the encrypted environment variable file                                                                                                   |                       |
+| `npx @chainlink/env-enc set-pw`        | Sets the password to encrypt and decrypt the environment variable file **NOTE:** On Windows, this command may show a security confirmation prompt |                       |
+| `npx @chainlink/env-enc set`           | Sets and saves variables to the encrypted environment variable file                                                                               |                       |
+| `npx @chainlink/env-enc view`          | Shows all currently saved variables in the encrypted environment variable file                                                                    |                       |
+| `npx @chainlink/env-enc remove <name>` | Removes a variable from the encrypted environment variable file                                                                                   | `name`: Variable name |
+| `npx @chainlink/env-enc remove-all`    | Deletes the encrypted environment variable file                                                                                                   |                       |
 
 # Functions Command Glossary
 
