@@ -83,8 +83,8 @@ If one does not exist, it will be created automatically by the `npx @chainlink/e
 
 The `--path` flag has no effect on the `npx @chainlink/env-enc set-pw` command as the password is stored as an ephemeral environment variable for the current terminal session.
 
-| Command                     | Description                                                                                                                                       | Parameters            |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
+| Command                                | Description                                                                                                                                       | Parameters            |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
 | `npx @chainlink/env-enc set-pw`        | Sets the password to encrypt and decrypt the environment variable file **NOTE:** On Windows, this command may show a security confirmation prompt |                       |
 | `npx @chainlink/env-enc set`           | Sets and saves variables to the encrypted environment variable file                                                                               |                       |
 | `npx @chainlink/env-enc view`          | Shows all currently saved variables in the encrypted environment variable file                                                                    |                       |
