@@ -42,7 +42,7 @@
    3. Click "Generate token" and copy the resulting personal access token for step 4.<br><br>
 4. Set the required environment variables.
    1. Set an encryption password for your environment variables to a secure password by running:<br>`npx env-enc set-pw`<br>
-   2. Use the command `npx env-enc set` to set the following environment variables. (See [Environment Variable Management Commands](#environment-variable-management-commands)):
+   2. Use the command `npx env-enc set` to set the required environment variables (see [Environment Variable Management](#environment-variable-management)):
       - _GITHUB_API_TOKEN_ for your Github token obtained from step 3
       - _PRIVATE_KEY_ for your development wallet
       - _MUMBAI_RPC_URL_ or _SEPOLIA_RPC_URL_ for the network that you intend to use
@@ -78,10 +78,10 @@ When running this command on a Windows machine, you may receive a security confi
 
 ## Environment Variable Management Commands
 
-The following commands accept an optional `-path` flag followed by a path to the desired encrypted environment variable file.
+The following commands accept an optional `--path` flag followed by a path to the desired encrypted environment variable file.
 If one does not exist, it will be created automatically by the `npx env-enc set` command.
 
-The `-path` flag has no effect on the `npx env-enc set-pw` command as the password is stored as an ephemeral environment variable for the current terminal session.
+The `--path` flag has no effect on the `npx env-enc set-pw` command as the password is stored as an ephemeral environment variable for the current terminal session.
 
 | Command                     | Description                                                                                                                                       | Parameters            |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
