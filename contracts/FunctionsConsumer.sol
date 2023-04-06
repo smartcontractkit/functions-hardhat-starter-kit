@@ -65,11 +65,7 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
    * @param err Aggregated error from the user code or from the execution pipeline
    * Either response or error parameter will be set, but never both
    */
-  function fulfillRequest(
-    bytes32 requestId,
-    bytes memory response,
-    bytes memory err
-  ) internal override {
+  function fulfillRequest(bytes32 requestId, bytes memory response, bytes memory err) internal override {
     latestResponse = response;
     latestError = err;
     emit OCRResponse(requestId, response, err);

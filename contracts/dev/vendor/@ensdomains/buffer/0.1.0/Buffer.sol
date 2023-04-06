@@ -85,11 +85,7 @@ library Buffer {
    * @param len The number of bytes to copy.
    * @return The original buffer, for chaining.
    */
-  function append(
-    buffer memory buf,
-    bytes memory data,
-    uint256 len
-  ) internal pure returns (buffer memory) {
+  function append(buffer memory buf, bytes memory data, uint256 len) internal pure returns (buffer memory) {
     require(len <= data.length);
 
     uint256 off = buf.buf.length;
@@ -125,7 +121,7 @@ library Buffer {
 
     // Copy remaining bytes
     unchecked {
-      uint256 mask = (256**(32 - len)) - 1;
+      uint256 mask = (256 ** (32 - len)) - 1;
       assembly {
         let srcpart := and(mload(src), not(mask))
         let destpart := and(mload(dest), mask)
@@ -184,11 +180,7 @@ library Buffer {
    * @param len The number of bytes to write (left-aligned).
    * @return The original buffer, for chaining.
    */
-  function append(
-    buffer memory buf,
-    bytes32 data,
-    uint256 len
-  ) private pure returns (buffer memory) {
+  function append(buffer memory buf, bytes32 data, uint256 len) private pure returns (buffer memory) {
     uint256 off = buf.buf.length;
     uint256 newCapacity = len + off;
     if (newCapacity > buf.capacity) {
@@ -196,7 +188,7 @@ library Buffer {
     }
 
     unchecked {
-      uint256 mask = (256**len) - 1;
+      uint256 mask = (256 ** len) - 1;
       // Right-align data
       data = data >> (8 * (32 - len));
       assembly {
@@ -244,18 +236,14 @@ library Buffer {
    * @param len The number of bytes to write (right-aligned).
    * @return The original buffer.
    */
-  function appendInt(
-    buffer memory buf,
-    uint256 data,
-    uint256 len
-  ) internal pure returns (buffer memory) {
+  function appendInt(buffer memory buf, uint256 data, uint256 len) internal pure returns (buffer memory) {
     uint256 off = buf.buf.length;
     uint256 newCapacity = len + off;
     if (newCapacity > buf.capacity) {
       resize(buf, newCapacity * 2);
     }
 
-    uint256 mask = (256**len) - 1;
+    uint256 mask = (256 ** len) - 1;
     assembly {
       // Memory address of the buffer data
       let bufptr := mload(buf)
