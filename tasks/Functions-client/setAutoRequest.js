@@ -2,6 +2,8 @@ const { types } = require("hardhat/config")
 const { VERIFICATION_BLOCK_CONFIRMATIONS } = require("../../network-config")
 const { getRequestConfig } = require("../../FunctionsSandboxLibrary")
 const { generateRequest } = require("./buildRequestJSON")
+const { RequestStore } = require("../utils/artifact")
+const { deleteGist } = require("../utils/github")
 
 task("functions-set-auto-request", "Updates the Functions request in a deployed AutomatedFunctionsConsumer contract")
   .addParam("contract", "Address of the client contract")
@@ -42,14 +44,30 @@ const setAutoRequest = async (contract, taskArgs) => {
   const unvalidatedRequestConfig = require("../../Functions-request-config.js")
   const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
+  // doGistCleanup indicates if an encrypted secrets Gist was created automatically and should be cleaned up by the user after use
+  let doGistCleanup = !(requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0)
   const request = await generateRequest(requestConfig, taskArgs)
+
+  if (doGistCleanup && request.secrets) {
+    console.log(
+      `Be sure to delete the Gist ${request.secretsURLs[0].slice(0, -4)} once encrypted secrets are no longer in use!\n`
+    )
+  }
 
   const functionsRequestBytes = await autoClientContract.generateRequest(
     request.source,
     request.secrets ?? [],
-    request.secretsLocation,
     request.args ?? []
   )
+
+  const store = new RequestStore(hre.network.config.chainId, network.name, "automatedConsumer")
+  const previousSecretURLs = []
+  try {
+    const artifact = await store.read(taskArgs.contract)
+    if (artifact.activeManagedSecretsURLs) previousSecretURLs = artifact.secretsURLs
+  } catch {
+    /* new request, continue */
+  }
 
   console.log("Setting Functions request")
   const setRequestTx = await autoClientContract.setRequest(
@@ -64,8 +82,43 @@ const setAutoRequest = async (contract, taskArgs) => {
   )
   await setRequestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
 
+  const create = await store.upsert(taskArgs.contract, {
+    type: "automatedConsumer",
+    automatedConsumerContractAddress: taskArgs.contract,
+    transactionReceipt: setRequestTx,
+    taskArgs,
+    codeLocation: requestConfig.codeLocation,
+    codeLanguage: requestConfig.codeLanguage,
+    source: requestConfig.source,
+    secrets: requestConfig.secrets,
+    perNodeSecrets: requestConfig.perNodeSecrets,
+    secretsURLs: request.secretsURLs,
+    activeManagedSecretsURLs: doGistCleanup,
+    args: requestConfig.args,
+    expectedReturnType: requestConfig.expectedReturnType,
+    DONPublicKey: requestConfig.DONPublicKey,
+  })
+
+  // Clean up previous secretsURLs
+  if (!create) {
+    console.log(`Attempting to clean up previous GitHub Gist secrets`)
+    await Promise.all(
+      previousSecretURLs.map(async (url) => {
+        if (!url.includes("github")) return console.log(`\n${url} is not a GitHub Gist - skipping`)
+        const exists = axios.get(url)
+        if (exists) {
+          // Gist URLs end with '/raw', remove this
+          const urlNoRaw = url.slice(0, -4)
+          await deleteGist(process.env["GITHUB_API_TOKEN"], urlNoRaw)
+        }
+      })
+    )
+  }
+
   console.log(
-    `\nSet new Functions request in AutomatedFunctionsConsumer contract ${autoClientContract.address} on ${network.name}`
+    `\n${create ? "Created new" : "Updated"} Functions request in AutomatedFunctionsConsumer contract ${
+      autoClientContract.address
+    } on ${network.name}`
   )
 }
 

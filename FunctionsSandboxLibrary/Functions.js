@@ -8,12 +8,8 @@ var _a
 Object.defineProperty(exports, "__esModule", { value: true })
 exports.FunctionsModule = void 0
 const axios_1 = __importDefault(require("axios"))
-const Log_1 = require("./Log")
 class FunctionsModule {
-  constructor(secretsRedactor, requestId) {
-    this.secretsRedactor = secretsRedactor
-    this.requestId = requestId
-    this._userHttpQueries = []
+  constructor() {
     this.buildFunctionsmodule = (numAllowedQueries) => {
       return {
         makeHttpRequest: this.makeHttpRequestFactory(numAllowedQueries),
@@ -36,7 +32,6 @@ class FunctionsModule {
       }) => {
         if (totalHttpRequests < maxHttpRequests) {
           totalHttpRequests++
-          let success = false
           let result
           if (timeout > 9000) {
             throw Error("HTTP request timeout >9000")
@@ -60,7 +55,6 @@ class FunctionsModule {
             delete result.request
             delete result.config
             result.error = false
-            success = true
             return result
           } catch (untypedError) {
             const error = untypedError
@@ -71,15 +65,6 @@ class FunctionsModule {
             }
             error.error = true
             return error
-          } finally {
-            const redactedQuery = {
-              url: this.secretsRedactor(url),
-              method,
-              timeout,
-              success,
-            }
-            Log_1.Log.trace(`HTTP Query: ${JSON.stringify(redactedQuery)}`, this.requestId)
-            this._userHttpQueries.push(redactedQuery)
           }
         }
         throw Error("exceeded numAllowedQueries")
@@ -87,7 +72,7 @@ class FunctionsModule {
     }
   }
   get userHttpQueries() {
-    return this._userHttpQueries
+    return []
   }
 }
 exports.FunctionsModule = FunctionsModule

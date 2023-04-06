@@ -1,8 +1,8 @@
+require("@chainlink/env-enc").config()
 require("@nomicfoundation/hardhat-toolbox")
 require("hardhat-contract-sizer")
 require("@openzeppelin/hardhat-upgrades")
 require("./tasks")
-require("dotenv").config()
 
 const npmCommand = process.env.npm_lifecycle_event
 const isTestEnvironment = npmCommand == "test" || npmCommand == "test:unit"
@@ -12,14 +12,6 @@ let MAINNET_RPC_URL = process.env.MAINNET_RPC_URL
 let POLYGON_MAINNET_RPC_URL = process.env.POLYGON_MAINNET_RPC_URL
 let MUMBAI_RPC_URL = process.env.MUMBAI_RPC_URL
 let SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL
-
-// Ignore default values from .env.example
-if (SEPOLIA_RPC_URL === "https://sepolia.infura.io/v3/ExampleKey") {
-  SEPOLIA_RPC_URL = undefined
-}
-if (MUMBAI_RPC_URL === "https://polygon-mumbai.g.alchemy.com/v2/ExampleKey") {
-  MUMBAI_RPC_URL = undefined
-}
 
 // Ensure one of the RPC endpoints has been set
 if (!isTestEnvironment && !MAINNET_RPC_URL && !POLYGON_MAINNET_RPC_URL && !MUMBAI_RPC_URL && !SEPOLIA_RPC_URL) {

@@ -1,8 +1,10 @@
 const { simulateRequest, buildRequest, getRequestConfig } = require("../../FunctionsSandboxLibrary")
+const { generateOffchainSecrets } = require("../utils/generateOffchainSecrets")
 const { networkConfig } = require("../../network-config")
 const utils = require("../utils")
 const axios = require("axios")
 const fs = require("fs")
+const { createGist } = require("../utils/github")
 
 task("functions-build-request", "Creates a JSON file with Functions request parameters")
   .addOptionalParam("output", "Output file name (defaults to Functions-request.json)")
@@ -59,59 +61,72 @@ const verifyOffchainSecrets = async (secretsURLs, nodeAddresses) => {
         if (!secrets["0x0"]) {
           throw Error(`No secrets specified for node ${nodeAddress.toLowerCase()} and no default secrets found.`)
         }
-        console.log(
-          `WARNING: No secrets found for node ${nodeAddress.toLowerCase()}.  That node will use default secrets specified by the "0x0" entry.`
-        )
+        if (Object.keys(secrets) > 1) {
+          console.log(
+            `WARNING: No secrets found for node ${nodeAddress.toLowerCase()}.  That node will use default secrets specified by the "0x0" entry.`
+          )
+        }
       }
     }
   }
 }
 
 const generateRequest = async (requestConfig, taskArgs) => {
-  const OracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
-  const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
-
-  if (requestConfig.secretsLocation === 1) {
-    requestConfig.secrets = undefined
-    if (!requestConfig.globalOffchainSecrets || Object.keys(requestConfig.globalOffchainSecrets).length === 0) {
-      if (
-        requestConfig.perNodeOffchainSecrets &&
-        requestConfig.perNodeOffchainSecrets[0] &&
-        Object.keys(requestConfig.perNodeOffchainSecrets[0]).length > 0
-      ) {
-        requestConfig.secrets = requestConfig.perNodeOffchainSecrets[0]
-      }
-    } else {
-      requestConfig.secrets = requestConfig.globalOffchainSecrets
-    }
-    // Get node addresses for off-chain secrets
-    const [nodeAddresses] = await oracle.getAllNodePublicKeys()
-    if (requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0) {
-      await verifyOffchainSecrets(requestConfig.secretsURLs, nodeAddresses)
-    }
-  }
-
   if (taskArgs.simulate !== false) {
     console.log("Simulating Functions request locally...")
+
+    if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
+      if (requestConfig.perNodeSecrets && requestConfig.perNodeSecrets[0]) {
+        requestConfig.secrets = requestConfig.perNodeSecrets[0]
+      }
+    }
 
     const { success, resultLog } = await simulateRequest(requestConfig)
     console.log(`\n${resultLog}`)
 
     // If the simulated JavaScript source code contains an error, confirm the user still wants to continue
     if (!success) {
-      utils.prompt(
-        "There was an error when running the JavaScript source code for the request.\nContinue? (y) Yes / (n) No\n"
-      )
+      await utils.prompt("There was an error when running the JavaScript source code for the request.")
     }
   }
 
-  // Fetch the DON public key from on-chain
+  const OracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
+  const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
+  const [nodeAddresses, perNodePublicKeys] = await oracle.getAllNodePublicKeys()
   const DONPublicKey = await oracle.getDONPublicKey()
+
+  if (
+    (requestConfig.secrets && Object.keys(requestConfig.secrets).length > 0) ||
+    (requestConfig.perNodeSecrets && Object.keys(requestConfig.perNodeSecrets).length > 0)
+  ) {
+    if (!requestConfig.secretsURLs || requestConfig.secretsURLs.length === 0) {
+      // If their are secrets (or per-node secrets) and no secretsURLs are provided, create and upload an off-chain secrets Gist
+      const offchainSecrets = await generateOffchainSecrets(
+        requestConfig,
+        process.env["PRIVATE_KEY"],
+        DONPublicKey,
+        nodeAddresses,
+        perNodePublicKeys
+      )
+
+      if (!process.env["GITHUB_API_TOKEN"] || process.env["GITHUB_API_TOKEN"] === "") {
+        throw Error("GITHUB_API_TOKEN environment variable not set")
+      }
+
+      const secretsURL = await createGist(process.env["GITHUB_API_TOKEN"], offchainSecrets)
+      console.log(`Successfully created encrypted secrets Gist: ${secretsURL}`)
+      requestConfig.secretsURLs = [`${secretsURL}/raw`]
+    } else {
+      // Else, verify the provided off-chain secrets URLs are valid
+      await verifyOffchainSecrets(requestConfig.secretsURLs, nodeAddresses)
+    }
+  }
+
   // Remove the preceding 0x from the DON public key
   requestConfig.DONPublicKey = DONPublicKey.slice(2)
   // Build the parameters to make a request from the client contract
   const request = await buildRequest(requestConfig)
-  request.secretsLocation = requestConfig.secretsLocation
+  request.secretsURLs = requestConfig.secretsURLs
   return request
 }
 

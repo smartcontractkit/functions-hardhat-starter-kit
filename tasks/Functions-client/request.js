@@ -3,6 +3,8 @@ const { generateRequest } = require("./buildRequestJSON")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 const utils = require("../utils")
 const chalk = require("chalk")
+const { deleteGist } = require("../utils/github")
+const { RequestStore } = require("../utils/artifact")
 
 task("functions-request", "Initiates a request from a Functions client contract")
   .addParam("contract", "Address of the client contract to call")
@@ -51,11 +53,6 @@ task("functions-request", "Initiates a request from a Functions client contract"
     )
     const registry = await RegistryFactory.attach(registryAddress)
 
-    const unvalidatedRequestConfig = require("../../Functions-request-config.js")
-    const requestConfig = getRequestConfig(unvalidatedRequestConfig)
-
-    const request = await generateRequest(requestConfig, taskArgs)
-
     // Check that the subscription is valid
     let subInfo
     try {
@@ -72,16 +69,23 @@ task("functions-request", "Initiates a request from a Functions client contract"
       throw Error(`Consumer contract ${contractAddr} is not registered to use subscription ${subscriptionId}`)
     }
 
+    const unvalidatedRequestConfig = require("../../Functions-request-config.js")
+    const requestConfig = getRequestConfig(unvalidatedRequestConfig)
+
+    const simulatedSecretsURLBytes = `0x${Buffer.from(
+      "https://exampleSecretsURL.com/f09fa0db8d1c8fab8861ec97b1d7fdf1/raw/d49bbd20dc562f035bdf8832399886baefa970c9/encrypted-functions-request-data-1679941580875.json"
+    ).toString("hex")}`
+
     // Estimate the cost of the request
     const { lastBaseFeePerGas, maxPriorityFeePerGas } = await hre.ethers.provider.getFeeData()
     const estimatedCostJuels = await clientContract.estimateCost(
       [
-        0, // Inline
-        0, // Inline
-        0, // JavaScript
-        request.source,
-        request.secrets ?? [],
-        request.args ?? [],
+        requestConfig.codeLocation,
+        1, // SecretsLocation: Remote
+        requestConfig.codeLanguage,
+        requestConfig.source,
+        requestConfig.secrets && Object.keys(requestConfig.secrets).length > 0 ? simulatedSecretsURLBytes : [],
+        requestConfig.args ?? [],
       ],
       subscriptionId,
       gasLimit,
@@ -100,10 +104,9 @@ task("functions-request", "Initiates a request from a Functions client contract"
     }
 
     const transactionEstimateGas = await clientContract.estimateGas.executeRequest(
-      request.source,
-      request.secrets ?? [],
-      requestConfig.secretsLocation,
-      request.args ?? [],
+      requestConfig.source,
+      requestConfig.secrets && Object.keys(requestConfig.secrets).length > 0 ? simulatedSecretsURLBytes : [],
+      requestConfig.args ?? [],
       subscriptionId,
       gasLimit,
       overrides
@@ -120,7 +123,13 @@ task("functions-request", "Initiates a request from a Functions client contract"
     )
     //  TODO: add cost of this LINK in USD
 
-    console.log("\n")
+    // doGistCleanup indicates if an encrypted secrets Gist was created automatically and should be cleaned up once the request is complete
+    let doGistCleanup = !(requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0)
+    const request = await generateRequest(requestConfig, taskArgs)
+    doGistCleanup = doGistCleanup && request.secrets
+
+    const store = new RequestStore(hre.network.config.chainId, network.name, "consumer")
+
     const spinner = utils.spin({
       text: `Submitting transaction for FunctionsConsumer contract ${contractAddr} on network ${network.name}`,
     })
@@ -129,21 +138,45 @@ task("functions-request", "Initiates a request from a Functions client contract"
     await new Promise(async (resolve, reject) => {
       let requestId
 
+      let cleanupInProgress = false
+      const cleanup = async () => {
+        spinner.stop()
+        if (doGistCleanup) {
+          if (!cleanupInProgress) {
+            cleanupInProgress = true
+            const success = await deleteGist(process.env["GITHUB_API_TOKEN"], request.secretsURLs[0].slice(0, -4))
+            if (success) {
+              await store.update(requestId, { activeManagedSecretsURLs: false })
+            }
+            return resolve()
+          }
+          return
+        }
+        return resolve()
+      }
+
       // Initiate the listeners before making the request
       // Listen for fulfillment errors
       oracle.on("UserCallbackError", async (eventRequestId, msg) => {
         if (requestId == eventRequestId) {
-          spinner.error("Error in client contract callback function")
-          console.log(msg)
+          spinner.fail(
+            "Error encountered when calling fulfillRequest in client contract.\n" +
+              "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient."
+          )
+          console.log(`${msg}\n`)
+          await store.update(requestId, { status: "failed", error: msg })
+          await cleanup()
         }
       })
       oracle.on("UserCallbackRawError", async (eventRequestId, msg) => {
         if (requestId == eventRequestId) {
-          spinner.error("Raw error in client contract callback function")
+          spinner.fail("Raw error in contract request fulfillment. Please contact Chainlink support.")
           console.log(Buffer.from(msg, "hex").toString())
+          await store.update(requestId, { status: "failed", error: msg })
+          await cleanup()
         }
       })
-      // Listen for successful fulfillment
+      // Listen for successful fulfillment, both must be true to be finished
       let billingEndEventReceived = false
       let ocrResponseEventReceived = false
       clientContract.on("OCRResponse", async (eventRequestId, result, err) => {
@@ -165,13 +198,11 @@ task("functions-request", "Initiates a request from a Functions client contract"
           console.log(`Error message returned to client contract: "${Buffer.from(err.slice(2), "hex")}"\n`)
         }
         ocrResponseEventReceived = true
-        if (billingEndEventReceived) {
-          spinner.stop()
-          return resolve()
-        }
+        await store.update(requestId, { status: "complete", result })
 
-        // Start spinner again if billing contract has emitted
-        spinner.start()
+        if (billingEndEventReceived) {
+          await cleanup()
+        }
       })
       // Listen for the BillingEnd event, log cost breakdown & resolve
       registry.on(
@@ -199,21 +230,11 @@ task("functions-request", "Initiates a request from a Functions client contract"
             ]
             utils.logger.table(costBreakdownData)
 
-            // Check for a successful request & log a mesage if the fulfillment was not successful
-            if (!eventSuccess) {
-              spinner.error(
-                "Error encountered when calling fulfillRequest in client contract.\n" +
-                  "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient."
-              )
-              return resolve()
-            }
+            // Check for a successful request
             billingEndEventReceived = true
             if (ocrResponseEventReceived) {
-              spinner.stop()
-              return resolve()
+              await cleanup()
             }
-            // Start spinner again if client contract has not received a response
-            spinner.start()
           }
         }
       )
@@ -222,31 +243,46 @@ task("functions-request", "Initiates a request from a Functions client contract"
       const requestTx = await clientContract.executeRequest(
         request.source,
         request.secrets ?? [],
-        requestConfig.secretsLocation,
         request.args ?? [],
         subscriptionId,
         gasLimit,
         overrides
       )
-
-      // If a response is not received in time, the request has exceeded the Service Level Agreement
-      setTimeout(() => {
-        spinner.error(
-          "A response has not been received within 5 minutes of the request being initiated and has been canceled. Your subscription was not charged. Please make a new request."
-        )
-        reject()
-      }, 300_000) // TODO: use registry timeout seconds
-
-      spinner.text = `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction to be confirmed...`
-      const requestTxReceipt = await requestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+      spinner.start("Waiting 2 blocks for transaction to be confirmed...")
+      const requestTxReceipt = await requestTx.wait(2)
       spinner.info(
         `Transaction confirmed, see ${
           utils.getEtherscanURL(network.config.chainId) + "tx/" + requestTx.hash
-        } for more details.\n`
+        } for more details.`
       )
-
+      spinner.stop()
       requestId = requestTxReceipt.events[2].args.id
-      spinner.text = `Request ${requestId} has been initiated. Waiting for fulfillment from the Decentralized Oracle Network...`
-      spinner.start()
+      spinner.start(
+        `Request ${requestId} has been initiated. Waiting for fulfillment from the Decentralized Oracle Network...\n`
+      )
+      await store.create({
+        type: "consumer",
+        requestId,
+        transactionReceipt: requestTxReceipt,
+        taskArgs,
+        codeLocation: requestConfig.codeLocation,
+        codeLanguage: requestConfig.codeLanguage,
+        source: requestConfig.source,
+        secrets: requestConfig.secrets,
+        perNodeSecrets: requestConfig.perNodeSecrets,
+        secretsURLs: request.secretsURLs,
+        activeManagedSecretsURLs: doGistCleanup,
+        args: requestConfig.args,
+        expectedReturnType: requestConfig.expectedReturnType,
+        DONPublicKey: requestConfig.DONPublicKey,
+      })
+      // If a response is not received in time, the request has exceeded the Service Level Agreement
+      setTimeout(async () => {
+        spinner.fail(
+          "A response has not been received within 5 minutes of the request being initiated and has been canceled. Your subscription was not charged. Please make a new request."
+        )
+        await store.update(requestId, { status: "pending_timed_out" })
+        reject()
+      }, 300_000) // TODO: use registry timeout seconds
     })
   })
