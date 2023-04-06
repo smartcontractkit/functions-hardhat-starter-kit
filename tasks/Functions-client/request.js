@@ -138,11 +138,19 @@ task("functions-request", "Initiates a request from a Functions client contract"
     await new Promise(async (resolve, reject) => {
       let requestId
 
+      let cleanupInProgress = false
       const cleanup = async () => {
         spinner.stop()
         if (doGistCleanup) {
-          const success = await deleteGist(process.env["GITHUB_API_TOKEN"], request.secretsURLs[0].slice(0, -4))
-          if (success) await store.update(requestId, { activeManagedSecretsURLs: false })
+          if (!cleanupInProgress) {
+            cleanupInProgress = true
+            const success = await deleteGist(process.env["GITHUB_API_TOKEN"], request.secretsURLs[0].slice(0, -4))
+            if (success) {
+              await store.update(requestId, { activeManagedSecretsURLs: false })
+            }
+            return resolve()
+          }
+          return
         }
         return resolve()
       }
