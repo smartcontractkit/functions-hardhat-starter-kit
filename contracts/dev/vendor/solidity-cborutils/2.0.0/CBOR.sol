@@ -123,65 +123,37 @@ library CBOR {
     buf.depth -= 1;
   }
 
-  function writeKVString(
-    CBORBuffer memory buf,
-    string memory key,
-    string memory value
-  ) internal pure {
+  function writeKVString(CBORBuffer memory buf, string memory key, string memory value) internal pure {
     writeString(buf, key);
     writeString(buf, value);
   }
 
-  function writeKVBytes(
-    CBORBuffer memory buf,
-    string memory key,
-    bytes memory value
-  ) internal pure {
+  function writeKVBytes(CBORBuffer memory buf, string memory key, bytes memory value) internal pure {
     writeString(buf, key);
     writeBytes(buf, value);
   }
 
-  function writeKVUInt256(
-    CBORBuffer memory buf,
-    string memory key,
-    uint256 value
-  ) internal pure {
+  function writeKVUInt256(CBORBuffer memory buf, string memory key, uint256 value) internal pure {
     writeString(buf, key);
     writeUInt256(buf, value);
   }
 
-  function writeKVInt256(
-    CBORBuffer memory buf,
-    string memory key,
-    int256 value
-  ) internal pure {
+  function writeKVInt256(CBORBuffer memory buf, string memory key, int256 value) internal pure {
     writeString(buf, key);
     writeInt256(buf, value);
   }
 
-  function writeKVUInt64(
-    CBORBuffer memory buf,
-    string memory key,
-    uint64 value
-  ) internal pure {
+  function writeKVUInt64(CBORBuffer memory buf, string memory key, uint64 value) internal pure {
     writeString(buf, key);
     writeUInt64(buf, value);
   }
 
-  function writeKVInt64(
-    CBORBuffer memory buf,
-    string memory key,
-    int64 value
-  ) internal pure {
+  function writeKVInt64(CBORBuffer memory buf, string memory key, int64 value) internal pure {
     writeString(buf, key);
     writeInt64(buf, value);
   }
 
-  function writeKVBool(
-    CBORBuffer memory buf,
-    string memory key,
-    bool value
-  ) internal pure {
+  function writeKVBool(CBORBuffer memory buf, string memory key, bool value) internal pure {
     writeString(buf, key);
     writeBool(buf, value);
   }
@@ -206,11 +178,7 @@ library CBOR {
     startArray(buf);
   }
 
-  function writeFixedNumeric(
-    CBORBuffer memory buf,
-    uint8 major,
-    uint64 value
-  ) private pure {
+  function writeFixedNumeric(CBORBuffer memory buf, uint8 major, uint64 value) private pure {
     if (value <= 23) {
       buf.buf.appendUint8(uint8((major << 5) | value));
     } else if (value <= 0xFF) {
@@ -232,11 +200,7 @@ library CBOR {
     buf.buf.appendUint8(uint8((major << 5) | 31));
   }
 
-  function writeDefiniteLengthType(
-    CBORBuffer memory buf,
-    uint8 major,
-    uint64 length
-  ) private pure {
+  function writeDefiniteLengthType(CBORBuffer memory buf, uint8 major, uint64 length) private pure {
     writeFixedNumeric(buf, major, length);
   }
 

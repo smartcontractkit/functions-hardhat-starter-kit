@@ -17,9 +17,6 @@
     "format:check": "prettier --check .",
     "format:fix": "prettier --write ."
   },
-  "bin": {
-    "env-enc": "./env-enc/cli.js"
-  },
   "devDependencies": {
     "@chainlink/contracts": "0.5.1",
     "@ethersproject/abi": "^5.7.0",
@@ -48,6 +45,7 @@
     "typechain": "^8.1.0"
   },
   "dependencies": {
+    "@chainlink/env-enc": "^1.0.1",
     "@openzeppelin/contracts": "4.8.1",
     "@openzeppelin/contracts-upgradeable": "4.8.1",
     "axios": "^1.1.3",
