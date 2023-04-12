@@ -1,5 +1,5 @@
-// Loads environment variables from .env file (if it exists)
-require("dotenv").config()
+// Loads environment variables from .env.enc file (if it exists)
+require("@chainlink/env-enc").config()
 
 const getLinkEthPriceFeed = () => {
   if (process.env.MAINNET_RPC_URL) return "0xdc530d9457755926550b59e8eccdae7624181557"
