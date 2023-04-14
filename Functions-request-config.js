@@ -1,7 +1,7 @@
 const fs = require("fs")
 
-// Loads environment variables from .env file (if it exists)
-require("dotenv").config()
+// Loads environment variables from .env.enc file (if it exists)
+require("@chainlink/env-enc").config()
 
 const Location = {
   Inline: 0,
