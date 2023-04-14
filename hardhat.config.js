@@ -38,6 +38,13 @@ const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY
 // Enable gas reporting (optional)
 const REPORT_GAS = process.env.REPORT_GAS?.toLowerCase() === "true" ? true : false
 
+const SOLC_SETTINGS = {
+  optimizer: {
+    enabled: true,
+    runs: 1_000,
+  },
+}
+
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   defaultNetwork: "hardhat",
@@ -45,43 +52,25 @@ module.exports = {
     compilers: [
       {
         version: "0.8.7",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 1_000,
-          },
-        },
+        settings: SOLC_SETTINGS,
+      },
+      {
+        version: "0.7.0",
+        settings: SOLC_SETTINGS,
       },
       {
         version: "0.6.6",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 1_000,
-          },
-        },
+        settings: SOLC_SETTINGS,
       },
       {
         version: "0.4.24",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 1_000,
-          },
-        },
+        settings: SOLC_SETTINGS,
       },
     ],
   },
   networks: {
     hardhat: {
       allowUnlimitedContractSize: true,
-      hardfork: "merge",
-      forking: {
-        url: MAINNET_RPC_URL ?? POLYGON_MAINNET_RPC_URL ?? MUMBAI_RPC_URL ?? SEPOLIA_RPC_URL ?? "",
-        blockNumber: FORKING_BLOCK_NUMBER,
-        enabled: isTestEnvironment === false,
-      },
-      chainId: 31337,
       accounts: process.env.PRIVATE_KEY
         ? [
             {
