@@ -183,10 +183,11 @@ const getGasUsedForFulfillRequest = async (success, result) => {
 }
 
 const deployMockOracle = async () => {
-  // Deploy a mock LINK token contract
+  // Deploy mocks: LINK token & LINK/ETH price feed
   const linkTokenFactory = await ethers.getContractFactory("LinkToken")
+  const linkEthPriceFeedFactory = await ethers.getContractFactory("MockV3Aggregator")
   const linkToken = await linkTokenFactory.deploy()
-  const linkEthFeedAddress = networkConfig["hardhat"]["linkEthPriceFeed"]
+  const linkEthPriceFeed = await linkEthPriceFeedFactory.deploy(0, ethers.BigNumber.from(5021530000000000))
   // Deploy proxy admin
   await upgrades.deployProxyAdmin()
   // Deploy the oracle contract
@@ -203,7 +204,7 @@ const deployMockOracle = async () => {
   )
   const registryProxy = await upgrades.deployProxy(
     registryFactory,
-    [linkToken.address, linkEthFeedAddress, oracleProxy.address],
+    [linkToken.address, linkEthPriceFeed.address, oracleProxy.address],
     {
       kind: "transparent",
     }
