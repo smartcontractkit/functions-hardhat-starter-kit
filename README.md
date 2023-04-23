@@ -30,7 +30,7 @@
 
 # For BEGINNERS
 
-If you're new to web3, we recommend starting with the (Functions - Getting Started)[https://docs.chain.link/chainlink-functions/getting-started/] before diving into the code.
+If you're new to web3, we recommend starting with the [Functions - Getting Started](https://docs.chain.link/chainlink-functions/getting-started/) before diving into the code.
 
 The above document will help you:
 
@@ -40,7 +40,7 @@ The above document will help you:
 
 ## Tutorials & examples
 
-For more detailed tutorials and examples, check out the (Chainlink Functions Tutorials)[https://docs.chain.link/chainlink-functions/tutorials/] to get started.
+For more detailed tutorials and examples, check out the [Chainlink Functions Tutorials](https://docs.chain.link/chainlink-functions/tutorials/) to get started.
 
 # Quickstart
 
