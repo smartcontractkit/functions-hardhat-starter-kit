@@ -29,14 +29,17 @@
 <p>Chainlink Functions also enables users to share encrypted secrets with each node in the DON.  This allows users to access APIs that require authentication, without exposing their API keys to the general public.
 
 # For BEGINNERS
+
 If you're new to web3, we recommend starting with the (Functions - Getting Started)[https://docs.chain.link/chainlink-functions/getting-started/] before diving into the code.
 
 The above document will help you:
-* Set up a wallet
-* Get founds
-* Provides more detailed step-by-step description of what you need to do to put data on chain
+
+- Set up a wallet
+- Get founds
+- Provides more detailed step-by-step description of what you need to do to put data on chain
 
 ## Tutorials & examples
+
 For more detailed tutorials and examples, check out the (Chainlink Functions Tutorials)[https://docs.chain.link/chainlink-functions/tutorials/] to get started.
 
 # Quickstart
