@@ -2,7 +2,7 @@
 
 - [Chainlink Functions Starter Kit](#chainlink-functions-starter-kit)
 - [Overview](#overview)
-- [For BEGINNERS](#for-beginners)
+- [For Beginners](#for-beginners)
   - [Tutorials \& examples](#tutorials--examples)
 - [Quickstart](#quickstart)
   - [Requirements](#requirements)
@@ -30,13 +30,13 @@
 
 # For BEGINNERS
 
-If you're new to web3, we recommend starting with the [Functions - Getting Started](https://docs.chain.link/chainlink-functions/getting-started/) before diving into the code.
+If you're new to web3, it is recommended starting with the [Functions - Getting Started](https://docs.chain.link/chainlink-functions/getting-started/) before diving into the code.
 
 The above document will help you:
 
 - Set up a wallet
-- Get founds
-- Provides more detailed step-by-step description of what you need to do to put data on chain
+- Get funds
+- Provides more detailed step-by-step instructions and further information
 
 ## Tutorials & examples
 
