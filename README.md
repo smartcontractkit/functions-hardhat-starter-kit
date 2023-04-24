@@ -2,6 +2,8 @@
 
 - [Chainlink Functions Starter Kit](#chainlink-functions-starter-kit)
 - [Overview](#overview)
+- [For Beginners](#for-beginners)
+  - [Tutorials \& examples](#tutorials--examples)
 - [Quickstart](#quickstart)
   - [Requirements](#requirements)
   - [Steps](#steps)
@@ -25,6 +27,20 @@
 <p>Chainlink Functions allows users to request data from almost any API and perform custom computation using JavaScript.</p>
 <p>It works by using a <a href="https://chain.link/education/blockchain-oracles#decentralized-oracles">decentralized oracle network</a> (DON).<br>When a request is initiated, each node in the DON executes the user-provided JavaScript code simultaneously.  Then, nodes use the <a href="https://docs.chain.link/architecture-overview/off-chain-reporting/">Chainlink OCR</a> protocol to come to consensus on the results.  Finally, the median result is returned to the requesting contract via a callback function.</p>
 <p>Chainlink Functions also enables users to share encrypted secrets with each node in the DON.  This allows users to access APIs that require authentication, without exposing their API keys to the general public.
+
+# For Beginners
+
+If you're new to web3, it is recommended starting with the [Functions - Getting Started](https://docs.chain.link/chainlink-functions/getting-started/) before diving into the code.
+
+The above document will help you:
+
+- Set up a wallet
+- Get funds
+- Provides more detailed step-by-step instructions and further information
+
+## Tutorials & examples
+
+For more detailed tutorials and examples, check out the [Chainlink Functions Tutorials](https://docs.chain.link/chainlink-functions/tutorials/) to get started.
 
 # Quickstart
 
