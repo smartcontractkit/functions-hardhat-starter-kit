@@ -32,9 +32,11 @@
 ## Supported Networks
 
 ### Mainnets
+
 - Not supported yet.
 
 ### Testnets
+
 - Ethereum Sepolia: `ETHEREUM_SEPOLIA_RPC_URL`, `--network ethereumSepolia`
 - Polygon Mumbai: `POLYGON_MUMBAI_RPC_URL`, `--network polygonMumbai`
 - Avalanche Fuji: `AVALANCHE_FUJI_RPC_URL`, `--network avalancheFuji`
