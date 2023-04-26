@@ -1,4 +1,4 @@
-const { networkConfig } = require("../../network-config")
+const { networks } = require("../../networks")
 const fs = require("fs")
 const { generateOffchainSecrets } = require("../utils/generateOffchainSecrets")
 
@@ -15,12 +15,12 @@ task(
     const requestConfig = require("../../Functions-request-config")
 
     console.log(
-      `Using public keys from FunctionsOracle contract ${
-        networkConfig[network.name]["functionsOracleProxy"]
-      } on network ${network.name}`
+      `Using public keys from FunctionsOracle contract ${networks[network.name]["functionsOracleProxy"]} on network ${
+        network.name
+      }`
     )
     const OracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
-    const oracleContract = await OracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
+    const oracleContract = await OracleFactory.attach(networks[network.name]["functionsOracleProxy"])
     const [nodeAddresses, perNodePublicKeys] = await oracleContract.getAllNodePublicKeys()
     const DONPublicKey = await oracleContract.getDONPublicKey()
 

@@ -1,4 +1,4 @@
-const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
+const { networks } = require("../../networks")
 
 task("functions-sub-fund", "Funds a billing subscription for Functions consumer contracts")
   .addParam("amount", "Amount to fund subscription in LINK")
@@ -14,7 +14,7 @@ task("functions-sub-fund", "Funds a billing subscription for Functions consumer 
     const RegistryFactory = await ethers.getContractFactory(
       "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
     )
-    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsBillingRegistryProxy"])
+    const registry = await RegistryFactory.attach(networks[network.name]["functionsBillingRegistryProxy"])
 
     // Check that the subscription is valid
     let preSubInfo
@@ -32,7 +32,7 @@ task("functions-sub-fund", "Funds a billing subscription for Functions consumer 
     console.log(`Funding subscription ${subscriptionId} with ${ethers.utils.formatEther(juelsAmount)} LINK`)
 
     const LinkTokenFactory = await ethers.getContractFactory("LinkToken")
-    const linkToken = await LinkTokenFactory.attach(networkConfig[network.name].linkToken)
+    const linkToken = await LinkTokenFactory.attach(networks[network.name].linkToken)
 
     const accounts = await ethers.getSigners()
     const signer = accounts[0]
@@ -49,13 +49,15 @@ task("functions-sub-fund", "Funds a billing subscription for Functions consumer 
 
     // Fund the subscription with LINK
     const fundTx = await linkToken.transferAndCall(
-      networkConfig[network.name]["functionsBillingRegistryProxy"],
+      networks[network.name]["functionsBillingRegistryProxy"],
       juelsAmount,
       ethers.utils.defaultAbiCoder.encode(["uint64"], [subscriptionId])
     )
 
-    console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${fundTx.hash} to be confirmed...`)
-    await fundTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+    console.log(
+      `Waiting ${networks[network.name].confirmations} blocks for transaction ${fundTx.hash} to be confirmed...`
+    )
+    await fundTx.wait(networks[network.name].confirmations)
 
     const postSubInfo = await registry.getSubscription(subscriptionId)
 

@@ -1,5 +1,5 @@
 const { types } = require("hardhat/config")
-const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
+const { networks } = require("../../networks")
 const { addClientConsumerToSubscription } = require("../Functions-billing/add")
 const { setAutoRequest } = require("./setAutoRequest")
 
@@ -37,7 +37,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
 
     const autoClientContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
     const autoClientContract = await autoClientContractFactory.deploy(
-      networkConfig[network.name]["functionsOracleProxy"],
+      networks[network.name]["functionsOracleProxy"],
       taskArgs.subid,
       taskArgs.gaslimit,
       taskArgs.interval
@@ -57,11 +57,11 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     if (verifyContract && (process.env.POLYGONSCAN_API_KEY || process.env.ETHERSCAN_API_KEY)) {
       try {
         console.log("\nVerifying contract...")
-        await autoClientContract.deployTransaction.wait(Math.max(6 - VERIFICATION_BLOCK_CONFIRMATIONS, 0))
+        await autoClientContract.deployTransaction.wait(Math.max(6 - networks[network.name].confirmations, 0))
         await run("verify:verify", {
           address: autoClientContract.address,
           constructorArguments: [
-            networkConfig[network.name]["functionsOracleProxy"],
+            networks[network.name]["functionsOracleProxy"],
             taskArgs.subid,
             taskArgs.gaslimit,
             taskArgs.interval,

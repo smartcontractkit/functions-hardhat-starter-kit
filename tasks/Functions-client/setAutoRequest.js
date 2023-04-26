@@ -1,5 +1,5 @@
 const { types } = require("hardhat/config")
-const { VERIFICATION_BLOCK_CONFIRMATIONS } = require("../../network-config")
+const { networks } = require("../../networks")
 const { getRequestConfig } = require("../../FunctionsSandboxLibrary")
 const { generateRequest } = require("./buildRequestJSON")
 const { RequestStore } = require("../utils/artifact")
@@ -78,9 +78,9 @@ const setAutoRequest = async (contract, taskArgs) => {
   )
 
   console.log(
-    `\nWaiting ${VERIFICATION_BLOCK_CONFIRMATIONS} block for transaction ${setRequestTx.hash} to be confirmed...`
+    `\nWaiting ${networks[network.name].confirmations} block for transaction ${setRequestTx.hash} to be confirmed...`
   )
-  await setRequestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+  await setRequestTx.wait(networks[network.name].confirmations)
 
   const create = await store.upsert(taskArgs.contract, {
     type: "automatedConsumer",
