@@ -10,9 +10,12 @@ const DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS = 2
 const SHARED_DON_PUBLIC_KEY =
   "a30264e813edc9927f73e036b7885ee25445b836979cb00ef112bc644bd16de2db866fa74648438b34f52bb196ffa386992e94e0a3dc6913cee52e2e98f1619c"
 
+const npmCommand = process.env.npm_lifecycle_event
+const isTestEnvironment = npmCommand == "test" || npmCommand == "test:unit"
+
 // Set EVM private key (required)
 const PRIVATE_KEY = process.env.PRIVATE_KEY
-if (!PRIVATE_KEY) {
+if (!isTestEnvironment && !PRIVATE_KEY) {
   throw Error("Set the PRIVATE_KEY environment variable with your EVM wallet private key")
 }
 
