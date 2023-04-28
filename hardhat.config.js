@@ -5,10 +5,6 @@ require("./tasks")
 require("@chainlink/env-enc").config()
 const { networks } = require("./networks")
 
-// Your API key for Etherscan, obtain one at https://etherscan.io/ (optional)
-const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
-const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY
-
 // Enable gas reporting (optional)
 const REPORT_GAS = process.env.REPORT_GAS?.toLowerCase() === "true" ? true : false
 
@@ -57,11 +53,12 @@ module.exports = {
     ...networks,
   },
   etherscan: {
-    // yarn hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_PARAMETERS>
+    // npx hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_PARAMETERS>
+    // to get exact network names: npx hardhat verify --list-networks
     apiKey: {
-      // TODO: Add arbitrumGoerli, optimismGoerli & avalancheFuji
-      ethereumSepolia: ETHERSCAN_API_KEY,
-      polygonMumbai: POLYGONSCAN_API_KEY,
+      sepolia: networks.ethereumSepolia.verifyApiKey,
+      polygonMumbai: networks.polygonMumbai.verifyApiKey,
+      avalancheFujiTestnet: networks.avalancheFuji.verifyApiKey,
     },
   },
   gasReporter: {
