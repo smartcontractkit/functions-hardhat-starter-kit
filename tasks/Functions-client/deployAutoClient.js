@@ -54,7 +54,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
 
     const verifyContract = taskArgs.verify
 
-    if (verifyContract && (process.env.POLYGONSCAN_API_KEY || process.env.ETHERSCAN_API_KEY)) {
+    if (verifyContract && !!networks[network.name].verifyApiKey && networks[network.name].verifyApiKey !== "UNSET") {
       try {
         console.log("\nVerifying contract...")
         await autoClientContract.deployTransaction.wait(Math.max(6 - networks[network.name].confirmations, 0))
@@ -77,7 +77,9 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
         }
       }
     } else if (verifyContract) {
-      console.log("\nPOLYGONSCAN_API_KEY or ETHERSCAN_API_KEY missing. Skipping contract verification...")
+      console.log(
+        "\nPOLYGONSCAN_API_KEY, ETHERSCAN_API_KEY or SNOWTRACE_API_KEY is missing. Skipping contract verification..."
+      )
     }
 
     console.log(`\nAutomatedFunctionsConsumer contract deployed to ${autoClientContract.address} on ${network.name}`)
