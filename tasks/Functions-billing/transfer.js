@@ -1,4 +1,4 @@
-const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
+const { networks } = require("../../networks")
 const utils = require("../utils")
 
 task("functions-sub-transfer", "Request ownership of an Functions subscription be transferred to a new address")
@@ -21,7 +21,7 @@ task("functions-sub-transfer", "Request ownership of an Functions subscription b
     const RegistryFactory = await ethers.getContractFactory(
       "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
     )
-    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsBillingRegistryProxy"])
+    const registry = await RegistryFactory.attach(networks[network.name]["functionsBillingRegistryProxy"])
 
     // Check that the subscription is valid
     let subInfo
@@ -45,9 +45,9 @@ task("functions-sub-transfer", "Request ownership of an Functions subscription b
     const transferTx = await registry.requestSubscriptionOwnerTransfer(subscriptionId, newOwner)
 
     console.log(
-      `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${transferTx.hash} to be confirmed...`
+      `Waiting ${networks[network.name].confirmations} blocks for transaction ${transferTx.hash} to be confirmed...`
     )
-    await transferTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+    await transferTx.wait(networks[network.name].confirmations)
 
     console.log(
       `\nOwnership transfer to ${newOwner} requested for subscription ${subscriptionId}.  The new owner must now accept the transfer request.`

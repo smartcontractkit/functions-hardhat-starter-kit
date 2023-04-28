@@ -2,6 +2,7 @@
 
 - [Chainlink Functions Starter Kit](#chainlink-functions-starter-kit)
 - [Overview](#overview)
+  - [Supported Networks](#supported-networks)
 - [For Beginners](#for-beginners)
   - [Tutorials \& examples](#tutorials--examples)
 - [Quickstart](#quickstart)
@@ -27,6 +28,18 @@
 <p>Chainlink Functions allows users to request data from almost any API and perform custom computation using JavaScript.</p>
 <p>It works by using a <a href="https://chain.link/education/blockchain-oracles#decentralized-oracles">decentralized oracle network</a> (DON).<br>When a request is initiated, each node in the DON executes the user-provided JavaScript code simultaneously.  Then, nodes use the <a href="https://docs.chain.link/architecture-overview/off-chain-reporting/">Chainlink OCR</a> protocol to come to consensus on the results.  Finally, the median result is returned to the requesting contract via a callback function.</p>
 <p>Chainlink Functions also enables users to share encrypted secrets with each node in the DON.  This allows users to access APIs that require authentication, without exposing their API keys to the general public.
+
+## Supported Networks
+
+### Mainnets
+
+- Not supported yet.
+
+### Testnets
+
+- Ethereum Sepolia: `ETHEREUM_SEPOLIA_RPC_URL`, `--network ethereumSepolia`
+- Polygon Mumbai: `POLYGON_MUMBAI_RPC_URL`, `--network polygonMumbai`
+- Avalanche Fuji: `AVALANCHE_FUJI_RPC_URL`, `--network avalancheFuji`
 
 # For Beginners
 
@@ -61,7 +74,7 @@ For more detailed tutorials and examples, check out the [Chainlink Functions Tut
    2. Use the command `npx env-enc set` to set the required environment variables (see [Environment Variable Management](#environment-variable-management)):
       - _GITHUB_API_TOKEN_ for your Github token obtained from step 3
       - _PRIVATE_KEY_ for your development wallet
-      - _MUMBAI_RPC_URL_ or _SEPOLIA_RPC_URL_ for the network that you intend to use
+      - _POLYGON_MUMBAI_RPC_URL_, _ETHEREUM_SEPOLIA_RPC_URL_, _AVALANCHE_FUJI_RPC_URL_ for the network that you intend to use
    3. If desired, the _ETHERSCAN_API_KEY_ or _POLYGONSCAN_API_KEY_ can be set in order to verify contracts, along with any values used in the _secrets_ object in _Functions-request-config.js_ such as _COINMARKETCAP_API_KEY_.<br><br>
 5. There are two files to notice that the default example will use:
    - _contracts/FunctionsConsumer.sol_ contains the smart contract that will receive the data
@@ -112,7 +125,7 @@ The `--path` flag has no effect on the `npx env-enc set-pw` command as the passw
 The Functions and Functions subscription management commands commands can be executed in the following format:
 `npx hardhat command_here --parameter1 parameter_1_value_here --parameter2 parameter_2_value_here`
 
-Example: `npx hardhat functions-read --network mumbai --contract 0x787Fe00416140b37B026f3605c6C72d096110Bb8`
+Example: `npx hardhat functions-read --network polygonMumbai --contract 0x787Fe00416140b37B026f3605c6C72d096110Bb8`
 
 ## Functions Commands
 

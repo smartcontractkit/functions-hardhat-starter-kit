@@ -4,7 +4,7 @@ const {
   getDecodedResultLog,
   getRequestConfig,
 } = require("../../FunctionsSandboxLibrary")
-const { networkConfig } = require("../../network-config")
+const { networks, SHARED_DON_PUBLIC_KEY } = require("../../networks")
 
 task("functions-simulate", "Simulates an end-to-end fulfillment locally for the FunctionsConsumer contract")
   .addOptionalParam(
@@ -197,7 +197,7 @@ const deployMockOracle = async () => {
   })
   await oracleProxy.deployTransaction.wait(1)
   // Set the secrets encryption public DON key in the mock oracle contract
-  await oracleProxy.setDONPublicKey("0x" + networkConfig["hardhat"]["functionsPublicKey"])
+  await oracleProxy.setDONPublicKey("0x" + SHARED_DON_PUBLIC_KEY)
   // Deploy the mock registry billing contract
   const registryFactory = await ethers.getContractFactory(
     "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"

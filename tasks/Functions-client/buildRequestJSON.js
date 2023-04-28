@@ -1,6 +1,6 @@
 const { simulateRequest, buildRequest, getRequestConfig } = require("../../FunctionsSandboxLibrary")
 const { generateOffchainSecrets } = require("../utils/generateOffchainSecrets")
-const { networkConfig } = require("../../network-config")
+const { networks } = require("../../networks")
 const utils = require("../utils")
 const axios = require("axios")
 const fs = require("fs")
@@ -91,7 +91,7 @@ const generateRequest = async (requestConfig, taskArgs) => {
   }
 
   const OracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
-  const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
+  const oracle = await OracleFactory.attach(networks[network.name]["functionsOracleProxy"])
   const [nodeAddresses, perNodePublicKeys] = await oracle.getAllNodePublicKeys()
   const DONPublicKey = await oracle.getDONPublicKey()
 

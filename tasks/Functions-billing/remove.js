@@ -1,4 +1,4 @@
-const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
+const { networks } = require("../../networks")
 
 task("functions-sub-remove", "Removes a client contract from an Functions billing subscription")
   .addParam("subid", "Subscription ID")
@@ -16,7 +16,7 @@ task("functions-sub-remove", "Removes a client contract from an Functions billin
     const RegistryFactory = await ethers.getContractFactory(
       "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
     )
-    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsBillingRegistryProxy"])
+    const registry = await RegistryFactory.attach(networks[network.name]["functionsBillingRegistryProxy"])
 
     // Check that the subscription is valid
     let preSubInfo
@@ -45,8 +45,10 @@ task("functions-sub-remove", "Removes a client contract from an Functions billin
     console.log(`Removing consumer contract address ${consumer} to subscription ${subscriptionId}`)
     const rmTx = await registry.removeConsumer(subscriptionId, consumer)
 
-    console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${rmTx.hash} to be confirmed...`)
-    await rmTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+    console.log(
+      `Waiting ${networks[network.name].confirmations} blocks for transaction ${rmTx.hash} to be confirmed...`
+    )
+    await rmTx.wait(networks[network.name].confirmations)
     console.log(`\nRemoved consumer contract address ${consumer} from subscription ${subscriptionId}`)
 
     const postSubInfo = await registry.getSubscription(subscriptionId)

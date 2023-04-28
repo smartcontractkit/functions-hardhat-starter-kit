@@ -1,6 +1,6 @@
 const { getDecodedResultLog, getRequestConfig } = require("../../FunctionsSandboxLibrary")
 const { generateRequest } = require("./buildRequestJSON")
-const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
+const { networks } = require("../../networks")
 const utils = require("../utils")
 const chalk = require("chalk")
 const { deleteGist } = require("../utils/github")
@@ -46,7 +46,7 @@ task("functions-request", "Initiates a request from a Functions client contract"
     const clientContractFactory = await ethers.getContractFactory("FunctionsConsumer")
     const clientContract = clientContractFactory.attach(contractAddr)
     const OracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
-    const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
+    const oracle = await OracleFactory.attach(networks[network.name]["functionsOracleProxy"])
     const registryAddress = await oracle.getRegistry()
     const RegistryFactory = await ethers.getContractFactory(
       "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"

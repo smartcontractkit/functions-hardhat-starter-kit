@@ -1,4 +1,4 @@
-const { networkConfig } = require("../../network-config")
+const { networks } = require("../../networks")
 
 task(
   "functions-sub-info",
@@ -15,7 +15,7 @@ task(
     const RegistryFactory = await ethers.getContractFactory(
       "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
     )
-    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsBillingRegistryProxy"])
+    const registry = await RegistryFactory.attach(networks[network.name]["functionsBillingRegistryProxy"])
 
     // Check that the subscription is valid
     let subInfo

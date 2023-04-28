@@ -1,4 +1,4 @@
-const { VERIFICATION_BLOCK_CONFIRMATIONS } = require("../../network-config")
+const { networks } = require("../../networks")
 
 task("functions-perform-upkeep", "Manually call performUpkeep in an Automation compatible contract")
   .addParam("contract", "Address of the contract to call")
@@ -31,9 +31,9 @@ task("functions-perform-upkeep", "Manually call performUpkeep in an Automation c
     const checkUpkeep = await autoClientContract.performUpkeep(performData, overrides)
 
     console.log(
-      `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${checkUpkeep.hash} to be confirmed...`
+      `Waiting ${networks[network.name].confirmations} blocks for transaction ${checkUpkeep.hash} to be confirmed...`
     )
-    await checkUpkeep.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+    await checkUpkeep.wait(networks[network.name].confirmations)
 
     console.log(`\nSuccessfully called performUpkeep`)
   })

@@ -1,4 +1,4 @@
-const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
+const { networks } = require("../../networks")
 
 task("functions-sub-add", "Adds a client contract to the Functions billing subscription")
   .addParam("subid", "Subscription ID")
@@ -16,7 +16,7 @@ task("functions-sub-add", "Adds a client contract to the Functions billing subsc
 
 const addClientConsumerToSubscription = async (subscriptionId, consumer) => {
   const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
-  const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsBillingRegistryProxy"])
+  const registry = await RegistryFactory.attach(networks[network.name]["functionsBillingRegistryProxy"])
 
   // Check that the subscription is valid
   let preSubInfo
@@ -45,8 +45,8 @@ const addClientConsumerToSubscription = async (subscriptionId, consumer) => {
   console.log(`Adding consumer contract address ${consumer} to subscription ${subscriptionId}`)
   const addTx = await registry.addConsumer(subscriptionId, consumer)
 
-  console.log(`Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${addTx.hash} to be confirmed...`)
-  await addTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+  console.log(`Waiting ${networks[network.name].confirmations} blocks for transaction ${addTx.hash} to be confirmed...`)
+  await addTx.wait(networks[network.name].confirmations)
   console.log(`\nAdded consumer contract address ${consumer} to subscription ${subscriptionId}`)
 
   // Print information about the subscription

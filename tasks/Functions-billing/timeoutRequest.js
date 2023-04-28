@@ -1,4 +1,4 @@
-const { networkConfig, VERIFICATION_BLOCK_CONFIRMATIONS } = require("../../network-config")
+const { networks } = require("../../networks")
 
 task("functions-timeout-requests", "Times out expired requests")
   .addParam("requestids", "1 or more request IDs to timeout separated by commas")
@@ -12,7 +12,7 @@ task("functions-timeout-requests", "Times out expired requests")
     console.log(`Timing out requests ${requestIdsToTimeout} on ${network.name}`)
 
     const RegistryFactory = await ethers.getContractFactory("FunctionsBillingRegistry")
-    const registry = await RegistryFactory.attach(networkConfig[network.name]["functionsBillingRegistryProxy"])
+    const registry = await RegistryFactory.attach(networks[network.name]["functionsBillingRegistryProxy"])
 
     // Listen for timed-out request events
     registry.on("RequestTimedOut", (timedOutRequestId) => {
@@ -25,9 +25,9 @@ task("functions-timeout-requests", "Times out expired requests")
     const timeoutTx = await registry.timeoutRequests(requestIdsToTimeout, { gasLimit: 10_000_000 })
 
     console.log(
-      `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${timeoutTx.hash} to be confirmed...`
+      `Waiting ${networks[network.name].confirmations} blocks for transaction ${timeoutTx.hash} to be confirmed...`
     )
-    await timeoutTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+    await timeoutTx.wait(networks[network.name].confirmations)
 
     // Close the event listener
     await registry.removeAllListeners()

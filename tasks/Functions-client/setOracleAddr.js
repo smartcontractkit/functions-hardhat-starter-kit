@@ -1,4 +1,4 @@
-const { networkConfig, VERIFICATION_BLOCK_CONFIRMATIONS } = require("../../network-config")
+const { networks } = require("../../networks")
 
 task(
   "functions-set-oracle-addr",
@@ -11,23 +11,23 @@ task(
     }
 
     console.log(
-      `Setting oracle address to ${networkConfig[network.name]["functionsOracleProxy"]} Functions client contract ${
+      `Setting oracle address to ${networks[network.name]["functionsOracleProxy"]} Functions client contract ${
         taskArgs.contract
       } on ${network.name}`
     )
     const clientContractFactory = await ethers.getContractFactory("FunctionsConsumer")
     const clientContract = await clientContractFactory.attach(taskArgs.contract)
 
-    const updateTx = await clientContract.updateOracleAddress(networkConfig[network.name]["functionsOracleProxy"])
+    const updateTx = await clientContract.updateOracleAddress(networks[network.name]["functionsOracleProxy"])
 
     console.log(
-      `\nWaiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${updateTx.hash} to be confirmed...`
+      `\nWaiting ${networks[network.name].confirmations} blocks for transaction ${updateTx.hash} to be confirmed...`
     )
-    await updateTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+    await updateTx.wait(networks[network.name].confirmations)
 
     console.log(
-      `\nUpdated oracle address to ${
-        networkConfig[network.name]["functionsOracleProxy"]
-      } for Functions client contract ${taskArgs.contract} on ${network.name}`
+      `\nUpdated oracle address to ${networks[network.name]["functionsOracleProxy"]} for Functions client contract ${
+        taskArgs.contract
+      } on ${network.name}`
     )
   })
