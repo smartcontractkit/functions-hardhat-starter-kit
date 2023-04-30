@@ -35,7 +35,7 @@ async function promptTxCost(gasEstimate, hre, skipPrompt = false) {
     network.config.nativeCurrencyDecimals
   )
   const signer = await hre.ethers.getSigner()
-  const nativePriceUSD = await getPriceUSD(network.config.nativePriceFeed, hre.ethers)
+  const nativePriceUSD = await getPriceUSD(network.config.linkPriceFeed, hre.ethers)
   const transactionEstimateUSD = transactionEstimateNative * nativePriceUSD
 
   console.log(`Estimating cost if the current gas price remains the same...\n`)
