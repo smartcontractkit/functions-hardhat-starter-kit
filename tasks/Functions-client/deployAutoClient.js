@@ -19,6 +19,12 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     true,
     types.boolean
   )
+  .addOptionalParam(
+    "configpath",
+    "Path to Functions request config file",
+    `${__dirname}/../../Functions-request-config.js`,
+    types.string
+  )
   .setAction(async (taskArgs) => {
     if (network.name === "hardhat") {
       throw Error(

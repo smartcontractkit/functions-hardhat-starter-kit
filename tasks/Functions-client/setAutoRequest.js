@@ -4,6 +4,8 @@ const { getRequestConfig } = require("../../FunctionsSandboxLibrary")
 const { generateRequest } = require("./buildRequestJSON")
 const { RequestStore } = require("../utils/artifact")
 const { deleteGist } = require("../utils/github")
+const path = require("path")
+const process = require("process")
 
 task("functions-set-auto-request", "Updates the Functions request in a deployed AutomatedFunctionsConsumer contract")
   .addParam("contract", "Address of the client contract")
@@ -20,6 +22,12 @@ task("functions-set-auto-request", "Updates the Functions request in a deployed 
     "Flag indicating if simulation should be run before making an on-chain request",
     true,
     types.boolean
+  )
+  .addOptionalParam(
+    "configpath",
+    "Path to Functions request config file",
+    `${__dirname}/../../Functions-request-config.js`,
+    types.string
   )
   .setAction(async (taskArgs) => {
     if (network.name === "hardhat") {
@@ -41,7 +49,9 @@ const setAutoRequest = async (contract, taskArgs) => {
   const autoClientContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
   const autoClientContract = await autoClientContractFactory.attach(contract)
 
-  const unvalidatedRequestConfig = require("../../Functions-request-config.js")
+  const unvalidatedRequestConfig = require(path.isAbsolute(taskArgs.configpath)
+    ? taskArgs.configpath
+    : path.join(process.cwd(), taskArgs.configpath))
   const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
   // doGistCleanup indicates if an encrypted secrets Gist was created automatically and should be cleaned up by the user after use
