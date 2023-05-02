@@ -62,7 +62,6 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
     await registry.addConsumer(subscriptionId, client.address)
 
     // Build the parameters to make a request from the client contract
-    console.log(taskArgs.configpath)
     const unvalidatedRequestConfig = require(path.isAbsolute(taskArgs.configpath)
       ? taskArgs.configpath
       : path.join(process.cwd(), taskArgs.configpath))
