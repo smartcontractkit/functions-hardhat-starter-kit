@@ -5,11 +5,19 @@ const {
   getRequestConfig,
 } = require("../../FunctionsSandboxLibrary")
 const { networks, SHARED_DON_PUBLIC_KEY } = require("../../networks")
+const path = require("path")
+const process = require("process")
 
 task("functions-simulate", "Simulates an end-to-end fulfillment locally for the FunctionsConsumer contract")
   .addOptionalParam(
     "gaslimit",
     "Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000)"
+  )
+  .addOptionalParam(
+    "configpath",
+    "Path to Functions request config file",
+    `${__dirname}/../../Functions-request-config.js`,
+    types.string
   )
   .setAction(async (taskArgs, hre) => {
     // Simulation can only be conducted on a local fork of the blockchain
@@ -54,7 +62,9 @@ task("functions-simulate", "Simulates an end-to-end fulfillment locally for the 
     await registry.addConsumer(subscriptionId, client.address)
 
     // Build the parameters to make a request from the client contract
-    const unvalidatedRequestConfig = require("../../Functions-request-config.js")
+    const unvalidatedRequestConfig = require(path.isAbsolute(taskArgs.configpath)
+      ? taskArgs.configpath
+      : path.join(process.cwd(), taskArgs.configpath))
     const requestConfig = getRequestConfig(unvalidatedRequestConfig)
     // Fetch the mock DON public key
     const DONPublicKey = await oracle.getDONPublicKey()

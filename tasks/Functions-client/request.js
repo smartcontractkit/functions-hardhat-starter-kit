@@ -5,6 +5,8 @@ const utils = require("../utils")
 const chalk = require("chalk")
 const { deleteGist } = require("../utils/github")
 const { RequestStore } = require("../utils/artifact")
+const path = require("path")
+const process = require("process")
 
 task("functions-request", "Initiates a request from a Functions client contract")
   .addParam("contract", "Address of the client contract to call")
@@ -22,6 +24,12 @@ task("functions-request", "Initiates a request from a Functions client contract"
     types.int
   )
   .addOptionalParam("requestgas", "Gas limit for calling the executeRequest function", 1_500_000, types.int)
+  .addOptionalParam(
+    "configpath",
+    "Path to Functions request config file",
+    `${__dirname}/../../Functions-request-config.js`,
+    types.string
+  )
   .setAction(async (taskArgs, hre) => {
     // A manual gas limit is required as the gas limit estimated by Ethers is not always accurate
     const overrides = {
@@ -69,7 +77,9 @@ task("functions-request", "Initiates a request from a Functions client contract"
       throw Error(`Consumer contract ${contractAddr} is not registered to use subscription ${subscriptionId}`)
     }
 
-    const unvalidatedRequestConfig = require("../../Functions-request-config.js")
+    const unvalidatedRequestConfig = require(path.isAbsolute(taskArgs.configpath)
+      ? taskArgs.configpath
+      : path.join(process.cwd(), taskArgs.configpath))
     const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
     const simulatedSecretsURLBytes = `0x${Buffer.from(
