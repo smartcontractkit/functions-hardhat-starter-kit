@@ -1,10 +1,18 @@
 const { getDecodedResultLog } = require("../../FunctionsSandboxLibrary")
+const path = require("path")
+const process = require("process")
 
 task(
   "functions-read",
   "Reads the latest response (or error) returned to a FunctionsConsumer or AutomatedFunctionsConsumer client contract"
 )
   .addParam("contract", "Address of the client contract to read")
+  .addOptionalParam(
+    "configpath",
+    "Path to Functions request config file",
+    `${__dirname}/../../Functions-request-config.js`,
+    types.string
+  )
   .setAction(async (taskArgs) => {
     if (network.name === "hardhat") {
       throw Error(
@@ -24,7 +32,9 @@ task(
 
     let latestResponse = await clientContract.latestResponse()
     if (latestResponse.length > 0 && latestResponse !== "0x") {
-      const requestConfig = require("../../Functions-request-config")
+      const requestConfig = require(path.isAbsolute(taskArgs.configpath)
+        ? taskArgs.configpath
+        : path.join(process.cwd(), taskArgs.configpath))
       console.log(
         `\nOn-chain response represented as a hex string: ${latestResponse}\n${getDecodedResultLog(
           requestConfig,
