@@ -22,6 +22,7 @@
   - [Simulating Requests](#simulating-requests)
   - [Off-chain Secrets](#off-chain-secrets)
 - [Automation Integration](#automation-integration)
+- [Gas Spikes](#gas-spikes)
 
 # Overview
 
@@ -277,3 +278,9 @@ Once the contract is registered for upkeep, check the latest response or error w
 
 For debugging, use the command `npx hardhat functions-check-upkeep --network network_name_here --contract contract_address_here` to see if Automation needs to call _performUpkeep_.
 To manually trigger a request, use the command `npx hardhat functions-perform-upkeep --network network_name_here --contract contract_address_here`.
+
+# Gas Spikes
+
+When on-chain traffic is high, transaction gas prices can spike unexpectedly.  This may decrease the accuracy of the estimated requests costs or cause transactions to fail.
+In order to mitigate these problems, ensure your billing subscription balance has a sufficient buffer of two or more times the expected request cost in LINK.
+Additionally, you can manually set a hardcoded transaction gas price in the HardHat tooling by modifying the `gasPrice` parameter in the _networks.js_ config file for a particular network.
