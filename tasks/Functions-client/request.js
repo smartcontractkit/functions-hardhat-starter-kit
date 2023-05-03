@@ -249,15 +249,24 @@ task("functions-request", "Initiates a request from a Functions client contract"
         }
       )
 
-      // Initiate the on-chain request after all listeners are initialized
-      const requestTx = await clientContract.executeRequest(
-        request.source,
-        request.secrets ?? [],
-        request.args ?? [],
-        subscriptionId,
-        gasLimit,
-        overrides
-      )
+      let requestTx
+      try {
+        // Initiate the on-chain request after all listeners are initialized
+        requestTx = await clientContract.executeRequest(
+          request.source,
+          request.secrets ?? [],
+          request.args ?? [],
+          subscriptionId,
+          gasLimit,
+          overrides
+        )
+      } catch (error) {
+        // If the request fails, ensure the encrypted secrets Gist is deleted
+        if (doGistCleanup) {
+          await deleteGist(process.env["GITHUB_API_TOKEN"], request.secretsURLs[0].slice(0, -4))
+        }
+        throw error
+      }
       spinner.start("Waiting 2 blocks for transaction to be confirmed...")
       const requestTxReceipt = await requestTx.wait(2)
       spinner.info(

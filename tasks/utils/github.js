@@ -69,7 +69,7 @@ const deleteGist = async (githubApiToken, gistURL) => {
       throw new Error(`Failed to delete Gist: ${response.status} ${response.statusText}`)
     }
 
-    console.log(`Off-chain secrets Gist ${gistURL} deleted successfully`)
+    console.log(`\nOff-chain secrets Gist ${gistURL} deleted successfully`)
     return true
   } catch (error) {
     console.error(`Error deleting Gist ${gistURL}`, error.response)
