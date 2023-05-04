@@ -93,7 +93,7 @@ This repo uses the NPM package `@chainlink/env-enc` for keeping environment vari
 
 By default, all encrypted environment variables will be stored in a file named `.env.enc` in the root directory of this repo.
 
-First, set the encryption password by running the command `npx env-enc set-password`.
+First, set the encryption password by running the command `npx env-enc set-pw`.
 The password must be set at the beginning of each new session.
 If this password is lost, there will be no way to recover the encrypted environment variables.
 
