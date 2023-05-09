@@ -199,7 +199,7 @@ task("functions-request", "Initiates a request from a Functions client contract"
         if (result !== "0x") {
           console.log(
             `Response returned to client contract represented as a hex string: ${result}\n${getDecodedResultLog(
-              require("../../Functions-request-config"),
+              requestConfig,
               result
             )}`
           )

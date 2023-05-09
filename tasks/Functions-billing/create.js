@@ -1,4 +1,5 @@
 const { networks } = require("../../networks")
+const fs = require("fs")
 
 task("functions-sub-create", "Creates a new billing subscription for Functions consumer contracts")
   .addOptionalParam("amount", "Initial amount used to fund the subscription in LINK")
@@ -16,6 +17,7 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
     const RegistryFactory = await ethers.getContractFactory(
       "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
     )
+    fs.writeFileSync("FunctionsBillingRegistry_ABI.json", RegistryFactory.interface.format("json"))
     const registry = await RegistryFactory.attach(networks[network.name]["functionsBillingRegistryProxy"])
 
     // TODO: Remove the following 6 lines on open access

@@ -1,0 +1,560 @@
+[
+  {
+    "type": "error",
+    "name": "BalanceInvariantViolated",
+    "inputs": [
+      { "type": "uint256", "name": "internalBalance" },
+      { "type": "uint256", "name": "externalBalance" }
+    ]
+  },
+  { "type": "error", "name": "CannotSelfTransfer", "inputs": [] },
+  { "type": "error", "name": "EmptySendersList", "inputs": [] },
+  {
+    "type": "error",
+    "name": "GasLimitTooBig",
+    "inputs": [
+      { "type": "uint32", "name": "have" },
+      { "type": "uint32", "name": "want" }
+    ]
+  },
+  { "type": "error", "name": "InsufficientBalance", "inputs": [] },
+  { "type": "error", "name": "InvalidCalldata", "inputs": [] },
+  {
+    "type": "error",
+    "name": "InvalidConsumer",
+    "inputs": [
+      { "type": "uint64", "name": "subscriptionId" },
+      { "type": "address", "name": "consumer" }
+    ]
+  },
+  { "type": "error", "name": "InvalidLinkWeiPrice", "inputs": [{ "type": "int256", "name": "linkWei" }] },
+  { "type": "error", "name": "InvalidSubscription", "inputs": [] },
+  { "type": "error", "name": "MustBeRequestedOwner", "inputs": [{ "type": "address", "name": "proposedOwner" }] },
+  { "type": "error", "name": "MustBeSubOwner", "inputs": [{ "type": "address", "name": "owner" }] },
+  { "type": "error", "name": "NotAllowedToSetSenders", "inputs": [] },
+  { "type": "error", "name": "NotProposedOwner", "inputs": [] },
+  { "type": "error", "name": "OnlyCallableByOwner", "inputs": [] },
+  { "type": "error", "name": "OnlyCallableFromLink", "inputs": [] },
+  { "type": "error", "name": "OwnerMustBeSet", "inputs": [] },
+  { "type": "error", "name": "PaymentTooLarge", "inputs": [] },
+  { "type": "error", "name": "PendingRequestExists", "inputs": [] },
+  { "type": "error", "name": "Reentrant", "inputs": [] },
+  { "type": "error", "name": "TooManyConsumers", "inputs": [] },
+  { "type": "error", "name": "UnauthorizedSender", "inputs": [] },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "AuthorizedSendersChanged",
+    "inputs": [
+      { "type": "address[]", "name": "senders", "indexed": false },
+      { "type": "address", "name": "changedBy", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "BillingEnd",
+    "inputs": [
+      { "type": "bytes32", "name": "requestId", "indexed": true },
+      { "type": "uint64", "name": "subscriptionId", "indexed": false },
+      { "type": "uint96", "name": "signerPayment", "indexed": false },
+      { "type": "uint96", "name": "transmitterPayment", "indexed": false },
+      { "type": "uint96", "name": "totalCost", "indexed": false },
+      { "type": "bool", "name": "success", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "BillingStart",
+    "inputs": [
+      { "type": "bytes32", "name": "requestId", "indexed": true },
+      {
+        "type": "tuple",
+        "name": "commitment",
+        "indexed": false,
+        "components": [
+          { "type": "uint64", "name": "subscriptionId" },
+          { "type": "address", "name": "client" },
+          { "type": "uint32", "name": "gasLimit" },
+          { "type": "uint256", "name": "gasPrice" },
+          { "type": "address", "name": "don" },
+          { "type": "uint96", "name": "donFee" },
+          { "type": "uint96", "name": "registryFee" },
+          { "type": "uint96", "name": "estimatedCost" },
+          { "type": "uint256", "name": "timestamp" }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "ConfigSet",
+    "inputs": [
+      { "type": "uint32", "name": "maxGasLimit", "indexed": false },
+      { "type": "uint32", "name": "stalenessSeconds", "indexed": false },
+      { "type": "uint256", "name": "gasAfterPaymentCalculation", "indexed": false },
+      { "type": "int256", "name": "fallbackWeiPerUnitLink", "indexed": false },
+      { "type": "uint32", "name": "gasOverhead", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "FundsRecovered",
+    "inputs": [
+      { "type": "address", "name": "to", "indexed": false },
+      { "type": "uint256", "name": "amount", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "Initialized",
+    "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "OwnershipTransferRequested",
+    "inputs": [
+      { "type": "address", "name": "from", "indexed": true },
+      { "type": "address", "name": "to", "indexed": true }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "OwnershipTransferred",
+    "inputs": [
+      { "type": "address", "name": "from", "indexed": true },
+      { "type": "address", "name": "to", "indexed": true }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "Paused",
+    "inputs": [{ "type": "address", "name": "account", "indexed": false }]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "RequestTimedOut",
+    "inputs": [{ "type": "bytes32", "name": "requestId", "indexed": true }]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "SubscriptionCanceled",
+    "inputs": [
+      { "type": "uint64", "name": "subscriptionId", "indexed": true },
+      { "type": "address", "name": "to", "indexed": false },
+      { "type": "uint256", "name": "amount", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "SubscriptionConsumerAdded",
+    "inputs": [
+      { "type": "uint64", "name": "subscriptionId", "indexed": true },
+      { "type": "address", "name": "consumer", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "SubscriptionConsumerRemoved",
+    "inputs": [
+      { "type": "uint64", "name": "subscriptionId", "indexed": true },
+      { "type": "address", "name": "consumer", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "SubscriptionCreated",
+    "inputs": [
+      { "type": "uint64", "name": "subscriptionId", "indexed": true },
+      { "type": "address", "name": "owner", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "SubscriptionFunded",
+    "inputs": [
+      { "type": "uint64", "name": "subscriptionId", "indexed": true },
+      { "type": "uint256", "name": "oldBalance", "indexed": false },
+      { "type": "uint256", "name": "newBalance", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "SubscriptionOwnerTransferRequested",
+    "inputs": [
+      { "type": "uint64", "name": "subscriptionId", "indexed": true },
+      { "type": "address", "name": "from", "indexed": false },
+      { "type": "address", "name": "to", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "SubscriptionOwnerTransferred",
+    "inputs": [
+      { "type": "uint64", "name": "subscriptionId", "indexed": true },
+      { "type": "address", "name": "from", "indexed": false },
+      { "type": "address", "name": "to", "indexed": false }
+    ]
+  },
+  {
+    "type": "event",
+    "anonymous": false,
+    "name": "Unpaused",
+    "inputs": [{ "type": "address", "name": "account", "indexed": false }]
+  },
+  {
+    "type": "function",
+    "name": "MAX_CONSUMERS",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [],
+    "outputs": [{ "type": "uint16" }]
+  },
+  { "type": "function", "name": "acceptOwnership", "constant": false, "payable": false, "inputs": [], "outputs": [] },
+  {
+    "type": "function",
+    "name": "acceptSubscriptionOwnerTransfer",
+    "constant": false,
+    "payable": false,
+    "inputs": [{ "type": "uint64", "name": "subscriptionId" }],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "addConsumer",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      { "type": "uint64", "name": "subscriptionId" },
+      { "type": "address", "name": "consumer" }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "cancelSubscription",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      { "type": "uint64", "name": "subscriptionId" },
+      { "type": "address", "name": "to" }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "createSubscription",
+    "constant": false,
+    "payable": false,
+    "inputs": [],
+    "outputs": [{ "type": "uint64" }]
+  },
+  {
+    "type": "function",
+    "name": "estimateCost",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [
+      { "type": "uint32", "name": "gasLimit" },
+      { "type": "uint256", "name": "gasPrice" },
+      { "type": "uint96", "name": "donFee" },
+      { "type": "uint96", "name": "registryFee" }
+    ],
+    "outputs": [{ "type": "uint96" }]
+  },
+  {
+    "type": "function",
+    "name": "fulfillAndBill",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      { "type": "bytes32", "name": "requestId" },
+      { "type": "bytes", "name": "response" },
+      { "type": "bytes", "name": "err" },
+      { "type": "address", "name": "transmitter" },
+      { "type": "address[31]", "name": "signers" },
+      { "type": "uint8", "name": "signerCount" },
+      { "type": "uint256", "name": "reportValidationGas" },
+      { "type": "uint256", "name": "initialGas" }
+    ],
+    "outputs": [{ "type": "uint8" }]
+  },
+  {
+    "type": "function",
+    "name": "getAuthorizedSenders",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [],
+    "outputs": [{ "type": "address[]" }]
+  },
+  {
+    "type": "function",
+    "name": "getConfig",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [],
+    "outputs": [
+      { "type": "uint32", "name": "maxGasLimit" },
+      { "type": "uint32", "name": "stalenessSeconds" },
+      { "type": "uint256", "name": "gasAfterPaymentCalculation" },
+      { "type": "int256", "name": "fallbackWeiPerUnitLink" },
+      { "type": "uint32", "name": "gasOverhead" },
+      { "type": "address", "name": "linkAddress" },
+      { "type": "address", "name": "linkPriceFeed" }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "getCurrentsubscriptionId",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [],
+    "outputs": [{ "type": "uint64" }]
+  },
+  {
+    "type": "function",
+    "name": "getRequestConfig",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [],
+    "outputs": [{ "type": "uint32" }, { "type": "address[]" }]
+  },
+  {
+    "type": "function",
+    "name": "getRequiredFee",
+    "constant": true,
+    "stateMutability": "pure",
+    "payable": false,
+    "inputs": [
+      { "type": "bytes" },
+      {
+        "type": "tuple",
+        "components": [
+          { "type": "uint64", "name": "subscriptionId" },
+          { "type": "address", "name": "client" },
+          { "type": "uint32", "name": "gasLimit" },
+          { "type": "uint256", "name": "gasPrice" }
+        ]
+      }
+    ],
+    "outputs": [{ "type": "uint96" }]
+  },
+  {
+    "type": "function",
+    "name": "getSubscription",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [{ "type": "uint64", "name": "subscriptionId" }],
+    "outputs": [
+      { "type": "uint96", "name": "balance" },
+      { "type": "address", "name": "owner" },
+      { "type": "address[]", "name": "consumers" }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "getSubscriptionOwner",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [{ "type": "uint64", "name": "subscriptionId" }],
+    "outputs": [{ "type": "address", "name": "owner" }]
+  },
+  {
+    "type": "function",
+    "name": "getTotalBalance",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [],
+    "outputs": [{ "type": "uint256" }]
+  },
+  {
+    "type": "function",
+    "name": "initialize",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      { "type": "address", "name": "link" },
+      { "type": "address", "name": "linkEthFeed" },
+      { "type": "address", "name": "oracle" }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "isAuthorizedSender",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [{ "type": "address", "name": "sender" }],
+    "outputs": [{ "type": "bool" }]
+  },
+  {
+    "type": "function",
+    "name": "onTokenTransfer",
+    "constant": false,
+    "payable": false,
+    "inputs": [{ "type": "address" }, { "type": "uint256", "name": "amount" }, { "type": "bytes", "name": "data" }],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "oracleWithdraw",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      { "type": "address", "name": "recipient" },
+      { "type": "uint96", "name": "amount" }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "owner",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [],
+    "outputs": [{ "type": "address" }]
+  },
+  {
+    "type": "function",
+    "name": "ownerCancelSubscription",
+    "constant": false,
+    "payable": false,
+    "inputs": [{ "type": "uint64", "name": "subscriptionId" }],
+    "outputs": []
+  },
+  { "type": "function", "name": "pause", "constant": false, "payable": false, "inputs": [], "outputs": [] },
+  {
+    "type": "function",
+    "name": "paused",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [],
+    "outputs": [{ "type": "bool" }]
+  },
+  {
+    "type": "function",
+    "name": "pendingRequestExists",
+    "constant": true,
+    "stateMutability": "view",
+    "payable": false,
+    "inputs": [{ "type": "uint64", "name": "subscriptionId" }],
+    "outputs": [{ "type": "bool" }]
+  },
+  {
+    "type": "function",
+    "name": "recoverFunds",
+    "constant": false,
+    "payable": false,
+    "inputs": [{ "type": "address", "name": "to" }],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "removeConsumer",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      { "type": "uint64", "name": "subscriptionId" },
+      { "type": "address", "name": "consumer" }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "requestSubscriptionOwnerTransfer",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      { "type": "uint64", "name": "subscriptionId" },
+      { "type": "address", "name": "newOwner" }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "setAuthorizedSenders",
+    "constant": false,
+    "payable": false,
+    "inputs": [{ "type": "address[]", "name": "senders" }],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "setConfig",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      { "type": "uint32", "name": "maxGasLimit" },
+      { "type": "uint32", "name": "stalenessSeconds" },
+      { "type": "uint256", "name": "gasAfterPaymentCalculation" },
+      { "type": "int256", "name": "fallbackWeiPerUnitLink" },
+      { "type": "uint32", "name": "gasOverhead" },
+      { "type": "uint32", "name": "requestTimeoutSeconds" }
+    ],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "startBilling",
+    "constant": false,
+    "payable": false,
+    "inputs": [
+      { "type": "bytes", "name": "data" },
+      {
+        "type": "tuple",
+        "name": "billing",
+        "components": [
+          { "type": "uint64", "name": "subscriptionId" },
+          { "type": "address", "name": "client" },
+          { "type": "uint32", "name": "gasLimit" },
+          { "type": "uint256", "name": "gasPrice" }
+        ]
+      }
+    ],
+    "outputs": [{ "type": "bytes32" }]
+  },
+  {
+    "type": "function",
+    "name": "timeoutRequests",
+    "constant": false,
+    "payable": false,
+    "inputs": [{ "type": "bytes32[]", "name": "requestIdsToTimeout" }],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "transferOwnership",
+    "constant": false,
+    "payable": false,
+    "inputs": [{ "type": "address", "name": "to" }],
+    "outputs": []
+  },
+  { "type": "function", "name": "unpause", "constant": false, "payable": false, "inputs": [], "outputs": [] }
+]
