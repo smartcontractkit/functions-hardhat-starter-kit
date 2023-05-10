@@ -10,6 +10,7 @@ task("functions-perform-upkeep", "Manually call performUpkeep in an Automation c
     // A manual gas limit is required as the gas limit estimated by Ethers is not always accurate
     const overrides = {
       gasLimit: 1000000,
+      gasPrice: networks[network.name].gasPrice,
     }
 
     if (network.name === "hardhat") {
