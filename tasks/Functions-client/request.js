@@ -34,6 +34,7 @@ task("functions-request", "Initiates a request from a Functions client contract"
     // A manual gas limit is required as the gas limit estimated by Ethers is not always accurate
     const overrides = {
       gasLimit: taskArgs.requestgas,
+      gasPrice: networks[network.name].gasPrice,
     }
 
     if (network.name === "hardhat") {
@@ -199,7 +200,7 @@ task("functions-request", "Initiates a request from a Functions client contract"
         if (result !== "0x") {
           console.log(
             `Response returned to client contract represented as a hex string: ${result}\n${getDecodedResultLog(
-              require("../../Functions-request-config"),
+              requestConfig,
               result
             )}`
           )
