@@ -36,7 +36,7 @@ const networks = {
   },
   polygonMumbai: {
     url: process.env.POLYGON_MUMBAI_RPC_URL || "UNSET",
-    gasPrice: undefined,
+    gasPrice: 10000000000,
     accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
     verifyApiKey: process.env.POLYGONSCAN_API_KEY || "UNSET",
     chainId: 80001,
