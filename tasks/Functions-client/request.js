@@ -87,6 +87,9 @@ task("functions-request", "Initiates a request from a Functions client contract"
       "https://exampleSecretsURL.com/f09fa0db8d1c8fab8861ec97b1d7fdf1/raw/d49bbd20dc562f035bdf8832399886baefa970c9/encrypted-functions-request-data-1679941580875.json"
     ).toString("hex")}`
 
+    // Generating request and simulating its results before estimating transaction costs and providing the user with an opportunity to confirm they are willing to proceed.
+    const request = await generateRequest(requestConfig, taskArgs)
+
     // Estimate the cost of the request
     const { lastBaseFeePerGas, maxPriorityFeePerGas } = await hre.ethers.provider.getFeeData()
     const estimatedCostJuels = await clientContract.estimateCost(
@@ -136,7 +139,6 @@ task("functions-request", "Initiates a request from a Functions client contract"
 
     // doGistCleanup indicates if an encrypted secrets Gist was created automatically and should be cleaned up once the request is complete
     let doGistCleanup = !(requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0)
-    const request = await generateRequest(requestConfig, taskArgs)
     doGistCleanup = doGistCleanup && request.secrets
 
     const store = new RequestStore(hre.network.config.chainId, network.name, "consumer")
