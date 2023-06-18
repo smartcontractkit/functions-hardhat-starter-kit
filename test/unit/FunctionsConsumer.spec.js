@@ -12,7 +12,7 @@ describe("Functions Consumer Unit Tests", async function () {
 
   it("Simulate Functions Request via Mocking Chainlink Node", async () => {
     try {
-      const unvalidatedRequestConfig = require("/Users/shivamarora/Documents/Projects/functions-hardhat-starter-kit/Functions-request-config.js")
+      const unvalidatedRequestConfig = require("./Functions-request-config.js")
       const requestConfig = getRequestConfig(unvalidatedRequestConfig)
       // Fetch the mock DON public key
       const oracle = await ethers.getContractAt("FunctionsOracle", "0x0cDF3DDCD472eec0B1Cc0f30F0379B18952B4870")
