@@ -2,11 +2,13 @@ require("@nomicfoundation/hardhat-toolbox")
 require("hardhat-contract-sizer")
 require("@openzeppelin/hardhat-upgrades")
 require("./tasks")
+require("hardhat-deploy")
 require("@chainlink/env-enc").config()
 const { networks } = require("./networks")
 
 // Enable gas reporting (optional)
 const REPORT_GAS = process.env.REPORT_GAS?.toLowerCase() === "true" ? true : false
+const PRIVATE_KEY = process.env.PRIVATE_KEY
 
 const SOLC_SETTINGS = {
   optimizer: {
@@ -20,6 +22,10 @@ module.exports = {
   defaultNetwork: "hardhat",
   solidity: {
     compilers: [
+      {
+        version: "0.8.9",
+        settings: SOLC_SETTINGS,
+      },
       {
         version: "0.8.7",
         settings: SOLC_SETTINGS,
@@ -41,16 +47,22 @@ module.exports = {
   networks: {
     hardhat: {
       allowUnlimitedContractSize: true,
-      accounts: process.env.PRIVATE_KEY
+      accounts: PRIVATE_KEY
         ? [
             {
-              privateKey: process.env.PRIVATE_KEY,
+              privateKey: PRIVATE_KEY,
               balance: "10000000000000000000000",
             },
           ]
         : [],
     },
     ...networks,
+  },
+  namedAccounts: {
+    deployer: {
+      default: 0, // here this will by default take the first account as deployer
+      1: 0, // similarly on mainnet it will take the first account as deployer. Note though that depending on how hardhat network are configured, the account 0 on one network can be different than on another
+    },
   },
   etherscan: {
     // npx hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_PARAMETERS>
