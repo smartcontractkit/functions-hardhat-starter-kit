@@ -76,8 +76,8 @@ For more detailed tutorials and examples, check out the [Chainlink Functions Tut
    1. Set an encryption password for your environment variables to a secure password by running:<br>`npx env-enc set-pw`<br>
    2. Use the command `npx env-enc set` to set the required environment variables (see [Environment Variable Management](#environment-variable-management)):
       - _GITHUB_API_TOKEN_ for your Github token obtained from step 3
-      - _PRIVATE_KEY_ for your development wallet
-      - _POLYGON_MUMBAI_RPC_URL_, _ETHEREUM_SEPOLIA_RPC_URL_, _AVALANCHE_FUJI_RPC_URL_ for the network that you intend to use
+      - _PRIVATE_KEY_ for the private key of your development wallet (tutorial on [how to get your private key from Metamask](https://bitkan.com/learn/where-to-find-the-metamask-private-key-what-is-a-private-key-13535))
+      - _POLYGON_MUMBAI_RPC_URL_, _ETHEREUM_SEPOLIA_RPC_URL_, _AVALANCHE_FUJI_RPC_URL_ for the network that you intend to use ([click the dropdown button on your desired network to display the RPC URL](https://chainlist.org/?testnets=true))
    3. If desired, the `<explorer>_API_KEY` can be set in order to verify contracts, along with any values used in the _secrets_ object in _Functions-request-config.js_ such as `COINMARKETCAP_API_KEY`.<br><br>
 5. There are two files to notice that the default example will use:
    - _contracts/FunctionsConsumer.sol_ contains the smart contract that will receive the data
