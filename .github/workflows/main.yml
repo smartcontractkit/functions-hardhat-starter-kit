@@ -1,28 +1,37 @@
-name: Test & build
+name: Lint and Test
 
 on:
-  push:
+  pull_request:
     branches:
-      - main
-  pull_request: ~
+      - "*"
 
 concurrency:
   group: main-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  run-unit-tests:
-    name: Run unit tests
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ./.github/actions/setup
-      - run: npm run test:unit
-
-  run-basic-checks:
-    name: Run linters
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/setup
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "npm"
+      - run: npm install --frozen-lockfile
       - run: npm run lint
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "npm"
+      - run: npm install --frozen-lockfile
+      - run: npm run test
