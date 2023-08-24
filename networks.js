@@ -44,15 +44,15 @@ const networks = {
     nativeCurrencySymbol: "MATIC",
     linkToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
     linkPriceFeed: "0x12162c3E810393dEC01362aBf156D7ecf6159528", // LINK/MATIC
-    functionsOracleProxy: "0xeA6721aC65BCeD841B8ec3fc5fEdeA6141a0aDE4",
-    functionsBillingRegistryProxy: "0xEe9Bf52E5Ea228404bB54BCFbbDa8c21131b9039",
+    functionsRouter: "0xa4Ac8b863A6b4fB064B6bdF87aD61d389d97748d",
+    functionsCoordinator: "0x69b4C680209737B877c93327fC2144ec39eaC423",
     functionsPublicKey: SHARED_DON_PUBLIC_KEY,
   },
   avalancheFuji: {
     url: process.env.AVALANCHE_FUJI_RPC_URL || "UNSET",
     gasPrice: undefined,
     accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-    verifyApiKey: process.env.SNOWTRACE_API_KEY || "UNSET",
+    verifyApiKey: process.env.FUJI_SNOWTRACE_API_KEY || "UNSET",
     chainId: 43113,
     confirmations: 2 * DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
     nativeCurrencySymbol: "AVAX",

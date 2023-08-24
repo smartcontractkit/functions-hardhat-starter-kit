@@ -25,6 +25,10 @@ module.exports = {
         settings: SOLC_SETTINGS,
       },
       {
+        version: "0.8.19",
+        settings: SOLC_SETTINGS,
+      },
+      {
         version: "0.7.0",
         settings: SOLC_SETTINGS,
       },
