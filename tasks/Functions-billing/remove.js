@@ -1,4 +1,5 @@
 const { networks } = require("../../networks")
+const { SubscriptionManager } = require("@chainlink/functions-toolkit")
 
 task("functions-sub-remove", "Removes a client contract from an Functions billing subscription")
   .addParam("subid", "Subscription ID")
@@ -10,52 +11,24 @@ task("functions-sub-remove", "Removes a client contract from an Functions billin
       )
     }
 
-    const subscriptionId = taskArgs.subid
-    const consumer = taskArgs.contract
+    const signer = await ethers.getSigner()
+    const functionsRouterAddress = networks[network.name]["functionsRouter"]
+    const linkTokenAddress = networks[network.name]["linkToken"]
 
-    const RegistryFactory = await ethers.getContractFactory(
-      "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
-    )
-    const registry = await RegistryFactory.attach(networks[network.name]["functionsBillingRegistryProxy"])
+    const consumerAddress = taskArgs.contract
+    const subId = taskArgs.subid
+    const confirmations = networks[network.name].confirmations
+    const txOptions = { confirmations }
 
-    // Check that the subscription is valid
-    let preSubInfo
-    try {
-      preSubInfo = await registry.getSubscription(subscriptionId)
-    } catch (error) {
-      if (error.errorName === "InvalidSubscription") {
-        throw Error(`Subscription ID "${subscriptionId}" is invalid or does not exist`)
-      }
-      throw error
-    }
+    const sm = new SubscriptionManager({ signer, linkTokenAddress, functionsRouterAddress })
+    await sm.initialize()
 
-    // Check that the requesting wallet is the owner of the subscription
-    const accounts = await ethers.getSigners()
-    const signer = accounts[0]
-    if (preSubInfo[1] !== signer.address) {
-      throw Error("The current wallet is not the owner of the subscription")
-    }
+    console.log(`\nRemoving '${consumerAddress}' from subscription '${subId}'...`)
+    let removeConsumerTx = await sm.removeConsumer({ subId, consumerAddress, txOptions })
 
-    // Check that the consumer is currently authorized before attempting to remove
-    const existingConsumers = preSubInfo[2].map((addr) => addr.toLowerCase())
-    if (!existingConsumers.includes(consumer.toLowerCase())) {
-      throw Error(`Consumer address ${consumer} is not registered to use subscription ${subscriptionId}`)
-    }
-
-    console.log(`Removing consumer contract address ${consumer} to subscription ${subscriptionId}`)
-    const rmTx = await registry.removeConsumer(subscriptionId, consumer)
-
+    const subInfo = await sm.getSubscriptionInfo(subId)
     console.log(
-      `Waiting ${networks[network.name].confirmations} blocks for transaction ${rmTx.hash} to be confirmed...`
+      `\nRemoved '${consumerAddress}' from subscription '${subId}' in Tx: '${removeConsumerTx.transactionHash}'.  \nUpdated Subscription Info:\n`,
+      subInfo
     )
-    await rmTx.wait(networks[network.name].confirmations)
-    console.log(`\nRemoved consumer contract address ${consumer} from subscription ${subscriptionId}`)
-
-    const postSubInfo = await registry.getSubscription(subscriptionId)
-    console.log(
-      `${postSubInfo[2].length} authorized consumer contract${
-        postSubInfo[2].length === 1 ? "" : "s"
-      } for subscription ${subscriptionId}:`
-    )
-    console.log(postSubInfo[2])
   })
