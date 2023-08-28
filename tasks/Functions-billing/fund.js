@@ -18,6 +18,7 @@ task("functions-sub-fund", "Funds a billing subscription for Functions consumer 
 
     const subId = taskArgs.subid
     const linkAmount = taskArgs.amount
+    const juelsAmount = ethers.utils.parseUnits(linkAmount, 18)
 
     const sm = new SubscriptionManager({ signer, linkTokenAddress, functionsRouterAddress })
     await sm.initialize()
@@ -28,9 +29,14 @@ task("functions-sub-fund", "Funds a billing subscription for Functions consumer 
 
     console.log(`\nFunding subscription '${subId}' with '${linkAmount}' LINK...`)
 
-    const fundTxReceipt = await sm.fundSubscription({ linkAmount, subId, txOptions })
+    const fundTxReceipt = await sm.fundSubscription({ juelsAmount, subId, txOptions })
     console.log(`\nSubscription '${subId}' funded with '${linkAmount}' LINK in Tx: ''${fundTxReceipt.transactionHash}'`)
 
     const subInfo = await sm.getSubscriptionInfo(subId)
+
+    // parse balances into LINK for readability
+    subInfo.balance = ethers.utils.formatEther(subInfo.balance) + " LINK"
+    subInfo.blockedBalance = ethers.utils.formatEther(subInfo.blockedBalance) + " LINK"
+
     console.log("\nUpdated subscription Info: ", subInfo)
   })

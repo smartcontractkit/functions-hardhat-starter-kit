@@ -1,5 +1,6 @@
 const { SubscriptionManager } = require("@chainlink/functions-toolkit")
 
+const utils = require("../utils")
 const { networks } = require("../../networks")
 
 task(
@@ -27,6 +28,10 @@ task(
 
     const sm = new SubscriptionManager({ signer, linkTokenAddress, functionsRouterAddress })
     await sm.initialize()
+
+    await utils.prompt(
+      `\nPlease confirm that you wish to cancel Subscription '${subId}' and have its LINK balance sent to wallet '${refundAddress}'?`
+    )
 
     console.log(`Canceling subscription ${subId}`)
     const cancelTx = await sm.cancelSubscription({ subId, refundAddress, txOptions })

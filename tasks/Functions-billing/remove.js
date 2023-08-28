@@ -27,6 +27,9 @@ task("functions-sub-remove", "Removes a client contract from an Functions billin
     let removeConsumerTx = await sm.removeConsumer({ subId, consumerAddress, txOptions })
 
     const subInfo = await sm.getSubscriptionInfo(subId)
+    // parse balances into LINK for readability
+    subInfo.balance = ethers.utils.formatEther(subInfo.balance) + " LINK"
+    subInfo.blockedBalance = ethers.utils.formatEther(subInfo.blockedBalance) + " LINK"
     console.log(
       `\nRemoved '${consumerAddress}' from subscription '${subId}' in Tx: '${removeConsumerTx.transactionHash}'.  \nUpdated Subscription Info:\n`,
       subInfo
