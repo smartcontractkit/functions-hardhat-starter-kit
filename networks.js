@@ -49,6 +49,8 @@ const networks = {
     functionsRouter: "0xa4Ac8b863A6b4fB064B6bdF87aD61d389d97748d",
     functionsCoordinator: "0x69b4C680209737B877c93327fC2144ec39eaC423",
     functionsPublicKey: SHARED_DON_PUBLIC_KEY,
+    donId: "functions_staging_mumbai", // TODO @zeuslawyer - update donId
+    gatewayUrls: ["https://clc-ocr2-dr-gateway-nodes-4.main.stage.cldev.sh/gateway"], // TODO @zeuslawyer - update gatewayUrls
   },
   avalancheFuji: {
     url: process.env.AVALANCHE_FUJI_RPC_URL || "UNSET",
