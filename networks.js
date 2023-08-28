@@ -20,6 +20,7 @@ if (!isTestEnvironment && !PRIVATE_KEY) {
   throw Error("Set the PRIVATE_KEY environment variable with your EVM wallet private key")
 }
 
+// TODO @zeuslawyer - update contract addresses for sepolia etc.
 const networks = {
   ethereumSepolia: {
     url: process.env.ETHEREUM_SEPOLIA_RPC_URL || "UNSET",
