@@ -13,9 +13,6 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
 
   bytes32 public donId; // DON ID for the Functions DON to which the requests are sent
 
-  string[] public s_args;
-  bytes[] public s_bytesArgs;
-
   bytes32 public s_lastRequestId;
   bytes public s_lastResponse;
   bytes public s_lastError;
@@ -35,87 +32,33 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
   }
 
   /**
-   * @notice Set the arguments that will be passed to the Functions request
-   * @param args List of arguments accessible from within the source code
-   */
-  function setArgs(string[] memory args) external onlyOwner {
-    s_args = args;
-  }
-
-  /**
-   * @notice Set the bytes arguments that will be passed to the Functions request
-   * @param bytesArgs List of bytes arguments accessible from within the source code
-   */
-  function setBytesArgs(bytes[] memory bytesArgs) external onlyOwner {
-    s_bytesArgs = bytesArgs;
-  }
-
-  /**
-   * @notice Triggers a simple on-demand Functions request
-   * @param source JavaScript source code
-   * @param subscriptionId Subscription ID used to pay for request (FunctionsConsumer contract address must first be added to the subscription)
-   * @param callbackGasLimit Maximum amount of gas used to call the client contract's `handleOracleFulfillment` method
-   */
-  function sendRequest(string calldata source, uint64 subscriptionId, uint32 callbackGasLimit) external onlyOwner {
-    FunctionsRequest.Request memory req;
-    req.initializeRequestForInlineJavaScript(source);
-    if (s_args.length > 0) {
-      req.setArgs(s_args);
-    }
-    if (s_bytesArgs.length > 0) {
-      req.setBytesArgs(s_bytesArgs);
-    }
-    s_lastRequestId = _sendRequest(req.encodeCBOR(), subscriptionId, callbackGasLimit, donId);
-  }
-
-  /**
    * @notice Triggers an on-demand Functions request using remote encrypted secrets
    * @param source JavaScript source code
-   * @param encryptedSecretsUrls Encrypted JSON-encoded array of URLs pointing to encrypted secrets JSON file
+   * @param secretsLocation Location of secrets (only Location.Remote & Location.DONHosted are supported)
+   * @param encryptedSecretsReference Reference pointing to encrypted secrets
+   * @param args String arguments that will be passed into the source code
+   * @param bytesArgs Bytes arguments that will be passed into the source code as hex strings
    * @param subscriptionId Subscription ID used to pay for request (FunctionsConsumer contract address must first be added to the subscription)
    * @param callbackGasLimit Maximum amount of gas used to call the client contract's `handleOracleFulfillment` method
    */
-  function sendRequestWithRemoteSecrets(
+  function sendRequest(
     string calldata source,
-    bytes calldata encryptedSecretsUrls,
+    FunctionsRequest.Location secretsLocation,
+    bytes calldata encryptedSecretsReference,
+    string[] calldata args,
+    bytes[] calldata bytesArgs,
     uint64 subscriptionId,
     uint32 callbackGasLimit
   ) external onlyOwner {
     FunctionsRequest.Request memory req;
-    req.initializeRequestForInlineJavaScript(source);
-    req.addSecretsReference(encryptedSecretsUrls);
-    if (s_args.length > 0) {
-      req.setArgs(s_args);
+    req.initializeRequest(source, FunctionsRequest.Location.Inline, FunctionsRequest.CodeLanguage.JavaScript);
+    req.secretsLocation = secretsLocation;
+    req.encryptedSecretsReference = encryptedSecretsReference;
+    if (args.length > 0) {
+      req.setArgs(args);
     }
-    if (s_bytesArgs.length > 0) {
-      req.setBytesArgs(s_bytesArgs);
-    }
-    s_lastRequestId = _sendRequest(req.encodeCBOR(), subscriptionId, callbackGasLimit, donId);
-  }
-
-  /**
-   * @notice Triggers an on-demand Functions request using DON hosted encrypted secrets
-   * @param source JavaScript source code
-   * @param slotID Slot ID of the DON hosted encrypted secrets which will be used
-   * @param version Current version of the secrets stored in the slotId
-   * @param subscriptionId Subscription ID used to pay for request (FunctionsConsumer contract address must first be added to the subscription)
-   * @param callbackGasLimit Maximum amount of gas used to call the client contract's `handleOracleFulfillment` method
-   */
-  function sendRequestWithDONHostedSecrets(
-    string calldata source,
-    uint8 slotID,
-    uint64 version,
-    uint64 subscriptionId,
-    uint32 callbackGasLimit
-  ) external onlyOwner {
-    FunctionsRequest.Request memory req;
-    req.initializeRequestForInlineJavaScript(source);
-    req.addDONHostedSecrets(slotID, version);
-    if (s_args.length > 0) {
-      req.setArgs(s_args);
-    }
-    if (s_bytesArgs.length > 0) {
-      req.setBytesArgs(s_bytesArgs);
+    if (bytesArgs.length > 0) {
+      req.setBytesArgs(bytesArgs);
     }
     s_lastRequestId = _sendRequest(req.encodeCBOR(), subscriptionId, callbackGasLimit, donId);
   }
