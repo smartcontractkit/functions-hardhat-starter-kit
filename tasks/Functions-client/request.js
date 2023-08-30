@@ -67,8 +67,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
 
     // Simulate the request
     if (taskArgs.simulate) {
-      const { responseBytesHexstring, errorString, capturedTerminalOutput } = await simulateScript(requestConfig)
-      console.log(`\n${capturedTerminalOutput}\n`)
+      const { responseBytesHexstring, errorString } = await simulateScript(requestConfig)
       if (responseBytesHexstring) {
         console.log(
           `Response returned by script during local simulation: ${decodeResult(
