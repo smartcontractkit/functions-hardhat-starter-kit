@@ -2,6 +2,7 @@ const {
   SubscriptionManager,
   SecretsManager,
   createGist,
+  deleteGist,
   simulateScript,
   decodeResult,
   ResponseListener,
@@ -51,41 +52,34 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
 
     // Get the required parameters
     const contractAddr = taskArgs.contract
-    const subscriptionId = Number(taskArgs.subid.toString())
-    const slotId = Number(taskArgs.slotid.toString())
-    const callbackGasLimit = Number(taskArgs.callbackgaslimit.toString())
+    const subscriptionId = parseInt(taskArgs.subid)
+    const slotId = parseInt(taskArgs.slotid)
+    const callbackGasLimit = parseInt(taskArgs.callbackgaslimit)
+
+    // Attach to the FunctionsConsumer contract
+    const consumerFactory = await ethers.getContractFactory("FunctionsConsumer")
+    const consumerContract = consumerFactory.attach(contractAddr)
 
     // Get requestConfig from the specified config file
     const requestConfig = require(path.isAbsolute(taskArgs.configpath)
       ? taskArgs.configpath
       : path.join(process.cwd(), taskArgs.configpath))
-    if (typeof requestConfig.source !== "string" || requestConfig.source.length === 0) {
-      throw Error("Request source code string is required")
-    }
 
-    // Simulate the request if the simulate flag is set
+    // Simulate the request
     if (taskArgs.simulate) {
-      const { responseBytesHexstring, errorString, capturedTerminalOutput } = await simulateScript({
-        source: requestConfig.source,
-        args: requestConfig.args,
-        bytesArgs: requestConfig.bytesArgs,
-        secrets: requestConfig.secrets,
-      })
-      if (capturedTerminalOutput && capturedTerminalOutput.length > 0) {
-        console.log(`\nLog messages from simulated script:\n${capturedTerminalOutput}\n`)
-      }
+      const { responseBytesHexstring, errorString, capturedTerminalOutput } = await simulateScript(requestConfig)
+      console.log(`\n${capturedTerminalOutput}\n`)
       if (responseBytesHexstring) {
         console.log(
-          `\nResponse returned by simulated script:\n${decodeResult(
+          `Response returned by script during local simulation: ${decodeResult(
             responseBytesHexstring,
             requestConfig.expectedReturnType
           )}\n`
         )
       }
       if (errorString) {
-        console.log(`\nError returned by simulated script:\n${errorString}\n`)
+        console.log(`Error returned by simulated script:\n${errorString}\n`)
       }
-      await utils.prompt("Would you like to continue to make an on-chain request?")
     }
 
     // Initialize the subscription manager
@@ -97,26 +91,18 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
 
     // Initialize the secrets manager
     const donId = networks[network.name]["donId"]
-    console.log(donId)
     const secretsManager = new SecretsManager({ signer, functionsRouterAddress, donId })
     await secretsManager.initialize()
 
-    // Attach to the required contracts
-    const consumerFactory = await ethers.getContractFactory("FunctionsConsumer")
-    const consumerContract = consumerFactory.attach(contractAddr)
-
-    // Get subscription info
-    const subInfo = await subManager.getSubscriptionInfo(subscriptionId)
-
     // Validate the consumer contract has been authorized to use the subscription
-    console.log(subInfo.consumers)
+    const subInfo = await subManager.getSubscriptionInfo(subscriptionId)
     if (!subInfo.consumers.map((c) => c.toLowerCase()).includes(contractAddr.toLowerCase())) {
       throw Error(`Consumer contract ${contractAddr} has not been added to subscription ${subscriptionId}`)
     }
 
-    // Estimate the cost of the request
+    // Estimate the cost of the request fulfillment
     const { gasPrice } = await hre.ethers.provider.getFeeData()
-    const gasPriceGwei = BigInt(hre.ethers.utils.formatUnits(gasPrice, "gwei").toString())
+    const gasPriceGwei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "gwei").toString()))
     const estimatedCostJuels = await subManager.estimateFunctionsRequestCost({
       donId,
       subId: subscriptionId,
@@ -126,28 +112,38 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
 
     // Ensure that the subscription has a sufficient balance
     const estimatedCostLink = hre.ethers.utils.formatUnits(estimatedCostJuels, 18)
-    const subBalanceLink = hre.ethers.utils.formatUnits(subBalanceInJules, 18)
+    const subBalanceLink = hre.ethers.utils.formatUnits(subInfo.balance, 18)
     if (subInfo.balance <= estimatedCostJuels) {
       throw Error(
         `Subscription ${subscriptionId} does not have sufficient funds. The estimated cost is ${estimatedCostLink} LINK, but the subscription only has ${subBalanceLink} LINK.`
       )
     }
 
+    // Print the estimated cost of the Functions request in LINK & confirm before initiating the request on-chain
+    await utils.prompt(
+      `If the request's callback uses all ${utils.numberWithCommas(
+        callbackGasLimit
+      )} gas, this request will charge the subscription:\n${chalk.blue(estimatedCostLink + " LINK")}`
+    )
+
     // Handle encrypted secrets
     let encryptedSecretsReference = []
     let gistUrl
     if (requestConfig.secrets && Object.keys(requestConfig.secrets).length > 0) {
       const encryptedSecrets = await secretsManager.buildEncryptedSecrets(requestConfig.secrets)
+
       switch (requestConfig.secretsLocation) {
         case Location.Inline:
           throw Error("Inline encrypted secrets are not supported for requests.")
+
         case Location.Remote:
           if (!process.env["GITHUB_API_TOKEN"]) {
             throw Error("GITHUB_API_TOKEN environment variable is required to upload Remote encrypted secrets.")
           }
-          gistUrl = await createGist(process.env["GITHUB_API_TOKEN"], encryptedSecrets)
+          gistUrl = await createGist(process.env["GITHUB_API_TOKEN"], JSON.stringify(encryptedSecrets))
           encryptedSecretsReference = await secretsManager.encryptSecretsUrls([gistUrl])
           break
+
         case Location.DONHosted:
           const { version } = await secretsManager.uploadEncryptedSecretsToDON({
             encryptedSecretsHexstring: encryptedSecrets.encryptedSecrets,
@@ -160,29 +156,13 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
             version,
           })
           break
+
         default:
           throw Error("Invalid secretsLocation in request config")
       }
+    } else {
+      requestConfig.secretsLocation = Location.Remote // Default to Remote if no secrets are used
     }
-
-    // Estimate gas & confirm the gas cost for the request transaction
-    const transactionGasEstimate = await consumerContract.estimateGas.sendRequest(
-      requestConfig.source,
-      requestConfig.secretsLocation ?? Location.Remote,
-      encryptedSecretsReference,
-      requestConfig.args ?? [],
-      requestConfig.bytesArgs ?? [],
-      subscriptionId,
-      callbackGasLimit
-    )
-    await utils.promptTxCost(transactionGasEstimate, hre)
-
-    // Print the estimated cost of the Functions request in LINK & confirm before initiating the request on-chain
-    await utils.prompt(
-      `If the request's callback uses all ${utils.numberWithCommas(
-        gasLimit
-      )} gas, this request will charge the subscription:\n${chalk.blue(estimatedCostLink + " LINK")}`
-    )
 
     // Instantiate response listener
     const responseListener = new ResponseListener({
@@ -191,10 +171,11 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     })
 
     // Initiate the request
-    const spinner = utils.spin({
-      text: `Submitting transaction for FunctionsConsumer contract ${contractAddr} on network ${network.name}`,
-    })
-    spinner.start("Waiting for transaction to be submitted...")
+    const spinner = utils.spin()
+    spinner.start(
+      `Waiting for transaction for FunctionsConsumer contract ${contractAddr} on network ${network.name} to be confirmed...`
+    )
+    // Use a manual gas limit for the request transaction since estimated gas limit is not always accurate
     const overrides = {
       gasLimit: taskArgs.requestgaslimit,
     }
@@ -204,7 +185,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     }
     const requestTx = await consumerContract.sendRequest(
       requestConfig.source,
-      requestConfig.secretsLocation ?? 1,
+      requestConfig.secretsLocation,
       encryptedSecretsReference,
       requestConfig.args ?? [],
       requestConfig.bytesArgs ?? [],
@@ -212,14 +193,12 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
       callbackGasLimit,
       overrides
     )
+    const requestTxReceipt = await requestTx.wait(1)
     spinner.info(
       `Transaction confirmed, see ${
         utils.getEtherscanURL(network.config.chainId) + "tx/" + requestTx.hash
       } for more details.`
     )
-    const requestTxReceipt = await requestTx.wait(1)
-    spinner.stopAndPersist()
-    console.log(requestTxReceipt.events) // TODO: remove
 
     // Listen for fulfillment
     const requestId = requestTxReceipt.events[2].args.id
@@ -228,6 +207,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     )
 
     try {
+      // Get response data
       const { totalCostInJuels, responseBytesHexstring, errorString, fulfillmentCode } =
         await responseListener.listenForResponse(requestId)
 
@@ -235,7 +215,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
         case FulfillmentCode.FULFILLED:
           if (responseBytesHexstring !== "0x") {
             spinner.succeed(
-              `Request ${requestId} fulfilled! Data has been written on-chain.\nResponse written to consumer contract:\n${decodeResult(
+              `Request ${requestId} fulfilled!\nResponse has been sent to consumer contract: ${decodeResult(
                 responseBytesHexstring,
                 requestConfig.expectedReturnType
               )}\n`
@@ -248,28 +228,32 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
           const linkCost = hre.ethers.utils.formatUnits(totalCostInJuels, 18)
           console.log(`Total request cost: ${chalk.blue(linkCost + " LINK")}`)
           break
+
         case FulfillmentCode.USER_CALLBACK_ERROR:
           spinner.fail(
             "Error encountered when calling consumer contract callback.\nEnsure the fulfillRequest function in FunctionsConsumer is correct and the --callbackgaslimit is sufficient."
           )
           break
+
         case FulfillmentCode.COST_EXCEEDS_COMMITMENT:
           spinner.fail(`Request ${requestId} failed due to a gas price spike when attempting to respond.`)
           break
+
         default:
           spinner.fail(
             `Request ${requestId} failed with fulfillment code: ${fulfillmentCode}. Please contact Chainlink support.`
           )
       }
     } catch (error) {
-      spinner.fail(
-        "Request fulfillment was not received within 5 minute response period. Please contact Chainlink support."
-      )
+      spinner.fail("Request fulfillment was not received within 5 minute response period.")
       throw error
     } finally {
       // Clean up the gist if it was created
       if (gistUrl) {
-        await deleteGist(process.env["GITHUB_API_TOKEN"], gistUrl)
+        const successfulDeletion = await deleteGist(process.env["GITHUB_API_TOKEN"], gistUrl)
+        if (!successfulDeletion) {
+          console.log(`Failed to delete gist at ${gistUrl}. Please delete manually.`)
+        }
       }
     }
   })

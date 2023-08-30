@@ -1,5 +1,5 @@
 const { SubscriptionManager } = require("@chainlink/functions-toolkit")
-
+const chalk = require("chalk")
 const { networks } = require("../../networks")
 const utils = require("../utils")
 
@@ -32,7 +32,9 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
     // Fund subscription
     if (linkAmount) {
       await utils.prompt(
-        `\nPlease confirm that you wish to fund Subscription ${subId} with ${linkAmount} LINK from your wallet.`
+        `\nPlease confirm that you wish to fund Subscription ${subId} with ${chalk.blue(
+          linkAmount + " LINK"
+        )} from your wallet.`
       )
 
       console.log(`\nFunding subscription ${subId} with ${linkAmount} LINK...`)

@@ -48,6 +48,7 @@ const networks = {
     linkPriceFeed: "0x12162c3E810393dEC01362aBf156D7ecf6159528", // LINK/MATIC
     functionsRouter: "0x2673266D3Cd08b53494B5a92B66DEec7F1408E7A",
     donId: "fun-staging-mumbai-1",
+    gatewayUrls: ["https://gateway-staging1.main.stage.cldev.sh/user"],
     functionsPublicKey: SHARED_DON_PUBLIC_KEY,
   },
   avalancheFuji: {
