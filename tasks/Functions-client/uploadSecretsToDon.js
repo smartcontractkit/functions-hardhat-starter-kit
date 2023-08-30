@@ -1,9 +1,25 @@
 const { SecretsManager } = require("@chainlink/functions-toolkit")
 const { networks } = require("../../networks")
 const process = require("process")
+const path = require("path")
 
 task("functions-upload-secrets-don", "encrypts secrets and uploads them to the DON")
-  .addParam("slotid", "storage slot number 0 or higher. When reused will overwrite existing secret at that slotid.")
+  .addParam(
+    "slotid",
+    "Storage slot number 0 or higher. If the slotid is already in use, the existing secrets for that slotid will be overwritten."
+  )
+  .addOptionalParam(
+    "ttl",
+    "time to live - minutes until the secrets hosted on the DON expire. Defaults to 10m",
+    10,
+    types.int
+  )
+  .addOptionalParam(
+    "configpath",
+    "Path to Functions request config file",
+    `${__dirname}/../../Functions-request-config.js`,
+    types.string
+  )
   .setAction(async (taskArgs) => {
     if (network.name === "hardhat") {
       throw Error("This command cannot be used on a local hardhat chain.")
@@ -16,7 +32,7 @@ task("functions-upload-secrets-don", "encrypts secrets and uploads them to the D
     const gatewayUrls = networks[network.name]["gatewayUrls"]
 
     const storageSlotId = parseInt(taskArgs.slotid)
-    const minutesUntilExpiration = 10
+    const minutesUntilExpiration = taskArgs.ttl
 
     const secretsManager = new SecretsManager({
       signer,
@@ -25,15 +41,18 @@ task("functions-upload-secrets-don", "encrypts secrets and uploads them to the D
     })
     await secretsManager.initialize()
 
-    // TODO @dev use the env-enc package to encrypt secrets and write into a .env.enc file.
-    const secrets = {
-      // This secret is used in API-request-example.js
-      // Get free API key from https://pro.coinmarketcap.com/
-      apiKey: process.env.CMC_API_KEY,
+    // Get the secrets object from  Functions-request-config.js or other specific request config.
+    const requestConfig = require(path.isAbsolute(taskArgs.configpath)
+      ? taskArgs.configpath
+      : path.join(process.cwd(), taskArgs.configpath))
+
+    if (!requestConfig.secrets || requestConfig.secrets.length === 0) {
+      console.log("No secrets found in the request config.")
+      return
     }
 
-    console.log("Encrypting secrets and writing to JSON file...")
-    const encryptedSecretsObj = await secretsManager.buildEncryptedSecrets(secrets)
+    console.log("Encrypting secrets and uploading to DON...")
+    const encryptedSecretsObj = await secretsManager.buildEncryptedSecrets(requestConfig.secrets)
 
     const {
       version, // Secrets version number (corresponds to timestamp when encrypted secrets were uploaded to DON)
@@ -46,6 +65,6 @@ task("functions-upload-secrets-don", "encrypts secrets and uploads them to the D
     })
 
     console.log(
-      `\nSuccess : ${success}.  You can now use version '${version}' and storageSlotId '${storageSlotId}' when sending your request to your Functions consumer contract.`
+      `\nSuccess : ${success}.  You can now use storageSlotId '${storageSlotId}' and version '${version}' when sending your request to your Functions consumer contract.`
     )
   })

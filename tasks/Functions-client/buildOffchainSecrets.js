@@ -1,7 +1,6 @@
 const { SecretsManager } = require("@chainlink/functions-toolkit")
 const { networks } = require("../../networks")
 const fs = require("fs")
-const { generateOffchainSecrets } = require("../utils/generateOffchainSecrets")
 const path = require("path")
 const process = require("process")
 
@@ -9,7 +8,18 @@ task(
   "functions-build-offchain-secrets",
   "Builds an off-chain secrets object that can be uploaded and referenced via URL"
 )
-  .addOptionalParam("output", "Output JSON file name (defaults to offchain-secrets.json)")
+  .addOptionalParam(
+    "output",
+    "Output JSON file name (defaults to offchain-encrypted-secrets.json)",
+    "offchain-encrypted-secrets.json",
+    types.string
+  )
+  .addOptionalParam(
+    "configpath",
+    "Path to Functions request config file",
+    `${__dirname}/../../Functions-request-config.js`,
+    types.string
+  )
   .setAction(async (taskArgs) => {
     if (network.name === "hardhat") {
       throw Error("This command cannot be used on a local hardhat chain.")
@@ -26,17 +36,20 @@ task(
     })
     await secretsManager.initialize()
 
-    // TODO @dev use the env-enc package to encrypt secrets and write into a .env.enc file.
-    const secrets = {
-      // This secret is used in API-request-example.js
-      // Get free API key from https://pro.coinmarketcap.com/
-      apiKey: process.env.CMC_API_KEY,
+    // Get the secrets object from  Functions-request-config.js or other specific request config.
+    const requestConfig = require(path.isAbsolute(taskArgs.configpath)
+      ? taskArgs.configpath
+      : path.join(process.cwd(), taskArgs.configpath))
+
+    if (!requestConfig.secrets || requestConfig.secrets.length === 0) {
+      console.log("No secrets found in the request config.")
+      return
     }
 
-    console.log("\nEncrypting secrets and writing to JSON file...")
-    const encryptedSecretsObj = await secretsManager.buildEncryptedSecrets(secrets)
+    const outputfile = taskArgs.output
+    console.log(`\nEncrypting secrets and writing to JSON file '${outputfile}'...`)
 
-    const outputfile = taskArgs.output ? taskArgs.output : "offchain-encyrpted-secrets.json"
+    const encryptedSecretsObj = await secretsManager.buildEncryptedSecrets(requestConfig.secrets)
     fs.writeFileSync(outputfile, JSON.stringify(encryptedSecretsObj))
 
     console.log(`\nWrote offchain secrets file to '${outputfile}'.`)
