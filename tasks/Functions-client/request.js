@@ -97,6 +97,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
 
     // Initialize the secrets manager
     const donId = networks[network.name]["donId"]
+    console.log(donId)
     const secretsManager = new SecretsManager({ signer, functionsRouterAddress, donId })
     await secretsManager.initialize()
 
@@ -108,16 +109,17 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     const subInfo = await subManager.getSubscriptionInfo(subscriptionId)
 
     // Validate the consumer contract has been authorized to use the subscription
-    if (!subInfo.consumers.includes(contractAddr.toLowerCase())) {
+    console.log(subInfo.consumers)
+    if (!subInfo.consumers.map((c) => c.toLowerCase()).includes(contractAddr.toLowerCase())) {
       throw Error(`Consumer contract ${contractAddr} has not been added to subscription ${subscriptionId}`)
     }
 
     // Estimate the cost of the request
     const { gasPrice } = await hre.ethers.provider.getFeeData()
-    const gasPriceGwei = hre.ethers.utils.formatUnits(gasPrice, "gwei")
+    const gasPriceGwei = BigInt(hre.ethers.utils.formatUnits(gasPrice, "gwei").toString())
     const estimatedCostJuels = await subManager.estimateFunctionsRequestCost({
       donId,
-      subscriptionId,
+      subId: subscriptionId,
       callbackGasLimit,
       gasPriceGwei,
     })

@@ -51,7 +51,7 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
     uint32 callbackGasLimit
   ) external onlyOwner {
     FunctionsRequest.Request memory req;
-    req.initializeRequest(source, FunctionsRequest.Location.Inline, FunctionsRequest.CodeLanguage.JavaScript);
+    req.initializeRequest(FunctionsRequest.Location.Inline, FunctionsRequest.CodeLanguage.JavaScript, source);
     req.secretsLocation = secretsLocation;
     req.encryptedSecretsReference = encryptedSecretsReference;
     if (args.length > 0) {
