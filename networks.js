@@ -50,7 +50,7 @@ const networks = {
     functionsCoordinator: "0x6D6a83BB356b7242E88C1A2b290102fde26590D0", // "0x69b4C680209737B877c93327fC2144ec39eaC423",
     functionsPublicKey: SHARED_DON_PUBLIC_KEY,
     donId: "fun-staging-mumbai-1", // "functions_staging_mumbai", // TODO @zeuslawyer - update donId
-    gatewayUrls: ["https://clc-ocr2-dr-gateway-nodes-4.main.stage.cldev.sh/gateway"], // TODO @zeuslawyer - update gatewayUrls
+    gatewayUrls: ["https://gateway-staging1.main.stage.cldev.sh/user"], // TODO @zeuslawyer - update gatewayUrls
   },
   avalancheFuji: {
     url: process.env.AVALANCHE_FUJI_RPC_URL || "UNSET",

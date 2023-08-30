@@ -57,7 +57,7 @@ task("functions-upload-secrets-don", "encrypts secrets and uploads them to the D
     const {
       version, // Secrets version number (corresponds to timestamp when encrypted secrets were uploaded to DON)
       success, // Boolean value indicating if encrypted secrets were successfully uploaded to all nodes connected to the gateway
-    } = await secretsManager.uploadSecretsToDON({
+    } = await secretsManager.uploadEncryptedSecretsToDON({
       encryptedSecretsHexstring: encryptedSecretsObj.encryptedSecrets,
       gatewayUrls,
       storageSlotId,
