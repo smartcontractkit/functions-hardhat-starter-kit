@@ -9,7 +9,7 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
   .setAction(async (taskArgs) => {
     if (network.name === "hardhat") {
       throw Error(
-        'This command cannot be used on a local hardhat chain.  Specify a valid network or simulate a request locally with "npx hardhat functions-simulate".'
+        'This command cannot be used on a local hardhat chain. Specify a valid network or simulate a request locally with "npx hardhat functions-simulate".'
       )
     }
 
@@ -27,20 +27,18 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
 
     console.log("\nCreating Functions billing subscription...")
     const subId = await sm.createSubscription({ consumerAddress, txOptions })
-    console.log(`\nCreated Functions billing subscription: '${subId}'`)
+    console.log(`\nCreated Functions billing subscription: ${subId}`)
 
     // Fund subscription
     if (linkAmount) {
       await utils.prompt(
-        `\nPlease confirm that you wish to fund Subscription '${subId}' with '${linkAmount}' LINK from your wallet.'`
+        `\nPlease confirm that you wish to fund Subscription ${subId} with ${linkAmount} LINK from your wallet.`
       )
 
-      console.log(`\nFunding subscription '${subId}' with '${linkAmount}' LINK...`)
+      console.log(`\nFunding subscription ${subId} with ${linkAmount} LINK...`)
       const juelsAmount = ethers.utils.parseUnits(linkAmount, 18)
       const fundTxReceipt = await sm.fundSubscription({ juelsAmount, subId, txOptions })
-      console.log(
-        `\nSubscription '${subId}' funded with '${linkAmount}' LINK in Tx: ''${fundTxReceipt.transactionHash}'`
-      )
+      console.log(`\nSubscription ${subId} funded with ${linkAmount} LINK in Tx: ${fundTxReceipt.transactionHash}`)
 
       const subInfo = await sm.getSubscriptionInfo(subId)
       // parse  balances into LINK for readability
