@@ -13,18 +13,29 @@ const SHARED_DON_PUBLIC_KEY =
 const npmCommand = process.env.npm_lifecycle_event
 const isTestEnvironment = npmCommand == "test" || npmCommand == "test:unit"
 
-// Set EVM private key (required)
+// Set EVM private keys (required)
 const PRIVATE_KEY = process.env.PRIVATE_KEY
+
+// TODO @dev - set this to run the accept.js task.
 const SECOND_PRIVATE_KEY = process.env.SECOND_PRIVATE_KEY
+
 if (!isTestEnvironment && !PRIVATE_KEY) {
   throw Error("Set the PRIVATE_KEY environment variable with your EVM wallet private key")
+}
+
+const accounts = []
+if (PRIVATE_KEY !== undefined) {
+  accounts.push(PRIVATE_KEY)
+}
+if (SECOND_PRIVATE_KEY !== undefined) {
+  accounts.push(SECOND_PRIVATE_KEY)
 }
 
 const networks = {
   ethereumSepolia: {
     url: process.env.ETHEREUM_SEPOLIA_RPC_URL || "UNSET",
     gasPrice: undefined,
-    accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY, SECOND_PRIVATE_KEY] : [],
+    accounts,
     verifyApiKey: process.env.ETHERSCAN_API_KEY || "UNSET",
     chainId: 11155111,
     confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
@@ -39,7 +50,7 @@ const networks = {
   polygonMumbai: {
     url: process.env.POLYGON_MUMBAI_RPC_URL || "UNSET",
     gasPrice: undefined,
-    accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY, SECOND_PRIVATE_KEY] : [],
+    accounts,
     verifyApiKey: process.env.POLYGONSCAN_API_KEY || "UNSET",
     chainId: 80001,
     confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
@@ -54,7 +65,7 @@ const networks = {
   avalancheFuji: {
     url: process.env.AVALANCHE_FUJI_RPC_URL || "UNSET",
     gasPrice: undefined,
-    accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY, SECOND_PRIVATE_KEY] : [],
+    accounts,
     verifyApiKey: process.env.FUJI_SNOWTRACE_API_KEY || "UNSET",
     chainId: 43113,
     confirmations: 2 * DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
