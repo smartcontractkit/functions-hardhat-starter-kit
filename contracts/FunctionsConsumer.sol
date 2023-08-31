@@ -17,8 +17,6 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
   bytes public s_lastResponse;
   bytes public s_lastError;
 
-  error UnexpectedRequestID(bytes32 requestId);
-
   constructor(address router, bytes32 _donId) FunctionsClient(router) ConfirmedOwner(msg.sender) {
     donId = _donId;
   }
@@ -36,8 +34,8 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
    * @param source JavaScript source code
    * @param secretsLocation Location of secrets (only Location.Remote & Location.DONHosted are supported)
    * @param encryptedSecretsReference Reference pointing to encrypted secrets
-   * @param args String arguments that will be passed into the source code
-   * @param bytesArgs Bytes arguments that will be passed into the source code as hex strings
+   * @param args String arguments passed into the source code and accessible via the global variable `args`
+   * @param bytesArgs Bytes arguments passed into the source code and accessible via the global variable `bytesArgs` as hex strings
    * @param subscriptionId Subscription ID used to pay for request (FunctionsConsumer contract address must first be added to the subscription)
    * @param callbackGasLimit Maximum amount of gas used to call the client contract's `handleOracleFulfillment` method
    */
@@ -71,9 +69,6 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
    * Either response or error parameter will be set, but never both
    */
   function fulfillRequest(bytes32 requestId, bytes memory response, bytes memory err) internal override {
-    if (s_lastRequestId != requestId) {
-      revert UnexpectedRequestID(requestId);
-    }
     s_lastResponse = response;
     s_lastError = err;
   }
