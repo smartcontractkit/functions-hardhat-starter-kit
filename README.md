@@ -37,8 +37,7 @@
 <p>Chainlink Functions also enables users to share encrypted secrets with each node in the DON.  This allows users to access APIs that require authentication, without exposing their API keys to the general public.
 
 # Motivation
-
-This repo provides developers with a "works out of the box" experience as it comes preconfigured with dependencies and popular tooling like [Hardhat](https://hardhat.org). This is not a tutorial for the Hardhat toolchain. It assumes basic familiarity with Hardhat and the command line. We use CLI scripts to run Chainlink Functions commands and operations.
+This repo provides developers with a "works out of the box" experience as it comes preconfigured with dependencies and popular tooling like [Hardhat](https://hardhat.org). This is not a tutorial for the Hardhat toolchain.  It assumes basic familiarity with Hardhat and the Command line.  We use CLI scripts to run Chainlink Functions commands and operations.
 
 ## Supported Networks
 
@@ -73,26 +72,35 @@ For other detailed tutorials and examples, check out the [Chainlink Functions Tu
 - Node.js version [18](https://nodejs.org/en/download/)
 
 ## Steps
+Allow at least 15 minutes to set up this project.
 
 1. Clone this repository to your local machine<br><br>
 2. Open this directory in your command line/terminal app, then run `npm install` to install all dependencies.<br><br>
-3. Obtain the values for following environment variables:
-   - `PRIVATE_KEY` for your development wallet - `POLYGON_MUMBAI_RPC_URL`, `ETHEREUM_SEPOLIA_RPC_URL`, or`AVALANCHE_FUJI_RPC_URL` - `POLYGONSCAN_API_KEY`, `ETHERSCAN_API_KEY`, or `FUJI_SNOWTRACE_API_KEY` blockchain explore API keys (no cost) depending on which network you're connecting to - `COINMARKETCAP_API_KEY` (from [here](https://pro.coinmarketcap.com/))
-     <br><br>
-4. Set the required environment variables. For improved security, Chainlink provides the NPM package @chainlink/env-enc which can be used to keep environment variables in a password encrypted `.env.enc` file instead of a plaintext `.env` if you desire the additional security. More detail on environment variable management and the tooling is provided in the [Environment Variable Management](#environment-variable-management) section.
-   1. Set an encryption password for your environment variables to a secure password by running:<br>`npx env-enc set-pw`. This password needs to be set each time you create or restart a terminal shell session.<br>
-   2. Use the command `npx env-enc set` to set the required environment variables.
-      3 Set any other values you intend to pass into the _secrets_ object in _Functions-request-config.js_ .<br><br>
-5. There are four files to notice that the default example will use:
-   - `/Functions-request-config.js` which contains the `request` object that has all the data necessary to trigger a Functions request. This config file also specifies which `source` code to pass to Functions. More information on request configuration is in the [Request Configuration section](#request-configuration).
+3. Acquire a Github personal access token which allows reading and writing Gists.
+   1. Visit [https://github.com/settings/tokens?type=beta](https://github.com/settings/tokens?type=beta) and click "Generate new token"
+   2. Name the token and enable read & write access for Gists from the "Account permissions" drop-down menu. Do not enable any additional permissions.
+   3. Click "Generate token" and copy the resulting personal access token for step 4.<br><br>
+4. Obtain the values for following environment variables:  
+      - `GITHUB_API_TOKEN` for your Github token obtained from step 3
+      - `PRIVATE_KEY` for your development wallet
+      - `POLYGON_MUMBAI_RPC_URL`, `ETHEREUM_SEPOLIA_RPC_URL`, `AVALANCHE_FUJI_RPC_URL` 
+      - `POLYGONSCAN_API_KEY`, `ETHERSCAN_API_KEY`, `FUJI_SNOWTRACE_API_KEY` blockchain explore API keys (no cost) depending on which network you're connecting to
+      - `COINMARKETCAP_API_KEY` (from [here](https://pro.coinmarketcap.com/)) so that you can verify contracts upon deployment
+<br><br>
+5. Set the required environment variables. More detail on environment variable management and the tooling is provided in the [Environment Variable Management](#environment-variable-management) section.
+   1. Set an encryption password for your environment variables to a secure password by running:<br>`npx env-enc set-pw`. This password needs to be set each time you create or restart a terminal shell session<br>
+   2. Use the command `npx env-enc set` to set the required environment variables :
+   3 Set any other  values you intend to pass into the _secrets_ object in _Functions-request-config.js_ .<br><br>
+6. There are four files to notice that the default example will use:
+   - `/Functions-request-config.js` which contains the `request` object that has all the data necessary to trigger a Functions request. This config file also specifiies which `source` code to pass to Functions. More information on request configuration is in the [Request Configuration section](#request-configuration).
    - `contracts/FunctionsConsumer.sol` is the client smart contract that will receive the Functions-related data from the request config, and trigger the functions request.
-   - `calculation-example.js` contains JavaScript code that will be executed by each node of the DON. This example performs complex calculations but no API requests.
+   - `calculation-example.js`` contains JavaScript code that will be executed by each node of the DON. This example performs complex calculations but no API requests.
    - `./API-request-example.js` which fetches data from APIs before processing the data <br><br>
-6. Simulate a request and it's fulfillment locally by using:<br>`npx hardhat functions-simulate`. This will surface most errors in your smart contract and/or JavaScript source code and configuration.<br><br>
-7. Deploy and verify the consumer contract to an actual blockchain network by running:<br>`npx hardhat functions-deploy-client --network network_name_here --verify true`<br>**Note**: Make sure `<explorer>_API_KEY` is set if using `--verify true`, depending on which network is used.<br><br>
-8. Create and fund a new Functions billing subscription, and then authorize your deployed consumer contract to use that subscription by running:<br> `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0xDeployed_client_contract_address_here`<br><br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command. Testnet LINK can be obtained at <a href="https://faucets.chain.link/">faucets.chain.link</a>.
-   **Note**: also make a note of your subscription Id as you will need it for most commands. <br><br>
-9. Make an on-chain request by running:<br>`npx hardhat functions-request --network network_name_here --contract 0xDeployed_client_contract_address_here --subid subscription_id_number_here`
+7. Simulate a request and it's fulfillment locally by using:<br>`npx hardhat functions-simulate`. This will surface most errors in your smart contract and/or JavaScript source code and configuration.<br><br>
+8. Deploy and verify the client contract to an actual blockchain network by running:<br>`npx hardhat functions-deploy-client --network network_name_here --verify true`<br>**Note**: Make sure `<explorer>_API_KEY` is set if using `--verify true`, depending on which network is used.<br><br>
+9. Create and fund  a new Functions billing subscription, and then authorize your deployed Client contract to use that subscription by running:<br> `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0xDeployed_client_contract_address_here`<br><br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command. Testnet LINK can be obtained at <a href="https://faucets.chain.link/">faucets.chain.link</a>.
+ **Note**: also make a note of your subscription Id as you will need it for most commands. <br><br> 
+10. Make an on-chain request by running:<br>`npx hardhat functions-request --network network_name_here --contract 0xDeployed_client_contract_address_here --subid subscription_id_number_here`
 
 # Environment Variable Management
 
@@ -180,6 +188,7 @@ Example: `npx hardhat functions-read --network polygonMumbai --contract 0x787Fe0
 
 Chainlink Functions requests can be configured by modifying values in the `requestConfig` object found in the _Functions-request-config.js_ file located in the root of this repository.
 
+<<<<<<< HEAD
 | Setting Name         | Description                                                                                                                                                                                                                                                                                                                                                                      |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
 | `codeLocation`       | This specifies where the JavaScript code for a request is located. Currently, only the `Location.Inline` option is supported (represented by the value `0`). This means the JavaScript string is provided directly in the on-chain request instead of being referenced via a URL.                                                                                                |
@@ -189,6 +198,17 @@ Chainlink Functions requests can be configured by modifying values in the `reque
 | `secretsLocation`    | This (optional) value must be present if `secrets` are present. Values must be one of either `DONhosted` or `Remote`. This refers to the location of the Secrets - which can be User-hosted (Remote) at a URL or DON-hosted.                                                                                                                                                     |
 | `args`               | This is an array of strings which contains values that are injected into the JavaScript source code and can be accessed using the name `args`. This provides a convenient way to set modifiable parameters within a request. If no arguments, then an empty array is passed.                                                                                                     |
 | `expectedReturnType` | This specifies the expected return type of a request. It has no on-chain impact, but is used by the CLI to decode the response bytes into the specified type. The options are `uint256`, `int256`, `string`, or `bytes`.                                                                                                                                                         |
+=======
+| Setting Name         | Description                                                                                                                                                                                                                                                                                                                                                           |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `codeLocation`       | This specifies where the JavaScript code for a request is located. Currently, only the `Location.Inline` option is supported (represented by the value `0`). This means the JavaScript string is provided directly in the on-chain request instead of being referenced via a URL.                                                                                     |
+| `codeLanguage`       | This specifies the language of the source code which is executed in a request. Currently, only `JavaScript` is supported (represented by the value `0`).                                                                                                                                                                                                              |
+| `source`             | This is a string containing the source code which is executed in a request. This must be valid JavaScript code that returns a Buffer. See the [JavaScript Code](#javascript-code) section for more details.                                                                                                                                                           |
+| `secrets`            | This is an (optional) object which contains secret values that are injected into the JavaScript source code and can be accessed using the name `secrets`. This object can only contain string values. This object will be automatically encrypted by the tooling using the DON public key before making request. Any DON member can use these secrets when processing a request. |                                                                   |
+| `secretsLocation`             | This (optional) value must be present if `secrets` are present. Values must be one of either `DONhosted` or `Remote`. This refers to the location of the Secrets - which can be User-hosted (Remote) at a URL or DON-hosted.  
+| `args`               | This is an array of strings which contains values that are injected into the JavaScript source code and can be accessed using the name `args`. This provides a convenient way to set modifiable parameters within a request. If no arguments, then an empty array is passed.                                                                                                                                          |
+| `expectedReturnType` | This specifies the expected return type of a request. It has no on-chain impact, but is used by the CLI to decode the response bytes into the specified type. The options are `uint256`, `int256`, `string`, or `bytes`.                                                                                                                                           |
+>>>>>>> 57bb385 (Update README first pass.)
 
 ## JavaScript Code
 
@@ -196,7 +216,11 @@ The JavaScript source code for a Functions request can use vanilla Node.js featu
 
 It must return a JavaScript Buffer which represents the response bytes that are sent back to the requesting contract.
 Encoding functions are provided in the [Functions library](#functions-library).
+<<<<<<< HEAD
 Additionally, any external APIs to which requests are made must script must respond in **less than 9 seconds** and the JavaScript Code as a whole must return in **less than 10 seconds** or it will be terminated and send back an error (in bytes) to the requesting contract.
+=======
+Additionally, any external APIs to which requests are made must script must return **less than 3 seconds** and the JavaScript Code as a whole must return in **less than 10 seconds** or it will be terminated and send back an error (in bytes) to the requesting contract.
+>>>>>>> 57bb385 (Update README first pass.)
 
 In order to make HTTP requests, the source code must use the `Functions.makeHttpRequest` function from the exposed [Functions library](#functions-library).
 Asynchronous code with top-level `await` statements is supported, as shown in the file _API-request-example.js_.
@@ -267,9 +291,9 @@ If the `FunctionsConsumer` contract is modified, this task must also be modified
 
 ## Managing Secrets
 
-// TODO _maybe just refer to the NPM package here so that we're not double maintaining docs? This will also be covered in the CL docs so we ought not triplicate. This repo should not document secrets management, but should just document how secrets are used in this project_
+// TODO *maybe just refer to the NPM package here so that we're not double maintaining docs? This will also be covered in the CL docs so we ought not triplicate. This repo should not document secrets management, but should just document how secrets are used in this project*
 
-Secrets can be managed in either of two ways: user-hosted (i,e "remote") or DON hosted. // TODO link to docs
+Secrets can be managed in either of two ways - User-hosted or DON hosted. // TODO link to docs
 
 This project uses DONHosted secrets which means secrets from the `./Functions-request-config.js` file are encrypted and then uploaded to the DON and given a `tty` - the minutes after which these secrets will expire on the DON.
 
@@ -294,11 +318,11 @@ This step will automatically add your consumer contract as an authorized user of
    - Once created be sure to ensure the Upkeep has sufficient funds in it. You can add funds in the UI.
    - Find further documentation for working with Chainlink Automation here: [https://docs.chain.link/chainlink-automation/introduction](https://docs.chain.link/chainlink-automation/introduction)
 
-Once the contract is registered for upkeep, check the latest response or error with the commands `npx hardhat functions-read --network network_name_here --contract contract_address_here`. Note that you can also pause and unpause your Automation Upkeep using the web app's UI.
+Once the contract is registered for upkeep, check the latest response or error with the commands `npx hardhat functions-read --network network_name_here --contract 0x_contract_address`.  Note that you can also pause and unpause your Automation Upkeep using the web app's UI.
 
 5. For debugging on your machine, use the command `npx hardhat functions-check-upkeep --network network_name_here --contract contract_address_here` to see if Automation needs to call `performUpkeep`. If this call returns `false` then the upkeep interval has not yet passed and `performUpkeep` will not execute. In order to test that `performUpkeep` will run correctly before registering the Automation upkeep, you can also trigger a request manually using the command use the command `npx hardhat functions-perform-upkeep --network network_name_here --contract contract_address_here`.
 
-You can also attach a listener to a Subscription ID by updating the `subId` variable in `/scripts/listen.js`, and then running `npm run listen --network your_network_name` from the repo root. To do this open a new terminal or split terminal and run `npm run listen`. This script uses nodemon which restarts the script when you save files or when the listener returns a result.
+You can also attach a listener to a Subscription ID by updating the  `subId` variable in `/scripts/listen.js`, and then running `npm run listen --network your_network_name` from the repo root. **Note** Do this in a new terminal or split terminal so that it can keep listening as you develop. This script uses nodemon which restarts the script when you save files or when the listener returns a result.
 
 # Gas Spikes
 
