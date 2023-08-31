@@ -20,7 +20,6 @@ if (!isTestEnvironment && !PRIVATE_KEY) {
   throw Error("Set the PRIVATE_KEY environment variable with your EVM wallet private key")
 }
 
-// TODO @zeuslawyer - update contract addresses for sepolia etc.
 const networks = {
   ethereumSepolia: {
     url: process.env.ETHEREUM_SEPOLIA_RPC_URL || "UNSET",
@@ -32,8 +31,9 @@ const networks = {
     nativeCurrencySymbol: "ETH",
     linkToken: "0x779877A7B0D9E8603169DdbD7836e478b4624789",
     linkPriceFeed: "0x42585eD362B3f1BCa95c640FdFf35Ef899212734",
-    functionsOracleProxy: "0x649a2C205BE7A3d5e99206CEEFF30c794f0E31EC",
-    functionsBillingRegistryProxy: "0x3c79f56407DCB9dc9b852D139a317246f43750Cc",
+    functionsRouter: "", // TODO @zeuslawyer
+    donId: "", // TODO @zeuslawyer
+    gatewayUrls: "", // TODO @zeuslawyer
     functionsPublicKey: SHARED_DON_PUBLIC_KEY,
   },
   polygonMumbai: {
@@ -46,11 +46,10 @@ const networks = {
     nativeCurrencySymbol: "MATIC",
     linkToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
     linkPriceFeed: "0x12162c3E810393dEC01362aBf156D7ecf6159528", // LINK/MATIC
-    functionsRouter: "0x2673266D3Cd08b53494B5a92B66DEec7F1408E7A", //"0xa4Ac8b863A6b4fB064B6bdF87aD61d389d97748d",
-    functionsCoordinator: "0x6D6a83BB356b7242E88C1A2b290102fde26590D0", // "0x69b4C680209737B877c93327fC2144ec39eaC423",
+    functionsRouter: "0x2673266D3Cd08b53494B5a92B66DEec7F1408E7A",
     functionsPublicKey: SHARED_DON_PUBLIC_KEY,
-    donId: "fun-staging-mumbai-1", // "functions_staging_mumbai", // TODO @zeuslawyer - update donId
-    gatewayUrls: ["https://gateway-staging1.main.stage.cldev.sh/user"], // TODO @zeuslawyer - update gatewayUrls
+    donId: "fun-staging-mumbai-1",
+    gatewayUrls: ["https://gateway-staging1.main.stage.cldev.sh/user"],
   },
   avalancheFuji: {
     url: process.env.AVALANCHE_FUJI_RPC_URL || "UNSET",
@@ -62,8 +61,9 @@ const networks = {
     nativeCurrencySymbol: "AVAX",
     linkToken: "0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846",
     linkPriceFeed: "0x79c91fd4F8b3DaBEe17d286EB11cEE4D83521775", // LINK/AVAX
-    functionsOracleProxy: "0xE569061eD8244643169e81293b0aA0d3335fD563",
-    functionsBillingRegistryProxy: "0x452C33Cef9Bc773267Ac5F8D85c1Aca2bA4bcf0C",
+    functionsRouter: "", // TODO @zeuslawyer
+    donId: "", // TODO @zeuslawyer
+    gatewayUrls: "", // TODO @zeuslawyer
     functionsPublicKey: SHARED_DON_PUBLIC_KEY,
   },
 }

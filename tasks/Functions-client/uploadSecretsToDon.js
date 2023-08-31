@@ -10,7 +10,7 @@ task("functions-upload-secrets-don", "encrypts secrets and uploads them to the D
   )
   .addOptionalParam(
     "ttl",
-    "time to live - minutes until the secrets hosted on the DON expire. Defaults to 10m",
+    "time to live - minutes until the secrets hosted on the DON expire. Defaults to 10m, and must be minimum 5m",
     10,
     types.int
   )
