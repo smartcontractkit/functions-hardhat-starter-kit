@@ -1,18 +1,18 @@
 const { SecretsManager } = require("@chainlink/functions-toolkit")
 const { networks } = require("../../networks")
-const fs = require("fs")
-const path = require("path")
 const process = require("process")
+const path = require("path")
 
-task(
-  "functions-build-offchain-secrets",
-  "Builds an off-chain secrets object that can be uploaded and referenced via URL"
-)
+task("functions-upload-secrets-don", "encrypts secrets and uploads them to the DON")
+  .addParam(
+    "slotid",
+    "Storage slot number 0 or higher. If the slotid is already in use, the existing secrets for that slotid will be overwritten."
+  )
   .addOptionalParam(
-    "output",
-    "Output JSON file name (defaults to offchain-encrypted-secrets.json)",
-    "offchain-encrypted-secrets.json",
-    types.string
+    "ttl",
+    "time to live - minutes until the secrets hosted on the DON expire. Defaults to 10m, and must be minimum 5m",
+    10,
+    types.int
   )
   .addOptionalParam(
     "configpath",
@@ -28,6 +28,11 @@ task(
     const signer = await ethers.getSigner()
     const functionsRouterAddress = networks[network.name]["functionsRouter"]
     const donId = networks[network.name]["donId"]
+
+    const gatewayUrls = networks[network.name]["gatewayUrls"]
+
+    const storageSlotId = parseInt(taskArgs.slotid)
+    const minutesUntilExpiration = taskArgs.ttl
 
     const secretsManager = new SecretsManager({
       signer,
@@ -46,11 +51,20 @@ task(
       return
     }
 
-    const outputfile = taskArgs.output
-    console.log(`\nEncrypting secrets and writing to JSON file '${outputfile}'...`)
-
+    console.log("Encrypting secrets and uploading to DON...")
     const encryptedSecretsObj = await secretsManager.buildEncryptedSecrets(requestConfig.secrets)
-    fs.writeFileSync(outputfile, JSON.stringify(encryptedSecretsObj))
 
-    console.log(`\nWrote offchain secrets file to '${outputfile}'.`)
+    const {
+      version, // Secrets version number (corresponds to timestamp when encrypted secrets were uploaded to DON)
+      success, // Boolean value indicating if encrypted secrets were successfully uploaded to all nodes connected to the gateway
+    } = await secretsManager.uploadEncryptedSecretsToDON({
+      encryptedSecretsHexstring: encryptedSecretsObj.encryptedSecrets,
+      gatewayUrls,
+      storageSlotId,
+      minutesUntilExpiration,
+    })
+
+    console.log(
+      `\nSuccess : ${success}.  You can now use storageSlotId '${storageSlotId}' and version '${version}' when sending your request to your Functions consumer contract.`
+    )
   })

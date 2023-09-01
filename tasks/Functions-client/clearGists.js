@@ -1,5 +1,5 @@
 const axios = require("axios")
-const { deleteGist } = require("../utils/github")
+const { deleteGist } = require("@chainlink/functions-toolkit")
 const { RequestStore } = require("../utils/artifact")
 
 task(
@@ -18,11 +18,11 @@ task(
     try {
       artifact = await store.read(taskArgs.contract)
     } catch {
-      return console.log(`Automated Consumer ${taskArgs.contract} not found.`)
+      return console.log(`\nAutomated Consumer ${taskArgs.contract} not found.`)
     }
 
     if (!artifact.activeManagedSecretsURLs || artifact.secretsURLs.length < 1) {
-      return console.log(`Automated Consumer ${taskArgs.contract} does not have active secret Gists.`)
+      return console.log(`\nAutomated Consumer ${taskArgs.contract} does not have active secret Gists.`)
     }
 
     let success = true
@@ -34,7 +34,7 @@ task(
           // Gist URLs end with '/raw', remove this
           const urlNoRaw = url.slice(0, -4)
           const succeeded = await deleteGist(process.env["GITHUB_API_TOKEN"], urlNoRaw)
-          if (!succeeded) success = succeeded
+          if (!succeeded) success = false
         }
       })
     )
