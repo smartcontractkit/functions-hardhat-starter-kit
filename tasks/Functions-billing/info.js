@@ -24,5 +24,5 @@ task(
     // parse balances into LINK for readability
     subInfo.balance = ethers.utils.formatEther(subInfo.balance) + " LINK"
     subInfo.blockedBalance = ethers.utils.formatEther(subInfo.blockedBalance) + " LINK"
-    console.log(`\nInfo for subscription '${subId}': `, subInfo)
+    console.log(`\nInfo for subscription ${subId}:\n`, subInfo)
   })

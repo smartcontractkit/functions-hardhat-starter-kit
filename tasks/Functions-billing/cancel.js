@@ -30,10 +30,10 @@ task(
     await sm.initialize()
 
     await utils.prompt(
-      `\nPlease confirm that you wish to cancel Subscription '${subId}' and have its LINK balance sent to wallet '${refundAddress}'?`
+      `\nPlease confirm that you wish to cancel Subscription ${subId} and have its LINK balance sent to wallet ${refundAddress}.`
     )
 
     console.log(`Canceling subscription ${subId}`)
     const cancelTx = await sm.cancelSubscription({ subId, refundAddress, txOptions })
-    console.log(`\nSubscription ${subId} cancelled in Tx: '${cancelTx.transactionHash}'.`)
+    console.log(`\nSubscription ${subId} cancelled in Tx: ${cancelTx.transactionHash}.`)
   })

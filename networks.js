@@ -46,8 +46,9 @@ const networks = {
     nativeCurrencySymbol: "MATIC",
     linkToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
     linkPriceFeed: "0x12162c3E810393dEC01362aBf156D7ecf6159528", // LINK/MATIC
-    functionsRouter: "0xa4Ac8b863A6b4fB064B6bdF87aD61d389d97748d",
-    functionsCoordinator: "0x69b4C680209737B877c93327fC2144ec39eaC423",
+    functionsRouter: "0x2673266D3Cd08b53494B5a92B66DEec7F1408E7A",
+    donId: "fun-staging-mumbai-1",
+    gatewayUrls: ["https://gateway-staging1.main.stage.cldev.sh/user"],
     functionsPublicKey: SHARED_DON_PUBLIC_KEY,
   },
   avalancheFuji: {
