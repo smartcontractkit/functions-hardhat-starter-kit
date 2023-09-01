@@ -7,8 +7,6 @@
 require("@chainlink/env-enc").config()
 
 const DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS = 2
-const SHARED_DON_PUBLIC_KEY =
-  "a30264e813edc9927f73e036b7885ee25445b836979cb00ef112bc644bd16de2db866fa74648438b34f52bb196ffa386992e94e0a3dc6913cee52e2e98f1619c"
 
 const npmCommand = process.env.npm_lifecycle_event
 const isTestEnvironment = npmCommand == "test" || npmCommand == "test:unit"
@@ -45,7 +43,6 @@ const networks = {
     functionsRouter: "", // TODO @zeuslawyer
     donId: "", // TODO @zeuslawyer
     gatewayUrls: "", // TODO @zeuslawyer
-    functionsPublicKey: SHARED_DON_PUBLIC_KEY,
   },
   polygonMumbai: {
     url: process.env.POLYGON_MUMBAI_RPC_URL || "UNSET",
@@ -58,7 +55,6 @@ const networks = {
     linkToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
     linkPriceFeed: "0x12162c3E810393dEC01362aBf156D7ecf6159528", // LINK/MATIC
     functionsRouter: "0x2673266D3Cd08b53494B5a92B66DEec7F1408E7A",
-    functionsPublicKey: SHARED_DON_PUBLIC_KEY,
     donId: "fun-staging-mumbai-1",
     gatewayUrls: ["https://gateway-staging1.main.stage.cldev.sh/user"],
   },
@@ -75,11 +71,9 @@ const networks = {
     functionsRouter: "", // TODO @zeuslawyer
     donId: "", // TODO @zeuslawyer
     gatewayUrls: "", // TODO @zeuslawyer
-    functionsPublicKey: SHARED_DON_PUBLIC_KEY,
   },
 }
 
 module.exports = {
   networks,
-  SHARED_DON_PUBLIC_KEY,
 }

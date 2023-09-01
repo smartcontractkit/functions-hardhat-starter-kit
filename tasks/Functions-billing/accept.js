@@ -11,7 +11,7 @@ task("functions-sub-accept", "Accepts ownership of an Functions subscription aft
 
     const accounts = await ethers.getSigners()
     if (accounts.length < 2) {
-      throw Error("This command needs a second wallets's private key to be made available in networks.js")
+      throw Error("This command requires a second wallet's private key to be made available in networks.js")
     }
     const accepter = accounts[1] // Second wallet.
 
@@ -30,7 +30,7 @@ task("functions-sub-accept", "Accepts ownership of an Functions subscription aft
     const acceptTx = await sm.acceptSubTransfer({ subId, txOptions })
 
     console.log(
-      `Acceptance request completed in Tx: '${acceptTx.transactionHash}'. \n${accepter.address} is now the owner of subscription ${subId}.`
+      `Acceptance request completed in Tx: ${acceptTx.transactionHash}. \n${accepter.address} is now the owner of subscription ${subId}.`
     )
 
     const subInfo = await sm.getSubscriptionInfo(subId)

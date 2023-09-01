@@ -7,7 +7,7 @@ task("functions-sub-remove", "Removes a client contract from an Functions billin
   .setAction(async (taskArgs) => {
     if (network.name === "hardhat") {
       throw Error(
-        'This command cannot be used on a local hardhat chain.  Please specify a valid network or simulate an FunctionsConsumer request locally with "npx hardhat functions-simulate".'
+        'This command cannot be used on a local hardhat chain. Please specify a valid network or simulate an FunctionsConsumer request locally with "npx hardhat functions-simulate".'
       )
     }
 
@@ -23,7 +23,7 @@ task("functions-sub-remove", "Removes a client contract from an Functions billin
     const sm = new SubscriptionManager({ signer, linkTokenAddress, functionsRouterAddress })
     await sm.initialize()
 
-    console.log(`\nRemoving '${consumerAddress}' from subscription '${subId}'...`)
+    console.log(`\nRemoving ${consumerAddress} from subscription ${subId}...`)
     let removeConsumerTx = await sm.removeConsumer({ subId, consumerAddress, txOptions })
 
     const subInfo = await sm.getSubscriptionInfo(subId)
@@ -31,7 +31,7 @@ task("functions-sub-remove", "Removes a client contract from an Functions billin
     subInfo.balance = ethers.utils.formatEther(subInfo.balance) + " LINK"
     subInfo.blockedBalance = ethers.utils.formatEther(subInfo.blockedBalance) + " LINK"
     console.log(
-      `\nRemoved '${consumerAddress}' from subscription '${subId}' in Tx: '${removeConsumerTx.transactionHash}'.  \nUpdated Subscription Info:\n`,
+      `\nRemoved ${consumerAddress} from subscription ${subId} in Tx: ${removeConsumerTx.transactionHash}.  \nUpdated Subscription Info:\n`,
       subInfo
     )
   })

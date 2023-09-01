@@ -19,7 +19,7 @@ task("functions-sub-add", "Adds a client contract to the Functions billing subsc
     const sm = new SubscriptionManager({ signer, linkTokenAddress, functionsRouterAddress })
     await sm.initialize()
 
-    console.log(`\nAdding '${consumerAddress}' to subscription '${subId}'...`)
+    console.log(`\nAdding ${consumerAddress} to subscription ${subId}...`)
     const addConsumerTx = await sm.addConsumer({ subId, consumerAddress, txOptions })
-    console.log(`Added consumer contract '${consumerAddress}' in Tx: ${addConsumerTx.transactionHash}`)
+    console.log(`Added consumer contract ${consumerAddress} in Tx: ${addConsumerTx.transactionHash}`)
   })
