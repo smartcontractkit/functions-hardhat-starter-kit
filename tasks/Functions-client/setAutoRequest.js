@@ -1,3 +1,5 @@
+const { buildRequestCBOR, Location, CodeLanguage } = require("@chainlink/functions-toolkit")
+
 const { types } = require("hardhat/config")
 const { networks } = require("../../networks")
 const { getRequestConfig } = require("../../FunctionsSandboxLibrary")
@@ -56,21 +58,34 @@ const setAutoRequest = async (contract, taskArgs) => {
 
   // doGistCleanup indicates if an encrypted secrets Gist was created automatically and should be cleaned up by the user after use
   let doGistCleanup = !(requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0)
-  const request = await generateRequest(requestConfig, taskArgs)
-
   if (doGistCleanup && request.secrets) {
     console.log(
       `Be sure to delete the Gist ${request.secretsURLs[0].slice(0, -4)} once encrypted secrets are no longer in use!\n`
     )
   }
 
-  const functionsRequestBytes = await autoClientContract.generateRequest(
-    request.source,
-    request.secrets ?? [],
-    request.args ?? []
-  )
+  // codeLocation: Location;
+  //   secretsLocation?: Location;
+  //   codeLanguage: CodeLanguage;
+  //   source: string;
+  //   encryptedSecretsReference?: string;
+  //   args?: string[];
+  //   bytesArgs?: string[];
 
-  const store = new RequestStore(hre.network.config.chainId, network.name, "automatedConsumer")
+  const request = await generateRequest(requestConfig, taskArgs)
+
+  const functionsRequestCBOR = buildRequestCBOR({
+    codeLocation: requestConfig.codeLocation,
+    codeLanguage: requestConfig.codeLanguage,
+    source: request.source,
+    args: requestConfig.args,
+  })
+  // const functionsRequestBytes = await autoClientContract.generateRequest(
+  //   request.source,
+  //   request.secrets ?? [],
+  //   request.args ?? []
+  // ) // TODO zubin remove
+
   const previousSecretURLs = []
   try {
     const artifact = await store.read(taskArgs.contract)
@@ -84,13 +99,15 @@ const setAutoRequest = async (contract, taskArgs) => {
     taskArgs.subid,
     taskArgs.gaslimit,
     taskArgs.interval,
-    functionsRequestBytes
+    functionsRequestCBOR
   )
 
   console.log(
     `\nWaiting ${networks[network.name].confirmations} block for transaction ${setRequestTx.hash} to be confirmed...`
   )
   await setRequestTx.wait(networks[network.name].confirmations)
+
+  const store = new RequestStore(hre.network.config.chainId, network.name, "automatedConsumer")
 
   const create = await store.upsert(taskArgs.contract, {
     type: "automatedConsumer",
@@ -101,8 +118,6 @@ const setAutoRequest = async (contract, taskArgs) => {
     codeLanguage: requestConfig.codeLanguage,
     source: requestConfig.source,
     secrets: requestConfig.secrets,
-    perNodeSecrets: requestConfig.perNodeSecrets,
-    secretsURLs: request.secretsURLs,
     activeManagedSecretsURLs: doGistCleanup,
     args: requestConfig.args,
     expectedReturnType: requestConfig.expectedReturnType,
