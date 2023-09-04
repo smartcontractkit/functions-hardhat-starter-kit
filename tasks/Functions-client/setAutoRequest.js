@@ -12,6 +12,10 @@ const process = require("process")
 task("functions-set-auto-request", "Updates the Functions request in a deployed AutomatedFunctionsConsumer contract")
   .addParam("contract", "Address of the client contract")
   .addParam("subid", "Billing subscription ID used to pay for Functions requests", undefined, types.int)
+  .addParam(
+    "slotid",
+    "Storage slot number 0 or higher. If the slotid is already in use, the existing secrets for that slotid will be overwritten."
+  )
   .addOptionalParam("interval", "Update interval in seconds for Automation to call performUpkeep", 300, types.int) // TODO zubin read from contract instead?
   .addOptionalParam(
     "gaslimit",
@@ -70,8 +74,8 @@ const setAutoRequest = async (contract, taskArgs) => {
 
   await secretsManager.initialize()
   const encryptedSecretsObj = await secretsManager.buildEncryptedSecrets(requestConfig.secrets)
-  const slotId = 0
-  const minutesUntilExpiration = 5 // Minimum 5 minutes supported.
+  const slotId = parseInt(taskArgs.slotid)
+  const minutesUntilExpiration = 10 // Minimum 5 minutes supported.
 
   const { version, success } = await secretsManager.uploadEncryptedSecretsToDON({
     encryptedSecretsHexstring: encryptedSecretsObj.encryptedSecrets,
@@ -97,9 +101,6 @@ const setAutoRequest = async (contract, taskArgs) => {
     secretsLocation: requestConfig.secretsLocation,
     encryptedSecretsReference,
   })
-
-  console.log("\n\nrequestConfig >> \n\n", requestConfig) // TODO zubin cleanup
-  console.log("\n\nfunctionsRequestCBOR >> \n\n", functionsRequestCBOR) // TODO zubin cleanup
 
   console.log("\nSetting Functions request...")
   const setRequestTx = await autoClientContract.setRequest(
