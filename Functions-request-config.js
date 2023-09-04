@@ -13,8 +13,8 @@ const requestConfig = {
   // Code language (only JavaScript is currently supported)
   codeLanguage: CodeLanguage.JavaScript,
   // String containing the source code to be executed
-  //source: fs.readFileSync("./calculation-example.js").toString(),
-  source: fs.readFileSync("./API-request-example.js").toString(),
+  source: fs.readFileSync("./calculation-example.js").toString(), // TODO zubin reinstate
+  // source: fs.readFileSync("./API-request-example.js").toString(),
   // Secrets can be accessed within the source code with `secrets.varName` (ie: secrets.apiKey). The secrets object can only contain string values.
   secrets: { apiKey: process.env.COINMARKETCAP_API_KEY ?? "" },
   // Args (string only array) can be accessed within the source code with `args[index]` (ie: args[0]).

@@ -16,11 +16,11 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
   // State variables for Chainlink Functions
   bytes32 public donId;
   bytes public s_requestCBOR;
-  bytes32 public s_latestRequestId;
-  bytes public s_latestResponse;
-  bytes public s_latestError;
   uint64 public s_subscriptionId;
   uint32 public s_fulfillGasLimit;
+  bytes32 public s_lastRequestId;
+  bytes public s_lastResponse;
+  bytes public s_lastError;
 
   // State variables for Chainlink Automation
   uint256 public s_updateInterval;
@@ -99,7 +99,7 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
     s_upkeepCounter = s_upkeepCounter + 1;
 
     bytes32 requestId = _sendRequest(s_requestCBOR, s_subscriptionId, s_fulfillGasLimit, donId);
-    s_latestRequestId = requestId;
+    s_lastRequestId = requestId;
   }
 
   /**
@@ -111,8 +111,8 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
    * Either response or error parameter will be set, but never both
    */
   function fulfillRequest(bytes32 requestId, bytes memory response, bytes memory err) internal override {
-    s_latestResponse = response;
-    s_latestError = err;
+    s_lastResponse = response;
+    s_lastError = err;
     s_responseCounter = s_responseCounter + 1;
     emit OCRResponse(requestId, response, err);
   }

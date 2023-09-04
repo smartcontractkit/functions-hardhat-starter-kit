@@ -12,7 +12,7 @@ const process = require("process")
 task("functions-set-auto-request", "Updates the Functions request in a deployed AutomatedFunctionsConsumer contract")
   .addParam("contract", "Address of the client contract")
   .addParam("subid", "Billing subscription ID used to pay for Functions requests", undefined, types.int)
-  .addOptionalParam("interval", "Update interval in seconds for Automation to call performUpkeep", 300, types.int)
+  .addOptionalParam("interval", "Update interval in seconds for Automation to call performUpkeep", 300, types.int) // TODO zubin read from contract instead?
   .addOptionalParam(
     "gaslimit",
     "Maximum amount of gas that can be used to call fulfillRequest in the client contract",
@@ -54,47 +54,30 @@ const setAutoRequest = async (contract, taskArgs) => {
   const unvalidatedRequestConfig = require(path.isAbsolute(taskArgs.configpath)
     ? taskArgs.configpath
     : path.join(process.cwd(), taskArgs.configpath))
+
   const requestConfig = getRequestConfig(unvalidatedRequestConfig)
-
-  // doGistCleanup indicates if an encrypted secrets Gist was created automatically and should be cleaned up by the user after use
-  let doGistCleanup = !(requestConfig.secretsURLs && requestConfig.secretsURLs.length > 0)
-  if (doGistCleanup && request.secrets) {
-    console.log(
-      `Be sure to delete the Gist ${request.secretsURLs[0].slice(0, -4)} once encrypted secrets are no longer in use!\n`
-    )
-  }
-
-  // codeLocation: Location;
-  //   secretsLocation?: Location;
-  //   codeLanguage: CodeLanguage;
-  //   source: string;
-  //   encryptedSecretsReference?: string;
-  //   args?: string[];
-  //   bytesArgs?: string[];
-
-  const request = await generateRequest(requestConfig, taskArgs)
+  // TODO @zeuslawyer add logic to obtain encryptedSecretsReference if secrets are provided in requestConfig.
 
   const functionsRequestCBOR = buildRequestCBOR({
     codeLocation: requestConfig.codeLocation,
     codeLanguage: requestConfig.codeLanguage,
-    source: request.source,
+    source: requestConfig.source,
     args: requestConfig.args,
   })
-  // const functionsRequestBytes = await autoClientContract.generateRequest(
-  //   request.source,
-  //   request.secrets ?? [],
-  //   request.args ?? []
-  // ) // TODO zubin remove
 
-  const previousSecretURLs = []
-  try {
-    const artifact = await store.read(taskArgs.contract)
-    if (artifact.activeManagedSecretsURLs) previousSecretURLs = artifact.secretsURLs
-  } catch {
-    /* new request, continue */
-  }
+  console.log("\n\nrequestConfig >> \n\n", requestConfig) // TODO zubin cleanup
+  console.log("\n\nfunctionsRequestCBOR >> \n\n", functionsRequestCBOR) // TODO zubin cleanup
 
-  console.log("Setting Functions request")
+  const store = new RequestStore(hre.network.config.chainId, network.name, "automatedConsumer")
+  // const previousSecretURLs = []  // TODO  zubin remove
+  // try {
+  //   const artifact = await store.read(taskArgs.contract)
+  //   if (artifact.activeManagedSecretsURLs) previousSecretURLs = artifact.secretsURLs
+  // } catch {
+  //   /* new request, continue */
+  // }
+
+  console.log("\nSetting Functions request...")
   const setRequestTx = await autoClientContract.setRequest(
     taskArgs.subid,
     taskArgs.gaslimit,
@@ -107,44 +90,42 @@ const setAutoRequest = async (contract, taskArgs) => {
   )
   await setRequestTx.wait(networks[network.name].confirmations)
 
-  const store = new RequestStore(hre.network.config.chainId, network.name, "automatedConsumer")
+  // const create = await store.upsert(taskArgs.contract, { // TODO @zubin cleanup
+  //   type: "automatedConsumer",
+  //   automatedConsumerContractAddress: taskArgs.contract,
+  //   transactionReceipt: setRequestTx,
+  //   taskArgs,
+  //   codeLocation: requestConfig.codeLocation,
+  //   codeLanguage: requestConfig.codeLanguage,
+  //   source: requestConfig.source,
+  //   secrets: requestConfig.secrets,
+  //   activeManagedSecretsURLs: doGistCleanup,
+  //   args: requestConfig.args,
+  //   expectedReturnType: requestConfig.expectedReturnType,
+  //   DONPublicKey: requestConfig.DONPublicKey,
+  // })
 
-  const create = await store.upsert(taskArgs.contract, {
-    type: "automatedConsumer",
-    automatedConsumerContractAddress: taskArgs.contract,
-    transactionReceipt: setRequestTx,
-    taskArgs,
-    codeLocation: requestConfig.codeLocation,
-    codeLanguage: requestConfig.codeLanguage,
-    source: requestConfig.source,
-    secrets: requestConfig.secrets,
-    activeManagedSecretsURLs: doGistCleanup,
-    args: requestConfig.args,
-    expectedReturnType: requestConfig.expectedReturnType,
-    DONPublicKey: requestConfig.DONPublicKey,
-  })
+  // // Clean up previous secretsURLs
+  // if (!create) {
+  //   console.log(`Attempting to clean up previous GitHub Gist secrets`)
+  //   await Promise.all(
+  //     previousSecretURLs.map(async (url) => {
+  //       if (!url.includes("github")) return console.log(`\n${url} is not a GitHub Gist - skipping`)
+  //       const exists = axios.get(url)
+  //       if (exists) {
+  //         // Gist URLs end with '/raw', remove this
+  //         const urlNoRaw = url.slice(0, -4)
+  //         await deleteGist(process.env["GITHUB_API_TOKEN"], urlNoRaw)
+  //       }
+  //     })
+  //   )
+  // }
 
-  // Clean up previous secretsURLs
-  if (!create) {
-    console.log(`Attempting to clean up previous GitHub Gist secrets`)
-    await Promise.all(
-      previousSecretURLs.map(async (url) => {
-        if (!url.includes("github")) return console.log(`\n${url} is not a GitHub Gist - skipping`)
-        const exists = axios.get(url)
-        if (exists) {
-          // Gist URLs end with '/raw', remove this
-          const urlNoRaw = url.slice(0, -4)
-          await deleteGist(process.env["GITHUB_API_TOKEN"], urlNoRaw)
-        }
-      })
-    )
-  }
-
-  console.log(
-    `\n${create ? "Created new" : "Updated"} Functions request in AutomatedFunctionsConsumer contract ${
-      autoClientContract.address
-    } on ${network.name}`
-  )
+  // console.log(
+  //   `\n${create ? "Created new" : "Updated"} Functions request in AutomatedFunctionsConsumer contract ${
+  //     autoClientContract.address
+  //   } on ${network.name}`
+  // )
 }
 
 exports.setAutoRequest = setAutoRequest

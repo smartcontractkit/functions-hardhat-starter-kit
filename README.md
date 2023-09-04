@@ -270,13 +270,16 @@ Chainlink Functions can be used with Chainlink Automation in order to automatica
 
 1. Create & fund a new Functions billing subscription by running:<br>`npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command.<br><br>
 2. Deploy the _AutomationFunctionsConsumer_ client contract by running:<br>`npx hardhat functions-deploy-auto-client --network network_name_here --subid subscription_id_number_here --interval time_between_requests_here --verify true`<br>**Note**: Make sure `<blockexplorer>_API_KEY` environment variable is se - this CLI command verifies the contract using this API KEY. API keys for these services are freely available to anyone who creates an EtherScan, PolygonScan or SnowTrace account.<br><br>
+
+2. Encode the request parameters into CBOR and store it on chain with `npx hardhat functions-set-auto-request --network network_name_here  --subid subscription_id_number_here --interval time_between_requests_here --contract 0x_contract_address`.  You can now manually check that your on-chain requests work if you try the manual debugging step #4 or you can go ahead and run Chainlink Automations on your contract by following the next step.
+
 3. Register the contract for upkeep via the Chainlink Automation web app here: [https://automation.chain.link/](https://automation.chain.link/)
    - Be sure to set the `Gas limit` for the _performUpkeep_ function to a high enough value. The recommended value is 1,000,000.
    - Find further documentation for working with Chainlink Automation here: [https://docs.chain.link/chainlink-automation/introduction](https://docs.chain.link/chainlink-automation/introduction)
 
 Once the contract is registered for upkeep, check the latest response or error with the commands `npx hardhat functions-read --network network_name_here --contract contract_address_here`.
 
-For debugging, use the command `npx hardhat functions-check-upkeep --network network_name_here --contract contract_address_here` to see if Automation needs to call _performUpkeep_.
+4. For debugging, use the command `npx hardhat functions-check-upkeep --network network_name_here --contract contract_address_here` to see if Automation needs to call _performUpkeep_.
 To manually trigger a request, use the command `npx hardhat functions-perform-upkeep --network network_name_here --contract contract_address_here`.
 
 # Gas Spikes
