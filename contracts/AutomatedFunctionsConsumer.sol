@@ -63,7 +63,7 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
    */
   function setRequest(
     uint64 _subscriptionId,
-    uint32 _fulfillGasLimit, // TODO Zubin -- this is already being set in  constructor?
+    uint32 _fulfillGasLimit,
     uint256 _updateInterval,
     bytes calldata requestCBOR
   ) external onlyOwner {

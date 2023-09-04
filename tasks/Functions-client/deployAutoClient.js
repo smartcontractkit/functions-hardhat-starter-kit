@@ -71,10 +71,6 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     const addConsumerTx = await sm.addConsumer({ subId, consumerAddress, txOptions })
     console.log(`\nAdded consumer contract ${consumerAddress} in Tx: ${addConsumerTx.transactionHash}`)
 
-    // add consumerAddress to taskArgs obj before invoking the setAutoRequest task
-    // taskArgs.contract = consumerAddress
-    // await setAutoRequest(consumerAddress, taskArgs) // TODO @zubin consider if should be separate step
-
     const verifyContract = taskArgs.verify
     if (verifyContract && !!networks[network.name].verifyApiKey && networks[network.name].verifyApiKey !== "UNSET") {
       try {

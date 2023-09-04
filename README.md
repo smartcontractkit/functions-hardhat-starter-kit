@@ -284,7 +284,7 @@ Once the contract is registered for upkeep, check the latest response or error w
 
 4. For debugging, use the command `npx hardhat functions-check-upkeep --network network_name_here --contract contract_address_here` to see if Automation needs to call _performUpkeep_. If this call returns `false` then the upkeek interval has not yet passed and `performUpkeep` will not execute.
 
-You can also attach a listener to a Subscription ID by updating the `network` and `subId` variables in `listen.js` and then running `node index.js` from the repo root. 
+You can also attach a listener to a Subscription ID by updating the `network` and `subId` variables in `listen.js` and then running `node listen.js` from the repo root. 
 
 Once the listener is running (and after each update interval), you can also manually trigger a request by using the command `npx hardhat functions-perform-upkeep --network network_name_here --contract contract_address_here`. If your DON hosted secrets have not been expired and the JS source does not throw errors during execution, you will see the result of the computation printed to your console.
 

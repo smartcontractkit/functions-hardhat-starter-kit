@@ -6,6 +6,7 @@ const { providers } = require("ethers")
 const network = { name: "polygonMumbai" }
 const subId = 43
 
+// TODO - consider adding nodemon to project dependencies to auto-restart this script
 // Mount Response Listener
 const provider = new providers.JsonRpcProvider(networks[network.name].url)
 const functionsRouterAddress = networks[network.name]["functionsRouter"]

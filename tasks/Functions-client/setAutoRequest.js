@@ -3,9 +3,6 @@ const { buildRequestCBOR, SecretsManager } = require("@chainlink/functions-toolk
 const { types } = require("hardhat/config")
 const { networks } = require("../../networks")
 const { getRequestConfig } = require("../../FunctionsSandboxLibrary")
-const { generateRequest } = require("./buildRequestJSON")
-const { RequestStore } = require("../utils/artifact")
-const { deleteGist } = require("../utils/github")
 const path = require("path")
 const process = require("process")
 
@@ -19,7 +16,7 @@ task(
     "slotid",
     "Storage slot number 0 or higher. If the slotid is already in use, the existing secrets for that slotid will be overwritten."
   )
-  .addOptionalParam("interval", "Update interval in seconds for Automation to call performUpkeep", 300, types.int) // TODO zubin read from contract instead?
+  .addOptionalParam("interval", "Update interval in seconds for Automation to call performUpkeep", 300, types.int)
   .addOptionalParam(
     "gaslimit",
     "Maximum amount of gas that can be used to call fulfillRequest in the client contract",
