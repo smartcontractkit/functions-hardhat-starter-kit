@@ -269,6 +269,7 @@ URLs which host secrets must be available every time a request is executed by DO
 Chainlink Functions can be used with Chainlink Automation in order to automatically trigger a Functions request.
 
 1. Create & fund a new Functions billing subscription by running:<br>`npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command.<br><br>
+
 2. Deploy the _AutomationFunctionsConsumer_ client contract by running:<br>`npx hardhat functions-deploy-auto-client --network network_name_here --subid subscription_id_number_here --interval time_between_requests_here --verify true`<br>**Note**: Make sure `<blockexplorer>_API_KEY` environment variable is se - this CLI command verifies the contract using this API KEY. API keys for these services are freely available to anyone who creates an EtherScan, PolygonScan or SnowTrace account.<br><br>
 
 3. Encode the request parameters into CBOR and store it on chain with `npx hardhat functions-set-auto-request --network network_name_here  --subid subscription_id_number_here --interval time_between_requests_here --contract 0x_contract_address`.  You can now manually check that your on-chain requests work if you try the manual debugging step #4 or you can go ahead and run Chainlink Automations on your contract by following the next step.  
@@ -282,7 +283,12 @@ Chainlink Functions can be used with Chainlink Automation in order to automatica
 Once the contract is registered for upkeep, check the latest response or error with the commands `npx hardhat functions-read --network network_name_here --contract contract_address_here`.  Note that you can also pause and unpause your Automation Upkeep using the web app's UI.
 
 4. For debugging, use the command `npx hardhat functions-check-upkeep --network network_name_here --contract contract_address_here` to see if Automation needs to call _performUpkeep_. If this call returns `false` then the upkeek interval has not yet passed and `performUpkeep` will not execute.
-After each update intervale, you can also manually trigger a request by using the command `npx hardhat functions-perform-upkeep --network network_name_here --contract contract_address_here`.
+
+You can also attach a listener to a Subscription ID by updating the `network` and `subId` variables in `listen.js` and then running `node index.js` from the repo root. 
+
+Once the listener is running (and after each update interval), you can also manually trigger a request by using the command `npx hardhat functions-perform-upkeep --network network_name_here --contract contract_address_here`. If your DON hosted secrets have not been expired and the JS source does not throw errors during execution, you will see the result of the computation printed to your console.
+
+
 
 # Gas Spikes
 

@@ -9,7 +9,10 @@ const { deleteGist } = require("../utils/github")
 const path = require("path")
 const process = require("process")
 
-task("functions-set-auto-request", "Updates the Functions request in a deployed AutomatedFunctionsConsumer contract")
+task(
+  "functions-set-auto-request",
+  "sets the CBOR-encoded Functions request in a deployed AutomatedFunctionsConsumer contract"
+)
   .addParam("contract", "Address of the client contract")
   .addParam("subid", "Billing subscription ID used to pay for Functions requests", undefined, types.int)
   .addParam(
@@ -88,6 +91,8 @@ const setAutoRequest = async (contract, taskArgs) => {
     throw Error("\nFailed tp upload encrypted secrets to DON.")
   }
 
+  console.log(`\nNow using DON-hosted secrets version ${version} in slot ${slotId}...`)
+
   const encryptedSecretsReference = await secretsManager.constructDONHostedEncryptedSecretsReference({
     slotId,
     version,
@@ -102,6 +107,7 @@ const setAutoRequest = async (contract, taskArgs) => {
     encryptedSecretsReference,
   })
 
+  console.log("CBOR:\n", functionsRequestCBOR)
   console.log("\nSetting Functions request...")
   const setRequestTx = await autoClientContract.setRequest(
     taskArgs.subid,
