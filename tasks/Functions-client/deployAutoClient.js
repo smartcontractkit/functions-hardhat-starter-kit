@@ -2,7 +2,6 @@ const { SubscriptionManager, buildRequestCBOR } = require("@chainlink/functions-
 
 const { types } = require("hardhat/config")
 const { networks } = require("../../networks")
-const { addClientConsumerToSubscription } = require("../Functions-billing/add")
 const { setAutoRequest } = require("./setAutoRequest")
 
 task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer contract")
