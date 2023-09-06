@@ -73,7 +73,7 @@ const setAutoRequest = async (contract, taskArgs) => {
   })
 
   await secretsManager.initialize()
-  const encryptedSecretsObj = await secretsManager.buildEncryptedSecrets(requestConfig.secrets)
+  const encryptedSecretsObj = await secretsManager.encryptSecrets(requestConfig.secrets)
   const slotId = parseInt(taskArgs.slotid)
   const minutesUntilExpiration = 10 // Minimum 5 minutes supported.
 
@@ -90,7 +90,7 @@ const setAutoRequest = async (contract, taskArgs) => {
 
   console.log(`\nNow using DON-hosted secrets version ${version} in slot ${slotId}...`)
 
-  const encryptedSecretsReference = await secretsManager.constructDONHostedEncryptedSecretsReference({
+  const encryptedSecretsReference = await secretsManager.buildDONHostedEncryptedSecretsReference({
     slotId,
     version,
   })
