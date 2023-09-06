@@ -104,7 +104,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     const gasPriceGwei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "gwei").toString()))
     const estimatedCostJuels = await subManager.estimateFunctionsRequestCost({
       donId,
-      subId: subscriptionId,
+      subscriptionId,
       callbackGasLimit,
       gasPriceGwei,
     })

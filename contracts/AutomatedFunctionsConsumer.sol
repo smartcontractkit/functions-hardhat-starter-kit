@@ -35,20 +35,14 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
    *
    * @param router The Functions Router contract for the network
    * @param _donId The DON Id for the DON that will execute the Function
-   * @param _subscriptionId The Functions billing subscription ID used to pay for Functions requests
    * @param _fulfillGasLimit Maximum amount of gas used to call the inherited `handleOracleFulfillment` function
-   * @param _updateInterval Time interval at which Chainlink Automation should call performUpkeep
    */
   constructor(
     address router,
     bytes32 _donId,
-    uint64 _subscriptionId,
-    uint32 _fulfillGasLimit,
-    uint256 _updateInterval
+    uint32 _fulfillGasLimit
   ) FunctionsClient(router) ConfirmedOwner(msg.sender) {
     donId = _donId;
-    s_updateInterval = _updateInterval;
-    s_subscriptionId = _subscriptionId;
     s_fulfillGasLimit = _fulfillGasLimit;
     s_lastUpkeepTimeStamp = block.timestamp;
   }

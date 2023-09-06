@@ -15,7 +15,7 @@ task("functions-sub-accept", "Accepts ownership of an Functions subscription aft
     }
     const accepter = accounts[1] // Second wallet.
 
-    const subId = taskArgs.subid
+    const subscriptionId = parseInt(taskArgs.subid)
     const confirmations = networks[network.name].confirmations
     const txOptions = { confirmations }
 
@@ -25,15 +25,15 @@ task("functions-sub-accept", "Accepts ownership of an Functions subscription aft
     const sm = new SubscriptionManager({ signer: accepter, linkTokenAddress, functionsRouterAddress })
     await sm.initialize()
 
-    const currentOwner = (await sm.getSubscriptionInfo(subId)).owner
-    console.log(`\nAccepting ownership of subscription ${subId} from ${currentOwner}...`)
-    const acceptTx = await sm.acceptSubTransfer({ subId, txOptions })
+    const currentOwner = (await sm.getSubscriptionInfo(subscriptionId)).owner
+    console.log(`\nAccepting ownership of subscription ${subscriptionId} from ${currentOwner}...`)
+    const acceptTx = await sm.acceptSubTransfer({ subscriptionId, txOptions })
 
     console.log(
-      `Acceptance request completed in Tx: ${acceptTx.transactionHash}. \n${accepter.address} is now the owner of subscription ${subId}.`
+      `Acceptance request completed in Tx: ${acceptTx.transactionHash}. \n${accepter.address} is now the owner of subscription ${subscriptionId}.`
     )
 
-    const subInfo = await sm.getSubscriptionInfo(subId)
+    const subInfo = await sm.getSubscriptionInfo(subscriptionId)
     // parse balances into LINK for readability
     subInfo.balance = ethers.utils.formatEther(subInfo.balance) + " LINK"
     subInfo.blockedBalance = ethers.utils.formatEther(subInfo.blockedBalance) + " LINK"

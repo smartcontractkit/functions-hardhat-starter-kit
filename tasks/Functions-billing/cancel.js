@@ -17,7 +17,7 @@ task(
       throw Error("This command cannot be used on a local hardhat chain.  Specify a valid network.")
     }
 
-    const subId = taskArgs.subid
+    const subscriptionId = parseInt(taskArgs.subid)
     const refundAddress = taskArgs.refundAddress ?? (await ethers.getSigners())[0].address
 
     const signer = await ethers.getSigner()
@@ -30,10 +30,10 @@ task(
     await sm.initialize()
 
     await utils.prompt(
-      `\nPlease confirm that you wish to cancel Subscription ${subId} and have its LINK balance sent to wallet ${refundAddress}.`
+      `\nPlease confirm that you wish to cancel Subscription ${subscriptionId} and have its LINK balance sent to wallet ${refundAddress}.`
     )
 
-    console.log(`Canceling subscription ${subId}`)
-    const cancelTx = await sm.cancelSubscription({ subId, refundAddress, txOptions })
-    console.log(`\nSubscription ${subId} cancelled in Tx: ${cancelTx.transactionHash}.`)
+    console.log(`Canceling subscription ${subscriptionId}`)
+    const cancelTx = await sm.cancelSubscription({ subscriptionId, refundAddress, txOptions })
+    console.log(`\nSubscription ${subscriptionId} cancelled in Tx: ${cancelTx.transactionHash}.`)
   })

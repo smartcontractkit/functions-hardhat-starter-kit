@@ -26,23 +26,25 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
     await sm.initialize()
 
     console.log("\nCreating Functions billing subscription...")
-    const subId = await sm.createSubscription({ consumerAddress, txOptions })
-    console.log(`\nCreated Functions billing subscription: ${subId}`)
+    const subscriptionId = await sm.createSubscription({ consumerAddress, txOptions })
+    console.log(`\nCreated Functions billing subscription: ${subscriptionId}`)
 
     // Fund subscription
     if (linkAmount) {
       await utils.prompt(
-        `\nPlease confirm that you wish to fund Subscription ${subId} with ${chalk.blue(
+        `\nPlease confirm that you wish to fund Subscription ${subscriptionId} with ${chalk.blue(
           linkAmount + " LINK"
         )} from your wallet.`
       )
 
-      console.log(`\nFunding subscription ${subId} with ${linkAmount} LINK...`)
+      console.log(`\nFunding subscription ${subscriptionId} with ${linkAmount} LINK...`)
       const juelsAmount = ethers.utils.parseUnits(linkAmount, 18)
-      const fundTxReceipt = await sm.fundSubscription({ juelsAmount, subId, txOptions })
-      console.log(`\nSubscription ${subId} funded with ${linkAmount} LINK in Tx: ${fundTxReceipt.transactionHash}`)
+      const fundTxReceipt = await sm.fundSubscription({ juelsAmount, subscriptionId, txOptions })
+      console.log(
+        `\nSubscription ${subscriptionId} funded with ${linkAmount} LINK in Tx: ${fundTxReceipt.transactionHash}`
+      )
 
-      const subInfo = await sm.getSubscriptionInfo(subId)
+      const subInfo = await sm.getSubscriptionInfo(subscriptionId)
       // parse  balances into LINK for readability
       subInfo.balance = ethers.utils.formatEther(subInfo.balance) + " LINK"
       subInfo.blockedBalance = ethers.utils.formatEther(subInfo.blockedBalance) + " LINK"

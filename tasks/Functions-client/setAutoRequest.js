@@ -1,4 +1,4 @@
-const { buildRequestCBOR, SecretsManager } = require("@chainlink/functions-toolkit")
+const { buildRequestCBOR, SecretsManager, SubscriptionManager, Location } = require("@chainlink/functions-toolkit")
 
 const { types } = require("hardhat/config")
 const { networks } = require("../../networks")
@@ -17,6 +17,12 @@ task(
     "Storage slot number 0 or higher. If the slotid is already in use, the existing secrets for that slotid will be overwritten."
   )
   .addOptionalParam("interval", "Update interval in seconds for Automation to call performUpkeep", 300, types.int)
+  .addOptionalParam(
+    "ttl",
+    "time to live - minutes until the secrets hosted on the DON expire. Defaults to 120m, and must be minimum 5m",
+    120,
+    types.int
+  )
   .addOptionalParam(
     "gaslimit",
     "Maximum amount of gas that can be used to call fulfillRequest in the client contract",
@@ -46,12 +52,35 @@ task(
   })
 
 const setAutoRequest = async (contract, taskArgs) => {
-  if (taskArgs.gaslimit > 300000) {
-    throw Error("Gas limit must be less than or equal to 300,000")
+  const subscriptionId = taskArgs.subid
+  const callbackGasLimit = taskArgs.gaslimit
+
+  const functionsRouterAddress = networks[network.name]["functionsRouter"]
+  const donId = networks[network.name]["donId"]
+  const signer = await ethers.getSigner()
+  const linkTokenAddress = networks[network.name]["linkToken"]
+
+  // Initialize SubscriptionManager
+  const subManager = new SubscriptionManager({ signer, linkTokenAddress, functionsRouterAddress })
+  await subManager.initialize()
+
+  // Validate callbackGasLimit
+  const { gasPrice } = await hre.ethers.provider.getFeeData()
+  const gasPriceGwei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "gwei").toString()))
+  _ = await subManager.estimateFunctionsRequestCost({
+    donId,
+    subscriptionId,
+    callbackGasLimit,
+    gasPriceGwei,
+  })
+
+  // Check that consumer contract is added to subscription.
+  const subInfo = await subManager.getSubscriptionInfo(subscriptionId)
+  if (!subInfo.consumers.map((c) => c.toLowerCase()).includes(taskArgs.contract.toLowerCase())) {
+    throw Error(`Consumer contract ${taskArgs.contract} has not been added to subscription ${subscriptionId}`)
   }
 
   console.log(`\nSetting the Functions request in AutomatedFunctionsConsumer contract ${contract} on ${network.name}`)
-
   const autoClientContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
   const autoClientContract = await autoClientContractFactory.attach(contract)
 
@@ -61,39 +90,49 @@ const setAutoRequest = async (contract, taskArgs) => {
 
   const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
-  console.log("\nEncrypting secrets and uploading to DON...")
-  const functionsRouterAddress = networks[network.name]["functionsRouter"]
-  const donId = networks[network.name]["donId"]
-  const signer = await ethers.getSigner()
-
-  const secretsManager = new SecretsManager({
-    signer,
-    functionsRouterAddress,
-    donId,
-  })
-
-  await secretsManager.initialize()
-  const encryptedSecretsObj = await secretsManager.encryptSecrets(requestConfig.secrets)
-  const slotId = parseInt(taskArgs.slotid)
-  const minutesUntilExpiration = 10 // Minimum 5 minutes supported.
-
-  const { version, success } = await secretsManager.uploadEncryptedSecretsToDON({
-    encryptedSecretsHexstring: encryptedSecretsObj.encryptedSecrets,
-    gatewayUrls: networks[network.name]["gatewayUrls"],
-    storageSlotId: slotId,
-    minutesUntilExpiration,
-  })
-
-  if (!success) {
-    throw Error("\nFailed tp upload encrypted secrets to DON.")
+  if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
+    throw Error("\nThis task requires a secrets object in request config. None found")
   }
 
-  console.log(`\nNow using DON-hosted secrets version ${version} in slot ${slotId}...`)
+  if (requestConfig.secretsLocation !== Location.DONHosted) {
+    throw Error(
+      `\nThis task supports only DON-hosted secrets. The request config specifies ${
+        Location[requestConfig.secretsLocation]
+      }.`
+    )
+  }
 
-  const encryptedSecretsReference = await secretsManager.buildDONHostedEncryptedSecretsReference({
-    slotId,
-    version,
-  })
+  let encryptedSecretsReference
+  if (requestConfig.secrets && Object.keys(requestConfig.secrets).length > 0) {
+    console.log("\nEncrypting secrets and uploading to DON...")
+    const secretsManager = new SecretsManager({
+      signer,
+      functionsRouterAddress,
+      donId,
+    })
+
+    await secretsManager.initialize()
+    const encryptedSecretsObj = await secretsManager.encryptSecrets(requestConfig.secrets)
+    const slotId = parseInt(taskArgs.slotid)
+    const minutesUntilExpiration = taskArgs.ttl
+
+    const { version, success } = await secretsManager.uploadEncryptedSecretsToDON({
+      encryptedSecretsHexstring: encryptedSecretsObj.encryptedSecrets,
+      gatewayUrls: networks[network.name]["gatewayUrls"],
+      storageSlotId: slotId,
+      minutesUntilExpiration,
+    })
+
+    if (!success) {
+      throw Error("\nFailed to upload encrypted secrets to DON.")
+    }
+
+    console.log(`\nNow using DON-hosted secrets version ${version} in slot ${slotId}...`)
+    encryptedSecretsReference = await secretsManager.buildDONHostedEncryptedSecretsReference({
+      slotId,
+      version,
+    })
+  }
 
   const functionsRequestCBOR = buildRequestCBOR({
     codeLocation: requestConfig.codeLocation,
@@ -104,7 +143,6 @@ const setAutoRequest = async (contract, taskArgs) => {
     encryptedSecretsReference,
   })
 
-  console.log("CBOR:\n", functionsRequestCBOR)
   console.log("\nSetting Functions request...")
   const setRequestTx = await autoClientContract.setRequest(
     taskArgs.subid,
