@@ -13,7 +13,7 @@ task("functions-sub-transfer", "Request ownership of an Functions subscription b
       )
     }
 
-    const subscriptionId = taskArgs.subid
+    const subscriptionId = parseInt(taskArgs.subid)
     const newOwner = taskArgs.newowner
     const confirmations = networks[network.name].confirmations
     const txOptions = { confirmations }

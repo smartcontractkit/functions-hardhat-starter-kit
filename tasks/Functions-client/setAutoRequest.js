@@ -12,7 +12,7 @@ task(
 )
   .addParam("contract", "Address of the client contract")
   .addParam("subid", "Billing subscription ID used to pay for Functions requests", undefined, types.int)
-  .addParam(
+  .addOptionalParam(
     "slotid",
     "Storage slot number 0 or higher. If the slotid is already in use, the existing secrets for that slotid will be overwritten."
   )
@@ -67,7 +67,7 @@ const setAutoRequest = async (contract, taskArgs) => {
   // Validate callbackGasLimit
   const { gasPrice } = await hre.ethers.provider.getFeeData()
   const gasPriceGwei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "gwei").toString()))
-  _ = await subManager.estimateFunctionsRequestCost({
+  await subManager.estimateFunctionsRequestCost({
     donId,
     subscriptionId,
     callbackGasLimit,
@@ -80,7 +80,6 @@ const setAutoRequest = async (contract, taskArgs) => {
     throw Error(`Consumer contract ${taskArgs.contract} has not been added to subscription ${subscriptionId}`)
   }
 
-  console.log(`\nSetting the Functions request in AutomatedFunctionsConsumer contract ${contract} on ${network.name}`)
   const autoClientContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
   const autoClientContract = await autoClientContractFactory.attach(contract)
 
@@ -90,20 +89,24 @@ const setAutoRequest = async (contract, taskArgs) => {
 
   const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
-  if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
-    throw Error("\nThis task requires a secrets object in request config. None found")
-  }
-
-  if (requestConfig.secretsLocation !== Location.DONHosted) {
-    throw Error(
-      `\nThis task supports only DON-hosted secrets. The request config specifies ${
-        Location[requestConfig.secretsLocation]
-      }.`
-    )
-  }
-
   let encryptedSecretsReference
+  let secretsLocation
+  if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
+    console.log("\nNo secrets found in request config - proceeding without secrets...")
+  }
+
+  // Encrypt and upload secrets if present.
   if (requestConfig.secrets && Object.keys(requestConfig.secrets).length > 0) {
+    if (requestConfig.secretsLocation !== Location.DONHosted) {
+      throw Error(
+        `\nThis task supports only DON-hosted secrets. The request config specifies ${
+          Location[requestConfig.secretsLocation]
+        }.`
+      )
+    }
+
+    secretsLocation = requestConfig.secretsLocation
+
     console.log("\nEncrypting secrets and uploading to DON...")
     const secretsManager = new SecretsManager({
       signer,
@@ -113,8 +116,12 @@ const setAutoRequest = async (contract, taskArgs) => {
 
     await secretsManager.initialize()
     const encryptedSecretsObj = await secretsManager.encryptSecrets(requestConfig.secrets)
-    const slotId = parseInt(taskArgs.slotid)
     const minutesUntilExpiration = taskArgs.ttl
+    const slotId = parseInt(taskArgs.slotid)
+
+    if (isNaN(slotId)) {
+      throw Error`\nSlotId missing. Please provide a slotId of 0 or higher, to upload encrypted secrets to the DON.`
+    }
 
     const { version, success } = await secretsManager.uploadEncryptedSecretsToDON({
       encryptedSecretsHexstring: encryptedSecretsObj.encryptedSecrets,
@@ -139,11 +146,11 @@ const setAutoRequest = async (contract, taskArgs) => {
     codeLanguage: requestConfig.codeLanguage,
     source: requestConfig.source,
     args: requestConfig.args,
-    secretsLocation: requestConfig.secretsLocation,
+    secretsLocation,
     encryptedSecretsReference,
   })
 
-  console.log("\nSetting Functions request...")
+  console.log(`\nSetting the Functions request in AutomatedFunctionsConsumer contract ${contract} on ${network.name}`)
   const setRequestTx = await autoClientContract.setRequest(
     taskArgs.subid,
     taskArgs.gaslimit,

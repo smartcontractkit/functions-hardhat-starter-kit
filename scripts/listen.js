@@ -3,7 +3,7 @@ const { networks } = require("../networks")
 const { ResponseListener, decodeResult, ReturnType } = require("@chainlink/functions-toolkit")
 const { providers } = require("ethers")
 
-const subscriptionId = "TODO" // TODO @dev update this  to show your subscription Id.
+const subscriptionId = 43 // TODO @dev update this  to show your subscription Id.
 
 if (process.argv.length < 3) {
   throw Error(`\nPlease pass in the --network flag with the network name`)
@@ -14,6 +14,9 @@ if (!subscriptionId || isNaN(subscriptionId)) {
 }
 
 const networkName = process.argv[2] // --network
+if (!networks[networkName]) {
+  throw Error(` ${networkName} is not a supported network in the networks.js`)
+}
 
 // Mount Response Listener
 const provider = new providers.JsonRpcProvider(networks[networkName].url)

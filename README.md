@@ -272,9 +272,9 @@ Chainlink Functions can be used with Chainlink Automation in order to automatica
 
 2. Deploy the _AutomationFunctionsConsumer_ client contract by running:<br>`npx hardhat functions-deploy-auto-client --network network_name_here --subid subscription_id_number_here --interval time_between_requests_here --verify true`<br>**Note**: Make sure `<blockexplorer>_API_KEY` environment variable is set because this CLI command also verifies the client contract (if --verify is true) using this API KEY. API keys for block explorers (eg EtherScan, PolygonScan or SnowTrace) are freely available to anyone who creates an account.<br><br>
 
-3. Encode the request parameters into CBOR and store it on chain with `npx hardhat functions-set-auto-request --network network_name_here  --subid subscription_id_number_here --interval time_between_requests_here --contract 0x_contract_address`.  You can now manually check that your on-chain requests work if you try the manual debugging step #4 or you can go ahead and run Chainlink Automations on your contract by following the next step.  
+3. Encode the request parameters into CBOR and store it on chain with `npx hardhat functions-set-auto-request --network network_name_here  --subid subscription_id_number_here --interval time_between_requests_here --slotid don_hosted_secret_slotId --ttl minutes_till_secrets_expiry --contract 0x_contract_address` .  You can now manually check that your on-chain requests work if you try the manual debugging step #4 or you can go ahead and run Chainlink Automations on your contract by following the next step.  
 
-> ⚠️Keep in mind that this task sets DON-Hosted secrets and expires those secrets after 10 minutes.  If you see error bytes returned to your client which decode to secrets not being found, you should run this functions-set-auto-request command or the functions-upload-secrets-don to refresh the DON-hosted secrets for that slotId.
+> ⚠️ Keep in mind that this task sets DON-Hosted secrets and expires those secrets after 10 minutes.  If you see error bytes returned to your client which decode to secrets not being found, you should run this functions-set-auto-request command or the functions-upload-secrets-don to refresh the DON-hosted secrets for that slotId.
 
 4. Register the contract for upkeep via the Chainlink Automation web app here: [https://automation.chain.link/](https://automation.chain.link/)
    - Be sure to set the `Gas limit` for the _performUpkeep_ function to a high enough value. The recommended value is 1,000,000.
@@ -284,7 +284,7 @@ Once the contract is registered for upkeep, check the latest response or error w
 
 4. For debugging, use the command `npx hardhat functions-check-upkeep --network network_name_here --contract contract_address_here` to see if Automation needs to call _performUpkeep_. If this call returns `false` then the upkeep interval has not yet passed and `performUpkeep` will not execute.
 
-You can also attach a listener to a Subscription ID by updating the `network` and `subId` variables in `listen.js` and then running `node listen.js` from the repo root. To do this open a new terminal or split terminal and run `npm run listen`. This script uses nodemon which restarts the script when you save files or when the listener returns a result.
+You can also attach a listener to a Subscription ID by updating the  `subId` variable in `listen.js` and then running `npm run listen --network your_network_name` from the repo root. To do this open a new terminal or split terminal and run `npm run listen`. This script uses nodemon which restarts the script when you save files or when the listener returns a result.
 
 # Gas Spikes
 

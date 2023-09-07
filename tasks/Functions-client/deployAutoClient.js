@@ -52,7 +52,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     // Validate callbackGasLimit
     const { gasPrice } = await hre.ethers.provider.getFeeData()
     const gasPriceGwei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "gwei").toString()))
-    _ = await subManager.estimateFunctionsRequestCost({
+    await subManager.estimateFunctionsRequestCost({
       donId,
       subscriptionId,
       callbackGasLimit,
