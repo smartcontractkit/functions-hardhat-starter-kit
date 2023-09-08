@@ -16,22 +16,22 @@ task("functions-sub-remove", "Removes a client contract from an Functions billin
     const linkTokenAddress = networks[network.name]["linkToken"]
 
     const consumerAddress = taskArgs.contract
-    const subId = taskArgs.subid
+    const subscriptionId = parseInt(taskArgs.subid)
     const confirmations = networks[network.name].confirmations
     const txOptions = { confirmations }
 
     const sm = new SubscriptionManager({ signer, linkTokenAddress, functionsRouterAddress })
     await sm.initialize()
 
-    console.log(`\nRemoving ${consumerAddress} from subscription ${subId}...`)
-    let removeConsumerTx = await sm.removeConsumer({ subId, consumerAddress, txOptions })
+    console.log(`\nRemoving ${consumerAddress} from subscription ${subscriptionId}...`)
+    let removeConsumerTx = await sm.removeConsumer({ subscriptionId, consumerAddress, txOptions })
 
-    const subInfo = await sm.getSubscriptionInfo(subId)
+    const subInfo = await sm.getSubscriptionInfo(subscriptionId)
     // parse balances into LINK for readability
     subInfo.balance = ethers.utils.formatEther(subInfo.balance) + " LINK"
     subInfo.blockedBalance = ethers.utils.formatEther(subInfo.blockedBalance) + " LINK"
     console.log(
-      `\nRemoved ${consumerAddress} from subscription ${subId} in Tx: ${removeConsumerTx.transactionHash}.  \nUpdated Subscription Info:\n`,
+      `\nRemoved ${consumerAddress} from subscription ${subscriptionId} in Tx: ${removeConsumerTx.transactionHash}.  \nUpdated Subscription Info:\n`,
       subInfo
     )
   })

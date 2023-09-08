@@ -19,6 +19,7 @@ task("functions-perform-upkeep", "Manually call performUpkeep in an Automation c
       )
     }
 
+    // Call performUpkeep
     const performData = taskArgs.data ?? []
 
     console.log(
@@ -37,4 +38,7 @@ task("functions-perform-upkeep", "Manually call performUpkeep in an Automation c
     await checkUpkeep.wait(networks[network.name].confirmations)
 
     console.log(`\nSuccessfully called performUpkeep`)
+
+    const reqId = await autoClientContract.s_lastRequestId()
+    console.log("\nLast request ID received by the Automation Client Contract...", reqId)
   })

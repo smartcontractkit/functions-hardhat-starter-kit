@@ -1,15 +1,15 @@
+const { SubscriptionManager, buildRequestCBOR } = require("@chainlink/functions-toolkit")
+
 const { types } = require("hardhat/config")
 const { networks } = require("../../networks")
-const { addClientConsumerToSubscription } = require("../Functions-billing/add")
 const { setAutoRequest } = require("./setAutoRequest")
 
 task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer contract")
   .addParam("subid", "Billing subscription ID used to pay for Functions requests")
-  .addOptionalParam("interval", "Update interval in seconds for Automation to call performUpkeep", 300, types.int)
   .addOptionalParam("verify", "Set to true to verify client contract", false, types.boolean)
   .addOptionalParam(
     "gaslimit",
-    "Maximum amount of gas that can be used to call fulfillRequest in the client contract",
+    "Maximum amount of gas to call fulfillRequest in the client contract (defaults to 250000)",
     250000,
     types.int
   )
@@ -32,46 +32,58 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
       )
     }
 
-    if (taskArgs.gaslimit > 300000) {
-      throw Error("Gas limit must be less than or equal to 300,000")
-    }
-
-    console.log(`Deploying AutomatedFunctionsConsumer contract to ${network.name}`)
-
     console.log("\n__Compiling Contracts__")
     await run("compile")
 
+    const functionsRouterAddress = networks[network.name]["functionsRouter"]
+    const donId = networks[network.name]["donId"]
+    const donIdBytes32 = hre.ethers.utils.formatBytes32String(donId)
+    const signer = await ethers.getSigner()
+    const linkTokenAddress = networks[network.name]["linkToken"]
+    const txOptions = { confirmations: networks[network.name].confirmations }
+
+    const subscriptionId = taskArgs.subid
+    const callbackGasLimit = taskArgs.gaslimit
+
+    // Initialize SubscriptionManager
+    const subManager = new SubscriptionManager({ signer, linkTokenAddress, functionsRouterAddress })
+    await subManager.initialize()
+
+    // Validate callbackGasLimit
+    const { gasPrice } = await hre.ethers.provider.getFeeData()
+    const gasPriceGwei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "gwei").toString()))
+    await subManager.estimateFunctionsRequestCost({
+      donId,
+      subscriptionId,
+      callbackGasLimit,
+      gasPriceGwei,
+    })
+
+    console.log(`Deploying AutomatedFunctionsConsumer contract to ${network.name}`)
     const autoClientContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
     const autoClientContract = await autoClientContractFactory.deploy(
-      networks[network.name]["functionsOracleProxy"],
-      taskArgs.subid,
-      taskArgs.gaslimit,
-      taskArgs.interval
+      functionsRouterAddress,
+      donIdBytes32,
+      callbackGasLimit
     )
 
     console.log(`\nWaiting 1 block for transaction ${autoClientContract.deployTransaction.hash} to be confirmed...`)
     await autoClientContract.deployTransaction.wait(1)
 
-    await addClientConsumerToSubscription(taskArgs.subid, autoClientContract.address)
+    const consumerAddress = autoClientContract.address
 
-    taskArgs.contract = autoClientContract.address
-
-    await setAutoRequest(autoClientContract.address, taskArgs)
+    console.log(`\nAdding ${consumerAddress} to subscription ${subscriptionId}...`)
+    const addConsumerTx = await subManager.addConsumer({ subscriptionId, consumerAddress, txOptions })
+    console.log(`\nAdded consumer contract ${consumerAddress} in Tx: ${addConsumerTx.transactionHash}`)
 
     const verifyContract = taskArgs.verify
-
     if (verifyContract && !!networks[network.name].verifyApiKey && networks[network.name].verifyApiKey !== "UNSET") {
       try {
-        console.log("\nVerifying contract...")
+        console.log(`\nVerifying contract ${consumerAddress}...`)
         await autoClientContract.deployTransaction.wait(Math.max(6 - networks[network.name].confirmations, 0))
         await run("verify:verify", {
-          address: autoClientContract.address,
-          constructorArguments: [
-            networks[network.name]["functionsOracleProxy"],
-            taskArgs.subid,
-            taskArgs.gaslimit,
-            taskArgs.interval,
-          ],
+          address: consumerAddress,
+          constructorArguments: [functionsRouterAddress, donIdBytes32, callbackGasLimit],
         })
         console.log("Contract verified")
       } catch (error) {
@@ -88,5 +100,5 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
       )
     }
 
-    console.log(`\nAutomatedFunctionsConsumer contract deployed to ${autoClientContract.address} on ${network.name}`)
+    console.log(`\nAutomatedFunctionsConsumer contract deployed to ${consumerAddress} on ${network.name}`)
   })

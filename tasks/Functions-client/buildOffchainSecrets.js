@@ -49,7 +49,7 @@ task(
     const outputfile = taskArgs.output
     console.log(`\nEncrypting secrets and writing to JSON file '${outputfile}'...`)
 
-    const encryptedSecretsObj = await secretsManager.buildEncryptedSecrets(requestConfig.secrets)
+    const encryptedSecretsObj = await secretsManager.encryptSecrets(requestConfig.secrets)
     fs.writeFileSync(outputfile, JSON.stringify(encryptedSecretsObj))
 
     console.log(`\nWrote offchain secrets file to '${outputfile}'.`)

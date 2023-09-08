@@ -104,7 +104,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     const gasPriceGwei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "gwei").toString()))
     const estimatedCostJuels = await subManager.estimateFunctionsRequestCost({
       donId,
-      subId: subscriptionId,
+      subscriptionId,
       callbackGasLimit,
       gasPriceGwei,
     })
@@ -129,7 +129,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     let encryptedSecretsReference = []
     let gistUrl
     if (requestConfig.secrets && Object.keys(requestConfig.secrets).length > 0) {
-      const encryptedSecrets = await secretsManager.buildEncryptedSecrets(requestConfig.secrets)
+      const encryptedSecrets = await secretsManager.encryptSecrets(requestConfig.secrets)
 
       switch (requestConfig.secretsLocation) {
         case Location.Inline:
@@ -150,7 +150,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
             storageSlotId: slotId,
             minutesUntilExpiration: 5,
           })
-          encryptedSecretsReference = await secretsManager.constructDONHostedEncryptedSecretsReference({
+          encryptedSecretsReference = await secretsManager.buildDONHostedEncryptedSecretsReference({
             slotId,
             version,
           })

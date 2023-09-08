@@ -11,7 +11,7 @@ task(
       throw Error("This command cannot be used on a local hardhat chain.  Specify a valid network.")
     }
 
-    const subId = taskArgs.subid
+    const subscriptionId = parseInt(taskArgs.subid)
 
     const signer = await ethers.getSigner()
     const linkTokenAddress = networks[network.name]["linkToken"]
@@ -20,9 +20,9 @@ task(
     const sm = new SubscriptionManager({ signer, linkTokenAddress, functionsRouterAddress })
     await sm.initialize()
 
-    const subInfo = await sm.getSubscriptionInfo(subId)
+    const subInfo = await sm.getSubscriptionInfo(subscriptionId)
     // parse balances into LINK for readability
     subInfo.balance = ethers.utils.formatEther(subInfo.balance) + " LINK"
     subInfo.blockedBalance = ethers.utils.formatEther(subInfo.blockedBalance) + " LINK"
-    console.log(`\nInfo for subscription ${subId}:\n`, subInfo)
+    console.log(`\nInfo for subscription ${subscriptionId}:\n`, subInfo)
   })

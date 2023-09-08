@@ -52,7 +52,7 @@ task("functions-upload-secrets-don", "encrypts secrets and uploads them to the D
     }
 
     console.log("Encrypting secrets and uploading to DON...")
-    const encryptedSecretsObj = await secretsManager.buildEncryptedSecrets(requestConfig.secrets)
+    const encryptedSecretsObj = await secretsManager.encryptSecrets(requestConfig.secrets)
 
     const {
       version, // Secrets version number (corresponds to timestamp when encrypted secrets were uploaded to DON)

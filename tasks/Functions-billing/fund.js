@@ -16,7 +16,7 @@ task("functions-sub-fund", "Funds a billing subscription for Functions consumer 
     const functionsRouterAddress = networks[network.name]["functionsRouter"]
     const txOptions = { confirmations: networks[network.name].confirmations }
 
-    const subId = taskArgs.subid
+    const subscriptionId = parseInt(taskArgs.subid)
     const linkAmount = taskArgs.amount
     const juelsAmount = ethers.utils.parseUnits(linkAmount, 18)
 
@@ -24,17 +24,19 @@ task("functions-sub-fund", "Funds a billing subscription for Functions consumer 
     await sm.initialize()
 
     await utils.prompt(
-      `\nPlease confirm that you wish to fund Subscription ${subId} with ${chalk.blue(
+      `\nPlease confirm that you wish to fund Subscription ${subscriptionId} with ${chalk.blue(
         linkAmount + " LINK"
       )} from your wallet.`
     )
 
-    console.log(`\nFunding subscription ${subId} with ${linkAmount} LINK...`)
+    console.log(`\nFunding subscription ${subscriptionId} with ${linkAmount} LINK...`)
 
-    const fundTxReceipt = await sm.fundSubscription({ juelsAmount, subId, txOptions })
-    console.log(`\nSubscription ${subId} funded with ${linkAmount} LINK in Tx: ${fundTxReceipt.transactionHash}`)
+    const fundTxReceipt = await sm.fundSubscription({ juelsAmount, subscriptionId, txOptions })
+    console.log(
+      `\nSubscription ${subscriptionId} funded with ${linkAmount} LINK in Tx: ${fundTxReceipt.transactionHash}`
+    )
 
-    const subInfo = await sm.getSubscriptionInfo(subId)
+    const subInfo = await sm.getSubscriptionInfo(subscriptionId)
 
     // parse balances into LINK for readability
     subInfo.balance = ethers.utils.formatEther(subInfo.balance) + " LINK"

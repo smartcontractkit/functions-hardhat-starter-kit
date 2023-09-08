@@ -37,7 +37,7 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
    * @param args String arguments passed into the source code and accessible via the global variable `args`
    * @param bytesArgs Bytes arguments passed into the source code and accessible via the global variable `bytesArgs` as hex strings
    * @param subscriptionId Subscription ID used to pay for request (FunctionsConsumer contract address must first be added to the subscription)
-   * @param callbackGasLimit Maximum amount of gas used to call the client contract's `handleOracleFulfillment` method
+   * @param callbackGasLimit Maximum amount of gas used to call the inherited `handleOracleFulfillment` method
    */
   function sendRequest(
     string calldata source,

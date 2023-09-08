@@ -24,13 +24,13 @@ task(
     const clientContractFactory = await ethers.getContractFactory("FunctionsConsumer")
     const clientContract = await clientContractFactory.attach(taskArgs.contract)
 
-    let latestError = await clientContract.latestError()
+    let latestError = await clientContract.s_lastError()
     if (latestError.length > 0 && latestError !== "0x") {
       const errorString = Buffer.from(latestError.slice(2), "hex").toString()
-      console.log(`\nOn-chain error message: ${Buffer.from(latestError.slice(2), "hex").toString()}`)
+      console.log(`\nOn-chain error message: ${errorString}`)
     }
 
-    let latestResponse = await clientContract.latestResponse()
+    let latestResponse = await clientContract.s_lastResponse()
     if (latestResponse.length > 0 && latestResponse !== "0x") {
       const requestConfig = require(path.isAbsolute(taskArgs.configpath)
         ? taskArgs.configpath
@@ -41,5 +41,7 @@ task(
           latestResponse
         )}`
       )
+    } else if (latestResponse == "0x") {
+      console.log("Empty response: ", latestResponse)
     }
   })
