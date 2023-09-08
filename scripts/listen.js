@@ -3,7 +3,7 @@ const { networks } = require("../networks")
 const { ResponseListener, decodeResult, ReturnType } = require("@chainlink/functions-toolkit")
 const { providers } = require("ethers")
 
-const subscriptionId = 43 // TODO @dev update this  to show your subscription Id.
+const subscriptionId = "TODO" // TODO @dev update this  to show your subscription Id.
 
 if (process.argv.length < 3) {
   throw Error(`\nPlease pass in the --network flag with the network name`)

@@ -284,7 +284,7 @@ Once the contract is registered for upkeep, check the latest response or error w
 
 4. For debugging, use the command `npx hardhat functions-check-upkeep --network network_name_here --contract contract_address_here` to see if Automation needs to call _performUpkeep_. If this call returns `false` then the upkeep interval has not yet passed and `performUpkeep` will not execute.
 
-You can also attach a listener to a Subscription ID by updating the  `subId` variable in `listen.js` and then running `npm run listen --network your_network_name` from the repo root. To do this open a new terminal or split terminal and run `npm run listen`. This script uses nodemon which restarts the script when you save files or when the listener returns a result.
+You can also attach a listener to a Subscription ID by updating the  `subId` variable in `/scripts/listen.js`, and then running `npm run listen --network your_network_name` from the repo root. To do this open a new terminal or split terminal and run `npm run listen`. This script uses nodemon which restarts the script when you save files or when the listener returns a result.
 
 # Gas Spikes
 
