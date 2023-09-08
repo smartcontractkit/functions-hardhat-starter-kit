@@ -35,15 +35,9 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
    *
    * @param router The Functions Router contract for the network
    * @param _donId The DON Id for the DON that will execute the Function
-   * @param _fulfillGasLimit Maximum amount of gas used to call the inherited `handleOracleFulfillment` function
    */
-  constructor(
-    address router,
-    bytes32 _donId,
-    uint32 _fulfillGasLimit
-  ) FunctionsClient(router) ConfirmedOwner(msg.sender) {
+  constructor(address router, bytes32 _donId) FunctionsClient(router) ConfirmedOwner(msg.sender) {
     donId = _donId;
-    s_fulfillGasLimit = _fulfillGasLimit;
     s_lastUpkeepTimeStamp = 0;
   }
 

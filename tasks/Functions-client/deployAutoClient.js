@@ -8,12 +8,6 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
   .addParam("subid", "Billing subscription ID used to pay for Functions requests")
   .addOptionalParam("verify", "Set to true to verify client contract", false, types.boolean)
   .addOptionalParam(
-    "gaslimit",
-    "Maximum amount of gas to call fulfillRequest in the client contract (defaults to 250000)",
-    250000,
-    types.int
-  )
-  .addOptionalParam(
     "simulate",
     "Flag indicating if simulation should be run before making an on-chain request",
     true,
@@ -37,7 +31,6 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     const txOptions = { confirmations: networks[network.name].confirmations }
 
     const subscriptionId = taskArgs.subid
-    const callbackGasLimit = taskArgs.gaslimit
 
     // Initialize SubscriptionManager
     const subManager = new SubscriptionManager({ signer, linkTokenAddress, functionsRouterAddress })
@@ -55,11 +48,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
 
     console.log(`Deploying AutomatedFunctionsConsumer contract to ${network.name}`)
     const autoClientContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
-    const autoClientContract = await autoClientContractFactory.deploy(
-      functionsRouterAddress,
-      donIdBytes32,
-      callbackGasLimit
-    )
+    const autoClientContract = await autoClientContractFactory.deploy(functionsRouterAddress, donIdBytes32)
 
     console.log(`\nWaiting 1 block for transaction ${autoClientContract.deployTransaction.hash} to be confirmed...`)
     await autoClientContract.deployTransaction.wait(1)
@@ -82,7 +71,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
         await autoClientContract.deployTransaction.wait(Math.max(6 - networks[network.name].confirmations, 0))
         await run("verify:verify", {
           address: consumerAddress,
-          constructorArguments: [functionsRouterAddress, donIdBytes32, callbackGasLimit],
+          constructorArguments: [functionsRouterAddress, donIdBytes32],
         })
         console.log("Contract verified")
       } catch (error) {
