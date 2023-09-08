@@ -203,7 +203,6 @@ The JavaScript source code for a Functions request can use vanilla Node.js featu
 
 It must return a JavaScript Buffer which represents the response bytes that are sent back to the requesting contract.
 Encoding functions are provided in the [Functions library](#functions-library).
-
 Additionally, any external APIs to which requests are made must script must respond in **less than 9 seconds** and the JavaScript Code as a whole must return in **less than 10 seconds** or it will be terminated and send back an error (in bytes) to the requesting contract.
 
 In order to make HTTP requests, the source code must use the `Functions.makeHttpRequest` function from the exposed [Functions library](#functions-library).
