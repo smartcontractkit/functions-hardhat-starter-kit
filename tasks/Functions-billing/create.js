@@ -7,12 +7,6 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
   .addOptionalParam("amount", "Initial amount used to fund the subscription in LINK")
   .addOptionalParam("contract", "Address of the client contract address authorized to use the new billing subscription")
   .setAction(async (taskArgs) => {
-    if (network.name === "hardhat") {
-      throw Error(
-        'This command cannot be used on a local hardhat chain. Specify a valid network or simulate a request locally with "npx hardhat functions-simulate".'
-      )
-    }
-
     const signer = await ethers.getSigner()
     const functionsRouterAddress = networks[network.name]["functionsRouter"]
     const linkTokenAddress = networks[network.name]["linkToken"]

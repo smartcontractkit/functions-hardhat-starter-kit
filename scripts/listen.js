@@ -1,3 +1,6 @@
+// Loads environment variables from .env.enc file (if it exists)
+require("@chainlink/env-enc").config("../.env.enc")
+
 const { networks } = require("../networks")
 
 const { ResponseListener, decodeResult, ReturnType } = require("@chainlink/functions-toolkit")

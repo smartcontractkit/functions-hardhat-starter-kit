@@ -6,10 +6,6 @@ task(
 )
   .addParam("contract", "Address of the client contract to update")
   .setAction(async (taskArgs) => {
-    if (network.name === "hardhat") {
-      throw Error("This command cannot be used on a local hardhat chain.  Specify a valid network.")
-    }
-
     console.log(
       `Setting oracle address to ${networks[network.name]["functionsOracleProxy"]} Functions client contract ${
         taskArgs.contract

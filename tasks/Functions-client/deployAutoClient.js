@@ -26,12 +26,6 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     types.string
   )
   .setAction(async (taskArgs) => {
-    if (network.name === "hardhat") {
-      throw Error(
-        'This command cannot be used on a local hardhat chain.  Specify a valid network or simulate an FunctionsConsumer request locally with "npx hardhat functions-simulate".'
-      )
-    }
-
     console.log("\n__Compiling Contracts__")
     await run("compile")
 
@@ -76,8 +70,12 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     const addConsumerTx = await subManager.addConsumer({ subscriptionId, consumerAddress, txOptions })
     console.log(`\nAdded consumer contract ${consumerAddress} in Tx: ${addConsumerTx.transactionHash}`)
 
-    const verifyContract = taskArgs.verify
-    if (verifyContract && !!networks[network.name].verifyApiKey && networks[network.name].verifyApiKey !== "UNSET") {
+    if (
+      network.name !== "localFunctionsTestnet" &&
+      taskArgs.verify &&
+      !!networks[network.name].verifyApiKey &&
+      networks[network.name].verifyApiKey !== "UNSET"
+    ) {
       try {
         console.log(`\nVerifying contract ${consumerAddress}...`)
         await autoClientContract.deployTransaction.wait(Math.max(6 - networks[network.name].confirmations, 0))

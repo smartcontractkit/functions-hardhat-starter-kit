@@ -5,12 +5,6 @@ task("functions-sub-remove", "Removes a client contract from an Functions billin
   .addParam("subid", "Subscription ID")
   .addParam("contract", "Address of the client contract to remove from billing subscription")
   .setAction(async (taskArgs) => {
-    if (network.name === "hardhat") {
-      throw Error(
-        'This command cannot be used on a local hardhat chain. Please specify a valid network or simulate an FunctionsConsumer request locally with "npx hardhat functions-simulate".'
-      )
-    }
-
     const signer = await ethers.getSigner()
     const functionsRouterAddress = networks[network.name]["functionsRouter"]
     const linkTokenAddress = networks[network.name]["linkToken"]
