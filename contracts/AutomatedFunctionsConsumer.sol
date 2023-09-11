@@ -44,7 +44,7 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
   ) FunctionsClient(router) ConfirmedOwner(msg.sender) {
     donId = _donId;
     s_fulfillGasLimit = _fulfillGasLimit;
-    s_lastUpkeepTimeStamp = block.timestamp;
+    s_lastUpkeepTimeStamp = 0;
   }
 
   /**

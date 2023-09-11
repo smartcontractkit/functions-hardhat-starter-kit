@@ -73,14 +73,14 @@ const networks = {
     donId: "", // TODO @zeuslawyer
     gatewayUrls: "", // TODO @zeuslawyer
   },
-  // localFunctionsTestnet is updated dynamically by scripts/startLocalFunctionsTestnet.js so it should not be modified here.
+  // localFunctionsTestnet is updated dynamically by scripts/startLocalFunctionsTestnet.js so it should not be modified here
   localFunctionsTestnet: {
     url: "http://localhost:8545/",
     accounts,
     confirmations: 1,
     nativeCurrencySymbol: "ETH",
-    linkToken: "0x4a70F3e45825DDa29Fe20ea1bF2b4747a4937fCE",
-    functionsRouter: "0x96771a175972c1e250df536Fa58E2717BA6d8bA9",
+    linkToken: "0x87a0a054Db47386ff2d8032Fa7FE4b970e45Bef4",
+    functionsRouter: "0xF05Dc336f9B16c3dd93477b7bD94642CE726e2f8",
     donId: "coordinator1",
   },
 }

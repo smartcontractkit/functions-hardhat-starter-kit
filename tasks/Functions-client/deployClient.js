@@ -22,9 +22,10 @@ task("functions-deploy-consumer", "Deploys the FunctionsConsumer contract")
     )
     await consumerContract.deployTransaction.wait(networks[network.name].confirmations)
 
+    const verifyContract = taskArgs.verify
     if (
       network.name !== "localFunctionsTestnet" &&
-      taskArgs.verify &&
+      verifyContract &&
       !!networks[network.name].verifyApiKey &&
       networks[network.name].verifyApiKey !== "UNSET"
     ) {

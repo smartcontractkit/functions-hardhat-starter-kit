@@ -145,7 +145,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
           const { version } = await secretsManager.uploadEncryptedSecretsToDON({
             encryptedSecretsHexstring: encryptedSecrets.encryptedSecrets,
             gatewayUrls: networks[network.name]["gatewayUrls"],
-            storageSlotId: slotId,
+            slotId,
             minutesUntilExpiration: 5,
           })
           encryptedSecretsReference = await secretsManager.buildDONHostedEncryptedSecretsReference({

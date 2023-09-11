@@ -45,12 +45,12 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
 
     // Validate callbackGasLimit
     const { gasPrice } = await hre.ethers.provider.getFeeData()
-    const gasPriceGwei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "gwei").toString()))
+    const gasPriceWei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "wei").toString()))
     await subManager.estimateFunctionsRequestCost({
       donId,
       subscriptionId,
       callbackGasLimit,
-      gasPriceGwei,
+      gasPriceWei,
     })
 
     console.log(`Deploying AutomatedFunctionsConsumer contract to ${network.name}`)
@@ -70,9 +70,10 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     const addConsumerTx = await subManager.addConsumer({ subscriptionId, consumerAddress, txOptions })
     console.log(`\nAdded consumer contract ${consumerAddress} in Tx: ${addConsumerTx.transactionHash}`)
 
+    const verifyContract = taskArgs.verify
     if (
       network.name !== "localFunctionsTestnet" &&
-      taskArgs.verify &&
+      verifyContract &&
       !!networks[network.name].verifyApiKey &&
       networks[network.name].verifyApiKey !== "UNSET"
     ) {
