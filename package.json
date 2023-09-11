@@ -8,7 +8,6 @@
     "compile": "hardhat compile",
     "test": "npm run test:unit",
     "test:unit": "hardhat test test/unit/*.spec.js",
-    "functions-simulate-javascript": "node scripts/simulateFunctionsJavaScript.js",
     "functions-gen-keys": "node scripts/generateKeypair.js",
     "listen": "nodemon scripts/listen.js",
     "lint": "npm run lint:contracts && npm run format:check",
@@ -48,6 +47,7 @@
   },
   "dependencies": {
     "@chainlink/env-enc": "^1.0.5",
+    "@chainlink/functions-toolkit": "^0.1.0",
     "@openzeppelin/contracts": "4.8.3",
     "@openzeppelin/contracts-upgradeable": "4.8.3",
     "axios": "^1.1.3",
