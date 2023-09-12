@@ -23,10 +23,10 @@ if (!isTestEnvironment && !PRIVATE_KEY) {
 }
 
 const accounts = []
-if (PRIVATE_KEY !== undefined) {
+if (PRIVATE_KEY) {
   accounts.push(PRIVATE_KEY)
 }
-if (SECOND_PRIVATE_KEY !== undefined) {
+if (SECOND_PRIVATE_KEY) {
   accounts.push(SECOND_PRIVATE_KEY)
 }
 

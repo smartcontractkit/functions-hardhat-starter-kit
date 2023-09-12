@@ -93,7 +93,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
           console.log("Contract already verified")
         }
       }
-    } else if (verifyContract) {
+    } else if (verifyContract && network.name !== "localFunctionsTestnet") {
       console.log(
         "\nPOLYGONSCAN_API_KEY, ETHERSCAN_API_KEY or SNOWTRACE_API_KEY is missing. Skipping contract verification..."
       )

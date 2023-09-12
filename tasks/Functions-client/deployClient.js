@@ -22,6 +22,10 @@ task("functions-deploy-consumer", "Deploys the FunctionsConsumer contract")
     )
     await consumerContract.deployTransaction.wait(networks[network.name].confirmations)
 
+    if (network.name === "localFunctionsTestnet") {
+      return
+    }
+
     const verifyContract = taskArgs.verify
     if (
       network.name !== "localFunctionsTestnet" &&
@@ -45,7 +49,7 @@ task("functions-deploy-consumer", "Deploys the FunctionsConsumer contract")
           console.log("Contract already verified")
         }
       }
-    } else if (verifyContract) {
+    } else if (verifyContract && network.name !== "localFunctionsTestnet") {
       console.log(
         "\nPOLYGONSCAN_API_KEY, ETHERSCAN_API_KEY or SNOWTRACE_API_KEY is missing. Skipping contract verification..."
       )
