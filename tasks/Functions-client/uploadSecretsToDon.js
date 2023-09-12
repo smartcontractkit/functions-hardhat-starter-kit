@@ -27,7 +27,7 @@ task("functions-upload-secrets-don", "encrypts secrets and uploads them to the D
 
     const gatewayUrls = networks[network.name]["gatewayUrls"]
 
-    const storageSlotId = parseInt(taskArgs.slotid)
+    const slotId = parseInt(taskArgs.slotid)
     const minutesUntilExpiration = taskArgs.ttl
 
     const secretsManager = new SecretsManager({
@@ -56,11 +56,11 @@ task("functions-upload-secrets-don", "encrypts secrets and uploads them to the D
     } = await secretsManager.uploadEncryptedSecretsToDON({
       encryptedSecretsHexstring: encryptedSecretsObj.encryptedSecrets,
       gatewayUrls,
-      storageSlotId,
+      slotId,
       minutesUntilExpiration,
     })
 
     console.log(
-      `\nSuccess : ${success}.  You can now use storageSlotId '${storageSlotId}' and version '${version}' when sending your request to your Functions consumer contract.`
+      `\nSuccess : ${success}.  You can now use slotId '${slotId}' and version '${version}' when sending your request to your Functions consumer contract.`
     )
   })
