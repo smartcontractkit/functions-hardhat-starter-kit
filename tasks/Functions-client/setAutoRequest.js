@@ -121,7 +121,7 @@ const setAutoRequest = async (contract, taskArgs) => {
     const { version, success } = await secretsManager.uploadEncryptedSecretsToDON({
       encryptedSecretsHexstring: encryptedSecretsObj.encryptedSecrets,
       gatewayUrls: networks[network.name]["gatewayUrls"],
-      storageSlotId: slotId,
+      slotId,
       minutesUntilExpiration,
     })
 
