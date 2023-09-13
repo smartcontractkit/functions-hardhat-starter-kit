@@ -37,7 +37,8 @@
 <p>Chainlink Functions also enables users to share encrypted secrets with each node in the DON.  This allows users to access APIs that require authentication, without exposing their API keys to the general public.
 
 # Motivation
-This repo provides developers with a "works out of the box" experience as it comes preconfigured with dependencies and popular tooling like [Hardhat](https://hardhat.org). This is not a tutorial for the Hardhat toolchain.  It assumes basic familiarity with Hardhat and the command line.  We use CLI scripts to run Chainlink Functions commands and operations.
+
+This repo provides developers with a "works out of the box" experience as it comes preconfigured with dependencies and popular tooling like [Hardhat](https://hardhat.org). This is not a tutorial for the Hardhat toolchain. It assumes basic familiarity with Hardhat and the command line. We use CLI scripts to run Chainlink Functions commands and operations.
 
 ## Supported Networks
 
@@ -74,17 +75,14 @@ For other detailed tutorials and examples, check out the [Chainlink Functions Tu
 ## Steps on live testnet
 1. Clone this repository to your local machine<br><br>
 2. Open this directory in your command line/terminal app, then run `npm install` to install all dependencies.<br><br>
-4. Obtain the values for following environment variables:  
-    - `PRIVATE_KEY` for your development wallet
-    - `POLYGON_MUMBAI_RPC_URL`, `ETHEREUM_SEPOLIA_RPC_URL`, or`AVALANCHE_FUJI_RPC_URL` 
-    - `POLYGONSCAN_API_KEY`, `ETHERSCAN_API_KEY`, or `FUJI_SNOWTRACE_API_KEY` blockchain explore API keys (no cost) depending on which network you're connecting to
-    - `COINMARKETCAP_API_KEY` (from [here](https://pro.coinmarketcap.com/)) 
-<br><br>
-5. Set the required environment variables. For improved security, Chainlink provides the NPM package @chainlink/env-enc which can be used to keep environment variables in a password encrypted `.env.enc` file instead of a plaintext `.env` if you desire the additional security.  More detail on environment variable management and the tooling is provided in the [Environment Variable Management](#environment-variable-management) section.
+3. Obtain the values for following environment variables:  
+    - `PRIVATE_KEY` for your development wallet - `POLYGON_MUMBAI_RPC_URL`, `ETHEREUM_SEPOLIA_RPC_URL`, or`AVALANCHE_FUJI_RPC_URL` - `POLYGONSCAN_API_KEY`, `ETHERSCAN_API_KEY`, or `FUJI_SNOWTRACE_API_KEY` blockchain explore API keys (no cost) depending on which network you're connecting to - `COINMARKETCAP_API_KEY` (from [here](https://pro.coinmarketcap.com/))
+   <br><br>
+4. Set the required environment variables. For improved security, Chainlink provides the NPM package @chainlink/env-enc which can be used to keep environment variables in a password encrypted `.env.enc` file instead of a plaintext `.env` if you desire the additional security. More detail on environment variable management and the tooling is provided in the [Environment Variable Management](#environment-variable-management) section.
    1. Set an encryption password for your environment variables to a secure password by running:<br>`npx env-enc set-pw`. This password needs to be set each time you create or restart a terminal shell session.<br>
    2. Use the command `npx env-enc set` to set the required environment variables.
-   3 Set any other  values you intend to pass into the _secrets_ object in _Functions-request-config.js_ .<br><br>
-6. There are four files to notice that the default example will use:
+      3 Set any other values you intend to pass into the _secrets_ object in _Functions-request-config.js_ .<br><br>
+5. There are four files to notice that the default example will use:
    - `/Functions-request-config.js` which contains the `request` object that has all the data necessary to trigger a Functions request. This config file also specifies which `source` code to pass to Functions. More information on request configuration is in the [Request Configuration section](#request-configuration).
    - `contracts/FunctionsConsumer.sol` is the client smart contract that will receive the Functions-related data from the request config, and trigger the functions request.
    - `calculation-example.js` contains JavaScript code that will be executed by each node of the DON. This example performs complex calculations but no API requests.
@@ -125,11 +123,13 @@ When running this command on a Windows machine, you may receive a security confi
 > **NOTE:** When you finish each work session, close down your terminal to prevent your encryption password from becoming exposes if your machine is compromised. You will need to set the same password on future session to decrypt the `.env.enc` file.
 
 ## Using Remote Secrets (eg Github Gists)
+
 To upload and delete secrets gists that will remotely store your encrypted secrets, you need to first acquire a Github personal access token which allows reading and writing Gists.
-   1. Visit [https://github.com/settings/tokens?type=beta](https://github.com/settings/tokens?type=beta) and click "Generate new token"
-   2. Name the token and enable read & write access for Gists from the "Account permissions" drop-down menu. Do not enable any additional permissions.
-   3. Click "Generate token" and copy the resulting personal access token for step 4.<br><br>
-   4. set the `GITHUB_API_TOKEN` environment variable using `npx env-enc set`
+
+1.  Visit [https://github.com/settings/tokens?type=beta](https://github.com/settings/tokens?type=beta) and click "Generate new token"
+2.  Name the token and enable read & write access for Gists from the "Account permissions" drop-down menu. Do not enable any additional permissions.
+3.  Click "Generate token" and copy the resulting personal access token for step 4.<br><br>
+4.  set the `GITHUB_API_TOKEN` environment variable using `npx env-enc set`
 
 ## Environment Variable Management Commands
 
@@ -187,15 +187,15 @@ Example: `npx hardhat functions-read --network polygonMumbai --contract 0x787Fe0
 
 Chainlink Functions requests can be configured by modifying values in the `requestConfig` object found in the _Functions-request-config.js_ file located in the root of this repository.
 
-| Setting Name         | Description                                                                                                                                                                                                                                                                                                                                                           |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `codeLocation`       | This specifies where the JavaScript code for a request is located. Currently, only the `Location.Inline` option is supported (represented by the value `0`). This means the JavaScript string is provided directly in the on-chain request instead of being referenced via a URL.                                                                                     |
-| `codeLanguage`       | This specifies the language of the source code which is executed in a request. Currently, only `JavaScript` is supported (represented by the value `0`).                                                                                                                                                                                                              |
-| `source`             | This is a string containing the source code which is executed in a request. This must be valid JavaScript code that returns a Buffer. See the [JavaScript Code](#javascript-code) section for more details.                                                                                                                                                           |
-| `secrets`            | This is an (optional) object which contains secret values that are injected into the JavaScript source code and can be accessed using the name `secrets`. This object can only contain string values. This object will be automatically encrypted by the tooling using the DON public key before making request. Any DON member can use these secrets when processing a request. |                                                                   |
-| `secretsLocation`             | This (optional) value must be present if `secrets` are present. Values must be one of either `DONhosted` or `Remote`. This refers to the location of the Secrets - which can be User-hosted (Remote) at a URL or DON-hosted.  
-| `args`               | This is an array of strings which contains values that are injected into the JavaScript source code and can be accessed using the name `args`. This provides a convenient way to set modifiable parameters within a request. If no arguments, then an empty array is passed.                                                                                                                                          |
-| `expectedReturnType` | This specifies the expected return type of a request. It has no on-chain impact, but is used by the CLI to decode the response bytes into the specified type. The options are `uint256`, `int256`, `string`, or `bytes`.                                                                                                                                           |
+| Setting Name         | Description                                                                                                                                                                                                                                                                                                                                                                      |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| `codeLocation`       | This specifies where the JavaScript code for a request is located. Currently, only the `Location.Inline` option is supported (represented by the value `0`). This means the JavaScript string is provided directly in the on-chain request instead of being referenced via a URL.                                                                                                |
+| `codeLanguage`       | This specifies the language of the source code which is executed in a request. Currently, only `JavaScript` is supported (represented by the value `0`).                                                                                                                                                                                                                         |
+| `source`             | This is a string containing the source code which is executed in a request. This must be valid JavaScript code that returns a Buffer. See the [JavaScript Code](#javascript-code) section for more details.                                                                                                                                                                      |
+| `secrets`            | This is an (optional) object which contains secret values that are injected into the JavaScript source code and can be accessed using the name `secrets`. This object can only contain string values. This object will be automatically encrypted by the tooling using the DON public key before making request. Any DON member can use these secrets when processing a request. |     |
+| `secretsLocation`    | This (optional) value must be present if `secrets` are present. Values must be one of either `DONhosted` or `Remote`. This refers to the location of the Secrets - which can be User-hosted (Remote) at a URL or DON-hosted.                                                                                                                                                     |
+| `args`               | This is an array of strings which contains values that are injected into the JavaScript source code and can be accessed using the name `args`. This provides a convenient way to set modifiable parameters within a request. If no arguments, then an empty array is passed.                                                                                                     |
+| `expectedReturnType` | This specifies the expected return type of a request. It has no on-chain impact, but is used by the CLI to decode the response bytes into the specified type. The options are `uint256`, `int256`, `string`, or `bytes`.                                                                                                                                                         |
 
 ## JavaScript Code
 
@@ -274,7 +274,7 @@ If the `FunctionsConsumer` contract is modified, this task must also be modified
 
 ## Managing Secrets
 
-// TODO *maybe just refer to the NPM package here so that we're not double maintaining docs? This will also be covered in the CL docs so we ought not triplicate. This repo should not document secrets management, but should just document how secrets are used in this project*
+// TODO _maybe just refer to the NPM package here so that we're not double maintaining docs? This will also be covered in the CL docs so we ought not triplicate. This repo should not document secrets management, but should just document how secrets are used in this project_
 
 Secrets can be managed in either of two ways: user-hosted (i,e "remote") or DON hosted. // TODO link to docs
 
