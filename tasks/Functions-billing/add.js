@@ -1,9 +1,9 @@
 const { SubscriptionManager } = require("@chainlink/functions-toolkit")
 const { networks } = require("../../networks")
 
-task("functions-sub-add", "Adds a client contract to the Functions billing subscription")
+task("functions-sub-add", "Adds a consumer contract to the Functions billing subscription")
   .addParam("subid", "Subscription ID")
-  .addParam("contract", "Address of the Functions client contract to authorize for billing")
+  .addParam("contract", "Address of the Functions consumer contract to authorize for billing")
   .setAction(async (taskArgs) => {
     const consumerAddress = taskArgs.contract
     const subscriptionId = parseInt(taskArgs.subid)

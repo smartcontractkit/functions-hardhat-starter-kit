@@ -9,7 +9,7 @@ task(
   "functions-set-auto-request",
   "sets the CBOR-encoded Functions request in a deployed AutomatedFunctionsConsumer contract"
 )
-  .addParam("contract", "Address of the client contract")
+  .addParam("contract", "Address of the consumer contract")
   .addParam("subid", "Billing subscription ID used to pay for Functions requests", undefined, types.int)
   .addOptionalParam(
     "slotid",
@@ -24,7 +24,7 @@ task(
   )
   .addOptionalParam(
     "gaslimit",
-    "Maximum amount of gas that can be used to call fulfillRequest in the client contract",
+    "Maximum amount of gas that can be used to call fulfillRequest in the consumer contract",
     250000,
     types.int
   )
@@ -73,8 +73,8 @@ const setAutoRequest = async (contract, taskArgs) => {
     throw Error(`Consumer contract ${taskArgs.contract} has not been added to subscription ${subscriptionId}`)
   }
 
-  const autoClientContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
-  const autoClientContract = await autoClientContractFactory.attach(contract)
+  const autoConsumerContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
+  const autoConsumerContract = await autoConsumerContractFactory.attach(contract)
 
   const requestConfig = require(path.isAbsolute(taskArgs.configpath)
     ? taskArgs.configpath
@@ -146,7 +146,7 @@ const setAutoRequest = async (contract, taskArgs) => {
   })
 
   console.log(`\nSetting the Functions request in AutomatedFunctionsConsumer contract ${contract} on ${network.name}`)
-  const setRequestTx = await autoClientContract.setRequest(
+  const setRequestTx = await autoConsumerContract.setRequest(
     taskArgs.subid,
     taskArgs.gaslimit,
     taskArgs.interval,

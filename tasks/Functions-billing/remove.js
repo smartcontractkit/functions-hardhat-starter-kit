@@ -1,9 +1,9 @@
 const { networks } = require("../../networks")
 const { SubscriptionManager } = require("@chainlink/functions-toolkit")
 
-task("functions-sub-remove", "Removes a client contract from an Functions billing subscription")
+task("functions-sub-remove", "Removes a consumer contract from an Functions billing subscription")
   .addParam("subid", "Subscription ID")
-  .addParam("contract", "Address of the client contract to remove from billing subscription")
+  .addParam("contract", "Address of the consumer contract to remove from billing subscription")
   .setAction(async (taskArgs) => {
     const signer = await ethers.getSigner()
     const functionsRouterAddress = networks[network.name]["functionsRouter"]
