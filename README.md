@@ -76,9 +76,9 @@ For other detailed tutorials and examples, check out the [Chainlink Functions Tu
 
 1. Clone this repository to your local machine<br><br>
 2. Open this directory in your command line/terminal app, then run `npm install` to install all dependencies.<br><br>
-3. Obtain the values for following environment variables:  
-    - `PRIVATE_KEY` for your development wallet - `POLYGON_MUMBAI_RPC_URL`, `ETHEREUM_SEPOLIA_RPC_URL`, or`AVALANCHE_FUJI_RPC_URL` - `POLYGONSCAN_API_KEY`, `ETHERSCAN_API_KEY`, or `FUJI_SNOWTRACE_API_KEY` blockchain explore API keys (no cost) depending on which network you're connecting to - `COINMARKETCAP_API_KEY` (from [here](https://pro.coinmarketcap.com/))
-   <br><br>
+3. Obtain the values for following environment variables:
+   - `PRIVATE_KEY` for your development wallet - `POLYGON_MUMBAI_RPC_URL`, `ETHEREUM_SEPOLIA_RPC_URL`, or`AVALANCHE_FUJI_RPC_URL` - `POLYGONSCAN_API_KEY`, `ETHERSCAN_API_KEY`, or `FUJI_SNOWTRACE_API_KEY` blockchain explore API keys (no cost) depending on which network you're connecting to - `COINMARKETCAP_API_KEY` (from [here](https://pro.coinmarketcap.com/))
+     <br><br>
 4. Set the required environment variables. For improved security, Chainlink provides the NPM package @chainlink/env-enc which can be used to keep environment variables in a password encrypted `.env.enc` file instead of a plaintext `.env` if you desire the additional security. More detail on environment variable management and the tooling is provided in the [Environment Variable Management](#environment-variable-management) section.
    1. Set an encryption password for your environment variables to a secure password by running:<br>`npx env-enc set-pw`. This password needs to be set each time you create or restart a terminal shell session.<br>
    2. Use the command `npx env-enc set` to set the required environment variables.
