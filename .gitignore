@@ -14,6 +14,7 @@ typechain
 *.env
 
 # These environment variables are encrypted, but should not be pushed unless a secure password is used
+offchain-encrypted-secrets.json
 .env.enc
 offchain-encrypted-secrets.json
 
