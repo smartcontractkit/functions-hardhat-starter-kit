@@ -20,7 +20,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
   .addParam("subid", "Billing subscription ID used to pay for the request")
   .addOptionalParam(
     "simulate",
-    "Flag indicating if simulation should be run before making an on-chain request",
+    "Flag indicating if source JS should be run locallly before making an on-chain request",
     true,
     types.boolean
   )
@@ -64,15 +64,17 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
       const { responseBytesHexstring, errorString } = await simulateScript(requestConfig)
       if (responseBytesHexstring) {
         console.log(
-          `Response returned by script during local simulation: ${decodeResult(
+          `\nResponse returned by script during local simulation: ${decodeResult(
             responseBytesHexstring,
             requestConfig.expectedReturnType
           )}\n`
         )
       }
       if (errorString) {
-        console.log(`Error returned by simulated script:\n${errorString}\n`)
+        console.log(`\nError returned by simulated script:\n${errorString}\n`)
       }
+
+      console.log("Local simulation of source code completed...")
     }
 
     // Initialize the subscription manager

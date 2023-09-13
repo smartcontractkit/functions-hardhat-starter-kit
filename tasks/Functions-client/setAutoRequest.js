@@ -1,4 +1,11 @@
-const { buildRequestCBOR, SecretsManager, SubscriptionManager, Location } = require("@chainlink/functions-toolkit")
+const {
+  buildRequestCBOR,
+  decodeResult,
+  SecretsManager,
+  simulateScript,
+  SubscriptionManager,
+  Location,
+} = require("@chainlink/functions-toolkit")
 
 const { types } = require("hardhat/config")
 const { networks } = require("../../networks")
@@ -80,6 +87,25 @@ const setAutoRequest = async (contract, taskArgs) => {
     ? taskArgs.configpath
     : path.join(process.cwd(), taskArgs.configpath))
 
+  // Simulate the request
+  if (taskArgs.simulate) {
+    console.log("\nSimulating source script locally before making an on-chain request...")
+    const { responseBytesHexstring, errorString } = await simulateScript(requestConfig)
+    if (responseBytesHexstring) {
+      console.log(
+        `\nResponse returned by script during local simulation: ${decodeResult(
+          responseBytesHexstring,
+          requestConfig.expectedReturnType
+        )}\n`
+      )
+    }
+    if (errorString) {
+      console.log(`\nError returned by simulated script:\n${errorString}\n`)
+    }
+
+    console.log("Local simulation of source code completed...")
+  }
+
   let encryptedSecretsReference
   let secretsLocation
   if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
@@ -145,7 +171,9 @@ const setAutoRequest = async (contract, taskArgs) => {
     encryptedSecretsReference,
   })
 
-  console.log(`\nSetting the Functions request in AutomatedFunctionsConsumer contract ${contract} on ${network.name}`)
+  console.log(
+    `\nSetting the Functions request CBOR in AutomatedFunctionsConsumer contract ${contract} on ${network.name}`
+  )
   const setRequestTx = await autoClientContract.setRequest(
     taskArgs.subid,
     taskArgs.gaslimit,

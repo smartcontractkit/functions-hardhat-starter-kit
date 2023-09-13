@@ -8,12 +8,6 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
   .addParam("subid", "Billing subscription ID used to pay for Functions requests")
   .addOptionalParam("verify", "Set to true to verify client contract", false, types.boolean)
   .addOptionalParam(
-    "simulate",
-    "Flag indicating if simulation should be run before making an on-chain request",
-    true,
-    types.boolean
-  )
-  .addOptionalParam(
     "configpath",
     "Path to Functions request config file",
     `${__dirname}/../../Functions-request-config.js`,
@@ -35,16 +29,6 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     // Initialize SubscriptionManager
     const subManager = new SubscriptionManager({ signer, linkTokenAddress, functionsRouterAddress })
     await subManager.initialize()
-
-    // Validate callbackGasLimit
-    const { gasPrice } = await hre.ethers.provider.getFeeData()
-    const gasPriceWei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "wei").toString()))
-    await subManager.estimateFunctionsRequestCost({
-      donId,
-      subscriptionId,
-      callbackGasLimit,
-      gasPriceWei,
-    })
 
     console.log(`Deploying AutomatedFunctionsConsumer contract to ${network.name}`)
     const autoClientContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
