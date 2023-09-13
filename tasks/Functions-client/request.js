@@ -180,6 +180,10 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     if (networks[network.name].gasPrice) {
       overrides.gasPrice = networks[network.name].gasPrice
     }
+    // If specified, use the nonce from the network config instead of automatically calculating it
+    if (networks[network.name].nonce) {
+      overrides.nonce = networks[network.name].nonce
+    }
     const requestTx = await consumerContract.sendRequest(
       requestConfig.source,
       requestConfig.secretsLocation,
