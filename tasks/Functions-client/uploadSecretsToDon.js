@@ -61,6 +61,6 @@ task("functions-upload-secrets-don", "encrypts secrets and uploads them to the D
     })
 
     console.log(
-      `\nSuccess : ${success}.  You can now use slotId '${slotId}' and version '${version}' when sending your request to your Functions consumer contract.`
+      `\nYou can now use slotId ${slotId} and version ${version} to reference the encrypted secrets hosted on the DON.`
     )
   })

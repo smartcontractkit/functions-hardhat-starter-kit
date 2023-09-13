@@ -7,6 +7,7 @@ const { utils, Wallet } = require("ethers")
 require("@chainlink/env-enc").config("../.env.enc")
 ;(async () => {
   const requestConfigPath = path.join(process.cwd(), "Functions-request-config.js") // @dev Update this to point to your desired request config file
+  console.log(`Using Functions request config file ${requestConfigPath}\n`)
 
   const localFunctionsTestnetInfo = await startLocalFunctionsTestnet(
     requestConfigPath,
@@ -19,9 +20,11 @@ require("@chainlink/env-enc").config("../.env.enc")
     } // Ganache server options (optional)
   )
 
-  console.log("\nFunctionsRouter Contract Address:", localFunctionsTestnetInfo.functionsRouterContract.address)
-  console.log("DON ID:".padStart(33, " "), localFunctionsTestnetInfo.donId)
-  console.log("Mock LINK Token Contract Address:", localFunctionsTestnetInfo.linkTokenContract.address, "\n")
+  console.table({
+    "FunctionsRouter Contract Address": localFunctionsTestnetInfo.functionsRouterContract.address,
+    "DON ID": localFunctionsTestnetInfo.donId,
+    "Mock LINK Token Contract Address": localFunctionsTestnetInfo.linkTokenContract.address,
+  })
 
   // Fund wallets with ETH and LINK
   const addressToFund = new Wallet(process.env["PRIVATE_KEY"]).address

@@ -2,7 +2,7 @@ const { simulateScript, decodeResult } = require("@chainlink/functions-toolkit")
 const path = require("path")
 const process = require("process")
 
-task("functions-simulate-script", "Initiates an on-demand request from a Functions consumer contract")
+task("functions-simulate-script", "Executes the JavaScript source code locally")
   .addOptionalParam(
     "configpath",
     "Path to Functions request config file",
