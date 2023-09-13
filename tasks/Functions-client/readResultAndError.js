@@ -1,4 +1,4 @@
-const { getDecodedResultLog } = require("../../FunctionsSandboxLibrary")
+const { decodeResult } = require("@chainlink/functions-toolkit")
 const path = require("path")
 const process = require("process")
 
@@ -14,12 +14,6 @@ task(
     types.string
   )
   .setAction(async (taskArgs) => {
-    if (network.name === "hardhat") {
-      throw Error(
-        'This command cannot be used on a local hardhat chain.  Specify a valid network or simulate an FunctionsConsumer request locally with "npx hardhat functions-simulate".'
-      )
-    }
-
     console.log(`Reading data from Functions client contract ${taskArgs.contract} on network ${network.name}`)
     const clientContractFactory = await ethers.getContractFactory("FunctionsConsumer")
     const clientContract = await clientContractFactory.attach(taskArgs.contract)
@@ -36,9 +30,9 @@ task(
         ? taskArgs.configpath
         : path.join(process.cwd(), taskArgs.configpath))
       console.log(
-        `\nOn-chain response represented as a hex string: ${latestResponse}\n${getDecodedResultLog(
-          requestConfig,
-          latestResponse
+        `\nOn-chain response represented as a hex string: ${latestResponse}\n${decodeResult(
+          latestResponse,
+          requestConfig.expectedReturnType
         )}`
       )
     } else if (latestResponse == "0x") {

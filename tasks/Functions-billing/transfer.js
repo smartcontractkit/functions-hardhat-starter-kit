@@ -7,12 +7,6 @@ task("functions-sub-transfer", "Request ownership of an Functions subscription b
   .addParam("subid", "Subscription ID")
   .addParam("newowner", "Address of the new owner")
   .setAction(async (taskArgs) => {
-    if (network.name === "hardhat") {
-      throw Error(
-        'This command cannot be used on a local hardhat chain.  Please specify a valid network or simulate an FunctionsConsumer request locally with "npx hardhat functions-simulate".'
-      )
-    }
-
     const subscriptionId = parseInt(taskArgs.subid)
     const newOwner = taskArgs.newowner
     const confirmations = networks[network.name].confirmations

@@ -5,10 +5,6 @@ task("functions-sub-add", "Adds a client contract to the Functions billing subsc
   .addParam("subid", "Subscription ID")
   .addParam("contract", "Address of the Functions client contract to authorize for billing")
   .setAction(async (taskArgs) => {
-    if (network.name == "hardhat") {
-      throw Error("This command cannot be used on a local hardhat chain.  Specify a valid network.")
-    }
-
     const consumerAddress = taskArgs.contract
     const subscriptionId = parseInt(taskArgs.subid)
 

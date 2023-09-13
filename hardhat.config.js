@@ -1,8 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox")
 require("hardhat-contract-sizer")
-require("@openzeppelin/hardhat-upgrades")
 require("./tasks")
-require("@chainlink/env-enc").config()
 const { networks } = require("./networks")
 
 // Enable gas reporting (optional)
@@ -17,7 +15,7 @@ const SOLC_SETTINGS = {
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  defaultNetwork: "hardhat",
+  defaultNetwork: "localFunctionsTestnet",
   solidity: {
     compilers: [
       {
@@ -43,17 +41,6 @@ module.exports = {
     ],
   },
   networks: {
-    hardhat: {
-      allowUnlimitedContractSize: true,
-      accounts: process.env.PRIVATE_KEY
-        ? [
-            {
-              privateKey: process.env.PRIVATE_KEY,
-              balance: "10000000000000000000000",
-            },
-          ]
-        : [],
-    },
     ...networks,
   },
   etherscan: {

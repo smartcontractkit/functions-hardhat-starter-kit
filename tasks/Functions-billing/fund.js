@@ -7,10 +7,6 @@ task("functions-sub-fund", "Funds a billing subscription for Functions consumer 
   .addParam("amount", "Amount to fund subscription in LINK")
   .addParam("subid", "Subscription ID to fund")
   .setAction(async (taskArgs) => {
-    if (network.name === "hardhat") {
-      throw Error("This command cannot be used on a local hardhat chain.  Specify a valid network.")
-    }
-
     const signer = await ethers.getSigner()
     const linkTokenAddress = networks[network.name]["linkToken"]
     const functionsRouterAddress = networks[network.name]["functionsRouter"]

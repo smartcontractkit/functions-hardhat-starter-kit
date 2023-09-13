@@ -1,29 +1,25 @@
+// Loads environment variables from .env.enc file (if it exists)
+require("@chainlink/env-enc").config("../.env.enc")
+
 const { networks } = require("../networks")
 
 const { ResponseListener, decodeResult, ReturnType } = require("@chainlink/functions-toolkit")
 const { providers } = require("ethers")
 
-const subscriptionId = "TODO" // TODO @dev update this  to show your subscription Id.
-
-if (process.argv.length < 3) {
-  throw Error(`\nPlease pass in the --network flag with the network name`)
-}
+const subscriptionId = "" // TODO @dev update this  to show your subscription Id
 
 if (!subscriptionId || isNaN(subscriptionId)) {
   throw Error("Please update the subId variable in scripts/listen.js to your subscription ID.")
 }
 
-const networkName = process.argv[2] // --network
-if (!networks[networkName]) {
-  throw Error(` ${networkName} is not a supported network in the networks.js`)
-}
+const networkName = "polygonMumbai" // TODO @dev update this to your network name
 
 // Mount Response Listener
 const provider = new providers.JsonRpcProvider(networks[networkName].url)
 const functionsRouterAddress = networks[networkName]["functionsRouter"]
 
 const responseListener = new ResponseListener({ provider, functionsRouterAddress })
-//remove existing listeners.
+// Remove existing listeners
 console.log("\nRemoving existing listeners...")
 responseListener.stopListeningForResponses()
 

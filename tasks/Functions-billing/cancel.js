@@ -13,10 +13,6 @@ task(
     "Address where the remaining subscription balance is sent (defaults to caller's address)"
   )
   .setAction(async (taskArgs) => {
-    if (network.name == "hardhat") {
-      throw Error("This command cannot be used on a local hardhat chain.  Specify a valid network.")
-    }
-
     const subscriptionId = parseInt(taskArgs.subid)
     const refundAddress = taskArgs.refundAddress ?? (await ethers.getSigners())[0].address
 

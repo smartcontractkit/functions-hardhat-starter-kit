@@ -13,12 +13,6 @@ task("functions-perform-upkeep", "Manually call performUpkeep in an Automation c
       gasPrice: networks[network.name].gasPrice,
     }
 
-    if (network.name === "hardhat") {
-      throw Error(
-        'This command cannot be used on a local hardhat chain.  Specify a valid network or simulate an FunctionsConsumer request locally with "npx hardhat functions-simulate".'
-      )
-    }
-
     // Call performUpkeep
     const performData = taskArgs.data ?? []
 

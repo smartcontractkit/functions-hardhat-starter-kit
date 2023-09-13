@@ -7,10 +7,6 @@ task(
 )
   .addParam("subid", "Subscription ID")
   .setAction(async (taskArgs) => {
-    if (network.name === "hardhat") {
-      throw Error("This command cannot be used on a local hardhat chain.  Specify a valid network.")
-    }
-
     const subscriptionId = parseInt(taskArgs.subid)
 
     const signer = await ethers.getSigner()

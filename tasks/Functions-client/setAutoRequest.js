@@ -2,7 +2,6 @@ const { buildRequestCBOR, SecretsManager, SubscriptionManager, Location } = requ
 
 const { types } = require("hardhat/config")
 const { networks } = require("../../networks")
-const { getRequestConfig } = require("../../FunctionsSandboxLibrary")
 const path = require("path")
 const process = require("process")
 
@@ -42,12 +41,6 @@ task(
     types.string
   )
   .setAction(async (taskArgs) => {
-    if (network.name === "hardhat") {
-      throw Error(
-        'This command cannot be used on a local hardhat chain.  Specify a valid network or simulate an FunctionsConsumer request locally with "npx hardhat functions-simulate".'
-      )
-    }
-
     await setAutoRequest(taskArgs.contract, taskArgs)
   })
 
@@ -66,12 +59,12 @@ const setAutoRequest = async (contract, taskArgs) => {
 
   // Validate callbackGasLimit
   const { gasPrice } = await hre.ethers.provider.getFeeData()
-  const gasPriceGwei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "gwei").toString()))
+  const gasPriceWei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "wei").toString()))
   await subManager.estimateFunctionsRequestCost({
     donId,
     subscriptionId,
     callbackGasLimit,
-    gasPriceGwei,
+    gasPriceWei,
   })
 
   // Check that consumer contract is added to subscription.
@@ -83,11 +76,9 @@ const setAutoRequest = async (contract, taskArgs) => {
   const autoClientContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
   const autoClientContract = await autoClientContractFactory.attach(contract)
 
-  const unvalidatedRequestConfig = require(path.isAbsolute(taskArgs.configpath)
+  const requestConfig = require(path.isAbsolute(taskArgs.configpath)
     ? taskArgs.configpath
     : path.join(process.cwd(), taskArgs.configpath))
-
-  const requestConfig = getRequestConfig(unvalidatedRequestConfig)
 
   let encryptedSecretsReference
   let secretsLocation
@@ -96,7 +87,11 @@ const setAutoRequest = async (contract, taskArgs) => {
   }
 
   // Encrypt and upload secrets if present.
-  if (requestConfig.secrets && Object.keys(requestConfig.secrets).length > 0) {
+  if (
+    network.name !== "localFunctionsTestnet" &&
+    requestConfig.secrets &&
+    Object.keys(requestConfig.secrets).length > 0
+  ) {
     if (requestConfig.secretsLocation !== Location.DONHosted) {
       throw Error(
         `\nThis task supports only DON-hosted secrets. The request config specifies ${
@@ -126,7 +121,7 @@ const setAutoRequest = async (contract, taskArgs) => {
     const { version, success } = await secretsManager.uploadEncryptedSecretsToDON({
       encryptedSecretsHexstring: encryptedSecretsObj.encryptedSecrets,
       gatewayUrls: networks[network.name]["gatewayUrls"],
-      storageSlotId: slotId,
+      slotId,
       minutesUntilExpiration,
     })
 

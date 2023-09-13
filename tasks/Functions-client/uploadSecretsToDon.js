@@ -21,17 +21,13 @@ task("functions-upload-secrets-don", "encrypts secrets and uploads them to the D
     types.string
   )
   .setAction(async (taskArgs) => {
-    if (network.name === "hardhat") {
-      throw Error("This command cannot be used on a local hardhat chain.")
-    }
-
     const signer = await ethers.getSigner()
     const functionsRouterAddress = networks[network.name]["functionsRouter"]
     const donId = networks[network.name]["donId"]
 
     const gatewayUrls = networks[network.name]["gatewayUrls"]
 
-    const storageSlotId = parseInt(taskArgs.slotid)
+    const slotId = parseInt(taskArgs.slotid)
     const minutesUntilExpiration = taskArgs.ttl
 
     const secretsManager = new SecretsManager({
@@ -60,11 +56,11 @@ task("functions-upload-secrets-don", "encrypts secrets and uploads them to the D
     } = await secretsManager.uploadEncryptedSecretsToDON({
       encryptedSecretsHexstring: encryptedSecretsObj.encryptedSecrets,
       gatewayUrls,
-      storageSlotId,
+      slotId,
       minutesUntilExpiration,
     })
 
     console.log(
-      `\nSuccess : ${success}.  You can now use storageSlotId '${storageSlotId}' and version '${version}' when sending your request to your Functions consumer contract.`
+      `\nYou can now use slotId ${slotId} and version ${version} to reference the encrypted secrets hosted on the DON.`
     )
   })

@@ -5,12 +5,6 @@ task("functions-check-upkeep", "Checks if checkUpkeep returns true for an Automa
     "Hex string representing bytes that are passed to the checkUpkeep function (defaults to empty bytes)"
   )
   .setAction(async (taskArgs) => {
-    if (network.name === "hardhat") {
-      throw Error(
-        'This command cannot be used on a local hardhat chain.  Specify a valid network or simulate an FunctionsConsumer request locally with "npx hardhat functions-simulate".'
-      )
-    }
-
     const checkData = taskArgs.data ?? []
 
     console.log(

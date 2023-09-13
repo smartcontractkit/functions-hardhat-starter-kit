@@ -4,12 +4,6 @@ const { networks } = require("../../networks")
 task("functions-deploy-consumer", "Deploys the FunctionsConsumer contract")
   .addOptionalParam("verify", "Set to true to verify contract", false, types.boolean)
   .setAction(async (taskArgs) => {
-    if (network.name === "hardhat") {
-      throw Error(
-        'This command cannot be used on a local hardhat chain.  Specify a valid network or simulate an FunctionsConsumer request locally with "npx hardhat functions-simulate".'
-      )
-    }
-
     console.log(`Deploying FunctionsConsumer contract to ${network.name}`)
 
     const functionsRouter = networks[network.name]["functionsRouter"]
@@ -28,9 +22,17 @@ task("functions-deploy-consumer", "Deploys the FunctionsConsumer contract")
     )
     await consumerContract.deployTransaction.wait(networks[network.name].confirmations)
 
-    const verifyContract = taskArgs.verify
+    if (network.name === "localFunctionsTestnet") {
+      return
+    }
 
-    if (verifyContract && !!networks[network.name].verifyApiKey && networks[network.name].verifyApiKey !== "UNSET") {
+    const verifyContract = taskArgs.verify
+    if (
+      network.name !== "localFunctionsTestnet" &&
+      verifyContract &&
+      !!networks[network.name].verifyApiKey &&
+      networks[network.name].verifyApiKey !== "UNSET"
+    ) {
       try {
         console.log("\nVerifying contract...")
         await consumerContract.deployTransaction.wait(Math.max(6 - networks[network.name].confirmations, 0))
@@ -47,7 +49,7 @@ task("functions-deploy-consumer", "Deploys the FunctionsConsumer contract")
           console.log("Contract already verified")
         }
       }
-    } else if (verifyContract) {
+    } else if (verifyContract && network.name !== "localFunctionsTestnet") {
       console.log(
         "\nPOLYGONSCAN_API_KEY, ETHERSCAN_API_KEY or SNOWTRACE_API_KEY is missing. Skipping contract verification..."
       )

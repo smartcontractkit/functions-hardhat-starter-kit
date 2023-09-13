@@ -5,10 +5,6 @@ const { networks } = require("../../networks")
 task("functions-sub-accept", "Accepts ownership of an Functions subscription after a transfer is requested")
   .addParam("subid", "Subscription ID")
   .setAction(async (taskArgs) => {
-    if (network.name === "hardhat") {
-      throw Error("This command cannot be used on a local hardhat chain.  Specify a valid network.")
-    }
-
     const accounts = await ethers.getSigners()
     if (accounts.length < 2) {
       throw Error("This command requires a second wallet's private key to be made available in networks.js")

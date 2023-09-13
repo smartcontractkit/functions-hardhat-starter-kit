@@ -4,6 +4,7 @@
 // Price feeds addresses: https://docs.chain.link/data-feeds/price-feeds/addresses
 // Chain IDs: https://chainlist.org/?testnets=true
 
+// Loads environment variables from .env.enc file (if it exists)
 require("@chainlink/env-enc").config()
 
 const DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS = 2
@@ -22,10 +23,10 @@ if (!isTestEnvironment && !PRIVATE_KEY) {
 }
 
 const accounts = []
-if (PRIVATE_KEY !== undefined) {
+if (PRIVATE_KEY) {
   accounts.push(PRIVATE_KEY)
 }
-if (SECOND_PRIVATE_KEY !== undefined) {
+if (SECOND_PRIVATE_KEY) {
   accounts.push(SECOND_PRIVATE_KEY)
 }
 
@@ -54,7 +55,7 @@ const networks = {
     nativeCurrencySymbol: "MATIC",
     linkToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
     linkPriceFeed: "0x12162c3E810393dEC01362aBf156D7ecf6159528", // LINK/MATIC
-    functionsRouter: "0x2673266D3Cd08b53494B5a92B66DEec7F1408E7A",
+    functionsRouter: "0xde13bf56ee3dB63EEa2f37FB85004A6D52357D30",
     donId: "fun-staging-mumbai-1",
     gatewayUrls: ["https://gateway-stg-one.main.stage.cldev.sh"], //  "https://gateway-stg-two.main.stage.cldev.sh"
   },
@@ -71,6 +72,16 @@ const networks = {
     functionsRouter: "", // TODO @zeuslawyer
     donId: "", // TODO @zeuslawyer
     gatewayUrls: "", // TODO @zeuslawyer
+  },
+  // localFunctionsTestnet is updated dynamically by scripts/startLocalFunctionsTestnet.js so it should not be modified here
+  localFunctionsTestnet: {
+    url: "http://localhost:8545/",
+    accounts,
+    confirmations: 1,
+    nativeCurrencySymbol: "ETH",
+    linkToken: "0x172e2aD216459CA27AdB61f3b5EE54e425b671Da",
+    functionsRouter: "0xd2Dd74febEc317Aa8ccc92aC8F3487b8752BB803",
+    donId: "coordinator1",
   },
 }
 

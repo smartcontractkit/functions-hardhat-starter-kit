@@ -44,12 +44,6 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     types.string
   )
   .setAction(async (taskArgs, hre) => {
-    if (network.name === "hardhat") {
-      throw Error(
-        'This command cannot be used on a local development chain.  Specify a valid network or simulate an Functions request locally with "npx hardhat functions-simulate".'
-      )
-    }
-
     // Get the required parameters
     const contractAddr = taskArgs.contract
     const subscriptionId = parseInt(taskArgs.subid)
@@ -101,12 +95,12 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
 
     // Estimate the cost of the request fulfillment
     const { gasPrice } = await hre.ethers.provider.getFeeData()
-    const gasPriceGwei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "gwei").toString()))
+    const gasPriceWei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "wei").toString()))
     const estimatedCostJuels = await subManager.estimateFunctionsRequestCost({
       donId,
       subscriptionId,
       callbackGasLimit,
-      gasPriceGwei,
+      gasPriceWei,
     })
 
     // Ensure that the subscription has a sufficient balance
@@ -128,7 +122,11 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     // Handle encrypted secrets
     let encryptedSecretsReference = []
     let gistUrl
-    if (requestConfig.secrets && Object.keys(requestConfig.secrets).length > 0) {
+    if (
+      network.name !== "localFunctionsTestnet" &&
+      requestConfig.secrets &&
+      Object.keys(requestConfig.secrets).length > 0
+    ) {
       const encryptedSecrets = await secretsManager.encryptSecrets(requestConfig.secrets)
 
       switch (requestConfig.secretsLocation) {
@@ -147,7 +145,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
           const { version } = await secretsManager.uploadEncryptedSecretsToDON({
             encryptedSecretsHexstring: encryptedSecrets.encryptedSecrets,
             gatewayUrls: networks[network.name]["gatewayUrls"],
-            storageSlotId: slotId,
+            slotId,
             minutesUntilExpiration: 5,
           })
           encryptedSecretsReference = await secretsManager.buildDONHostedEncryptedSecretsReference({
@@ -193,11 +191,13 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
       overrides
     )
     const requestTxReceipt = await requestTx.wait(1)
-    spinner.info(
-      `Transaction confirmed, see ${
-        utils.getEtherscanURL(network.config.chainId) + "tx/" + requestTx.hash
-      } for more details.`
-    )
+    if (network.name !== "localFunctionsTestnet") {
+      spinner.info(
+        `Transaction confirmed, see ${
+          utils.getEtherscanURL(network.config.chainId) + "tx/" + requestTx.hash
+        } for more details.`
+      )
+    }
 
     // Listen for fulfillment
     const requestId = requestTxReceipt.events[2].args.id

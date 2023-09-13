@@ -26,12 +26,6 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     types.string
   )
   .setAction(async (taskArgs) => {
-    if (network.name === "hardhat") {
-      throw Error(
-        'This command cannot be used on a local hardhat chain.  Specify a valid network or simulate an FunctionsConsumer request locally with "npx hardhat functions-simulate".'
-      )
-    }
-
     console.log("\n__Compiling Contracts__")
     await run("compile")
 
@@ -51,12 +45,12 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
 
     // Validate callbackGasLimit
     const { gasPrice } = await hre.ethers.provider.getFeeData()
-    const gasPriceGwei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "gwei").toString()))
+    const gasPriceWei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "wei").toString()))
     await subManager.estimateFunctionsRequestCost({
       donId,
       subscriptionId,
       callbackGasLimit,
-      gasPriceGwei,
+      gasPriceWei,
     })
 
     console.log(`Deploying AutomatedFunctionsConsumer contract to ${network.name}`)
@@ -77,7 +71,12 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     console.log(`\nAdded consumer contract ${consumerAddress} in Tx: ${addConsumerTx.transactionHash}`)
 
     const verifyContract = taskArgs.verify
-    if (verifyContract && !!networks[network.name].verifyApiKey && networks[network.name].verifyApiKey !== "UNSET") {
+    if (
+      network.name !== "localFunctionsTestnet" &&
+      verifyContract &&
+      !!networks[network.name].verifyApiKey &&
+      networks[network.name].verifyApiKey !== "UNSET"
+    ) {
       try {
         console.log(`\nVerifying contract ${consumerAddress}...`)
         await autoClientContract.deployTransaction.wait(Math.max(6 - networks[network.name].confirmations, 0))
@@ -94,7 +93,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
           console.log("Contract already verified")
         }
       }
-    } else if (verifyContract) {
+    } else if (verifyContract && network.name !== "localFunctionsTestnet") {
       console.log(
         "\nPOLYGONSCAN_API_KEY, ETHERSCAN_API_KEY or SNOWTRACE_API_KEY is missing. Skipping contract verification..."
       )
