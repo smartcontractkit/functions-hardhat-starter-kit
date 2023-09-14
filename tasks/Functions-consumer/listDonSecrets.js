@@ -18,21 +18,19 @@ task("functions-list-don-secrets", "Displays encrypted secrets hosted on the DON
   })
   await secretsManager.initialize()
 
-  const response = await secretsManager.listDONHostedEncryptedSecrets(gatewayUrls)
+  const { result } = await secretsManager.listDONHostedEncryptedSecrets(gatewayUrls)
   console.log(`\nYour encrypted secrets currently hosted on DON ${donId}`)
-  response.result.forEach((result) => {
-    console.log("\n\nGateway:", result.gatewayUrl)
-    let i = 0
-    result.nodeResponses.forEach((nodeResponse) => {
-      console.log(`\nNode Response #${i}`)
-      i++
-      if (nodeResponse.rows) {
-        nodeResponse.rows.forEach((row) => {
-          console.log(row)
-        })
-      } else {
-        console.log("No encrypted secrets found")
-      }
-    })
+  console.log("\n\nGateway:", result.gatewayUrl)
+  let i = 0
+  result.nodeResponses.forEach((nodeResponse) => {
+    console.log(`\nNode Response #${i}`)
+    i++
+    if (nodeResponse.rows) {
+      nodeResponse.rows.forEach((row) => {
+        console.log(row)
+      })
+    } else {
+      console.log("No encrypted secrets found")
+    }
   })
 })
