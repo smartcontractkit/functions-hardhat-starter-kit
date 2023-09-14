@@ -138,7 +138,9 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
             throw Error("GITHUB_API_TOKEN environment variable is required to upload Remote encrypted secrets.")
           }
           gistUrl = await createGist(process.env["GITHUB_API_TOKEN"], JSON.stringify(encryptedSecrets))
+          console.log({ gistUrl })
           encryptedSecretsReference = await secretsManager.encryptSecretsUrls([gistUrl])
+          console.log({ encryptedSecretsReference })
           break
 
         case Location.DONHosted:
@@ -253,7 +255,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     } finally {
       // Clean up the gist if it was created
       if (gistUrl) {
-        const successfulDeletion = await deleteGist(process.env["GITHUB_API_TOKEN"], gistUrl)
+        //const successfulDeletion = await deleteGist(process.env["GITHUB_API_TOKEN"], gistUrl)
         if (!successfulDeletion) {
           console.log(`Failed to delete gist at ${gistUrl}. Please delete manually.`)
         }
