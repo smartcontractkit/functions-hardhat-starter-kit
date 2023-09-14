@@ -1,7 +1,7 @@
 const { SecretsManager } = require("@chainlink/functions-toolkit")
 const { networks } = require("../../networks")
 
-task("functions-list-don-secrets", "fetches and displays secrets hosted on the DON").setAction(async (taskArgs) => {
+task("functions-list-don-secrets", "Displays encrypted secrets hosted on the DON").setAction(async (taskArgs) => {
   const signer = await ethers.getSigner()
   const functionsRouterAddress = networks[network.name]["functionsRouter"]
   const donId = networks[network.name]["donId"]
