@@ -34,6 +34,7 @@ const networks = {
   ethereumSepolia: {
     url: process.env.ETHEREUM_SEPOLIA_RPC_URL || "UNSET",
     gasPrice: undefined,
+    nonce: undefined,
     accounts,
     verifyApiKey: process.env.ETHERSCAN_API_KEY || "UNSET",
     chainId: 11155111,
@@ -69,6 +70,7 @@ const networks = {
   avalancheFuji: {
     url: process.env.AVALANCHE_FUJI_RPC_URL || "UNSET",
     gasPrice: undefined,
+    nonce: undefined,
     accounts,
     verifyApiKey: process.env.FUJI_SNOWTRACE_API_KEY || "UNSET",
     chainId: 43113,
