@@ -6,11 +6,11 @@ const path = require("path")
 task("functions-upload-secrets-don", "Encrypts secrets and uploads them to the DON")
   .addParam(
     "slotid",
-    "Storage slot number 0 or higher. If the slotid is already in use, the existing secrets for that slotid will be overwritten."
+    "Storage slot number 0 or higher - if the slotid is already in use, the existing secrets for that slotid will be overwritten"
   )
   .addOptionalParam(
     "ttl",
-    "Time to live - minutes until the secrets hosted on the DON expire. Defaults to 10m, and must be minimum 5m",
+    "Time to live - minutes until the secrets hosted on the DON expire (defaults to 10, and must be at least 5)",
     10,
     types.int
   )
