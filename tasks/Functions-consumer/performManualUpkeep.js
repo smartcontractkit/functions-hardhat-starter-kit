@@ -17,14 +17,14 @@ task("functions-perform-upkeep", "Manually call performUpkeep in an Automation c
     const performData = taskArgs.data ?? []
 
     console.log(
-      `Calling performUpkeep for Automation client contract ${taskArgs.contract} on network ${network.name}${
+      `Calling performUpkeep for Automation consumer contract ${taskArgs.contract} on network ${network.name}${
         taskArgs.data ? ` with data ${performData}` : ""
       }`
     )
-    const autoClientContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
-    const autoClientContract = await autoClientContractFactory.attach(taskArgs.contract)
+    const autoConsumerContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
+    const autoConsumerContract = await autoConsumerContractFactory.attach(taskArgs.contract)
 
-    const checkUpkeep = await autoClientContract.performUpkeep(performData, overrides)
+    const checkUpkeep = await autoConsumerContract.performUpkeep(performData, overrides)
 
     console.log(
       `Waiting ${networks[network.name].confirmations} blocks for transaction ${checkUpkeep.hash} to be confirmed...`
@@ -33,6 +33,6 @@ task("functions-perform-upkeep", "Manually call performUpkeep in an Automation c
 
     console.log(`\nSuccessfully called performUpkeep`)
 
-    const reqId = await autoClientContract.s_lastRequestId()
-    console.log("\nLast request ID received by the Automation Client Contract...", reqId)
+    const reqId = await autoConsumerContract.s_lastRequestId()
+    console.log("\nLast request ID received by the Automation Consumer Contract...", reqId)
   })

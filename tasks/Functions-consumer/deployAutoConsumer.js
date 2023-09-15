@@ -6,17 +6,24 @@ const { setAutoRequest } = require("./setAutoRequest")
 
 task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer contract")
   .addParam("subid", "Billing subscription ID used to pay for Functions requests")
-  .addOptionalParam("verify", "Set to true to verify client contract", false, types.boolean)
+  .addOptionalParam("verify", "Set to true to verify consumer contract", false, types.boolean)
   .addOptionalParam(
     "configpath",
     "Path to Functions request config file",
     `${__dirname}/../../Functions-request-config.js`,
     types.string
   )
+  .addOptionalParam(
+    "gaslimit",
+    "Maximum amount of gas that can be used to call fulfillRequest in the consumer contract (only used to estimate Functions request cost)",
+    250000,
+    types.int
+  )
   .setAction(async (taskArgs) => {
     console.log("\n__Compiling Contracts__")
     await run("compile")
 
+    const callbackGasLimit = taskArgs.gaslimit
     const functionsRouterAddress = networks[network.name]["functionsRouter"]
     const donId = networks[network.name]["donId"]
     const donIdBytes32 = hre.ethers.utils.formatBytes32String(donId)
@@ -31,13 +38,13 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     await subManager.initialize()
 
     console.log(`Deploying AutomatedFunctionsConsumer contract to ${network.name}`)
-    const autoClientContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
-    const autoClientContract = await autoClientContractFactory.deploy(functionsRouterAddress, donIdBytes32)
+    const autoConsumerContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
+    const autoConsumerContract = await autoConsumerContractFactory.deploy(functionsRouterAddress, donIdBytes32)
 
-    console.log(`\nWaiting 1 block for transaction ${autoClientContract.deployTransaction.hash} to be confirmed...`)
-    await autoClientContract.deployTransaction.wait(1)
+    console.log(`\nWaiting 1 block for transaction ${autoConsumerContract.deployTransaction.hash} to be confirmed...`)
+    await autoConsumerContract.deployTransaction.wait(1)
 
-    const consumerAddress = autoClientContract.address
+    const consumerAddress = autoConsumerContract.address
 
     console.log(`\nAdding ${consumerAddress} to subscription ${subscriptionId}...`)
     const addConsumerTx = await subManager.addConsumer({ subscriptionId, consumerAddress, txOptions })
@@ -52,7 +59,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     ) {
       try {
         console.log(`\nVerifying contract ${consumerAddress}...`)
-        await autoClientContract.deployTransaction.wait(Math.max(6 - networks[network.name].confirmations, 0))
+        await autoConsumerContract.deployTransaction.wait(Math.max(6 - networks[network.name].confirmations, 0))
         await run("verify:verify", {
           address: consumerAddress,
           constructorArguments: [functionsRouterAddress, donIdBytes32],
@@ -68,7 +75,7 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
       }
     } else if (verifyContract && network.name !== "localFunctionsTestnet") {
       console.log(
-        "\nPOLYGONSCAN_API_KEY, ETHERSCAN_API_KEY or SNOWTRACE_API_KEY is missing. Skipping contract verification..."
+        "\nPOLYGONSCAN_API_KEY, ETHERSCAN_API_KEY or FUJI_SNOWTRACE_API_KEY is missing. Skipping contract verification..."
       )
     }
 

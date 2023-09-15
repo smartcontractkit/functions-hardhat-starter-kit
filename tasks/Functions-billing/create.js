@@ -5,7 +5,10 @@ const utils = require("../utils")
 
 task("functions-sub-create", "Creates a new billing subscription for Functions consumer contracts")
   .addOptionalParam("amount", "Initial amount used to fund the subscription in LINK")
-  .addOptionalParam("contract", "Address of the client contract address authorized to use the new billing subscription")
+  .addOptionalParam(
+    "contract",
+    "Address of the consumer contract address authorized to use the new billing subscription"
+  )
   .setAction(async (taskArgs) => {
     const signer = await ethers.getSigner()
     const functionsRouterAddress = networks[network.name]["functionsRouter"]

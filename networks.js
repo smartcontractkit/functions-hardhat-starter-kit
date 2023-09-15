@@ -34,6 +34,7 @@ const networks = {
   ethereumSepolia: {
     url: process.env.ETHEREUM_SEPOLIA_RPC_URL || "UNSET",
     gasPrice: undefined,
+    nonce: undefined,
     accounts,
     verifyApiKey: process.env.ETHERSCAN_API_KEY || "UNSET",
     chainId: 11155111,
@@ -69,6 +70,7 @@ const networks = {
   avalancheFuji: {
     url: process.env.AVALANCHE_FUJI_RPC_URL || "UNSET",
     gasPrice: undefined,
+    nonce: undefined,
     accounts,
     verifyApiKey: process.env.FUJI_SNOWTRACE_API_KEY || "UNSET",
     chainId: 43113,
@@ -89,9 +91,9 @@ const networks = {
     accounts,
     confirmations: 1,
     nativeCurrencySymbol: "ETH",
-    linkToken: "0xDf6FE8b767c9aD200486Ca33c420aB7a0035C52c",
-    functionsRouter: "0x7c3dE13a8B30028E3E6efb2332c085887DF0C361",
-    donId: "coordinator1",
+    linkToken: "0x9033AcB046e63C7639211143BAd212Ee1e1159BB",
+    functionsRouter: "0xF2306F942189b56720a8eCfE286D369D1fc273AD",
+    donId: "local-functions-testnet",
   },
 }
 
