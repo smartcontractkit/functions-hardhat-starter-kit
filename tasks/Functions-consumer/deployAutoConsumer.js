@@ -19,10 +19,17 @@ task("functions-deploy-auto-consumer", "Deploys the AutomatedFunctionsConsumer c
     `${__dirname}/../../Functions-request-config.js`,
     types.string
   )
+  .addOptionalParam(
+    "gaslimit",
+    "Maximum amount of gas that can be used to call fulfillRequest in the consumer contract (only used to estimate Functions request cost)",
+    250000,
+    types.int
+  )
   .setAction(async (taskArgs) => {
     console.log("\n__Compiling Contracts__")
     await run("compile")
 
+    const callbackGasLimit = taskArgs.gaslimit
     const functionsRouterAddress = networks[network.name]["functionsRouter"]
     const donId = networks[network.name]["donId"]
     const donIdBytes32 = hre.ethers.utils.formatBytes32String(donId)
@@ -84,7 +91,7 @@ task("functions-deploy-auto-consumer", "Deploys the AutomatedFunctionsConsumer c
       }
     } else if (verifyContract && network.name !== "localFunctionsTestnet") {
       console.log(
-        "\nPOLYGONSCAN_API_KEY, ETHERSCAN_API_KEY or SNOWTRACE_API_KEY is missing. Skipping contract verification..."
+        "\nPOLYGONSCAN_API_KEY, ETHERSCAN_API_KEY or FUJI_SNOWTRACE_API_KEY is missing. Skipping contract verification..."
       )
     }
 

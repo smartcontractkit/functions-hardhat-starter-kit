@@ -61,7 +61,7 @@ task("functions-deploy-consumer", "Deploys the FunctionsConsumer contract")
       }
     } else if (verifyContract && network.name !== "localFunctionsTestnet") {
       console.log(
-        "\nPOLYGONSCAN_API_KEY, ETHERSCAN_API_KEY or SNOWTRACE_API_KEY is missing. Skipping contract verification..."
+        "\nPOLYGONSCAN_API_KEY, ETHERSCAN_API_KEY or FUJI_SNOWTRACE_API_KEY is missing. Skipping contract verification..."
       )
     }
 
