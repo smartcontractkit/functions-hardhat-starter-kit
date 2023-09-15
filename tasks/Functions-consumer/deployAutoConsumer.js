@@ -4,7 +4,7 @@ const { types } = require("hardhat/config")
 const { networks } = require("../../networks")
 const { setAutoRequest } = require("./setAutoRequest")
 
-task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer contract")
+task("functions-deploy-auto-consumer", "Deploys the AutomatedFunctionsConsumer contract")
   .addParam("subid", "Billing subscription ID used to pay for Functions requests")
   .addOptionalParam("verify", "Set to true to verify consumer contract", false, types.boolean)
   .addOptionalParam(
@@ -13,17 +13,10 @@ task("functions-deploy-auto-client", "Deploys the AutomatedFunctionsConsumer con
     `${__dirname}/../../Functions-request-config.js`,
     types.string
   )
-  .addOptionalParam(
-    "gaslimit",
-    "Maximum amount of gas that can be used to call fulfillRequest in the consumer contract (only used to estimate Functions request cost)",
-    250000,
-    types.int
-  )
   .setAction(async (taskArgs) => {
     console.log("\n__Compiling Contracts__")
     await run("compile")
 
-    const callbackGasLimit = taskArgs.gaslimit
     const functionsRouterAddress = networks[network.name]["functionsRouter"]
     const donId = networks[network.name]["donId"]
     const donIdBytes32 = hre.ethers.utils.formatBytes32String(donId)

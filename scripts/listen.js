@@ -6,7 +6,7 @@ const { networks } = require("../networks")
 const { ResponseListener, decodeResult, ReturnType } = require("@chainlink/functions-toolkit")
 const { providers } = require("ethers")
 
-const subscriptionId = "" // TODO @dev update this  to show your subscription Id
+const subscriptionId = "TODO" // TODO @dev update this  to show your subscription Id
 
 if (!subscriptionId || isNaN(subscriptionId)) {
   throw Error("Please update the subId variable in scripts/listen.js to your subscription ID.")
