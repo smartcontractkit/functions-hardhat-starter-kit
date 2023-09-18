@@ -33,7 +33,7 @@ task(
         `\nOn-chain response represented as a hex string: ${latestResponse}\n${decodeResult(
           latestResponse,
           requestConfig.expectedReturnType
-        )}`
+        ).toString()}`
       )
     } else if (latestResponse == "0x") {
       console.log("Empty response: ", latestResponse)

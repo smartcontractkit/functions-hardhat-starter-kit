@@ -22,7 +22,7 @@ task("functions-simulate-script", "Executes the JavaScript source code locally")
         `Response returned by script during local simulation: ${decodeResult(
           responseBytesHexstring,
           requestConfig.expectedReturnType
-        )}\n`
+        ).toString()}\n`
       )
     }
     if (errorString) {

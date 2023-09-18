@@ -67,7 +67,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
           `Response returned by script during local simulation: ${decodeResult(
             responseBytesHexstring,
             requestConfig.expectedReturnType
-          )}\n`
+          ).toString()}\n`
         )
       }
       if (errorString) {
@@ -221,7 +221,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
               `Request ${requestId} fulfilled!\nResponse has been sent to consumer contract: ${decodeResult(
                 responseBytesHexstring,
                 requestConfig.expectedReturnType
-              )}\n`
+              ).toString()}\n`
             )
           } else if (errorString.length > 0) {
             spinner.warn(`Request ${requestId} fulfilled with error: ${errorString}\n`)
