@@ -98,15 +98,15 @@ Install **both** of the following:
 6. Locally simulate the execution of your JavaScript source by using:<br>`npx hardhat functions-simulate-script`.
 
 7. Deploy and verify the consumer contract to an actual blockchain network by running:<br>`npx hardhat functions-deploy-consumer --network network_name_here --verify true`<br>**Note**: Make sure `<explorer>_API_KEY` is set if using `--verify true`, depending on which network is used.<br><br>
-8. Create and fund a new Functions billing subscription, and then authorize your deployed consumer contract to use that subscription by running:<br> `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0xDeployed_client_contract_address_here`<br><br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command. Testnet LINK can be obtained at <a href="https://faucets.chain.link/">faucets.chain.link</a>.
-   **Note**: also make a note of your subscription Id as you will need it for most commands. <br><br>
-9. Make an on-chain request by running:<br>`npx hardhat functions-request --network network_name_here --contract 0xDeployed_client_contract_address_here --subid subscription_id_number_here`. You will see a confirmation request, so hit `Y` and press enter. Once the request is fulfilled the console will show the response (decoded into the relevant return type) from the execution of your custom JS script.
+8. Create and fund a new Functions billing subscription, and then authorize your deployed consumer contract to use that subscription by running:<br> `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0xConsumer_contract_address_here`<br><br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command. Testnet LINK can be obtained at <a href="https://faucets.chain.link/">faucets.chain.link</a>.
+   **Note**: also make a note of your subscription ID as you will need it for most commands. <br><br>
+9. Make an on-chain request by running:<br>`npx hardhat functions-request --network network_name_here --contract 0xConsumer_contract_address_here --subid subscription_id_number_here`. You will see a confirmation request, so hit `Y` and press enter. Once the request is fulfilled the console will show the response (decoded into the relevant return type) from the execution of your custom JS script.
 
-10. You can also query the response that was stored in your Functions Consumer contract by runnning `npx hardhat functions-read --contract consumer_contract_address --network  your_network_name`
+10. You can also query the response that was stored in your Functions Consumer contract by runnning `npx hardhat functions-read --contract 0xConsumer_contract_address --network  your_network_name`
 
 ## Steps on local testnet
 
-1. To do an end-to-end simulation using a local (on-machine) testnet you can first open a new terminal window/tab and run `npm run startLocalFunctionsTestnet`. This will spin up a local blockchain testnet ( the `LocalFunctionsTestnet` ), on which you can simulate an end-to-end Functions request.
+1. To do an end-to-end simulation using a local (on-machine) testnet you can first open a new terminal window/tab and run `npm run startLocalFunctionsTestnet`. This will spin up a local blockchain testnet (the `LocalFunctionsTestnet`), on which you can simulate an end-to-end Functions request.
 
 2. Then follow the workflow steps above, including subscription creation, funding, deploying your Functions Consumer etc. When using the `LocalFunctionsTestnet`, you omit the `--network network_name_here` flag in your CLI commands.
 
