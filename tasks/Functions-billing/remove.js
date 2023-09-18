@@ -25,7 +25,7 @@ task("functions-sub-remove", "Removes a consumer contract from an Functions bill
     subInfo.balance = ethers.utils.formatEther(subInfo.balance) + " LINK"
     subInfo.blockedBalance = ethers.utils.formatEther(subInfo.blockedBalance) + " LINK"
     console.log(
-      `\nRemoved ${consumerAddress} from subscription ${subscriptionId} in Tx: ${removeConsumerTx.transactionHash}.  \nUpdated Subscription Info:\n`,
+      `\nRemoved ${consumerAddress} from subscription ${subscriptionId} in Tx: ${removeConsumerTx.transactionHash}\nUpdated Subscription Info:\n`,
       subInfo
     )
   })
