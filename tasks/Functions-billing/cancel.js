@@ -14,7 +14,7 @@ task(
   )
   .setAction(async (taskArgs) => {
     const subscriptionId = parseInt(taskArgs.subid)
-    const refundAddress = taskArgs.refundAddress ?? (await ethers.getSigners())[0].address
+    const refundAddress = taskArgs.refundaddress ?? (await ethers.getSigners())[0].address
 
     const signer = await ethers.getSigner()
     const linkTokenAddress = networks[network.name]["linkToken"]
@@ -31,5 +31,5 @@ task(
 
     console.log(`Canceling subscription ${subscriptionId}`)
     const cancelTx = await sm.cancelSubscription({ subscriptionId, refundAddress, txOptions })
-    console.log(`\nSubscription ${subscriptionId} cancelled in Tx: ${cancelTx.transactionHash}.`)
+    console.log(`\nSubscription ${subscriptionId} cancelled in Tx: ${cancelTx.transactionHash}`)
   })
