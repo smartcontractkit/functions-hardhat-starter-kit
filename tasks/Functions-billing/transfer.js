@@ -28,6 +28,6 @@ Any previous encrypted secrets will no longer work with subscription ID ${subscr
     console.log(`\nRequesting transfer of subscription ${subscriptionId} to new owner ${newOwner}`)
     const requestTransferTx = await sm.requestSubscriptionTransfer({ subscriptionId, newOwner, txOptions })
     console.log(
-      `Transfer request completed in Tx: ${requestTransferTx.transactionHash}. \nAccount ${newOwner} needs to accept transfer for it to complete.`
+      `Transfer request completed in Tx: ${requestTransferTx.transactionHash}\nAccount ${newOwner} needs to accept transfer for it to complete.`
     )
   })
