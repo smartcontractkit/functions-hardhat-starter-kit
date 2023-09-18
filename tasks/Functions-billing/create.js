@@ -35,7 +35,7 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
       )
 
       console.log(`\nFunding subscription ${subscriptionId} with ${linkAmount} LINK...`)
-      const juelsAmount = ethers.utils.parseUnits(linkAmount, 18)
+      const juelsAmount = ethers.utils.parseUnits(linkAmount, 18).toString()
       const fundTxReceipt = await sm.fundSubscription({ juelsAmount, subscriptionId, txOptions })
       console.log(
         `\nSubscription ${subscriptionId} funded with ${linkAmount} LINK in Tx: ${fundTxReceipt.transactionHash}`
