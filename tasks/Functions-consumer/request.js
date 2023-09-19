@@ -20,7 +20,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
   .addParam("subid", "Billing subscription ID used to pay for the request")
   .addOptionalParam(
     "simulate",
-    "Flag indicating if source JS should be run locallly before making an on-chain request",
+    "Flag indicating if source JS should be run locally before making an on-chain request",
     true,
     types.boolean
   )
