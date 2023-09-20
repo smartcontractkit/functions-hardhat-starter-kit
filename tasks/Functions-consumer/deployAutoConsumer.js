@@ -1,35 +1,21 @@
-const { SubscriptionManager, buildRequestCBOR } = require("@chainlink/functions-toolkit")
+const { SubscriptionManager } = require("@chainlink/functions-toolkit")
 
 const { types } = require("hardhat/config")
 const { networks } = require("../../networks")
-const { setAutoRequest } = require("./setAutoRequest")
 
 task("functions-deploy-auto-consumer", "Deploys the AutomatedFunctionsConsumer contract")
   .addParam("subid", "Billing subscription ID used to pay for Functions requests")
   .addOptionalParam("verify", "Set to true to verify consumer contract", false, types.boolean)
-  .addOptionalParam(
-    "simulate",
-    "Flag indicating if simulation should be run before making an on-chain request",
-    true,
-    types.boolean
-  )
   .addOptionalParam(
     "configpath",
     "Path to Functions request config file",
     `${__dirname}/../../Functions-request-config.js`,
     types.string
   )
-  .addOptionalParam(
-    "gaslimit",
-    "Maximum amount of gas that can be used to call fulfillRequest in the consumer contract (only used to estimate Functions request cost)",
-    250000,
-    types.int
-  )
   .setAction(async (taskArgs) => {
     console.log("\n__Compiling Contracts__")
     await run("compile")
 
-    const callbackGasLimit = taskArgs.gaslimit
     const functionsRouterAddress = networks[network.name]["functionsRouter"]
     const donId = networks[network.name]["donId"]
     const donIdBytes32 = hre.ethers.utils.formatBytes32String(donId)
@@ -42,16 +28,6 @@ task("functions-deploy-auto-consumer", "Deploys the AutomatedFunctionsConsumer c
     // Initialize SubscriptionManager
     const subManager = new SubscriptionManager({ signer, linkTokenAddress, functionsRouterAddress })
     await subManager.initialize()
-
-    // Validate callbackGasLimit
-    const { gasPrice } = await hre.ethers.provider.getFeeData()
-    const gasPriceWei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "wei").toString()))
-    await subManager.estimateFunctionsRequestCost({
-      donId,
-      subscriptionId,
-      callbackGasLimit,
-      gasPriceWei,
-    })
 
     console.log(`Deploying AutomatedFunctionsConsumer contract to ${network.name}`)
     const autoConsumerContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")

@@ -32,6 +32,8 @@ task("functions-deploy-consumer", "Deploys the FunctionsConsumer contract")
     )
     await consumerContract.deployTransaction.wait(networks[network.name].confirmations)
 
+    console.log("\nDeployed FunctionsConsumer contract to:", consumerContract.address)
+
     if (network.name === "localFunctionsTestnet") {
       return
     }
