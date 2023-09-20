@@ -14,7 +14,7 @@ task("functions-sub-fund", "Funds a billing subscription for Functions consumer 
 
     const subscriptionId = parseInt(taskArgs.subid)
     const linkAmount = taskArgs.amount
-    const juelsAmount = ethers.utils.parseUnits(linkAmount, 18)
+    const juelsAmount = ethers.utils.parseUnits(linkAmount, 18).toString()
 
     const sm = new SubscriptionManager({ signer, linkTokenAddress, functionsRouterAddress })
     await sm.initialize()
