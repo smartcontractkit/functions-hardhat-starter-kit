@@ -42,7 +42,7 @@ task("functions-deploy-auto-consumer", "Deploys the AutomatedFunctionsConsumer c
     await subManager.estimateFunctionsRequestCost({
       donId,
       subscriptionId,
-      callbackGasLimit,
+      callbackGasLimit: 250000,
       gasPriceWei,
     })
 

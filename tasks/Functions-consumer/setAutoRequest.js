@@ -81,60 +81,57 @@ const setAutoRequest = async (contract, taskArgs) => {
     : path.join(process.cwd(), taskArgs.configpath))
 
   let encryptedSecretsReference
-  let secretsLocation
   if (!requestConfig.secrets || Object.keys(requestConfig.secrets).length === 0) {
     console.log("\nNo secrets found in request config - proceeding without secrets...")
   }
 
   // Encrypt and upload secrets if present.
-  // if (
-  //   network.name !== "localFunctionsTestnet" &&
-  //   requestConfig.secrets &&
-  //   Object.keys(requestConfig.secrets).length > 0
-  // ) {
-  //   if (requestConfig.secretsLocation !== Location.DONHosted) {
-  //     throw Error(
-  //       `\nThis task supports only DON-hosted secrets. The request config specifies ${
-  //         Location[requestConfig.secretsLocation]
-  //       }.`
-  //     )
-  //   }
+  if (
+    network.name !== "localFunctionsTestnet" &&
+    requestConfig.secrets &&
+    Object.keys(requestConfig.secrets).length > 0
+  ) {
+    if (requestConfig.secretsLocation !== Location.DONHosted) {
+      throw Error(
+        `\nThis task supports only DON-hosted secrets. The request config specifies ${
+          Location[requestConfig.secretsLocation]
+        }.`
+      )
+    }
 
-  //   secretsLocation = requestConfig.secretsLocation
+    console.log("\nEncrypting secrets and uploading to DON...")
+    const secretsManager = new SecretsManager({
+      signer,
+      functionsRouterAddress,
+      donId,
+    })
 
-  //   console.log("\nEncrypting secrets and uploading to DON...")
-  //   const secretsManager = new SecretsManager({
-  //     signer,
-  //     functionsRouterAddress,
-  //     donId,
-  //   })
+    await secretsManager.initialize()
+    const encryptedSecretsObj = await secretsManager.encryptSecrets(requestConfig.secrets)
+    const minutesUntilExpiration = taskArgs.ttl
+    const slotId = parseInt(taskArgs.slotid)
 
-  //   await secretsManager.initialize()
-  //   const encryptedSecretsObj = await secretsManager.encryptSecrets(requestConfig.secrets)
-  //   const minutesUntilExpiration = taskArgs.ttl
-  //   const slotId = parseInt(taskArgs.slotid)
+    if (isNaN(slotId)) {
+      throw Error`\nSlotId missing. Please provide a slotId of 0 or higher, to upload encrypted secrets to the DON.`
+    }
 
-  //   if (isNaN(slotId)) {
-  //     throw Error`\nSlotId missing. Please provide a slotId of 0 or higher, to upload encrypted secrets to the DON.`
-  //   }
+    const { version, success } = await secretsManager.uploadEncryptedSecretsToDON({
+      encryptedSecretsHexstring: encryptedSecretsObj.encryptedSecrets,
+      gatewayUrls: networks[network.name]["gatewayUrls"],
+      slotId,
+      minutesUntilExpiration,
+    })
 
-  //   const { version, success } = await secretsManager.uploadEncryptedSecretsToDON({
-  //     encryptedSecretsHexstring: encryptedSecretsObj.encryptedSecrets,
-  //     gatewayUrls: networks[network.name]["gatewayUrls"],
-  //     slotId,
-  //     minutesUntilExpiration,
-  //   })
+    if (!success) {
+      throw Error("\nFailed to upload encrypted secrets to DON.")
+    }
 
-  //   if (!success) {
-  //     throw Error("\nFailed to upload encrypted secrets to DON.")
-  //   }
-
-  //   console.log(`\nNow using DON-hosted secrets version ${version} in slot ${slotId}...`)
-  //   encryptedSecretsReference = await secretsManager.buildDONHostedEncryptedSecretsReference({
-  //     slotId,
-  //     version,
-  //   })
-  // }
+    console.log(`\nNow using DON-hosted secrets version ${version} in slot ${slotId}...`)
+    encryptedSecretsReference = await secretsManager.buildDONHostedEncryptedSecretsReference({
+      slotId,
+      version,
+    })
+  }
 
   const functionsRequestCBOR = buildRequestCBOR({
     codeLocation: requestConfig.codeLocation,
@@ -142,8 +139,7 @@ const setAutoRequest = async (contract, taskArgs) => {
     source: requestConfig.source,
     args: requestConfig.args,
     secretsLocation: requestConfig.secretsLocation,
-    encryptedSecretsReference:
-      "0xa46330ede4a1551127de45c2fb935df203e4a661a33f83ba8910329f39716de46063cdc9314305ace674e2126d560a5bdf29cd479359fb3bd630e23cee696612b4e0e2037d4f428f028ba42a781908a62370273e93583fcbfe2bdf8528dedead4c73562c6df31e4b42da1b3deef6ed4fd0e10d78a229616c2679e0d97bd47cacfd674db1f0347d756edd10309c5b2acb4db4cdf301c29e933df0b71cffc59cfb29",
+    encryptedSecretsReference,
   })
 
   console.log(`\nSetting the Functions request in AutomatedFunctionsConsumer contract ${contract} on ${network.name}`)

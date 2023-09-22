@@ -42,12 +42,9 @@ const networks = {
     nativeCurrencySymbol: "ETH",
     linkToken: "0x779877A7B0D9E8603169DdbD7836e478b4624789",
     linkPriceFeed: "0x42585eD362B3f1BCa95c640FdFf35Ef899212734", // LINK/ETH
-    functionsRouter: "0xb83E47C2bC239B3bf370bc41e1459A34b41238D0",
-    donId: "fun-ethereum-sepolia-1",
-    gatewayUrls: [
-      "https://01.functions-gateway.testnet.chain.link/",
-      "https://02.functions-gateway.testnet.chain.link/",
-    ],
+    functionsRouter: "0xe5cc87f8FAd3d5C3e2c6238C1b2fEd869A64cCa9",
+    donId: "fun-staging-sepolia-1",
+    gatewayUrls: ["https://gateway-staging1.main.stage.cldev.sh/user"],
   },
   polygonMumbai: {
     url: process.env.POLYGON_MUMBAI_RPC_URL || "UNSET",
