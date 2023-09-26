@@ -31,6 +31,21 @@ if (SECOND_PRIVATE_KEY) {
 }
 
 const networks = {
+  ethereum: {
+    url: process.env.ETHEREUM_RPC_URL || "UNSET",
+    gasPrice: undefined,
+    nonce: undefined,
+    accounts,
+    verifyApiKey: process.env.ETHERSCAN_API_KEY || "UNSET",
+    chainId: 1,
+    confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
+    nativeCurrencySymbol: "ETH",
+    linkToken: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+    linkPriceFeed: "0xDC530D9457755926550b59e8ECcdaE7624181557", // LINK/ETH
+    functionsRouter: "0x65Dcc24F8ff9e51F10DCc7Ed1e4e2A61e6E14bd6",
+    donId: "fun-ethereum-mainnet-1",
+    gatewayUrls: ["https://01.functions-gateway.chain.link/", "https://02.functions-gateway.chain.link/"],
+  },
   ethereumSepolia: {
     url: process.env.ETHEREUM_SEPOLIA_RPC_URL || "UNSET",
     gasPrice: undefined,
@@ -91,8 +106,8 @@ const networks = {
     accounts,
     confirmations: 1,
     nativeCurrencySymbol: "ETH",
-    linkToken: "0xa0C37a37BEc77B60bbe862F1eAd74DDCBdcaADb0",
-    functionsRouter: "0x10a39d4fA07A58dbD3164c9811790c0dAC6DC1B8",
+    linkToken: "0x94d3C68A91C972388d7863D25EDD2Be7e2F21F21",
+    functionsRouter: "0xCbfD616baE0F13EFE0528c446184C9C0EAa8040e",
     donId: "local-functions-testnet",
   },
 }
