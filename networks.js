@@ -47,11 +47,11 @@ const networks = {
     gatewayUrls: ["https://01.functions-gateway.chain.link/", "https://02.functions-gateway.chain.link/"],
   },
   avalanche: {
-    url: process.env.ETHEREUM_RPC_URL || "UNSET",
+    url: process.env.AVALANCHE_RPC_URL || "UNSET",
     gasPrice: undefined,
     nonce: undefined,
     accounts,
-    verifyApiKey: process.env.FUJI_SNOWTRACE_API_KEY || "UNSET",
+    verifyApiKey: process.env.SNOWTRACE_API_KEY || "UNSET",
     chainId: 43114,
     confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
     nativeCurrencySymbol: "AVAX",
@@ -62,7 +62,7 @@ const networks = {
     gatewayUrls: ["https://01.functions-gateway.chain.link/", "https://02.functions-gateway.chain.link/"],
   },
   polygon: {
-    url: process.env.ETHEREUM_RPC_URL || "UNSET",
+    url: process.env.POLYGON_RPC_URL || "UNSET",
     gasPrice: undefined,
     nonce: undefined,
     accounts,
