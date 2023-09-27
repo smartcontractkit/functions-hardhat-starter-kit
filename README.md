@@ -47,7 +47,9 @@ In order to set up your own project which uses Chainlink Functions, please refer
 
 ### Mainnets
 
-- Not supported yet. // TODO
+- Ethereum Sepolia: `ETHEREUM_RPC_URL`, `--network ethereum`
+- Polygon Mumbai: `POLYGON_RPC_URL`, `--network polygon`
+- Avalanche Fuji: `AVALANCHE_RPC_URL`, `--network avalanche`
 
 ### Testnets
 
