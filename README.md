@@ -30,12 +30,12 @@
 
 # Overview
 
-<p><b>Working with Chainlink Functions requires accepting the terms of service. Please visit <a href="https://functions.chain.link/">https://chain.link/functions</a>.</b></p>
+<p><b>Working with Chainlink Functions requires accepting the terms of service. Please visit <a href="https://functions.chain.link/">chain.link/functions</a>.</b></p>
 
-<p>Chainlink Functions allows users to request data from HTTP/HTTPS APIs and perform custom computation using JavaScript.
+<p>Chainlink Functions allows users to request data from HTTP(s) APIs and perform custom computation using JavaScript.
 It works by executing the request on a <a href="https://chain.link/education/blockchain-oracles#decentralized-oracles">decentralized oracle network</a> (DON).
 When a request is initiated, each node in the DON executes the user-provided JavaScript code simultaneously.  Then, nodes use the <a href="https://docs.chain.link/architecture-overview/off-chain-reporting/">Chainlink OCR</a> protocol to come to consensus on the results.  Finally, the median result is returned to the requesting contract via a callback function.
-Chainlink Functions also enables users to securely share encrypted secrets with the DON via threshold encrypted secrets.  This allows users to access APIs that require authentication without exposing their API keys to the general public.
+<p>Chainlink Functions also enables users to securely share secrets with the DON, allowing users to access APIs that require authentication without exposing their API keys. Secrets are encrypted with threshold public key cryptography, requiring multiple nodes to participate in a decentralized decryption process such that no node can decrypt secrets without consensus from the rest of the DON.</p>
 
 # Motivation
 
