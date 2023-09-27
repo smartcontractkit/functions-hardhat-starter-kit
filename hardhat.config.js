@@ -44,9 +44,10 @@ module.exports = {
     ...networks,
   },
   etherscan: {
-    // npx hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_PARAMETERS>
-    // to get exact network names: npx hardhat verify --list-networks
     apiKey: {
+      mainnet: networks.ethereum.verifyApiKey,
+      avalanche: networks.avalanche.verifyApiKey,
+      polygon: networks.polygon.verifyApiKey,
       sepolia: networks.ethereumSepolia.verifyApiKey,
       polygonMumbai: networks.polygonMumbai.verifyApiKey,
       avalancheFujiTestnet: networks.avalancheFuji.verifyApiKey,

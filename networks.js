@@ -56,7 +56,7 @@ const networks = {
     confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
     nativeCurrencySymbol: "AVAX",
     linkToken: "0x5947BB275c521040051D82396192181b413227A3",
-    linkPriceFeed: "", // LINK/AVAX
+    linkPriceFeed: "0x1b8a25F73c9420dD507406C3A3816A276b62f56a", // LINK/AVAX
     functionsRouter: "0x9f82a6A0758517FD0AfA463820F586999AF314a0",
     donId: "fun-avalanche-mainnet-1",
     gatewayUrls: ["https://01.functions-gateway.chain.link/", "https://02.functions-gateway.chain.link/"],
@@ -71,7 +71,7 @@ const networks = {
     confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
     nativeCurrencySymbol: "ETH",
     linkToken: "0xb0897686c545045aFc77CF20eC7A532E3120E0F1",
-    linkPriceFeed: "", // LINK/MATIC
+    linkPriceFeed: "0x5787BefDc0ECd210Dfa948264631CD53E68F7802", // LINK/MATIC
     functionsRouter: "0xdc2AAF042Aeff2E68B3e8E33F19e4B9fA7C73F10",
     donId: "fun-polygon-mainnet-1",
     gatewayUrls: ["https://01.functions-gateway.chain.link/", "https://02.functions-gateway.chain.link/"],

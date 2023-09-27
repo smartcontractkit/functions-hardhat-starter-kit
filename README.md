@@ -10,7 +10,8 @@
   - [Tutorials \& examples](#tutorials--examples)
 - [Quickstart](#quickstart)
   - [Requirements](#requirements)
-  - [Steps](#steps)
+  - [Steps on live testnet](#steps-on-live-testnet)
+  - [Steps on local testnet](#steps-on-local-testnet)
 - [Environment Variable Management](#environment-variable-management)
   - [Using Remote Secrets (e.g. Github Gists)](#using-remote-secrets-eg-github-gists)
   - [Environment Variable Management Commands](#environment-variable-management-commands)
@@ -46,7 +47,9 @@ In order to set up your own project which uses Chainlink Functions, please refer
 
 ### Mainnets
 
-- Not supported yet. // TODO
+- Ethereum Sepolia: `ETHEREUM_RPC_URL`, `--network ethereum`
+- Polygon Mumbai: `POLYGON_RPC_URL`, `--network polygon`
+- Avalanche Fuji: `AVALANCHE_RPC_URL`, `--network avalanche`
 
 ### Testnets
 
