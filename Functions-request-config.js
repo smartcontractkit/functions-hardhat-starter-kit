@@ -4,8 +4,8 @@ const { Location, ReturnType, CodeLanguage } = require("@chainlink/functions-too
 // Configure the request by setting the fields below
 const requestConfig = {
   // String containing the source code to be executed
-  //source: fs.readFileSync("./calculation-example.js").toString(),
-  source: fs.readFileSync("./API-request-example.js").toString(),
+  source: fs.readFileSync("./calculation-example.js").toString(),
+  //source: fs.readFileSync("./API-request-example.js").toString(),
   // Location of source code (only Inline is currently supported)
   codeLocation: Location.Inline,
   // Optional. Secrets can be accessed within the source code with `secrets.varName` (ie: secrets.apiKey). The secrets object can only contain string values.
