@@ -1,11 +1,7 @@
-const { SubscriptionManager, buildRequestCBOR } = require("@chainlink/functions-toolkit")
-
 const { types } = require("hardhat/config")
 const { networks } = require("../../networks")
-const { setAutoRequest } = require("./setAutoRequest")
 
 task("functions-deploy-auto-consumer", "Deploys the AutomatedFunctionsConsumer contract")
-  .addParam("subid", "Billing subscription ID used to pay for Functions requests")
   .addOptionalParam("verify", "Set to true to verify consumer contract", false, types.boolean)
   .addOptionalParam(
     "simulate",
@@ -26,38 +22,18 @@ task("functions-deploy-auto-consumer", "Deploys the AutomatedFunctionsConsumer c
     const functionsRouterAddress = networks[network.name]["functionsRouter"]
     const donId = networks[network.name]["donId"]
     const donIdBytes32 = hre.ethers.utils.formatBytes32String(donId)
-    const signer = await ethers.getSigner()
-    const linkTokenAddress = networks[network.name]["linkToken"]
-    const txOptions = { confirmations: networks[network.name].confirmations }
-
-    const subscriptionId = taskArgs.subid
-
-    // Initialize SubscriptionManager
-    const subManager = new SubscriptionManager({ signer, linkTokenAddress, functionsRouterAddress })
-    await subManager.initialize()
-
-    // Validate callbackGasLimit
-    const { gasPrice } = await hre.ethers.provider.getFeeData()
-    const gasPriceWei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "wei").toString()))
-    await subManager.estimateFunctionsRequestCost({
-      donId,
-      subscriptionId,
-      callbackGasLimit,
-      gasPriceWei,
-    })
+    const confirmationBlocks = networks[network.name].confirmations
 
     console.log(`Deploying AutomatedFunctionsConsumer contract to ${network.name}`)
     const autoConsumerContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
     const autoConsumerContract = await autoConsumerContractFactory.deploy(functionsRouterAddress, donIdBytes32)
 
-    console.log(`\nWaiting 1 block for transaction ${autoConsumerContract.deployTransaction.hash} to be confirmed...`)
-    await autoConsumerContract.deployTransaction.wait(1)
+    console.log(
+      `\nWaiting ${confirmationBlocks} blocks for transaction ${autoConsumerContract.deployTransaction.hash} to be confirmed...`
+    )
+    await autoConsumerContract.deployTransaction.wait(confirmationBlocks)
 
     const consumerAddress = autoConsumerContract.address
-
-    console.log(`\nAdding ${consumerAddress} to subscription ${subscriptionId}...`)
-    const addConsumerTx = await subManager.addConsumer({ subscriptionId, consumerAddress, txOptions })
-    console.log(`\nAdded consumer contract ${consumerAddress} in Tx: ${addConsumerTx.transactionHash}`)
 
     const verifyContract = taskArgs.verify
     if (

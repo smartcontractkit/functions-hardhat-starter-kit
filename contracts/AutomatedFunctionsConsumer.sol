@@ -18,15 +18,10 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
   bytes public s_requestCBOR;
   uint64 public s_subscriptionId;
   uint32 public s_fulfillGasLimit;
-  bytes32 public s_lastRequestId;
-  bytes public s_lastResponse;
-  bytes public s_lastError;
 
   // State variables for Chainlink Automation
   uint256 public s_updateInterval;
   uint256 public s_lastUpkeepTimeStamp;
-  uint256 public s_upkeepCounter;
-  uint256 public s_responseCounter;
 
   event OCRResponse(bytes32 indexed requestId, bytes result, bytes err);
 
@@ -84,10 +79,8 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
     (bool upkeepNeeded, ) = checkUpkeep("");
     require(upkeepNeeded, "Time interval not met");
     s_lastUpkeepTimeStamp = block.timestamp;
-    s_upkeepCounter = s_upkeepCounter + 1;
 
-    bytes32 requestId = _sendRequest(s_requestCBOR, s_subscriptionId, s_fulfillGasLimit, donId);
-    s_lastRequestId = requestId;
+    _sendRequest(s_requestCBOR, s_subscriptionId, s_fulfillGasLimit, donId);
   }
 
   /**
@@ -98,12 +91,7 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
    * @param err Aggregated error from the user code or from the execution pipeline
    * Either response or error parameter will be set, but never both
    */
-  function fulfillRequest(bytes32 requestId, bytes memory response, bytes memory err) internal override {
-    s_lastResponse = response;
-    s_lastError = err;
-    s_responseCounter = s_responseCounter + 1;
-    emit OCRResponse(requestId, response, err);
-  }
+  function fulfillRequest(bytes32 requestId, bytes memory response, bytes memory err) internal override {}
 
   /**
    * @notice Set the DON ID

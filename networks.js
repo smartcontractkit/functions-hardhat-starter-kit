@@ -31,6 +31,51 @@ if (SECOND_PRIVATE_KEY) {
 }
 
 const networks = {
+  ethereum: {
+    url: process.env.ETHEREUM_RPC_URL || "UNSET",
+    gasPrice: undefined,
+    nonce: undefined,
+    accounts,
+    verifyApiKey: process.env.ETHERSCAN_API_KEY || "UNSET",
+    chainId: 1,
+    confirmations: 2,
+    nativeCurrencySymbol: "ETH",
+    linkToken: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+    linkPriceFeed: "0xDC530D9457755926550b59e8ECcdaE7624181557", // LINK/ETH
+    functionsRouter: "0x65Dcc24F8ff9e51F10DCc7Ed1e4e2A61e6E14bd6",
+    donId: "fun-ethereum-mainnet-1",
+    gatewayUrls: ["https://01.functions-gateway.chain.link/", "https://02.functions-gateway.chain.link/"],
+  },
+  avalanche: {
+    url: process.env.AVALANCHE_RPC_URL || "UNSET",
+    gasPrice: undefined,
+    nonce: undefined,
+    accounts,
+    verifyApiKey: process.env.SNOWTRACE_API_KEY || "UNSET",
+    chainId: 43114,
+    confirmations: 10,
+    nativeCurrencySymbol: "AVAX",
+    linkToken: "0x5947BB275c521040051D82396192181b413227A3",
+    linkPriceFeed: "", // LINK/AVAX
+    functionsRouter: "0x9f82a6A0758517FD0AfA463820F586999AF314a0",
+    donId: "fun-avalanche-mainnet-1",
+    gatewayUrls: ["https://01.functions-gateway.chain.link/", "https://02.functions-gateway.chain.link/"],
+  },
+  polygon: {
+    url: process.env.POLYGON_RPC_URL || "UNSET",
+    gasPrice: undefined,
+    nonce: undefined,
+    accounts,
+    verifyApiKey: process.env.POLYGONSCAN_API_KEY || "UNSET",
+    chainId: 137,
+    confirmations: 10,
+    nativeCurrencySymbol: "ETH",
+    linkToken: "0xb0897686c545045aFc77CF20eC7A532E3120E0F1",
+    linkPriceFeed: "", // LINK/MATIC
+    functionsRouter: "0xdc2AAF042Aeff2E68B3e8E33F19e4B9fA7C73F10",
+    donId: "fun-polygon-mainnet-1",
+    gatewayUrls: ["https://01.functions-gateway.chain.link/", "https://02.functions-gateway.chain.link/"],
+  },
   ethereumSepolia: {
     url: process.env.ETHEREUM_SEPOLIA_RPC_URL || "UNSET",
     gasPrice: undefined,

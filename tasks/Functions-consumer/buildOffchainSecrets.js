@@ -1,4 +1,4 @@
-const { SecretsManager } = require("@chainlink/functions-toolkit")
+const { SecretsManager, createGist } = require("@chainlink/functions-toolkit")
 const { networks } = require("../../networks")
 const fs = require("fs")
 const path = require("path")
@@ -46,6 +46,14 @@ task(
     console.log(`\nEncrypting secrets and writing to JSON file '${outputfile}'...`)
 
     const encryptedSecretsObj = await secretsManager.encryptSecrets(requestConfig.secrets)
+
+    const gist = await createGist(process.env.GITHUB_API_TOKEN, JSON.stringify(encryptedSecretsObj))
+    console.log("Gist")
+    console.log(gist)
+    const encryptedSecretsReference = await secretsManager.encryptSecretsUrls([gist])
+    console.log("Encrypted secrets reference")
+    console.log(encryptedSecretsReference)
+
     fs.writeFileSync(outputfile, JSON.stringify(encryptedSecretsObj))
 
     console.log(`\nWrote offchain secrets file to '${outputfile}'.`)
