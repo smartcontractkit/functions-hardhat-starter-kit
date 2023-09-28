@@ -118,7 +118,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     await utils.prompt(
       `If the request's callback uses all ${utils.numberWithCommas(
         callbackGasLimit
-      )} gas, this request will charge the subscription an estimated:\n${chalk.blue(estimatedCostLink + " LINK")}`
+      )} gas, this request will charge the subscription an estimated ${chalk.blue(estimatedCostLink + " LINK")}`
     )
 
     // Handle encrypted secrets
