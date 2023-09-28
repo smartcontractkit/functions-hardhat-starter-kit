@@ -36,7 +36,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     0,
     types.int
   )
-  .addOptionalParam("requestgaslimit", "Gas limit for calling the executeRequest function", 1_500_000, types.int)
+  .addOptionalParam("requestgaslimit", "Gas limit for calling the sendRequest function", 1_500_000, types.int)
   .addOptionalParam(
     "configpath",
     "Path to Functions request config file",
