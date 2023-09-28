@@ -30,12 +30,14 @@
 
 # Overview
 
-<p><b>Working with Chainlink Functions requires accepting the terms of service. Please visit <a href="https://functions.chain.link/">https://chain.link/functions</a>.</b></p>
+<p><b>Working with Chainlink Functions requires accepting the terms of service. Please visit <a href="https://functions.chain.link/">chain.link/functions</a>.</b></p>
 
-<p>Chainlink Functions allows users to request data from HTTP/HTTPS APIs and perform custom computation using JavaScript.
+<p>Chainlink Functions allows users to request data from HTTP(s) APIs and perform custom computation using JavaScript.
 It works by executing the request on a <a href="https://chain.link/education/blockchain-oracles#decentralized-oracles">decentralized oracle network</a> (DON).
 When a request is initiated, each node in the DON executes the user-provided JavaScript code simultaneously.  Then, nodes use the <a href="https://docs.chain.link/architecture-overview/off-chain-reporting/">Chainlink OCR</a> protocol to come to consensus on the results.  Finally, the median result is returned to the requesting contract via a callback function.
-Chainlink Functions also enables users to securely share encrypted secrets with the DON via threshold encrypted secrets.  This allows users to access APIs that require authentication without exposing their API keys to the general public.
+<p>Chainlink Functions also enables users to securely share secrets with the DON, allowing users to access APIs that require authentication without exposing their API keys. Secrets are encrypted with threshold public key cryptography, requiring multiple nodes to participate in a decentralized decryption process such that no node can decrypt secrets without consensus from the rest of the DON.</p>
+
+Nodes are compensated in LINK via a subscription billing model. You can see pricing details here (TODO).
 
 # Motivation
 
@@ -90,28 +92,28 @@ Install **both** of the following:
    - `COINMARKETCAP_API_KEY` (from [here](https://pro.coinmarketcap.com/))
      <br><br>
 4. Set the required environment variables. For improved security, Chainlink provides the NPM package [@chainlink/env-enc](https://www.npmjs.com/package/@chainlink/env-enc) which can be used to keep environment variables in a password encrypted `.env.enc` file instead of a plaintext `.env` for additional security. More detail on environment variable management and the tooling is provided in the [Environment Variable Management](#environment-variable-management) section.
-   1. Set an encryption password for your environment variables to a secure password by running:<br>`npx env-enc set-pw`. This password needs to be set each time you create or restart a terminal shell session.<br>
+   1. Set an encryption password for your environment variables to a secure password by running `npx env-enc set-pw`. This password needs to be set each time you create or restart a terminal shell session.<br>
    2. Use the command `npx env-enc set` to set the required environment variables.
    3. Set any other values you intend to pass into the _secrets_ object in _Functions-request-config.js_ .<br><br>
 5. There are four files to notice that the default example will use:
    - `Functions-request-config.js` which contains the `request` object that has all the data necessary to trigger a Functions request. This config file also specifies which `source` code to pass to Functions. More information on request configuration is in the [Request Configuration section](#request-configuration).
    - `contracts/FunctionsConsumer.sol` is the consumer smart contract that will receive the Functions-related data from the request config, and trigger the functions request.
-   - `calculation-example.js` contains JavaScript code that will be executed by each node of the DON. This example performs complex calculations but no API requests.
-   - `./API-request-example.js` which fetches data from APIs before processing the data <br><br>
-6. Locally simulate the execution of your JavaScript source by using:<br>`npx hardhat functions-simulate-script`.
+   - `calculation-example.js` contains example JavaScript code that will be executed by each node of the DON. This example performs complex calculations but no API requests.
+   - `API-request-example.js` contains example JavaScript code which fetches data from APIs before processing the data <br><br>
+6. Locally simulate the execution of your JavaScript source by running `npx hardhat functions-simulate-script`
 
-7. Deploy and verify the consumer contract to an actual blockchain network by running:<br>`npx hardhat functions-deploy-consumer --network network_name_here --verify true`<br>**Note**: Make sure `<explorer>_API_KEY` is set if using `--verify true`, depending on which network is used.<br><br>
-8. Create and fund a new Functions billing subscription using the [Chainlink Functions UI](// TODO) and add the deployed consumer contract as an authorized consumer to your subscription. You can also do this programmatically with:<br> `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0x_deployed_client_contract_address_here`<br><br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command. Testnet LINK can be obtained at <a href="https://faucets.chain.link/">faucets.chain.link</a>.
-   **Note**: also make a note of your subscription Id as you will need it for most commands. <br><br>
+7. Deploy and verify the consumer contract to an actual blockchain network by running `npx hardhat functions-deploy-consumer --network network_name_here --verify true`<br>**Note**: Make sure `<explorer>_API_KEY` is set if using `--verify true` depending on which network is used.<br><br>
+8. Create and fund a new Functions billing subscription using the [Chainlink Functions UI](// TODO) and add the deployed consumer contract as an authorized consumer to your subscription. You can also do this programmatically with `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0x_deployed_client_contract_address_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command. Testnet LINK can be obtained at <a href="https://faucets.chain.link/">faucets.chain.link</a>. Also make a note of your subscription Id as you will need it for most commands.<br>
+
 9. Make an on-chain request by running:<br>`npx hardhat functions-request --network network_name_here --contract 0xDeployed_client_contract_address_here --subid subscription_id_number_here`. You will see a confirmation request, so hit `Y` and press enter. Once the request is fulfilled the console will show the response (decoded into the relevant return type) from the execution of your custom JS script.
 
 10. You can also query the response that was stored in your Functions Consumer contract by runnning `npx hardhat functions-read --contract 0xConsumer_contract_address --network  your_network_name`
 
 ## Steps on local testnet
 
-1. To do an end-to-end simulation using a local (on-machine) testnet you can first open a new terminal window/tab and run `npm run startLocalFunctionsTestnet`. This will spin up a local blockchain testnet (the `LocalFunctionsTestnet`), on which you can simulate an end-to-end Functions request.
+1. To do an end-to-end simulation using a local testnet you can first open a new terminal window and run `npm run startLocalFunctionsTestnet`. This will spin up a local blockchain testnet (the `localFunctionsTestnet`), on which you can simulate an end-to-end Functions request.
 
-2. Then follow the workflow steps above, including subscription creation, funding, deploying your Functions Consumer etc. When using the `LocalFunctionsTestnet`, you omit the `--network network_name_here` flag in your CLI commands.
+2. Follow the workflow steps above, including subscription creation, funding, deploying your Functions Consumer etc. but omit the `--network network_name_here` flag in your CLI commands as the default network will be the `localFunctionsTestnet`.
 
 3. Running this end-to-end simulation will surface most errors in your smart contract and/or JavaScript source code and configuration.<br><br>
 
@@ -122,6 +124,9 @@ This repo uses the NPM package `@chainlink/env-enc` for keeping environment vari
 By default, all encrypted environment variables will be stored in a file named `.env.enc` in the root directory of this repo. This file is `.gitignore`'d.
 
 First, set the encryption password by running the command `npx env-enc set-pw`.
+
+> **NOTE:** On Windows, this command may show a security confirmation.
+
 The password must be set at the beginning of each new session.
 If this password is lost, there will be no way to recover the encrypted environment variables.
 
@@ -166,7 +171,7 @@ The `--path` flag has no effect on the `npx env-enc set-pw` command as the passw
 
 # Functions Command Glossary
 
-Chainlink Functions rely on Decentralized Oracle Networks to execute your source code. This network is compensated using funds from your subscription. You can see pricing details here (TODO). [Functions Commands](#functions-commands) and [Subscription Management Commands](#functions-subscription-management-commands) commands can be executed in the following format:
+[Functions Commands](#functions-commands) and [Subscription Management Commands](#functions-subscription-management-commands) commands can be executed in the following format:
 `npx hardhat command_here --parameter1 parameter_1_value_here --parameter2 parameter_2_value_here`
 
 Example: `npx hardhat functions-read --network polygonMumbai --contract 0x787Fe00416140b37B026f3605c6C72d096110Bb8`
@@ -178,7 +183,7 @@ Example: `npx hardhat functions-read --network polygonMumbai --contract 0x787Fe0
 | `compile`                          | Compiles all smart contracts                                                                                                         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `functions-simulate-script`        | Executes the JavaScript source code locally                                                                                          | `network`: Name of blockchain network, `configpath` (optional): Path to request config file (defaults to `./Functions-request-config.js`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | `functions-deploy-consumer`        | Deploys the `FunctionsConsumer` contract                                                                                             | `network`: Name of blockchain network, `verify` (optional): Set to `true` to verify the deployed `FunctionsConsumer` contract (defaults to `false`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| `functions-request`                | Initiates a request from a `FunctionsConsumer` contract using data from the Functions request config file                            | `network`: Name of blockchain network, `contract`: Address of the consumer contract to call, `subid`: Billing subscription ID used to pay for the request, `gaslimit` (optional): Maximum amount of gas that can be used to call `fulfillRequest` in the consumer contract (defaults to 100,000 & must be less than 300,000), `requestgas` (optional): Gas limit for calling the `executeRequest` function (defaults to 1,500,000), `simulate` (optional, default true): Flag indicating if simulation should be run before making an on-chain request, `configpath` (optional): Path to request config file (defaults to `./Functions-request-config.js`)                                                                                                                                                            |
+| `functions-request`                | Initiates a request from a `FunctionsConsumer` contract using data from the Functions request config file                            | `network`: Name of blockchain network, `contract`: Address of the consumer contract to call, `subid`: Billing subscription ID used to pay for the request, `callbackgaslimit` (optional): Maximum amount of gas that can be used to call `fulfillRequest` in the consumer contract (defaults to 100,000 & must be less than 300,000), `slotid` (optional): Slot ID to use for uploading DON hosted secrets. If the slot is already in use, the existing encrypted secrets will be overwritten. (defaults to 0), `simulate` (optional, default true): Flag indicating if simulation should be run before making an on-chain request, `configpath` (optional): Path to request config file (defaults to `./Functions-request-config.js`)                                                                                                                                                            |
 | `functions-read`                   | Reads the latest response (or error) returned to a `FunctionsConsumer` or `AutomatedFunctionsConsumer` contract                      | `network`: Name of blockchain network, `contract`: Address of the consumer contract to read, `configpath` (optional): Path to request config file (defaults to `./Functions-request-config.js`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `functions-deploy-auto-consumer`   | Deploys the `AutomatedFunctionsConsumer` contract and sets the Functions request using data from the Functions request config file   | `network`: Name of blockchain network, `subid`: Billing subscription ID used to pay for Functions requests, `verify` (optional, default false): Set to `true` to verify the deployed `AutomatedFunctionsConsumer` contract, `configpath` (optional): Path to request config file (defaults to `./Functions-request-config.js`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `functions-set-auto-request`       | Updates the Functions request in deployed `AutomatedFunctionsConsumer` contract using data from the Functions request config file    | `network`: Name of blockchain network, `contract`: Address of the contract to update, `subid`: Billing subscription ID used to pay for Functions requests, `interval` (optional): Update interval in seconds for Chainlink Automation to call `performUpkeep` (defaults to 300), `slotid` (optional) 0 or higher integer denoting the storage slot for DON-hosted secrets, `ttl` (optional) the minutes after which DON hosted secrets must be expired, `gaslimit` (optional): Maximum amount of gas that can be used to call `fulfillRequest` in the consumer contract (defaults to 250,000), `simulate` (optional, default true): Flag indicating if simulation should be run before making an on-chain request, `configpath` (optional): Path to request config file (defaults to `./Functions-request-config.js`) |
@@ -193,7 +198,7 @@ Example: `npx hardhat functions-read --network polygonMumbai --contract 0x787Fe0
 ## Functions Subscription Management Commands
 
 | Command                      | Description                                                                                                                              | Parameters                                                                                                                                                                                                                                                                   |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `functions-sub-create`       | Creates a new Functions billing subscription for Functions consumer contracts                                                            | `network`: Name of blockchain network, `amount` (optional): Initial amount used to fund the subscription in LINK (decimals are accepted), `contract` (optional): Address of the consumer contract to add to the subscription                                                 |
 | `functions-sub-info`         | Gets the Functions billing subscription balance, owner, and list of authorized consumer contract addresses                               | `network`: Name of blockchain network, `subid`: Subscription ID                                                                                                                                                                                                              |
 | `functions-sub-fund`         | Funds a Functions billing subscription with LINK                                                                                         | `network`: Name of blockchain network, `subid`: Subscription ID, `amount`: Amount to fund subscription in LINK (decimals are accepted)                                                                                                                                       |
@@ -202,7 +207,7 @@ Example: `npx hardhat functions-read --network polygonMumbai --contract 0x787Fe0
 | `functions-sub-remove`       | Removes a consumer contract from a Functions billing subscription                                                                        | `network`: Name of blockchain network, `subid`: Subscription ID, `contract`: Address of the consumer contract to remove from billing subscription                                                                                                                            |
 | `functions-sub-transfer`     | Request ownership of a Functions subscription be transferred to a new address                                                            | `network`: Name of blockchain network, `subid`: Subscription ID, `newowner`: Address of the new owner                                                                                                                                                                        |
 | `functions-sub-accept`       | Accepts ownership of a Functions subscription after a transfer is requested                                                              | `network`: Name of blockchain network, `subid`: Subscription ID                                                                                                                                                                                                              |
-| `functions-timeout-requests` | Times out expired Functions requests which have not been fulfilled within 5 minutes                                                      | `network`: Name of blockchain network, `requestids`: 1 or more request IDs to timeout separated by commas, `toblock` (optional): Ending search block number (defaults to latest block), `pastblockstosearch` (optional): Number of past blocks to search (defaults to 1,000) |     |
+| `functions-timeout-requests` | Times out expired Functions requests which have not been fulfilled within 5 minutes                                                      | `network`: Name of blockchain network, `requestids`: 1 or more request IDs to timeout separated by commas, `toblock` (optional): Ending search block number (defaults to latest block), `pastblockstosearch` (optional): Number of past blocks to search (defaults to 1,000) |
 
 # Request Configuration
 
@@ -233,8 +238,7 @@ Asynchronous code with top-level `await` statements is supported, as shown in th
 
 The `Functions` library is injected into the JavaScript source code and can be accessed using the name `Functions`.
 
-In order to make HTTP requests, only the `Functions.makeHttpRequest` function can be used. All other methods of accessing the Internet are restricted.
-The function takes an object with the following parameters.
+In order to make HTTP requests, use the `Functions.makeHttpRequest` method which takes an object as an argument with the following parameters.
 
 ```
 {
@@ -242,7 +246,7 @@ The function takes an object with the following parameters.
   method (optional): String specifying the HTTP method to use which can be either 'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', or 'OPTIONS' (defaults to 'GET'),
   headers (optional): Object with headers to use in the request,
   params (optional): Object with URL query parameters,
-  data (optional): Object which represents the body sent with the request,
+  data (optional): Object or other value which represents the body sent with the request,
   timeout (optional): Number with the maximum request duration in ms (defaults to 5000 ms),
   responseType (optional): String specifying the expected response type which can be either 'json', 'arraybuffer', 'document', 'text' or 'stream' (defaults to 'json'),
 }
@@ -279,7 +283,7 @@ This library also exposes functions for encoding JavaScript values into Uint8Arr
 - `Functions.encodeInt256` takes a JavaScript integer number and returns a Uint8Array of 32 bytes representing a `int256` type in Solidity.
 - `Functions.encodeString` takes a JavaScript string and returns a Uint8Array representing a `string` type in Solidity.
 
-Remember, it is not required to use these encoding functions. The JavaScript code must only return a [Uint8Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array) which represents the `bytes` array that is returned on-chain.
+Remember, it is not required to use these encoding functions. The JavaScript code must only return a [Uint8Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array) which represents the `bytes` that are returned on-chain.
 
 ## Modifying Contracts
 
@@ -301,36 +305,36 @@ By default, all the `npx hardhat` commands in this project are configured to use
 
 Please refer to the [Functions Toolkit NPM package documentation](https://github.com/smartcontractkit/functions-toolkit/blob/main/README.md#functions-secrets-manager) for more details.
 
-Secrets can be managed in either of two ways: user-hosted ("Remote") or DON hosted.
+Secrets can be managed in either of two ways: user-hosted (`Location.Remote`) or DON hosted (`Location.DONHosted`).
 
-This project uses DONHosted secrets which means secrets from the `Functions-request-config.js` file are encrypted and then uploaded to the DON and given a `tty` - the minutes after which these secrets will expire on the DON.
+This project uses DONHosted secrets by default, which means secrets from the `Functions-request-config.js` file are encrypted and then uploaded to the DON and automatically.
 
-The CLI command do to this is `npx hardhat functions-upload-secrets-don --slotid _0_or_higher --network network_name --ttl minutes_until_expired`.
+The CLI command to upload secrets to the DON is `npx hardhat functions-upload-secrets-don --slotid _0_or_higher --network network_name --ttl minutes_until_expired`.
 
 # Automation Integration
 
 Chainlink Functions can be used with [Chainlink Automation](https://docs.chain.link/chainlink-automation/introduction) in order to automatically trigger a Functions as specified intervals.
 
-1. Create & fund a new Functions billing subscription by running:<br>`npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command.<br><br>
+1. Create & fund a new Functions billing subscription by running `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command.<br><br>
 
-2. Deploy the `AutomationFunctionsConsumer` contract by running:<br>`npx hardhat functions-deploy-auto-consumer --subid subscription_id_number_here --verify true --network network_name_here`<br>**Note**: Make sure `<blockexplorer>_API_KEY` environment variable is set because this CLI command also verifies the consumer contract (if --verify is true) using this API KEY. See the [Quick Start section](#quickstart) for more details on blockexplorer API keys.
+2. Deploy the `AutomationFunctionsConsumer` contract by running `npx hardhat functions-deploy-auto-consumer --subid subscription_id_number_here --verify true --network network_name_here`<br>**Note**: Make sure `<blockexplorer>_API_KEY` environment variable is set when using `--verify true`.
 
    - This step will automatically add your consumer contract as an authorized user of your subscription. You can verify by running `npm functions-sub-info --network network_name_here --subid subscription_id_number_here`.
 
-3. Encode the request parameters into CBOR and store it on chain with `npx hardhat functions-set-auto-request --network network_name_here  --subid subscription_id_number_here --interval automation-call-interval --slotid don_hosted_secret_slotId --ttl minutes_until_secrets_expiry --contract 0x_contract_address` . You can now manually check that your on-chain requests work if you try the manual debugging step #5 or you can go ahead and run Chainlink Automations on your contract by following the next step.
+3. Encode the request parameters into CBOR and store it on chain with `npx hardhat functions-set-auto-request --network network_name_here  --subid subscription_id_number_here --interval automation-call-interval --slotid don_hosted_secret_slotId --ttl minutes_until_secrets_expiry --contract 0x_contract_address`<br>
 
-> ⚠️ Keep in mind that this task sets DON-Hosted secrets and expires those secrets after 10 minutes (or minutes you pass in as `--ttl`). If you execute functions after the `ttl` has expired you will see error bytes returned to your consumer contract; you should run this `functions-set-auto-request` command or the `functions-upload-secrets-don` to refresh the DON-hosted secrets for that slot ID.
+> DON-Hosted secrets and expire after the specified `ttl` (which defaults to 10 minutes if no `ttl` is specified). If a request is sent after the `ttl` has expired, you will see error bytes returned to your consumer contract.
 
-4. Register the `AutomationFunctionsConsumer` contract for upkeep via the Chainlink Automation web app here: [https://automation.chain.link/](https://automation.chain.link/). This example uses a "Custom Logic" Automation.
+1. Register the `AutomationFunctionsConsumer` contract for upkeep via the Chainlink Automation web app here: [https://automation.chain.link/](https://automation.chain.link/). This example uses a "Custom Logic" Automation.
    - Be sure to set the `Gas limit` for the `performUpkeep` function to a high enough value. The recommended value is 1,000,000.
-   - Once created be sure to ensure the Upkeep has sufficient funds in it. You can add funds in the UI.
+   - Once created, ensure the Automation upkeep has sufficient funds. You can add funds, pause or cancel the upkeep in the web app.
    - Find further documentation for working with Chainlink Automation here: [https://docs.chain.link/chainlink-automation/introduction](https://docs.chain.link/chainlink-automation/introduction)
 
-Once the contract is registered for upkeep, check the latest response or error with the commands `npx hardhat functions-read --network network_name_here --contract 0x_contract_address`. Note that you can also pause and unpause your Automation Upkeep using the web app's UI.
+Once the contract is registered for upkeep, check the latest response or error with the commands `npx hardhat functions-read --network network_name_here --contract 0x_contract_address`.
 
-5. For debugging on your machine, use the command `npx hardhat functions-check-upkeep --network network_name_here --contract contract_address_here` to see if Automation needs to call `performUpkeep`. If this call returns `false` then the upkeep interval has not yet passed and `performUpkeep` will not execute. In order to test that `performUpkeep` will run correctly before registering the Automation upkeep, you can also trigger a request manually using the command use the command `npx hardhat functions-perform-upkeep --network network_name_here --contract contract_address_here`.
+1. For debugging on your machine, use the command `npx hardhat functions-check-upkeep --network network_name_here --contract contract_address_here` to see if Automation needs to call `performUpkeep`. If this call returns `false` then the upkeep interval has not yet passed and `performUpkeep` will not execute. In order to test that `performUpkeep` will run correctly before registering the Automation upkeep, you can also trigger a request manually using the command `npx hardhat functions-perform-upkeep --network network_name_here --contract contract_address_here`
 
-You can also attach a listener to a Subscription ID by updating the `subId` variable in `/scripts/listen.js`, and then running `npm run listen --network your_network_name` from the repo root. **Note** Do this in a new terminal or split terminal so that it can keep listening as you develop. This script uses nodemon which restarts the script when you save files or when the listener returns a result.
+You can also attach a listener to a Subscription ID by updating the `subId` variable in `/scripts/listen.js`, and then running `npm run listen --network your_network_name` from the repo root in a new terminal so that it can keep listening as you develop. This script uses nodemon which restarts the script when you save files or when the listener returns a result.
 
 # Gas Spikes
 
@@ -342,4 +346,4 @@ Additionally, you can manually set a hardcoded transaction gas price in the Hard
 
 1. When running Chainlink Functions make sure your subscription ID has your consumer contract added as an authorized consumer. Also make sure that your subscription has enough LINK balance. You do this by calling `npx hardhat functions-sub-info --network network_name_here --subid subscription_id_here`
 
-2. When running Chainlink Functions with Automation you also need to ensure the Chainlink Automation Keepers are funded to run the automation calls. The fastest way to maintain your Automation LINK subscription balance is through the Chainlink Automation web app here: [https://automation.chain.link/](https://automation.chain.link/)
+2. When running Chainlink Functions with Automation you also need to ensure the Chainlink Automation upkeeps are funded to run the automation calls. The fastest way to maintain your Automation LINK subscription balance is through the Chainlink Automation web app here: [https://automation.chain.link/](https://automation.chain.link/)
