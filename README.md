@@ -30,14 +30,14 @@
 
 # Overview
 
-<p><b>Working with Chainlink Functions requires accepting the terms of service. Please visit <a href="https://functions.chain.link/">chain.link/functions</a>.</b></p>
-
 <p>Chainlink Functions allows users to request data from HTTP(s) APIs and perform custom computation using JavaScript.
 It works by executing the request on a <a href="https://chain.link/education/blockchain-oracles#decentralized-oracles">decentralized oracle network</a> (DON).
 When a request is initiated, each node in the DON executes the user-provided JavaScript code simultaneously.  Then, nodes use the <a href="https://docs.chain.link/architecture-overview/off-chain-reporting/">Chainlink OCR</a> protocol to come to consensus on the results.  Finally, the median result is returned to the requesting contract via a callback function.
 <p>Chainlink Functions also enables users to securely share secrets with the DON, allowing users to access APIs that require authentication without exposing their API keys. Secrets are encrypted with threshold public key cryptography, requiring multiple nodes to participate in a decentralized decryption process such that no node can decrypt secrets without consensus from the rest of the DON.</p>
 
-Nodes are compensated in LINK via a subscription billing model. You can see pricing details here (TODO).
+Nodes are compensated in LINK via a subscription billing model. You can see billing details [here](https://docs.chain.link/chainlink-functions/resources/subscriptions) and pricing for each network [here](https://docs.chain.link/chainlink-functions/supported-networks).
+
+<p><b>Working with Chainlink Functions requires accepting the terms of service before you are able to create a subscription. Please visit <a href="https://functions.chain.link/">chain.link/functions</a>.</b></p>
 
 # Motivation
 
@@ -103,7 +103,7 @@ Install **both** of the following:
 6. Locally simulate the execution of your JavaScript source by running `npx hardhat functions-simulate-script`
 
 7. Deploy and verify the consumer contract to an actual blockchain network by running `npx hardhat functions-deploy-consumer --network network_name_here --verify true`<br>**Note**: Make sure `<explorer>_API_KEY` is set if using `--verify true` depending on which network is used.<br><br>
-8. Create and fund a new Functions billing subscription using the [Chainlink Functions UI](// TODO) and add the deployed consumer contract as an authorized consumer to your subscription. You can also do this programmatically with `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0x_deployed_client_contract_address_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command. Testnet LINK can be obtained at <a href="https://faucets.chain.link/">faucets.chain.link</a>. Also make a note of your subscription Id as you will need it for most commands.<br>
+8. Create and fund a new Functions billing subscription using the [Chainlink Functions UI](https://functions.chain.link) and add the deployed consumer contract as an authorized consumer to your subscription. You can also do this programmatically with `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0x_deployed_client_contract_address_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command. Testnet LINK can be obtained at <a href="https://faucets.chain.link/">faucets.chain.link</a>. Also make a note of your subscription Id as you will need it for most commands.<br>
 
 9. Make an on-chain request by running:<br>`npx hardhat functions-request --network network_name_here --contract 0xDeployed_client_contract_address_here --subid subscription_id_number_here`. You will see a confirmation request, so hit `Y` and press enter. Once the request is fulfilled the console will show the response (decoded into the relevant return type) from the execution of your custom JS script.
 
