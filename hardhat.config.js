@@ -1,137 +1,56 @@
 require("@nomicfoundation/hardhat-toolbox")
 require("hardhat-contract-sizer")
 require("./tasks")
-require("dotenv").config()
-
-// Set one of the following RPC endpoints (required)
-let MAINNET_RPC_URL = process.env.MAINNET_RPC_URL
-let POLYGON_MAINNET_RPC_URL = process.env.POLYGON_MAINNET_RPC_URL
-let MUMBAI_RPC_URL = process.env.MUMBAI_RPC_URL
-let GOERLI_RPC_URL = process.env.GOERLI_RPC_URL
-let SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL
-
-// Ignore default values from .env.example
-if (GOERLI_RPC_URL === "https://goerli.infura.io/v3/ExampleKey") {
-  GOERLI_RPC_URL = undefined
-}
-if (SEPOLIA_RPC_URL === "https://sepolia.infura.io/v3/ExampleKey") {
-  SEPOLIA_RPC_URL = undefined
-}
-if (MUMBAI_RPC_URL === "https://polygon-mumbai.g.alchemy.com/v2/ExampleKey") {
-  MUMBAI_RPC_URL = undefined
-}
-
-// Ensure one of the RPC endpoints has been set
-if (!MAINNET_RPC_URL && !POLYGON_MAINNET_RPC_URL && !MUMBAI_RPC_URL && !GOERLI_RPC_URL && !SEPOLIA_RPC_URL) {
-  throw Error(
-    "One of the following environment variables must be set: MAINNET_RPC_URL, GOERLI_RPC_URL, SEPOLIA_RPC_URL, POLYGON_MAINNET_RPC_URL, or MUMBAI_RPC_URL"
-  )
-}
-
-// Set EVM private key (required)
-const PRIVATE_KEY = process.env.PRIVATE_KEY
-if (!PRIVATE_KEY) {
-  throw Error("Set the PRIVATE_KEY environment variable with your EVM wallet private key")
-}
-
-// Set a specific bock number to fork (optional)
-const FORKING_BLOCK_NUMBER = isNaN(process.env.FORKING_BLOCK_NUMBER)
-  ? undefined
-  : parseInt(process.env.FORKING_BLOCK_NUMBER)
-
-// Your API key for Etherscan, obtain one at https://etherscan.io/ (optional)
-const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
-const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY
+const { networks } = require("./networks")
 
 // Enable gas reporting (optional)
 const REPORT_GAS = process.env.REPORT_GAS?.toLowerCase() === "true" ? true : false
 
+const SOLC_SETTINGS = {
+  optimizer: {
+    enabled: true,
+    runs: 1_000,
+  },
+}
+
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  defaultNetwork: "hardhat",
+  defaultNetwork: "localFunctionsTestnet",
   solidity: {
     compilers: [
       {
+        version: "0.8.19",
+        settings: SOLC_SETTINGS,
+      },
+      {
         version: "0.8.7",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 1_000,
-          },
-        },
+        settings: SOLC_SETTINGS,
+      },
+      {
+        version: "0.7.0",
+        settings: SOLC_SETTINGS,
       },
       {
         version: "0.6.6",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 1_000,
-          },
-        },
+        settings: SOLC_SETTINGS,
       },
       {
         version: "0.4.24",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 1_000,
-          },
-        },
+        settings: SOLC_SETTINGS,
       },
     ],
   },
   networks: {
-    hardhat: {
-      allowUnlimitedContractSize: true,
-      hardfork: "merge",
-      forking: {
-        url: MAINNET_RPC_URL ?? POLYGON_MAINNET_RPC_URL ?? MUMBAI_RPC_URL ?? GOERLI_RPC_URL ?? SEPOLIA_RPC_URL,
-        blockNumber: FORKING_BLOCK_NUMBER,
-        enabled: true,
-      },
-      chainId: 31337,
-      accounts: process.env.PRIVATE_KEY
-        ? [
-            {
-              privateKey: process.env.PRIVATE_KEY,
-              balance: "10000000000000000000000",
-            },
-          ]
-        : [],
-    },
-    goerli: {
-      url: GOERLI_RPC_URL ?? "UNSET",
-      accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-      chainId: 5,
-    },
-    mainnet: {
-      url: MAINNET_RPC_URL ?? "UNSET",
-      accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-      chainId: 1,
-    },
-    polygon: {
-      url: POLYGON_MAINNET_RPC_URL ?? "UNSET",
-      accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-      chainId: 137,
-    },
-    mumbai: {
-      url: MUMBAI_RPC_URL ?? "UNSET",
-      accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-    },
-    sepolia: {
-      url: SEPOLIA_RPC_URL || "UNSET",
-      accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-      chainId: 11155111,
-    },
+    ...networks,
   },
   etherscan: {
-    // yarn hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_PARAMETERS>
     apiKey: {
-      mainnet: ETHERSCAN_API_KEY,
-      polygon: POLYGONSCAN_API_KEY,
-      goerli: ETHERSCAN_API_KEY,
-      sepolia: ETHERSCAN_API_KEY,
-      polygonMumbai: POLYGONSCAN_API_KEY,
+      mainnet: networks.ethereum.verifyApiKey,
+      avalanche: networks.avalanche.verifyApiKey,
+      polygon: networks.polygon.verifyApiKey,
+      sepolia: networks.ethereumSepolia.verifyApiKey,
+      polygonMumbai: networks.polygonMumbai.verifyApiKey,
+      avalancheFujiTestnet: networks.avalancheFuji.verifyApiKey,
     },
   },
   gasReporter: {
