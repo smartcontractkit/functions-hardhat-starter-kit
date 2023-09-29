@@ -1,3 +1,6 @@
+const { SubscriptionManager } = require("@chainlink/functions-toolkit")
+
+const utils = require("../utils")
 const { networks } = require("../../networks")
 
 task(
@@ -10,46 +13,23 @@ task(
     "Address where the remaining subscription balance is sent (defaults to caller's address)"
   )
   .setAction(async (taskArgs) => {
-    if (network.name == "hardhat") {
-      throw Error("This command cannot be used on a local hardhat chain.  Specify a valid network.")
-    }
+    const subscriptionId = parseInt(taskArgs.subid)
+    const refundAddress = taskArgs.refundaddress ?? (await ethers.getSigners())[0].address
 
-    const subscriptionId = taskArgs.subid
-    const refundAddress = taskArgs.refundAddress ?? (await ethers.getSigners())[0].address
+    const signer = await ethers.getSigner()
+    const linkTokenAddress = networks[network.name]["linkToken"]
+    const functionsRouterAddress = networks[network.name]["functionsRouter"]
+    const confirmations = networks[network.name].confirmations
+    const txOptions = { confirmations }
 
-    const RegistryFactory = await ethers.getContractFactory(
-      "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
+    const sm = new SubscriptionManager({ signer, linkTokenAddress, functionsRouterAddress })
+    await sm.initialize()
+
+    await utils.prompt(
+      `\nPlease confirm that you wish to cancel Subscription ${subscriptionId} and have its LINK balance sent to wallet ${refundAddress}.`
     )
-    const registry = await RegistryFactory.attach(networks[network.name]["functionsBillingRegistryProxy"])
-
-    // Check that the subscription is valid
-    let preSubInfo
-    try {
-      preSubInfo = await registry.getSubscription(subscriptionId)
-    } catch (error) {
-      if (error.errorName === "InvalidSubscription") {
-        throw Error(`Subscription ID "${subscriptionId}" is invalid or does not exist`)
-      }
-      console.log("Cancellation failed. Ensure there are no pending requests or requests which must be timed out.")
-      throw error
-    }
-
-    // Check that the requesting wallet is the owner of the subscription
-    const accounts = await ethers.getSigners()
-    const signer = accounts[0]
-    if (preSubInfo[1] !== signer.address) {
-      throw Error("The current wallet is not the owner of the subscription")
-    }
-
-    // TODO: This script should check for any pending requests and return an error.
-    // It should also time out any expired pending requests automatically.
 
     console.log(`Canceling subscription ${subscriptionId}`)
-    const cancelTx = await registry.cancelSubscription(subscriptionId, refundAddress)
-
-    console.log(
-      `Waiting ${networks[network.name].confirmations} blocks for transaction ${cancelTx.hash} to be confirmed...`
-    )
-    await cancelTx.wait(networks[network.name].confirmations)
-    console.log(`\nSubscription ${subscriptionId} cancelled.`)
+    const cancelTx = await sm.cancelSubscription({ subscriptionId, refundAddress, txOptions })
+    console.log(`\nSubscription ${subscriptionId} cancelled in Tx: ${cancelTx.transactionHash}`)
   })
