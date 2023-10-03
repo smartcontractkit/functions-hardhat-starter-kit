@@ -47,7 +47,7 @@ task("functions-deploy-consumer", "Deploys the FunctionsConsumer contract")
     ) {
       try {
         console.log("\nVerifying contract...")
-        await consumerContract.deployTransaction.wait(Math.max(6 - networks[network.name].confirmations, 0))
+        await consumerContract.deployTransaction.wait(networks[network.name].confirmations)
         await run("verify:verify", {
           address: consumerContract.address,
           constructorArguments: [functionsRouter, donIdBytes32],
