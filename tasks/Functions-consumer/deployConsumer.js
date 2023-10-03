@@ -47,7 +47,6 @@ task("functions-deploy-consumer", "Deploys the FunctionsConsumer contract")
     ) {
       try {
         console.log("\nVerifying contract...")
-        await consumerContract.deployTransaction.wait(networks[network.name].confirmations)
         await run("verify:verify", {
           address: consumerContract.address,
           constructorArguments: [functionsRouter, donIdBytes32],
@@ -55,7 +54,9 @@ task("functions-deploy-consumer", "Deploys the FunctionsConsumer contract")
         console.log("Contract verified")
       } catch (error) {
         if (!error.message.includes("Already Verified")) {
-          console.log("Error verifying contract.  Delete the build folder and try again.")
+          console.log(
+            "Error verifying contract.  Ensure you are waiting for enough confirmation blocks, delete the build folder and try again."
+          )
           console.log(error)
         } else {
           console.log("Contract already verified")
