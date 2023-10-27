@@ -206,15 +206,14 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     }
 
     // Listen for fulfillment
-    const requestId = requestTxReceipt.events[2].args.id
     spinner.start(
-      `Request ${requestId} has been initiated. Waiting for fulfillment from the Decentralized Oracle Network...\n`
+      `Request ${requestTxReceipt.events[2].args.id} has been initiated. Waiting for fulfillment from the Decentralized Oracle Network...\n`
     )
 
     try {
       // Get response data
-      const { totalCostInJuels, responseBytesHexstring, errorString, fulfillmentCode } =
-        await responseListener.listenForResponse(requestId)
+      const { requestId, totalCostInJuels, responseBytesHexstring, errorString, fulfillmentCode } =
+        await responseListener.listenForResponseFromTransaction(requestTx.hash)
 
       switch (fulfillmentCode) {
         case FulfillmentCode.FULFILLED:
