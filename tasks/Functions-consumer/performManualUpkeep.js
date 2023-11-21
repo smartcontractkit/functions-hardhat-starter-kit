@@ -16,22 +16,42 @@ task("functions-perform-upkeep", "Manually call performUpkeep in an Automation c
     // Call performUpkeep
     const performData = taskArgs.data ?? []
 
-    console.log(
-      `Calling performUpkeep for Automation consumer contract ${taskArgs.contract} on network ${network.name}${
-        taskArgs.data ? ` with data ${performData}` : ""
-      }`
-    )
     const autoConsumerContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
     const autoConsumerContract = await autoConsumerContractFactory.attach(taskArgs.contract)
 
-    const checkUpkeep = await autoConsumerContract.performUpkeep(performData, overrides)
+    const checkUpkeep = await autoConsumerContract.checkUpkeep(performData)
+    if (!checkUpkeep.upkeepNeeded) {
+      console.log("\ncheckUpkeep returned false or reverted. Upkeep was not performed.")
+      return
+    }
 
     console.log(
-      `Waiting ${networks[network.name].confirmations} blocks for transaction ${checkUpkeep.hash} to be confirmed...`
+      `\nCalling performUpkeep for Automation consumer contract ${taskArgs.contract} on network ${network.name}${
+        taskArgs.data ? ` with data ${performData}` : ""
+      }`
     )
-    await checkUpkeep.wait(networks[network.name].confirmations)
+    const performUpkeepTx = await autoConsumerContract.performUpkeep(performData, overrides)
 
-    console.log(`\nSuccessfully called performUpkeep`)
+    console.log(
+      `\nWaiting ${networks[network.name].confirmations} blocks for transaction ${
+        performUpkeepTx.hash
+      } to be confirmed...`
+    )
+    const events = (await performUpkeepTx.wait(networks[network.name].confirmations)).events
+
+    const requestRevertedWithErrorMsg = events.find((e) => e.event === "RequestRevertedWithErrorMsg")
+    if (requestRevertedWithErrorMsg) {
+      console.log(`\nRequest reverted with error message: ${requestRevertedWithErrorMsg.args.reason}`)
+      return
+    }
+
+    const requestRevertedWithoutErrorMsg = events.find((e) => e.event === "RequestRevertedWithoutErrorMsg")
+    if (requestRevertedWithoutErrorMsg) {
+      console.log(
+        `\nRequest reverted without error message. Ensure your request has been set correctly, the subscription is funded and the consumer contract is authorized.\n(Raw data: ${requestRevertedWithoutErrorMsg.data})`
+      )
+      return
+    }
 
     const reqId = await autoConsumerContract.s_lastRequestId()
     console.log("\nLast request ID received by the Automation Consumer Contract...", reqId)
