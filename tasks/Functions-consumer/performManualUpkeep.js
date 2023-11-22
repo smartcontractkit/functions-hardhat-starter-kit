@@ -21,7 +21,7 @@ task("functions-perform-upkeep", "Manually call performUpkeep in an Automation c
 
     const checkUpkeep = await autoConsumerContract.checkUpkeep(performData)
     if (!checkUpkeep.upkeepNeeded) {
-      console.log("\ncheckUpkeep returned false or reverted. Upkeep was not performed.")
+      console.log("\ncheckUpkeep returned false. Upkeep was not performed.")
       return
     }
 
