@@ -101,7 +101,7 @@ const networks = {
     accounts,
     verifyApiKey: process.env.POLYGONSCAN_API_KEY || "UNSET",
     chainId: 80001,
-    confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
+    confirmations: 10,
     nativeCurrencySymbol: "MATIC",
     linkToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
     linkPriceFeed: "0x12162c3E810393dEC01362aBf156D7ecf6159528", // LINK/MATIC
