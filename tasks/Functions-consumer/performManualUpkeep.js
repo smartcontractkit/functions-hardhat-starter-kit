@@ -19,12 +19,6 @@ task("functions-perform-upkeep", "Manually call performUpkeep in an Automation c
     const autoConsumerContractFactory = await ethers.getContractFactory("AutomatedFunctionsConsumer")
     const autoConsumerContract = await autoConsumerContractFactory.attach(taskArgs.contract)
 
-    const checkUpkeep = await autoConsumerContract.checkUpkeep(performData)
-    if (!checkUpkeep.upkeepNeeded) {
-      console.log("\ncheckUpkeep returned false. Upkeep was not performed.")
-      return
-    }
-
     console.log(
       `\nCalling performUpkeep for Automation consumer contract ${taskArgs.contract} on network ${network.name}${
         taskArgs.data ? ` with data ${performData}` : ""
