@@ -26,9 +26,12 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
   uint256 public s_updateInterval;
   uint256 public s_lastUpkeepTimeStamp;
   uint256 public s_upkeepCounter;
+  uint256 public s_requestCounter;
   uint256 public s_responseCounter;
 
   event OCRResponse(bytes32 indexed requestId, bytes result, bytes err);
+  event RequestRevertedWithErrorMsg(string reason);
+  event RequestRevertedWithoutErrorMsg(bytes data);
 
   /**
    * @notice Executes once when a contract is created to initialize state variables
@@ -86,8 +89,23 @@ contract AutomatedFunctionsConsumer is FunctionsClient, ConfirmedOwner, Automati
     s_lastUpkeepTimeStamp = block.timestamp;
     s_upkeepCounter = s_upkeepCounter + 1;
 
-    bytes32 requestId = _sendRequest(s_requestCBOR, s_subscriptionId, s_fulfillGasLimit, donId);
-    s_lastRequestId = requestId;
+    try
+      i_router.sendRequest(
+        s_subscriptionId,
+        s_requestCBOR,
+        FunctionsRequest.REQUEST_DATA_VERSION,
+        s_fulfillGasLimit,
+        donId
+      )
+    returns (bytes32 requestId) {
+      s_requestCounter = s_requestCounter + 1;
+      s_lastRequestId = requestId;
+      emit RequestSent(requestId);
+    } catch Error(string memory reason) {
+      emit RequestRevertedWithErrorMsg(reason);
+    } catch (bytes memory data) {
+      emit RequestRevertedWithoutErrorMsg(data);
+    }
   }
 
   /**
