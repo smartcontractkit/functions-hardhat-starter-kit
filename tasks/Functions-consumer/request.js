@@ -141,6 +141,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
           console.log({ gistUrl })
           encryptedSecretsReference = await secretsManager.encryptSecretsUrls([gistUrl])
           console.log({ encryptedSecretsReference })
+          return
           break
 
         case Location.DONHosted:

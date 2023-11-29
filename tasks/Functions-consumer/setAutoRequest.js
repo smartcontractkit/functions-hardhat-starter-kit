@@ -142,7 +142,8 @@ const setAutoRequest = async (contract, taskArgs) => {
     source: requestConfig.source,
     args: requestConfig.args,
     secretsLocation: requestConfig.secretsLocation,
-    encryptedSecretsReference: "set encrypted secrets reference for Remote encrypted secrets here",
+    encryptedSecretsReference:
+      "0x1d76d2a3aa8bbbfc683646db8cf514500212ef4ea99a4a02f19b00f390f0d70287318baa729425c749be9b41f000ed7935e59a11101dd213249fa4d087cdd86cd9fcb6ec95929e5d8c922f86e490226589943c9f4279a20a5038d501be32034002dd740355b73dc0cfd4bc77eefa51dde00550254a0699361f885644c314fe9b257c4254fe3b8e79dbac0d1e1ae5d04bfe928f0b96b83c27c0f862ae59b38615f9",
   })
 
   console.log(`\nSetting the Functions request in AutomatedFunctionsConsumer contract ${contract} on ${network.name}`)
