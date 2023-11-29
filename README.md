@@ -316,7 +316,7 @@ The total number of imports and the size of each import are restricted:
 
 All other execution restrictions still apply to imported dependencies. This means the dependencies will not have access to the file system, environment variables or any other Deno permissions. If an imported library requires restricted permissions, importing the library may result in an error. Furthermore, dependencies are downloaded at runtime, meaning the time required to download a dependency is counted toward the total JavaScript source code execution time limit.
 
-Sometimes imported dependencies will use additional fetch requests to load additional code or resources. These fetch requests will count toward the total number of HTTP requests that the JavaScript source code is allowed to perform, and if this number of allowed fetch requests is exceeded by the imported dependencies, the import attempt will fail with an error.
+Sometimes imported dependencies use additional fetch requests to load additional code or resources. These fetch requests count toward the total number of HTTP requests that the JavaScript source code is allowed to perform. If the imported dependencies exceed this total number of allowed fetch requests, the import attempt will fail with an error.
 
 ## Modifying Contracts
 
