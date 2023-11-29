@@ -309,7 +309,7 @@ return Functions.encodeUint256(BigInt(myNumber.toString()));
 
 Chainlink Functions supports importing ESM-compatible modules with are supported by Deno within the JavaScript source code. It also supports importing some NPM packages [via the `npm:` specifier](https://docs.deno.com/runtime/manual/node/npm_specifiers) and some built-in Node.js modules [via the `node:` specifier](https://docs.deno.com/runtime/manual/node/node_specifiers). Check out the [Deno documentation on importing modules](https://docs.deno.com/runtime/manual/basics/modules/) for more information or visit [deno.land/x](https://deno.land/x) to find 3rd party modules which have been built for Deno.
 
-The total number of imports and the size of each import are restricted: 
+The total number of imports and the size of each import are restricted:
 
 - You can import a maximum of 20 direct dependencies.
 - The total size of each imported dependency cannot be larger than 10 MB. This 10 MB size limit includes any indirect dependencies required by the target library.
