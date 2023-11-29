@@ -292,7 +292,8 @@ To import and use libraries in your Functions request JavaScript source code, yo
 
 ```
 const lodash = await import("http://cdn.skypack.dev/lodash");
-const result = lodash.concat([1], 2); return Functions.encodeString(JSON.stringify(result));
+const result = lodash.concat([1], 2);
+return Functions.encodeString(JSON.stringify(result));
 ```
 
 ```
