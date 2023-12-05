@@ -307,14 +307,14 @@ return Functions.encodeUint256(BigInt(myNumber.toString()));
 
 > ⚠️ **Users are fully responsible for any dependencies their JavaScript source code imports. Chainlink is not responsible for any imported dependencies and provides no guarantees of the validity, availability or security of any libraries a user chooses to import. Developers are advised to fully vet any imported dependencies or avoid dependencies altogether to avoid any risks associated with a compromised library or a compromised repository from which the dependency is downloaded.**
 
-Chainlink Functions supports importing ESM-compatible modules with are supported by Deno within the JavaScript source code. It also supports importing some NPM packages [via the `npm:` specifier](https://docs.deno.com/runtime/manual/node/npm_specifiers) and some built-in Node.js modules [via the `node:` specifier](https://docs.deno.com/runtime/manual/node/node_specifiers). Check out the [Deno documentation on importing modules](https://docs.deno.com/runtime/manual/basics/modules/) for more information or visit [deno.land/x](https://deno.land/x) to find 3rd party modules which have been built for Deno.
+Chainlink Functions supports importing ESM-compatible modules with are supported by Deno within the JavaScript source code. It also supports importing some NPM packages [via the `npm:` specifier](https://docs.deno.com/runtime/manual/node/npm_specifiers) and some standard Node.js modules [via the `node:` specifier](https://docs.deno.com/runtime/manual/node/node_specifiers). Check out the [Deno documentation on importing modules](https://docs.deno.com/runtime/manual/basics/modules/) for more information or visit [deno.land/x](https://deno.land/x) to find 3rd party modules which have been built for Deno.
 
 The total number of imports and the size of each import are restricted:
 
-- You can import a maximum of 20 direct dependencies.
-- The total size of each imported dependency cannot be larger than 10 MB. This 10 MB size limit includes any indirect dependencies required by the target library.
+- You can import a maximum of 100 dependencies. Sub-dependencies required by the target library also count toward this limit.
+- The total size of each imported dependency cannot be larger than 10 MB. This 10 MB size limit includes any sub-dependencies required by the target library.
 
-All other execution restrictions still apply to imported dependencies. This means the dependencies will not have access to the file system, environment variables or any other Deno permissions. If an imported library requires restricted permissions, importing the library may result in an error. Furthermore, dependencies are downloaded at runtime, meaning the time required to download a dependency is counted toward the total JavaScript source code execution time limit.
+All other [service limits](https://docs.chain.link/chainlink-functions/resources/service-limits) still apply to imported dependencies. This means the dependencies will not have access to the file system, environment variables or any other Deno permissions. If an imported library requires restricted permissions, importing the library may result in an error. Furthermore, dependencies are downloaded at runtime, meaning the time required to download a dependency is counted toward the total JavaScript source code execution time limit.
 
 Sometimes imported dependencies use additional fetch requests to load additional code or resources. These fetch requests count toward the total number of HTTP requests that the JavaScript source code is allowed to perform. If the imported dependencies exceed this total number of allowed fetch requests, the import attempt will fail with an error.
 
