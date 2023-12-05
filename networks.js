@@ -120,9 +120,12 @@ const networks = {
     nativeCurrencySymbol: "ETH",
     linkToken: "0xb1D4538B4571d411F07960EF2838Ce337FE1E80E",
     linkPriceFeed: "0xccAE8A015754a64f379550146360bDbAEc757D77", // LINK/ETH
-    functionsRouter: "0x1e531A9635741Ee668114E5EeF039aC086265d5e",
-    donId: "fun-staging-arbitrum-sepolia-1",
-    gatewayUrls: ["https://gateway-stg-one.main.stage.cldev.sh"],
+    functionsRouter: "0x234a5fb5bd614a7aa2ffab244d603abfa0ac5c5c",
+    donId: "fun-arbitrum-sepolia-1",
+    gatewayUrls: [
+      "https://01.functions-gateway.testnet.chain.link/",
+      "https://02.functions-gateway.testnet.chain.link/",
+    ],
   },
   avalancheFuji: {
     url: process.env.AVALANCHE_FUJI_RPC_URL || "UNSET",

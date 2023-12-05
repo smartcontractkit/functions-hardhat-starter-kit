@@ -9,15 +9,15 @@ const requestConfig = {
   // Location of source code (only Inline is currently supported)
   codeLocation: Location.Inline,
   // Optional. Secrets can be accessed within the source code with `secrets.varName` (ie: secrets.apiKey). The secrets object can only contain string values.
-  secrets: { test: "test" },
+  secrets: { RPC_URL: process.env.ETHEREUM_RPC_URL, PRIVATE_KEY: process.env.PRIVATE_KEY, test: "test" },
   // Optional if secrets are expected in the sourceLocation of secrets (only Remote or DONHosted is supported)
   secretsLocation: Location.DONHosted,
   // Args (string only array) can be accessed within the source code with `args[index]` (ie: args[0]).
-  args: ["1", "bitcoin", "btc-bitcoin", "btc", "1000000", "450"],
+  args: ["0x0eb3B031927E6833231159c9ED0fE47EFD29842b", "0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d"],
   // Code language (only JavaScript is currently supported)
   codeLanguage: CodeLanguage.JavaScript,
   // Expected type of the returned value
-  expectedReturnType: ReturnType.string,
+  expectedReturnType: ReturnType.uint256,
 }
 
 module.exports = requestConfig
