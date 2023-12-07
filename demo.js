@@ -1,11 +1,16 @@
+// Returns total number of NFTs a user holds in a given NFT collection
+
+// Uses latest version of Ethers (v6.9.0)
 const ethers = await import("npm:ethers")
 
+// Get the owner address to check and the address of the NFT contract from args
 const addressToCheck = args[0]
 const nftAddress = args[1]
-
+// Contract method ABI to get number of NFTs held by an address
 const abi = ["function balanceOf(address owner) view returns (uint256)"]
-
-class MyProvider extends ethers.JsonRpcProvider {
+// Chainlink Functions compatible Ethers JSON RPC provider class
+// (this is required for making Ethers RPC calls with Chainlink Functions)
+class FunctionsJsonRpcProvider extends ethers.JsonRpcProvider {
   constructor(url) {
     super(url)
     this.url = url
@@ -20,18 +25,8 @@ class MyProvider extends ethers.JsonRpcProvider {
   }
 }
 
-const provider = new MyProvider(secrets.RPC_URL)
-
-const wallet = new ethers.Wallet(secrets.PRIVATE_KEY, provider)
-
-// Send 1 ETH to the address
-// const result = wallet.sendTransaction({
-//   to: "0x0eb3B031927E6833231159c9ED0fE47EFD29842b",
-//   value: ethers.parseEther("1.0")
-// })
-
+const provider = new FunctionsJsonRpcProvider(secrets.RPC_URL)
 const nftContract = new ethers.Contract(nftAddress, abi, provider)
-
 const balance = await nftContract.balanceOf(addressToCheck)
 
 return Functions.encodeUint256(balance)
