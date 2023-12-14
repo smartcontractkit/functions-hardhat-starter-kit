@@ -94,7 +94,7 @@ const networks = {
       "https://02.functions-gateway.testnet.chain.link/",
     ],
   },
-  arbitrumMainnet: {
+  arbitrum: {
     url: process.env.ARBITRUM_RPC_URL || "UNSET",
     gasPrice: 1_000_000_000,
     nonce: undefined,
