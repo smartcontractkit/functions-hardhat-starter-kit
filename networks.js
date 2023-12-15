@@ -96,7 +96,7 @@ const networks = {
   },
   arbitrum: {
     url: process.env.ARBITRUM_RPC_URL || "UNSET",
-    gasPrice: 1_000_000_000,
+    gasPrice: undefined,
     nonce: undefined,
     accounts,
     verifyApiKey: process.env.ARBISCAN_API_KEY || "UNSET",
