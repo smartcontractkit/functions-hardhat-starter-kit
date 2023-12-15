@@ -90,7 +90,7 @@ Install **both** of the following:
    - `PRIVATE_KEY` for your development wallet - `POLYGON_MUMBAI_RPC_URL`, `ETHEREUM_SEPOLIA_RPC_URL`, or `AVALANCHE_FUJI_RPC_URL`
    - `POLYGONSCAN_API_KEY`, `ETHERSCAN_API_KEY`, or `FUJI_SNOWTRACE_API_KEY` blockchain explore API keys depending on which network you're using
    - `COINMARKETCAP_API_KEY` (from [here](https://pro.coinmarketcap.com/))
-   - `SECOND_PRIVATE_KEY` (optional) , if you want to Accepts ownership of a Functions subscription after a transfer is requested. It should be private key of address you want to transfer ownership to.
+   - `SECOND_PRIVATE_KEY` (optional) ,to accept the transfer of ownership using `./tasks/Functions-billing/accept.js` you will need to set this environment variable to act as the "transferee's" account.
      <br><br>
 4. Set the required environment variables. For improved security, Chainlink provides the NPM package [@chainlink/env-enc](https://www.npmjs.com/package/@chainlink/env-enc) which can be used to keep environment variables in a password encrypted `.env.enc` file instead of a plaintext `.env` for additional security. More detail on environment variable management and the tooling is provided in the [Environment Variable Management](#environment-variable-management) section.
    1. Set an encryption password for your environment variables to a secure password by running `npx env-enc set-pw`. This password needs to be set each time you create or restart a terminal shell session.<br>
