@@ -26,10 +26,18 @@ task(
     await sm.initialize()
 
     await utils.prompt(
-      `\nPlease confirm that you wish to cancel Subscription ${subscriptionId} and have its LINK balance sent to wallet ${refundAddress}.`
+      `\nPlease confirm that you wish to cancel Subscription ${subscriptionId} and have its LINK balance sent to wallet ${refundAddress}.\nNote that a portion of the LINK balance will be deducted if a minimum number of requests were not performed with the subscription.\nRead the documentation for more details: https://docs.chain.link/chainlink-functions/resources/billing#withdrawing-funds`
     )
 
     console.log(`Canceling subscription ${subscriptionId}`)
-    const cancelTx = await sm.cancelSubscription({ subscriptionId, refundAddress, txOptions })
+    let cancelTx
+    try {
+      cancelTx = await sm.cancelSubscription({ subscriptionId, refundAddress, txOptions })
+    } catch (error) {
+      console.log(
+        "Error cancelling subscription. Please ensure there are no pending requests or stale requests which have not been timed out before attempting to cancel."
+      )
+      throw error
+    }
     console.log(`\nSubscription ${subscriptionId} cancelled in Tx: ${cancelTx.transactionHash}`)
   })
