@@ -10,16 +10,17 @@ require("@chainlink/env-enc").config("../.env.enc")
   console.log(`Using Functions request config file ${requestConfigPath}\n`)
 
   const localFunctionsTestnetInfo = await startLocalFunctionsTestnet(
-    requestConfigPath,
-    {
-      logging: {
-        debug: false,
-        verbose: false,
-        quiet: true, // Set this to `false` to see logs from the local testnet
-      },
-    } // Ganache server options (optional)
+    requestConfigPath
+    // {
+    //   logging: {
+    //     debug: false,
+    //     verbose: false,
+    //     quiet: true, // Set this to `false` to see logs from the local testnet
+    //   },
+    // } // Ganache server options (optional)
   )
 
+  console.log("GOT TESTNET INFO:  ", localFunctionsTestnetInfo.donId, localFunctionsTestnetInfo.adminWallet)
   console.table({
     "FunctionsRouter Contract Address": localFunctionsTestnetInfo.functionsRouterContract.address,
     "DON ID": localFunctionsTestnetInfo.donId,
@@ -44,7 +45,7 @@ require("@chainlink/env-enc").config("../.env.enc")
   let networksConfig = fs.readFileSync(path.join(process.cwd(), "networks.js")).toString()
   const regex = /localFunctionsTestnet:\s*{\s*([^{}]*)\s*}/s
   const newContent = `localFunctionsTestnet: {
-    url: "http://localhost:8545/",
+    url: "http://${localFunctionsTestnetInfo.server.host}:${localFunctionsTestnetInfo.server.port}",
     accounts,
     confirmations: 1,
     nativeCurrencySymbol: "ETH",

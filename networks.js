@@ -132,12 +132,12 @@ const networks = {
   },
   // localFunctionsTestnet is updated dynamically by scripts/startLocalFunctionsTestnet.js so it should not be modified here
   localFunctionsTestnet: {
-    url: "http://localhost:8545/",
+    url: "http://127.0.0.1:8545",
     accounts,
     confirmations: 1,
     nativeCurrencySymbol: "ETH",
-    linkToken: "0x94d3C68A91C972388d7863D25EDD2Be7e2F21F21",
-    functionsRouter: "0xCbfD616baE0F13EFE0528c446184C9C0EAa8040e",
+    linkToken: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    functionsRouter: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
     donId: "local-functions-testnet",
   },
 }
