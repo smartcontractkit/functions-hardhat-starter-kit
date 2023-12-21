@@ -9,18 +9,8 @@ require("@chainlink/env-enc").config("../.env.enc")
   const requestConfigPath = path.join(process.cwd(), "Functions-request-config.js") // @dev Update this to point to your desired request config file
   console.log(`Using Functions request config file ${requestConfigPath}\n`)
 
-  const localFunctionsTestnetInfo = await startLocalFunctionsTestnet(
-    requestConfigPath
-    // {
-    //   logging: {
-    //     debug: false,
-    //     verbose: false,
-    //     quiet: true, // Set this to `false` to see logs from the local testnet
-    //   },
-    // } // Ganache server options (optional)
-  )
+  const localFunctionsTestnetInfo = await startLocalFunctionsTestnet(requestConfigPath)
 
-  console.log("GOT TESTNET INFO:  ", localFunctionsTestnetInfo.donId, localFunctionsTestnetInfo.adminWallet)
   console.table({
     "FunctionsRouter Contract Address": localFunctionsTestnetInfo.functionsRouterContract.address,
     "DON ID": localFunctionsTestnetInfo.donId,
