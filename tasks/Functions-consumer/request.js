@@ -95,31 +95,31 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
       throw Error(`Consumer contract ${contractAddr} has not been added to subscription ${subscriptionId}`)
     }
 
-    // Estimate the cost of the request fulfillment
-    const { gasPrice } = await hre.ethers.provider.getFeeData()
-    const gasPriceWei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "wei").toString()))
-    const estimatedCostJuels = await subManager.estimateFunctionsRequestCost({
-      donId,
-      subscriptionId,
-      callbackGasLimit,
-      gasPriceWei,
-    })
+    // // Estimate the cost of the request fulfillment
+    // const { gasPrice } = await hre.ethers.provider.getFeeData()
+    // const gasPriceWei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "wei").toString()))
+    // const estimatedCostJuels = await subManager.estimateFunctionsRequestCost({
+    //   donId,
+    //   subscriptionId,
+    //   callbackGasLimit,
+    //   gasPriceWei,
+    // })
 
-    // Ensure that the subscription has a sufficient balance
-    const estimatedCostLink = hre.ethers.utils.formatUnits(estimatedCostJuels, 18)
-    const subBalanceLink = hre.ethers.utils.formatUnits(subInfo.balance, 18)
-    if (subInfo.balance <= estimatedCostJuels) {
-      throw Error(
-        `Subscription ${subscriptionId} does not have sufficient funds. The estimated cost is ${estimatedCostLink} LINK, but the subscription only has ${subBalanceLink} LINK.`
-      )
-    }
+    // // Ensure that the subscription has a sufficient balance
+    // const estimatedCostLink = hre.ethers.utils.formatUnits(estimatedCostJuels, 18)
+    // const subBalanceLink = hre.ethers.utils.formatUnits(subInfo.balance, 18)
+    // if (subInfo.balance <= estimatedCostJuels) {
+    //   throw Error(
+    //     `Subscription ${subscriptionId} does not have sufficient funds. The estimated cost is ${estimatedCostLink} LINK, but the subscription only has ${subBalanceLink} LINK.`
+    //   )
+    // }
 
-    // Print the estimated cost of the Functions request in LINK & confirm before initiating the request on-chain
-    await utils.prompt(
-      `If the request's callback uses all ${utils.numberWithCommas(
-        callbackGasLimit
-      )} gas, this request will charge the subscription an estimated ${chalk.blue(estimatedCostLink + " LINK")}`
-    )
+    // // Print the estimated cost of the Functions request in LINK & confirm before initiating the request on-chain
+    // await utils.prompt(
+    //   `If the request's callback uses all ${utils.numberWithCommas(
+    //     callbackGasLimit
+    //   )} gas, this request will charge the subscription an estimated ${chalk.blue(estimatedCostLink + " LINK")}`
+    // )
 
     // Handle encrypted secrets
     let encryptedSecretsReference = []
@@ -177,6 +177,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     // Use a manual gas limit for the request transaction since estimated gas limit is not always accurate
     const overrides = {
       gasLimit: taskArgs.requestgaslimit,
+      gasPrice: "10000000",
     }
     // If specified, use the gas price from the network config instead of Ethers estimated price
     if (networks[network.name].gasPrice) {

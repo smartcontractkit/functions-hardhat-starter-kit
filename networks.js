@@ -167,6 +167,24 @@ const networks = {
       "https://02.functions-gateway.testnet.chain.link/",
     ],
   },
+  baseSepolia: {
+    url: process.env.BASE_SEPOLIA_RPC_URL || "UNSET",
+    gasPrice: undefined,
+    nonce: undefined,
+    accounts,
+    //verifyApiKey: process.env.ETHERSCAN_API_KEY || "UNSET",
+    chainId: 84532,
+    confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
+    nativeCurrencySymbol: "ETH",
+    linkToken: "0xE4aB69C077896252FAFBD49EFD26B5D171A32410",
+    linkPriceFeed: "0xd94522a6feF7779f672f4C88eb672da9222f2eAc", // LINK/ETH
+    functionsRouter: "0xeA6721aC65BCeD841B8ec3fc5fEdeA6141a0aDE4",
+    donId: "fun-staging-base-sepolia-1",
+    gatewayUrls: [
+      "https://01.functions-gateway.testnet.chain.link/",
+      "https://02.functions-gateway.testnet.chain.link/",
+    ],
+  },
   // localFunctionsTestnet is updated dynamically by scripts/startLocalFunctionsTestnet.js so it should not be modified here
   localFunctionsTestnet: {
     url: "http://localhost:8545/",
