@@ -172,7 +172,7 @@ const networks = {
     gasPrice: undefined,
     nonce: undefined,
     accounts,
-    //verifyApiKey: process.env.ETHERSCAN_API_KEY || "UNSET",
+    verifyApiKey: process.env.BASESCAN_API_KEY || "UNSET",
     chainId: 84532,
     confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
     nativeCurrencySymbol: "ETH",
@@ -180,10 +180,7 @@ const networks = {
     linkPriceFeed: "0xd94522a6feF7779f672f4C88eb672da9222f2eAc", // LINK/ETH
     functionsRouter: "0xeA6721aC65BCeD841B8ec3fc5fEdeA6141a0aDE4",
     donId: "fun-staging-base-sepolia-1",
-    gatewayUrls: [
-      "https://01.functions-gateway.testnet.chain.link/",
-      "https://02.functions-gateway.testnet.chain.link/",
-    ],
+    gatewayUrls: ["https://gateway-stg-one.main.stage.cldev.sh", "https://gateway-stg-two.main.stage.cldev.sh"],
   },
   // localFunctionsTestnet is updated dynamically by scripts/startLocalFunctionsTestnet.js so it should not be modified here
   localFunctionsTestnet: {
