@@ -177,7 +177,7 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     // Use a manual gas limit for the request transaction since estimated gas limit is not always accurate
     const overrides = {
       gasLimit: taskArgs.requestgaslimit,
-      gasPrice: "10000000",
+      gasPrice: "100000000",
     }
     // If specified, use the gas price from the network config instead of Ethers estimated price
     if (networks[network.name].gasPrice) {

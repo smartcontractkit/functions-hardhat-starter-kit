@@ -9,7 +9,9 @@ const requestConfig = {
   // Location of source code (only Inline is currently supported)
   codeLocation: Location.Inline,
   // Optional. Secrets can be accessed within the source code with `secrets.varName` (ie: secrets.apiKey). The secrets object can only contain string values.
-  secrets: { test: "Hello world!" },
+  secrets: {
+    test: "e2f8ac32a73bdd3e9558685a98ba2e26d143f33fa09fb7312670830ac9eb275ae2f8ac32a73bdd3e9558685a98ba2e26d143f33fa09fb7312670830ac9eb275ae2f8ac32a73bdd3e9558685a98ba2e26d143f33fa09fb7312670830ac9eb275ae2f8ac32a73bdd3e9558685a98ba2e26d143f33fa09fb7312670830ac9eb275a",
+  },
   // Optional if secrets are expected in the sourceLocation of secrets (only Remote or DONHosted is supported)
   secretsLocation: Location.DONHosted,
   // Args (string only array) can be accessed within the source code with `args[index]` (ie: args[0]).
