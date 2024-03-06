@@ -178,9 +178,30 @@ const networks = {
     nativeCurrencySymbol: "ETH",
     linkToken: "0xE4aB69C077896252FAFBD49EFD26B5D171A32410",
     linkPriceFeed: "0xd94522a6feF7779f672f4C88eb672da9222f2eAc", // LINK/ETH
-    functionsRouter: "0xeA6721aC65BCeD841B8ec3fc5fEdeA6141a0aDE4",
-    donId: "fun-staging-base-sepolia-1",
-    gatewayUrls: ["https://gateway-stg-one.main.stage.cldev.sh", "https://gateway-stg-two.main.stage.cldev.sh"],
+    functionsRouter: "0xf9B8fc078197181C841c296C876945aaa425B278",
+    donId: "fun-base-sepolia-1",
+    gatewayUrls: [
+      "https://01.functions-gateway.testnet.chain.link/",
+      "https://02.functions-gateway.testnet.chain.link/",
+    ],
+  },
+  optimismSepolia: {
+    url: process.env.OPTIMISM_SEPOLIA_RPC_URL || "UNSET",
+    gasPrice: undefined,
+    nonce: undefined,
+    accounts,
+    verifyApiKey: process.env.OPTISCAN_API_KEY || "UNSET",
+    chainId: 11155420,
+    confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
+    nativeCurrencySymbol: "ETH",
+    linkToken: "0xE4aB69C077896252FAFBD49EFD26B5D171A32410",
+    linkPriceFeed: "0x464A1515ADc20de946f8d0DEB99cead8CEAE310d", // LINK/ETH
+    functionsRouter: "0xC17094E3A1348E5C7544D4fF8A36c28f2C6AAE28",
+    donId: "fun-optimism-sepolia-1",
+    gatewayUrls: [
+      "https://01.functions-gateway.testnet.chain.link/",
+      "https://02.functions-gateway.testnet.chain.link/",
+    ],
   },
   // localFunctionsTestnet is updated dynamically by scripts/startLocalFunctionsTestnet.js so it should not be modified here
   localFunctionsTestnet: {

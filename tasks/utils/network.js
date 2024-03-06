@@ -8,6 +8,7 @@ const BASE_URLS = {
   421614: "https://sepolia.arbiscan.io/",
   42161: "https://arbiscan.io/",
   84532: "https://sepolia.basescan.org/",
+  11155420: "https://optimistic.etherscan.io/",
 }
 
 /**

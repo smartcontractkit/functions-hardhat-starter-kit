@@ -20,7 +20,7 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
     const txOptions = {
       confirmations,
       overrides: {
-        gasPrice: "10000000",
+        gasPrice: "100000000",
       },
     }
 

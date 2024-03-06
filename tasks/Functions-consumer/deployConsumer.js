@@ -12,7 +12,7 @@ task("functions-deploy-consumer", "Deploys the FunctionsConsumer contract")
     console.log("\n__Compiling Contracts__")
     await run("compile")
 
-    const overrides = {}
+    const overrides = { gasPrice: "100000000" }
     // If specified, use the gas price from the network config instead of Ethers estimated price
     if (networks[network.name].gasPrice) {
       overrides.gasPrice = networks[network.name].gasPrice
