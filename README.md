@@ -83,9 +83,9 @@ Install **both** of the following:
 - Node.js version [20](https://nodejs.org/en/download/)
 - Deno version [1.36](https://deno.land/manual@v1.36.4/getting_started/installation) (or the latest release of Deno v1 if a later one is available)
 
-## Steps on live testnet
+## Steps on Live (Public) Testnet
 
-1. Clone this repository to your local machine<br><br>
+1. Clone this repository to your local machine<br><br>. Also ensure that the testnet your wanting to deploy on is [supported](https://docs.chain.link/chainlink-functions/supported-networks) by Chainlink Functions.
 2. Open this directory in your command line/terminal app, then run `npm install` to install all dependencies.<br><br>
 3. Obtain the values for following environment variables (examples only - please see `./env.enc.example` for env vars you may need):
    - `PRIVATE_KEY` for your development wallet - `POLYGON_MUMBAI_RPC_URL`, `ETHEREUM_SEPOLIA_RPC_URL`, or `AVALANCHE_FUJI_RPC_URL`
