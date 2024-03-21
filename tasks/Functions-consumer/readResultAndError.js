@@ -29,12 +29,8 @@ task(
       const requestConfig = require(path.isAbsolute(taskArgs.configpath)
         ? taskArgs.configpath
         : path.join(process.cwd(), taskArgs.configpath))
-      console.log(
-        `\nOn-chain response represented as a hex string: ${latestResponse}\n${decodeResult(
-          latestResponse,
-          requestConfig.expectedReturnType
-        ).toString()}`
-      )
+      const decodedResult = decodeResult(latestResponse, requestConfig.expectedReturnType).toString()
+      console.log(`\nOn-chain response represented as a hex string: ${latestResponse}\n${decodedResult}`)
     } else if (latestResponse == "0x") {
       console.log("Empty response: ", latestResponse)
     }

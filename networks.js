@@ -12,13 +12,15 @@ const DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS = 2
 const npmCommand = process.env.npm_lifecycle_event
 const isTestEnvironment = npmCommand == "test" || npmCommand == "test:unit"
 
+const isSimulation = process.argv.length === 3 && process.argv[2] === "functions-simulate-script" ? true : false
+
 // Set EVM private keys (required)
 const PRIVATE_KEY = process.env.PRIVATE_KEY
 
 // TODO @dev - set this to run the accept.js task.
 const SECOND_PRIVATE_KEY = process.env.SECOND_PRIVATE_KEY
 
-if (!isTestEnvironment && !PRIVATE_KEY) {
+if (!isTestEnvironment && !isSimulation && !PRIVATE_KEY) {
   throw Error("Set the PRIVATE_KEY environment variable with your EVM wallet private key")
 }
 
@@ -125,6 +127,41 @@ const networks = {
     linkPriceFeed: "0x79c91fd4F8b3DaBEe17d286EB11cEE4D83521775", // LINK/AVAX
     functionsRouter: "0xA9d587a00A31A52Ed70D6026794a8FC5E2F5dCb0",
     donId: "fun-avalanche-fuji-1",
+    gatewayUrls: [
+      "https://01.functions-gateway.testnet.chain.link/",
+      "https://02.functions-gateway.testnet.chain.link/",
+    ],
+  },
+  arbitrum: {
+    url: process.env.ARBITRUM_RPC_URL || "UNSET",
+    gasPrice: undefined,
+    nonce: undefined,
+    accounts,
+    verifyApiKey: process.env.ARBISCAN_API_KEY || "UNSET",
+    chainId: 42161,
+    confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
+    nativeCurrencySymbol: "ETH",
+    linkToken: "0xf97f4df75117a78c1A5a0DBb814Af92458539FB4",
+    linkPriceFeed: "0xb7c8Fb1dB45007F98A68Da0588e1AA524C317f27", // LINK/ETH
+    functionsRouter: "0x97083E831F8F0638855e2A515c90EdCF158DF238",
+    donId: "fun-arbitrum-mainnet-1",
+    gatewayUrls: ["https://01.functions-gateway.chain.link/", "https://02.functions-gateway.chain.link/"],
+  },
+  arbitrumSepolia: {
+    url: process.env.ARBITRUM_SEPOLIA_RPC_URL || "UNSET",
+    gasPrice: undefined,
+    nonce: undefined,
+    accounts,
+    verifyApiKey: process.env.ARBISCAN_API_KEY || "UNSET",
+    url: process.env.ARBITRUM_SEPOLIA_RPC_URL || "UNSET",
+    accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
+    chainId: 421614,
+    confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
+    nativeCurrencySymbol: "ETH",
+    linkToken: "0xb1D4538B4571d411F07960EF2838Ce337FE1E80E",
+    linkPriceFeed: "0xccAE8A015754a64f379550146360bDbAEc757D77", // LINK/ETH
+    functionsRouter: "0x1e531A9635741Ee668114E5EeF039aC086265d5e",
+    donId: "fun-arbitrum-sepolia-1",
     gatewayUrls: [
       "https://01.functions-gateway.testnet.chain.link/",
       "https://02.functions-gateway.testnet.chain.link/",

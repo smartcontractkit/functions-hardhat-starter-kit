@@ -51,7 +51,19 @@ module.exports = {
       sepolia: networks.ethereumSepolia.verifyApiKey,
       polygonMumbai: networks.polygonMumbai.verifyApiKey,
       avalancheFujiTestnet: networks.avalancheFuji.verifyApiKey,
+      arbitrum: networks.arbitrum.verifyApiKey,
+      arbitrumSepolia: networks.arbitrumSepolia.verifyApiKey,
     },
+    customChains: [
+      {
+        network: "arbitrumSepolia",
+        chainId: 421614,
+        urls: {
+          apiURL: "https://api-sepolia.arbiscan.io/api",
+          browserURL: "https://sepolia.arbiscan.io/",
+        },
+      },
+    ],
   },
   gasReporter: {
     enabled: REPORT_GAS,
