@@ -7,6 +7,8 @@ const BASE_URLS = {
   43113: "https://testnet.snowtrace.io/",
   421614: "https://sepolia.arbiscan.io/",
   42161: "https://arbiscan.io/",
+  84532: "https://sepolia.basescan.org/",
+  11155420: "https://sepolia-optimistic.etherscan.io/",
 }
 
 /**
