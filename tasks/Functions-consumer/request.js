@@ -189,78 +189,95 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     if (networks[network.name].nonce) {
       overrides.nonce = networks[network.name].nonce
     }
-    const requestTx = await consumerContract.sendRequest(
-      requestConfig.source,
-      requestConfig.secretsLocation,
-      encryptedSecretsReference,
-      requestConfig.args ?? [],
-      requestConfig.bytesArgs ?? [],
-      subscriptionId,
-      callbackGasLimit,
-      overrides
-    )
-    const requestTxReceipt = await requestTx.wait(1)
-    if (network.name !== "localFunctionsTestnet") {
-      spinner.info(
-        `Transaction confirmed, see ${
-          utils.getEtherscanURL(network.config.chainId) + "tx/" + requestTx.hash
-        } for more details.`
+
+    // If running on  LFT, the event is emitted almost instantly on request
+    // creating a race condition in which the listener is not set up in time using `.listenForResponseFromTransaction()`.
+    // Since we cannot wait to get the Tx Hash and then pass it to the listener on creation,
+    // we listen for all responses on the subscription  and exit this task.
+    return new Promise(async (resolve, rej) => {
+      responseListener.listenForResponses(subscriptionId, (functionsResponse) => {
+        console.table({ ...functionsResponse })
+        handleFunctionsResponse(functionsResponse, requestConfig, spinner)
+        return resolve()
+      })
+
+      const requestTx = await consumerContract.sendRequest(
+        requestConfig.source,
+        requestConfig.secretsLocation,
+        encryptedSecretsReference,
+        requestConfig.args ?? [],
+        requestConfig.bytesArgs ?? [],
+        subscriptionId,
+        callbackGasLimit,
+        overrides
       )
-    }
-
-    // Listen for fulfillment
-    spinner.start(
-      `Functions request has been initiated in transaction ${requestTx.hash} with request ID ${requestTxReceipt.events[2].args.id}. Note the request ID may change if a re-org occurs, but the transaction hash will remain constant.\nWaiting for fulfillment from the Decentralized Oracle Network...\n`
-    )
-
-    try {
-      // Get response data
-      const { requestId, totalCostInJuels, responseBytesHexstring, errorString, fulfillmentCode } =
-        await responseListener.listenForResponseFromTransaction(requestTx.hash)
-
-      switch (fulfillmentCode) {
-        case FulfillmentCode.FULFILLED:
-          if (responseBytesHexstring !== "0x") {
-            spinner.succeed(
-              `Request ${requestId} fulfilled!\nResponse has been sent to consumer contract: ${decodeResult(
-                responseBytesHexstring,
-                requestConfig.expectedReturnType
-              ).toString()}\n`
-            )
-          } else if (errorString.length > 0) {
-            spinner.warn(`Request ${requestId} fulfilled with error: ${errorString}\n`)
-          } else {
-            spinner.succeed(`Request ${requestId} fulfilled with empty response data.\n`)
-          }
-          const linkCost = hre.ethers.utils.formatUnits(totalCostInJuels, 18)
-          console.log(`Total request cost: ${chalk.blue(linkCost + " LINK")}`)
-          break
-
-        case FulfillmentCode.USER_CALLBACK_ERROR:
-          spinner.fail(
-            "Error encountered when calling consumer contract callback.\nEnsure the fulfillRequest function in FunctionsConsumer is correct and the --callbackgaslimit is sufficient."
-          )
-          break
-
-        case FulfillmentCode.COST_EXCEEDS_COMMITMENT:
-          spinner.fail(`Request ${requestId} failed due to a gas price spike when attempting to respond.`)
-          break
-
-        default:
-          spinner.fail(
-            `Request ${requestId} failed with fulfillment code: ${fulfillmentCode}. Please contact Chainlink support.`
-          )
+      const requestTxReceipt = await requestTx.wait(1)
+      if (network.name !== "localFunctionsTestnet") {
+        spinner.info(
+          `Transaction confirmed, see ${
+            utils.getEtherscanURL(network.config.chainId) + "tx/" + requestTx.hash
+          } for more details.`
+        )
       }
-    } catch (error) {
-      spinner.fail("Request fulfillment was not received within 5 minute response period.")
-      throw error
-    } finally {
-      // Clean up the gist if it was created
-      if (gistUrl) {
-        const successfulDeletion = await deleteGist(process.env["GITHUB_API_TOKEN"], gistUrl)
-        if (!successfulDeletion) {
-          console.log(`Failed to delete gist at ${gistUrl}. Please delete manually.`)
+
+      // Listen for fulfillment
+      spinner.start(
+        `Functions request has been initiated in transaction ${requestTx.hash} with request ID ${requestTxReceipt.events[2].args.id}. Note the request ID may change if a re-org occurs, but the transaction hash will remain constant.\nWaiting for fulfillment from the Decentralized Oracle Network...\n`
+      )
+
+      try {
+        // Get response data
+        const functionsResponse = await responseListener.listenForResponseFromTransaction(requestTx.hash)
+
+        handleFunctionsResponse(functionsResponse, requestConfig, spinner)
+      } catch (error) {
+        spinner.fail("Request fulfillment was not received within 5 minute response period.")
+        throw error
+      } finally {
+        // Clean up the gist if it was created
+        if (gistUrl) {
+          const successfulDeletion = await deleteGist(process.env["GITHUB_API_TOKEN"], gistUrl)
+          if (!successfulDeletion) {
+            console.log(`Failed to delete gist at ${gistUrl}. Please delete manually.`)
+          }
         }
       }
-    }
+    })
   })
+
+function handleFunctionsResponse(functionsResponse, requestConfig, spinner) {
+  const { fulfillmentCode, requestId, responseBytesHexstring, errorString, totalCostInJuels } = functionsResponse
+  switch (fulfillmentCode) {
+    case FulfillmentCode.FULFILLED:
+      if (responseBytesHexstring !== "0x") {
+        spinner.succeed(
+          `Request ${requestId} fulfilled!\nResponse sent to consumer contract: ${decodeResult(
+            responseBytesHexstring,
+            requestConfig.expectedReturnType
+          ).toString()}\n`
+        )
+      } else if (errorString.length > 0) {
+        spinner.warn(`Request ${requestId} fulfilled with error: ${errorString}\n`)
+      } else {
+        spinner.succeed(`Request ${requestId} fulfilled with empty response data.\n`)
+      }
+      const linkCost = hre.ethers.utils.formatUnits(totalCostInJuels, 18)
+      console.log(`Total request cost: ${chalk.blue(linkCost + " LINK")}`)
+      break
+
+    case FulfillmentCode.USER_CALLBACK_ERROR:
+      spinner.fail(
+        "Error encountered when calling consumer contract callback.\nEnsure the fulfillRequest function in FunctionsConsumer is correct and the --callbackgaslimit is sufficient."
+      )
+      break
+
+    case FulfillmentCode.COST_EXCEEDS_COMMITMENT:
+      spinner.fail(`Request ${requestId} failed due to a gas price spike when attempting to respond.`)
+      break
+
+    default:
+      spinner.fail(
+        `Request ${requestId} failed with fulfillment code: ${fulfillmentCode}. Please contact Chainlink support.`
+      )
+  }
+}
