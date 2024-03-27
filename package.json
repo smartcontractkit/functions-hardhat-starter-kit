@@ -1,7 +1,7 @@
 {
   "name": "functions-hardhat-starter-kit",
   "license": "MIT",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Tooling for interacting with Chainlink Functions",
   "scripts": {
     "prepare": "husky install",
@@ -18,7 +18,7 @@
     "format:fix": "prettier --write ."
   },
   "dependencies": {
-    "@chainlink/contracts": "^0.7.1",
+    "@chainlink/contracts": "^1.0.0",
     "@chainlink/env-enc": "^1.0.5",
     "@chainlink/functions-toolkit": "^0.2.7",
     "@ethersproject/abi": "^5.7.0",
