@@ -215,13 +215,8 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
 
     try {
       // Get response data
-      const {
-        requestId,
-        totalCostInJuels,
-        responseBytesHexstring,
-        errorString,
-        fulfillmentCode,
-      } = await responseListener.listenForResponseFromTransaction(requestTx.hash)
+      const { requestId, totalCostInJuels, responseBytesHexstring, errorString, fulfillmentCode } =
+        await responseListener.listenForResponseFromTransaction(requestTx.hash)
 
       switch (fulfillmentCode) {
         case FulfillmentCode.FULFILLED:
