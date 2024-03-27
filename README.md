@@ -1,35 +1,35 @@
 # Chainlink Functions Starter Kit
 
 - [Chainlink Functions Starter Kit](#chainlink-functions-starter-kit)
-- [Overview](#overview)
-- [Motivation](#motivation)
+  - [Overview](#overview)
+  - [Motivation](#motivation)
   - [Supported Networks](#supported-networks)
     - [Mainnets](#mainnets)
     - [Testnets](#testnets)
-- [For Beginners](#for-beginners)
-  - [Tutorials \& examples](#tutorials--examples)
-- [Quickstart](#quickstart)
-  - [Requirements](#requirements)
-  - [Steps on live testnet](#steps-on-live-testnet)
-  - [Steps on local testnet](#steps-on-local-testnet)
-- [Environment Variable Management](#environment-variable-management)
-  - [Using Remote Secrets (e.g. Github Gists)](#using-remote-secrets-eg-github-gists)
-  - [Environment Variable Management Commands](#environment-variable-management-commands)
-- [Functions Command Glossary](#functions-command-glossary)
-  - [Functions Commands](#functions-commands)
-  - [Functions Subscription Management Commands](#functions-subscription-management-commands)
-- [Request Configuration](#request-configuration)
-  - [JavaScript Code](#javascript-code)
-    - [Functions Library](#functions-library)
-    - [Importing Dependencies](#importing-dependencies)
-  - [Modifying Contracts](#modifying-contracts)
-  - [Local Simulations with the `localFunctionsTestnet`](#local-simulations-with-the-localfunctionstestnet)
-  - [Managing Secrets](#managing-secrets)
-- [Automation Integration](#automation-integration)
-- [Gas Spikes](#gas-spikes)
-- [Troubleshooting](#troubleshooting)
+  - [For Beginners](#for-beginners)
+    - [Tutorials \& examples](#tutorials--examples)
+  - [Quickstart](#quickstart)
+    - [Requirements](#requirements)
+    - [Steps on live testnet](#steps-on-live-testnet)
+    - [Steps on local testnet](#steps-on-local-testnet)
+  - [Environment Variable Management](#environment-variable-management)
+    - [Using Remote Secrets (e.g. Github Gists)](#using-remote-secrets-eg-github-gists)
+    - [Environment Variable Management Commands](#environment-variable-management-commands)
+  - [Functions Command Glossary](#functions-command-glossary)
+    - [Functions Commands](#functions-commands)
+    - [Functions Subscription Management Commands](#functions-subscription-management-commands)
+  - [Request Configuration](#request-configuration)
+    - [JavaScript Code](#javascript-code)
+      - [Functions Library](#functions-library)
+      - [Importing Dependencies](#importing-dependencies)
+    - [Modifying Contracts](#modifying-contracts)
+    - [Local Simulations with the `localFunctionsTestnet`](#local-simulations-with-the-localfunctionstestnet)
+    - [Managing Secrets](#managing-secrets)
+  - [Automation Integration](#automation-integration)
+  - [Gas Spikes](#gas-spikes)
+  - [Troubleshooting](#troubleshooting)
 
-# Overview
+## Overview
 
 <p>Chainlink Functions allows users to request data from HTTP(s) APIs and perform custom computation using JavaScript.
 It works by executing the request on a <a href="https://chain.link/education/blockchain-oracles#decentralized-oracles">decentralized oracle network</a> (DON).
@@ -40,7 +40,7 @@ Nodes are compensated in LINK via a subscription billing model. You can see bill
 
 <p><b>Working with Chainlink Functions requires accepting the terms of service before you are able to create a subscription. Please visit <a href="https://functions.chain.link/">chain.link/functions</a>.</b></p>
 
-# Motivation
+## Motivation
 
 This repo provides developers with a "works out of the box" experience as it comes preconfigured with dependencies and popular tooling like [Hardhat](https://hardhat.org). This is not a tutorial for the Hardhat toolchain. It assumes basic familiarity with Hardhat and the command line. We use HardHat CLI scripts to run Chainlink Functions commands and operations.
 
@@ -53,14 +53,16 @@ In order to set up your own project which uses Chainlink Functions, please refer
 - Ethereum : `ETHEREUM_RPC_URL`, `--network ethereum`
 - Polygon : `POLYGON_RPC_URL`, `--network polygon`
 - Avalanche : `AVALANCHE_RPC_URL`, `--network avalanche`
+- Arbitrum : `ARBITRUM_RPC_URL`, `--network arbitrum`
 
 ### Testnets
 
 - Ethereum Sepolia: `ETHEREUM_SEPOLIA_RPC_URL`, `--network ethereumSepolia`
 - Polygon Mumbai: `POLYGON_MUMBAI_RPC_URL`, `--network polygonMumbai`
 - Avalanche Fuji: `AVALANCHE_FUJI_RPC_URL`, `--network avalancheFuji`
+- Arbitrum Sepolia: `ARBITRUM_SEPOLIA_RPC_URL`, `--network arbitrumSepolia`
 
-# For Beginners
+## For Beginners
 
 If you're new to web3, it is recommended starting with the [Functions - Getting Started](https://docs.chain.link/chainlink-functions/getting-started/) guide before diving into the code.
 
@@ -70,13 +72,13 @@ The above document will help you:
 - Get funds
 - Provides more detailed step-by-step instructions and further information
 
-## Tutorials & examples
+### Tutorials & examples
 
 For other detailed tutorials and examples, check out the [Chainlink Functions Tutorials](https://docs.chain.link/chainlink-functions/tutorials/) to get started.
 
-# Quickstart
+## Quickstart
 
-## Requirements
+### Requirements
 
 Install **both** of the following:
 
@@ -110,7 +112,7 @@ Install **both** of the following:
 
 10. You can also query the response that was stored in your Functions Consumer contract by runnning `npx hardhat functions-read --contract 0xConsumer_contract_address --network  your_network_name`
 
-## Steps on local testnet
+### Steps on local testnet
 
 1. To do an end-to-end simulation using a local testnet you can first open a new terminal window and run `npm run startLocalFunctionsTestnet`. This will spin up a local blockchain testnet (the `localFunctionsTestnet`), on which you can simulate an end-to-end Functions request.
 
@@ -118,7 +120,7 @@ Install **both** of the following:
 
 3. Running this end-to-end simulation will surface most errors in your smart contract and/or JavaScript source code and configuration.<br><br>
 
-# Environment Variable Management
+## Environment Variable Management
 
 This repo uses the NPM package `@chainlink/env-enc` for keeping environment variables such as wallet private keys, RPC URLs, and other secrets encrypted at rest. This reduces the risk of credential exposure by ensuring credentials are not visible in plaintext as they are with [.env files](https://www.npmjs.com/package/dotenv).
 
@@ -147,17 +149,17 @@ When running this command on a Windows machine, you may receive a security confi
 
 > **NOTE:** When you finish each work session, close down your terminal to prevent your encryption password from becoming exposes if your machine is compromised. You will need to set the same password on future session to decrypt the `.env.enc` file.
 
-## Using Remote Secrets (e.g. Github Gists)
+### Using Remote Secrets (e.g. Github Gists)
 
 To upload and delete secrets gists that will remotely store your encrypted secrets, you need to first acquire a Github personal access token which allows reading and writing Gists.
 
-1.  Visit [https://github.com/settings/tokens?type=beta](https://github.com/settings/tokens?type=beta) and click "Generate new token"
-2.  Name the token and enable read & write access for Gists from the "Account permissions" drop-down menu. Do not enable any additional permissions.
-3.  Click "Generate token" and copy the resulting personal access token for step 4.
-4.  set the `GITHUB_API_TOKEN` environment variable using `npx env-enc set`
-5.  Specify `Location.Remote` for the `secretLocation` in _Functions-request-config.js_
+1. Visit [https://github.com/settings/tokens?type=beta](https://github.com/settings/tokens?type=beta) and click "Generate new token"
+2. Name the token and enable read & write access for Gists from the "Account permissions" drop-down menu. Do not enable any additional permissions.
+3. Click "Generate token" and copy the resulting personal access token for step 4.
+4. set the `GITHUB_API_TOKEN` environment variable using `npx env-enc set`
+5. Specify `Location.Remote` for the `secretLocation` in _Functions-request-config.js_
 
-## Environment Variable Management Commands
+### Environment Variable Management Commands
 
 The following commands accept an optional `--path` flag followed by a path to the desired encrypted environment variable file.
 If one does not exist, it will be created automatically by the `npx env-enc set` command.
@@ -172,14 +174,14 @@ The `--path` flag has no effect on the `npx env-enc set-pw` command as the passw
 | `npx env-enc remove <name>` | Removes a variable from the encrypted environment variable file                                                                                   | `name`: Variable name |
 | `npx env-enc remove-all`    | Deletes the encrypted environment variable file                                                                                                   |                       |
 
-# Functions Command Glossary
+## Functions Command Glossary
 
 [Functions Commands](#functions-commands) and [Subscription Management Commands](#functions-subscription-management-commands) commands can be executed in the following format:
 `npx hardhat command_here --parameter1 parameter_1_value_here --parameter2 parameter_2_value_here`
 
 Example: `npx hardhat functions-read --network polygonMumbai --contract 0x787Fe00416140b37B026f3605c6C72d096110Bb8`
 
-## Functions Commands
+### Functions Commands
 
 | Command                            | Description                                                                                                                          | Parameters                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -198,7 +200,7 @@ Example: `npx hardhat functions-read --network polygonMumbai --contract 0x787Fe0
 | `functions-upload-secrets-don`     | Encrypts secrets and uploads them to the DON                                                                                         | `network`: Name of blockchain network, `configpath` (optional): Path to request config file (defaults to `./Functions-request-config.js`), `slotid` Storage slot number 0 or higher - if the slotid is already in use, the existing secrets for that slotid will be overwritten, `ttl` (optional): Time to live - minutes until the secrets hosted on the DON expire (defaults to 10, and must be at least 5)                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `functions-list-don-secrets`       | Displays encrypted secrets hosted on the DON                                                                                         | `network`: Name of blockchain network                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
-## Functions Subscription Management Commands
+### Functions Subscription Management Commands
 
 | Command                      | Description                                                                                                                              | Parameters                                                                                                                                                                                                                                                                   |
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -212,7 +214,7 @@ Example: `npx hardhat functions-read --network polygonMumbai --contract 0x787Fe0
 | `functions-sub-accept`       | Accepts ownership of a Functions subscription after a transfer is requested                                                              | `network`: Name of blockchain network, `subid`: Subscription ID                                                                                                                                                                                                              |
 | `functions-timeout-requests` | Times out expired Functions requests which have not been fulfilled within 5 minutes                                                      | `network`: Name of blockchain network, `requestids`: 1 or more request IDs to timeout separated by commas, `toblock` (optional): Ending search block number (defaults to latest block), `pastblockstosearch` (optional): Number of past blocks to search (defaults to 1,000) |
 
-# Request Configuration
+## Request Configuration
 
 Chainlink Functions requests can be configured by modifying values in the `requestConfig` object found in the _Functions-request-config.js_ file located in the root of this repository.
 
@@ -226,7 +228,7 @@ Chainlink Functions requests can be configured by modifying values in the `reque
 | `args`               | This is an array of strings which contains values that are injected into the JavaScript source code and can be accessed using the name `args`. This provides a convenient way to set modifiable parameters within a request. If no arguments, then an empty array is passed.                                           |
 | `expectedReturnType` | This specifies the expected return type of a request. It has no on-chain impact, but is used by the CLI to decode the response bytes into the specified type. The options are `uint256`, `int256`, `string`, or `bytes`.                                                                                               |
 
-## JavaScript Code
+### JavaScript Code
 
 The JavaScript source code for a Functions request can use any valid [Deno](https://deno.land/manual@v1.36.4/introduction) JavaScript, but _cannot_ use any imported modules.
 
@@ -237,7 +239,7 @@ Additionally, any external APIs to which requests are made must script must resp
 In order to make HTTP requests, the source code must use the `Functions.makeHttpRequest` function from the exposed [Functions library](#functions-library).
 Asynchronous code with top-level `await` statements is supported, as shown in the file _API-request-example.js_.
 
-### Functions Library
+#### Functions Library
 
 The `Functions` library is injected into the JavaScript source code and can be accessed using the name `Functions`.
 
@@ -288,7 +290,7 @@ This library also exposes functions for encoding JavaScript values into Uint8Arr
 
 Remember, it is not required to use these encoding functions. The JavaScript code must only return a [Uint8Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array) which represents the `bytes` that are returned on-chain.
 
-### Importing Dependencies
+#### Importing Dependencies
 
 To import and use libraries in your Functions request JavaScript source code, you must use the async `import` function. Since this is an async function, you must remember to use the `await` keyword to wait for the dependency to be imported before it can be used as shown in the examples below.
 
@@ -320,13 +322,13 @@ All other [service limits](https://docs.chain.link/chainlink-functions/resources
 
 Sometimes imported dependencies use additional fetch requests to load additional code or resources. These fetch requests count toward the total number of HTTP requests that the JavaScript source code is allowed to perform. If the imported dependencies exceed this total number of allowed fetch requests, the import attempt will fail with an error.
 
-## Modifying Contracts
+### Modifying Contracts
 
 Consumer contracts which initiate a request and receive a fulfillment can be modified for specific use cases. The only requirements are that the contract successfully calls `sendRequest` in the `FunctionsRouter`,
 and that it correctly implements the `fulfillRequest` function which is called by `handleOracleFulfillment` in the inherited `FunctionsClient` contract (See _FunctionsClient.sol_ for details).</br>
 At this time, the maximum amount of gas that _handleOracleFulfillment_ can use is 300,000 (please contact Chainlink Labs if you require a higher callback gas limit).
 
-## Local Simulations with the `localFunctionsTestnet`
+### Local Simulations with the `localFunctionsTestnet`
 
 The Functions Toolkit NPM package provides the ability to create a local testnet blockchain on your machine which allows you to make simulated requests to debug your JavaScript code and smart contracts.
 For more details, please see the [Functions Toolkit NPM package documentation](https://github.com/smartcontractkit/functions-toolkit/blob/main/README.md#local-functions-testnet).
@@ -336,7 +338,7 @@ Then, you can interact with this local testnet blockchain as you would with a li
 
 By default, all the `npx hardhat` commands in this project are configured to use this local testnet running on port `8545`, so you can omit the `--network` CLI argument (just don't forget to start the testnet first).
 
-## Managing Secrets
+### Managing Secrets
 
 Please refer to the [Functions Toolkit NPM package documentation](https://github.com/smartcontractkit/functions-toolkit/blob/main/README.md#functions-secrets-manager) for more details.
 
@@ -346,7 +348,7 @@ This project uses DONHosted secrets by default, which means secrets from the `Fu
 
 The CLI command to upload secrets to the DON is `npx hardhat functions-upload-secrets-don --slotid _0_or_higher --network network_name --ttl minutes_until_expired`.
 
-# Automation Integration
+## Automation Integration
 
 Chainlink Functions can be used with [Chainlink Automation](https://docs.chain.link/chainlink-automation/introduction) in order to automatically trigger a Functions as specified intervals.
 
@@ -371,13 +373,13 @@ Once the contract is registered for upkeep, check the latest response or error w
 
 You can also attach a listener to a Subscription ID by updating the `subId` variable in `/scripts/listen.js`, and then running `npm run listen --network your_network_name` from the repo root in a new terminal so that it can keep listening as you develop. This script uses nodemon which restarts the script when you save files or when the listener returns a result.
 
-# Gas Spikes
+## Gas Spikes
 
 When on-chain traffic is high, transaction gas prices can spike unexpectedly. This may decrease the accuracy of the estimated requests costs or cause transactions to fail.
 In order to mitigate these problems, ensure your Functions subscription balance has a sufficient buffer of two or more times the expected request cost in LINK.
 Additionally, you can manually set a hardcoded transaction gas price in the HardHat tooling by modifying the `gasPrice` parameter in the _networks.js_ config file for a particular network.
 
-# Troubleshooting
+## Troubleshooting
 
 1. If you get strange (and scary large) error output in your terminal because a transaction failed, it is super helpful to use [tenderly.co](https://tenderly.co). Once you create an account, and a project look for "Transactions" in the tab list on the left, and past in your Transaction Hash. Tenderly will look across various networks for it. It will then show you the causes for the error especially if the contract has been verified. Here is a useful video on how to debug transactions with Tenderly:
    <iframe width="360" height="215" src="https://www.youtube.com/embed/90GN9Ut8LhU?si=iLhHegpG1Mq59qtJ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
