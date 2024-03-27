@@ -159,8 +159,8 @@ const networks = {
     confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
     nativeCurrencySymbol: "ETH",
     linkToken: "0xb1D4538B4571d411F07960EF2838Ce337FE1E80E",
-    linkPriceFeed: "0xccAE8A015754a64f379550146360bDbAEc757D77", // LINK/ETH
-    functionsRouter: "0x1e531A9635741Ee668114E5EeF039aC086265d5e",
+    linkPriceFeed: "0x3ec8593F930EA45ea58c968260e6e9FF53FC934f", // LINK/ETH
+    functionsRouter: "0x234a5fb5Bd614a7AA2FfAB244D603abFA0Ac5C5C",
     donId: "fun-arbitrum-sepolia-1",
     gatewayUrls: [
       "https://01.functions-gateway.testnet.chain.link/",
