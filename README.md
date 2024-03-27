@@ -85,21 +85,16 @@ Install **both** of the following:
 - Node.js version [20](https://nodejs.org/en/download/)
 - Deno version [1.36](https://deno.land/manual@v1.36.4/getting_started/installation) (or the latest release of Deno v1 if a later one is available)
 
-### Steps on live testnet
+## Steps on Live (Public) Testnets
 
-1. Clone this repository to your local machine<br><br>
+1. Clone this repository to your local machine<br><br>. Also ensure that the testnet your wanting to deploy on is [supported](https://docs.chain.link/chainlink-functions/supported-networks) by Chainlink Functions.
 2. Open this directory in your command line/terminal app, then run `npm install` to install all dependencies.<br><br>
-3. Obtain the values for following environment variables:
-   - `PRIVATE_KEY` for your development wallet
-   - RPC URL for a chosen network, i.e. `POLYGON_MUMBAI_RPC_URL`, etc. (see [Supported Networks](#supported-networks))
-   - Blockchain explorer API keys depending on which network you're using:
-     - `POLYGONSCAN_API_KEY`,
-     - `ETHERSCAN_API_KEY`,
-     - `FUJI_SNOWTRACE_API_KEY`,
-     - `ARBISCAN_API_KEY`,
-     - `COINMARKETCAP_API_KEY` (from [here](https://pro.coinmarketcap.com/))
-       <br>
-4. Set the required environment variables. For improved security, Chainlink provides the NPM package [@chainlink/env-enc](https://www.npmjs.com/package/@chainlink/env-enc) which can be used to keep environment variables in a password encrypted `.env.enc` file instead of a plaintext `.env` for additional security. More detail on environment variable management and the tooling is provided in the [Environment Variable Management](#environment-variable-management) section.
+3. Obtain the values for following environment variables (examples only - please see `./env.enc.example` for env vars you may need):
+   - `PRIVATE_KEY` for your development wallet - `POLYGON_MUMBAI_RPC_URL`, `ETHEREUM_SEPOLIA_RPC_URL`, or `AVALANCHE_FUJI_RPC_URL`
+   - `POLYGONSCAN_API_KEY`, `ETHERSCAN_API_KEY`, or `FUJI_SNOWTRACE_API_KEY` blockchain explore API keys depending on which network you're using
+   - `COINMARKETCAP_API_KEY` (from [here](https://pro.coinmarketcap.com/))
+     <br><br>
+4. Set the required environment variables (see `./env.enc.example` for the correctly capitalized names of environment variables used in this repo). For improved security, Chainlink provides the NPM package [@chainlink/env-enc](https://www.npmjs.com/package/@chainlink/env-enc) which can be used to keep environment variables in a password encrypted `.env.enc` file instead of a plaintext `.env` for additional security. More detail on environment variable management and the tooling is provided in the [Environment Variable Management](#environment-variable-management) section.
    1. Set an encryption password for your environment variables to a secure password by running `npx env-enc set-pw`. This password needs to be set each time you create or restart a terminal shell session.<br>
    2. Use the command `npx env-enc set` to set the required environment variables.
    3. Set any other values you intend to pass into the _secrets_ object in _Functions-request-config.js_ .<br><br>
@@ -130,6 +125,8 @@ Install **both** of the following:
 This repo uses the NPM package `@chainlink/env-enc` for keeping environment variables such as wallet private keys, RPC URLs, and other secrets encrypted at rest. This reduces the risk of credential exposure by ensuring credentials are not visible in plaintext as they are with [.env files](https://www.npmjs.com/package/dotenv).
 
 By default, all encrypted environment variables will be stored in a file named `.env.enc` in the root directory of this repo. This file is `.gitignore`'d.
+
+For a full list of the Env Var names (keys) that this repo uses and has defined please look at `./env.enc.example`.
 
 First, set the encryption password by running the command `npx env-enc set-pw`.
 
@@ -384,6 +381,13 @@ Additionally, you can manually set a hardcoded transaction gas price in the Hard
 
 ## Troubleshooting
 
-1. When running Chainlink Functions make sure your subscription ID has your consumer contract added as an authorized consumer. Also make sure that your subscription has enough LINK balance. You do this by calling `npx hardhat functions-sub-info --network network_name_here --subid subscription_id_here`
+1. If you get strange (and scary large) error output in your terminal because a transaction failed, it is super helpful to use [tenderly.co](https://tenderly.co). Once you create an account, and a project look for "Transactions" in the tab list on the left, and past in your Transaction Hash. Tenderly will look across various networks for it. It will then show you the causes for the error especially if the contract has been verified. Here is a useful video on how to debug transactions with Tenderly:
+   <iframe width="360" height="215" src="https://www.youtube.com/embed/90GN9Ut8LhU?si=iLhHegpG1Mq59qtJ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
-2. When running Chainlink Functions with Automation you also need to ensure the Chainlink Automation upkeeps are funded to run the automation calls. The fastest way to maintain your Automation LINK subscription balance is through the Chainlink Automation web app here: [https://automation.chain.link/](https://automation.chain.link/)
+2. When running Chainlink Functions make sure your subscription ID has your `FunctionsConsumer` contract added as an authorized consumer. Also make sure that your subscription has enough LINK balance. You do this by calling `npx hardhat functions-sub-info --network network_name_here --subid subscription_id_here` to see your subscription details. If the Functions Router calculates that your subscription's balance is insufficient it will revert with a `InsufficientBalance` custom Solidity error.
+
+3. When running Chainlink Functions with Automation you also need to ensure the Chainlink Automation upkeeps are funded to run the automation calls. The fastest way to maintain your Automation LINK subscription balance is through the Chainlink Automation web app here: [https://automation.chain.link/](https://automation.chain.link/)
+
+4. If you get a transaction failure when calling `npx hardhat functions-request` and its an out of gas error (you can tell from the block explorer or from [Tenderly](https://tenderly.co)) then you may need to add the optional `---requestgaslimit` flag with a value higher than than the default which is 1_500_000. For example: `npx hardhat functions-request --requestgaslimit 1750000`. Note that `./tasks/Functions-consumer/request.js` already has some logic around this that applies to some networks that require higher gas.
+
+5. <b>BASE Sepolia / Optimism Sepolia:</b> if you see an error like `ProviderError: transaction underpriced: tip needed 50, tip permitted 0` then wait a few seconds and re-try. This can happen due to network spikes. Also double check the `./networks.js` file configs to make sure that `gasPrice` is set to `1000_000` as these networks can require higher request gas.

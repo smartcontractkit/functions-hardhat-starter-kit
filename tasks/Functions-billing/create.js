@@ -17,7 +17,12 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
     const linkAmount = taskArgs.amount
     const confirmations = linkAmount > 0 ? networks[network.name].confirmations : 1
     const consumerAddress = taskArgs.contract
-    const txOptions = { confirmations }
+    const txOptions = {
+      confirmations,
+      overrides: {
+        gasPrice: networks[network.name].gasPrice,
+      },
+    }
 
     const sm = new SubscriptionManager({ signer, linkTokenAddress, functionsRouterAddress })
     await sm.initialize()

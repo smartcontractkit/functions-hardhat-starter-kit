@@ -35,7 +35,7 @@ if (SECOND_PRIVATE_KEY) {
 const networks = {
   ethereum: {
     url: process.env.ETHEREUM_RPC_URL || "UNSET",
-    gasPrice: undefined,
+    gasPrice: undefined, // gas price for the functions request - default's to auto as per HH https://hardhat.org/hardhat-network/docs/reference#eth_gasprice
     nonce: undefined,
     accounts,
     verifyApiKey: process.env.ETHERSCAN_API_KEY || "UNSET",
@@ -98,7 +98,7 @@ const networks = {
   },
   polygonMumbai: {
     url: process.env.POLYGON_MUMBAI_RPC_URL || "UNSET",
-    gasPrice: 20_000_000_000,
+    gasPrice: 20_000_000_000, // gas price for the functions request
     nonce: undefined,
     accounts,
     verifyApiKey: process.env.POLYGONSCAN_API_KEY || "UNSET",
@@ -159,9 +159,45 @@ const networks = {
     confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
     nativeCurrencySymbol: "ETH",
     linkToken: "0xb1D4538B4571d411F07960EF2838Ce337FE1E80E",
-    linkPriceFeed: "0xccAE8A015754a64f379550146360bDbAEc757D77", // LINK/ETH
-    functionsRouter: "0x1e531A9635741Ee668114E5EeF039aC086265d5e",
+    linkPriceFeed: "0x3ec8593F930EA45ea58c968260e6e9FF53FC934f", // LINK/ETH
+    functionsRouter: "0x234a5fb5Bd614a7AA2FfAB244D603abFA0Ac5C5C",
     donId: "fun-arbitrum-sepolia-1",
+    gatewayUrls: [
+      "https://01.functions-gateway.testnet.chain.link/",
+      "https://02.functions-gateway.testnet.chain.link/",
+    ],
+  },
+  baseSepolia: {
+    url: process.env.BASE_SEPOLIA_RPC_URL || "UNSET", // https://docs.basescan.org/v/sepolia-basescan/
+    gasPrice: undefined,
+    nonce: undefined,
+    accounts,
+    verifyApiKey: process.env.BASESCAN_API_KEY || "UNSET",
+    chainId: 84532,
+    confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
+    nativeCurrencySymbol: "ETH",
+    linkToken: "0xE4aB69C077896252FAFBD49EFD26B5D171A32410",
+    linkPriceFeed: "0x56a43EB56Da12C0dc1D972ACb089c06a5dEF8e69", // https://docs.chain.link/data-feeds/price-feeds/addresses?network=base&page=1
+    functionsRouter: "0xf9B8fc078197181C841c296C876945aaa425B278",
+    donId: "fun-base-sepolia-1",
+    gatewayUrls: [
+      "https://01.functions-gateway.testnet.chain.link/",
+      "https://02.functions-gateway.testnet.chain.link/",
+    ],
+  },
+  optimismSepolia: {
+    url: process.env.OPTIMISM_SEPOLIA_RPC_URL || "UNSET", // https://docs.optimism.io/chain/networks#op-sepolia
+    gasPrice: undefined,
+    nonce: undefined,
+    accounts,
+    verifyApiKey: process.env.OPTIMISM_API_KEY || "UNSET",
+    chainId: 11155420,
+    confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
+    nativeCurrencySymbol: "ETH",
+    linkToken: "0xE4aB69C077896252FAFBD49EFD26B5D171A32410",
+    linkPriceFeed: "0x98EeB02BC20c5e7079983e8F0D0D839dFc8F74fA", //https://docs.chain.link/data-feeds/price-feeds/addresses?network=optimism&page=1#optimism-sepolia
+    functionsRouter: "0xC17094E3A1348E5C7544D4fF8A36c28f2C6AAE28",
+    donId: "fun-optimism-sepolia-1",
     gatewayUrls: [
       "https://01.functions-gateway.testnet.chain.link/",
       "https://02.functions-gateway.testnet.chain.link/",
