@@ -53,7 +53,35 @@ module.exports = {
       avalancheFujiTestnet: networks.avalancheFuji.verifyApiKey,
       arbitrum: networks.arbitrum.verifyApiKey,
       arbitrumSepolia: networks.arbitrumSepolia.verifyApiKey,
+      baseSepolia: networks.baseSepolia.verifyApiKey,
+      optimismSepolia: networks.optimismSepolia.verifyApiKey,
     },
+    customChains: [
+      {
+        network: "arbitrumSepolia",
+        chainId: 421614,
+        urls: {
+          apiURL: "https://api-sepolia.arbiscan.io/api",
+          browserURL: "https://sepolia.arbiscan.io/",
+        },
+      },
+      {
+        network: "baseSepolia",
+        chainId: 84532,
+        urls: {
+          apiURL: "https://api-sepolia.basescan.org/api",
+          browserURL: "https://sepolia-explorer.base.org",
+        },
+      },
+      {
+        network: "optimismSepolia",
+        chainId: 11155420,
+        urls: {
+          apiURL: "https://api-sepolia-optimistic.etherscan.io/api", // https://docs.optimism.etherscan.io/v/optimism-sepolia-etherscan
+          browserURL: "https://sepolia-optimistic.etherscan.io/",
+        },
+      },
+    ],
   },
   gasReporter: {
     enabled: REPORT_GAS,

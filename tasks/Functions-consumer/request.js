@@ -174,9 +174,12 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     spinner.start(
       `Waiting for transaction for FunctionsConsumer contract ${contractAddr} on network ${network.name} to be confirmed...`
     )
-    // Use a manual gas limit for the request transaction since estimated gas limit is not always accurate
+    // Use manual gas limits for the request transaction since estimated gas limit is not always accurate,
+    // and can vary significantly based on network.
+    higherGasNetworks = ["optimismSepolia", "baseSepolia"] // L2s appear to need more request gas.
+    const requestGasLimit = higherGasNetworks.includes(network.name) ? 1_750_000 : taskArgs.requestgaslimit
     const overrides = {
-      gasLimit: taskArgs.requestgaslimit,
+      gasLimit: requestGasLimit,
     }
     // If specified, use the gas price from the network config instead of Ethers estimated price
     if (networks[network.name].gasPrice) {
