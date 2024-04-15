@@ -47,7 +47,9 @@ This repo provides developers with a "works out of the box" experience as it com
 In order to set up your own project which uses Chainlink Functions, please refer to the [Functions Toolkit NPM package](https://www.npmjs.com/package/@chainlink/functions-toolkit).
 
 ## Supported Networks
-
+> ⚠️⚠️⚠️ 
+>As at 13 April 2024, Mumbai (anchored to Goerli) stopped producing blocks. Mumbai's deprecation had been announced in favour of a new Amoy testnet, anchored to Sepolia.  
+> Amoy support is coming soon, and in the meanwhile we recommend you use the Ethereum Sepolia testnet or the Avalanche Fuji testnet for Functions related projects.  Please refer to docs.chain.link to find the latest information on networks that support Chainlink services.
 ### Mainnets
 
 - Ethereum : `ETHEREUM_RPC_URL`, `--network ethereum`
