@@ -50,6 +50,7 @@ module.exports = {
       polygon: networks.polygon.verifyApiKey,
       sepolia: networks.ethereumSepolia.verifyApiKey,
       polygonMumbai: networks.polygonMumbai.verifyApiKey,
+      polygonAmoy: networks.polygonAmoy.verifyApiKey,
       avalancheFujiTestnet: networks.avalancheFuji.verifyApiKey,
       arbitrum: networks.arbitrum.verifyApiKey,
       arbitrumSepolia: networks.arbitrumSepolia.verifyApiKey,
@@ -79,6 +80,14 @@ module.exports = {
         urls: {
           apiURL: "https://api-sepolia-optimistic.etherscan.io/api", // https://docs.optimism.etherscan.io/v/optimism-sepolia-etherscan
           browserURL: "https://sepolia-optimistic.etherscan.io/",
+        },
+      },
+      {
+        network: "polygonAmoy",
+        chainId: 80002,
+        urls: {
+          apiURL: "https://api-amoy.polygonscan.com/api",
+          browserURL: "https://amoy.polygonscan.com",
         },
       },
     ],

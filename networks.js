@@ -203,6 +203,22 @@ const networks = {
       "https://02.functions-gateway.testnet.chain.link/",
     ],
   },
+  polygonAmoy: {
+    url: process.env.AMOY_RPC_URL || "UNSET", // h
+    gasPrice: undefined,
+    nonce: undefined,
+    accounts,
+    verifyApiKey: process.env.POLYGONSCAN_API_KEY || "UNSET",
+    chainId: 80002,
+    confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
+    nativeCurrencySymbol: "MATIC",
+    linkToken: "0x0Fd9e8d3aF1aaee056EB9e802c3A762a667b1904",
+    linkPriceFeed: "0x408D97c89c141e60872C0835e18Dd1E670CD8781", // LINK/MATIC
+    // TODO @zeuslawyer--update all the below
+    functionsRouter: "TODO",
+    donId: "TODO",
+    gatewayUrls: ["TODO-01.functions-gateway.testnet.chain.link/", "TODO-02.functions-gateway.testnet.chain.link/"],
+  },
   // localFunctionsTestnet is updated dynamically by scripts/startLocalFunctionsTestnet.js so it should not be modified here
   localFunctionsTestnet: {
     url: "http://localhost:8545/",

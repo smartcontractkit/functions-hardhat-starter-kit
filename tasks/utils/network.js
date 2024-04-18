@@ -3,6 +3,7 @@ const BASE_URLS = {
   137: "https://polygonscan.com/",
   43114: "https://snowtrace.io/",
   80001: "https://mumbai.polygonscan.com/",
+  80002: "https://api-amoy.polygonscan.com/api",
   11155111: "https://sepolia.etherscan.io/",
   43113: "https://testnet.snowtrace.io/",
   421614: "https://sepolia.arbiscan.io/",
