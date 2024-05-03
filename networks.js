@@ -214,10 +214,10 @@ const networks = {
     nativeCurrencySymbol: "MATIC",
     linkToken: "0x0Fd9e8d3aF1aaee056EB9e802c3A762a667b1904",
     linkPriceFeed: "0x408D97c89c141e60872C0835e18Dd1E670CD8781", // LINK/MATIC
-    // TODO @zeuslawyer--update all the below
-    functionsRouter: "TODO",
-    donId: "TODO",
-    gatewayUrls: ["TODO-01.functions-gateway.testnet.chain.link/", "TODO-02.functions-gateway.testnet.chain.link/"],
+
+    functionsRouter: "0xC22a79eBA640940ABB6dF0f7982cc119578E11De",
+    donId: "fun-polygon-amoy-1",
+    gatewayUrls: ["https://01.functions-gateway.chain.link/", "https://02.functions-gateway.chain.link/"],
   },
   // localFunctionsTestnet is updated dynamically by scripts/startLocalFunctionsTestnet.js so it should not be modified here
   localFunctionsTestnet: {
