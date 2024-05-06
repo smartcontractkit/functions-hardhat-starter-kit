@@ -217,7 +217,10 @@ const networks = {
 
     functionsRouter: "0xC22a79eBA640940ABB6dF0f7982cc119578E11De",
     donId: "fun-polygon-amoy-1",
-    gatewayUrls: ["https://01.functions-gateway.chain.link/", "https://02.functions-gateway.chain.link/"],
+    gatewayUrls: [
+      "https://01.functions-gateway.testnet.chain.link/",
+      "https://02.functions-gateway.testnet.chain.link/",
+    ],
   },
   // localFunctionsTestnet is updated dynamically by scripts/startLocalFunctionsTestnet.js so it should not be modified here
   localFunctionsTestnet: {
