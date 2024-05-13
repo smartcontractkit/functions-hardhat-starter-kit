@@ -1,5 +1,6 @@
 const { types } = require("hardhat/config")
 const { networks } = require("../../networks")
+const { createOrUpdateTempFile } = require("../utils/createUpdateTempFile")
 
 task("functions-deploy-consumer", "Deploys the FunctionsConsumer contract")
   .addOptionalParam("verify", "Set to true to verify contract", false, types.boolean)
@@ -33,6 +34,7 @@ task("functions-deploy-consumer", "Deploys the FunctionsConsumer contract")
     await consumerContract.deployTransaction.wait(networks[network.name].confirmations)
 
     console.log("\nDeployed FunctionsConsumer contract to:", consumerContract.address)
+    createOrUpdateTempFile({ ["consumerContract"]: consumerContract.address })
 
     if (network.name === "localFunctionsTestnet") {
       return

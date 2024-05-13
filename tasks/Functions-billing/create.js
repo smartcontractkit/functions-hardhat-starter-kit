@@ -2,6 +2,7 @@ const { SubscriptionManager } = require("@chainlink/functions-toolkit")
 const chalk = require("chalk")
 const { networks } = require("../../networks")
 const utils = require("../utils")
+const { createOrUpdateTempFile } = require("../utils/createUpdateTempFile")
 
 task("functions-sub-create", "Creates a new billing subscription for Functions consumer contracts")
   .addOptionalParam("amount", "Initial amount used to fund the subscription in LINK")
@@ -30,6 +31,7 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
     console.log("\nCreating Functions billing subscription...")
     const subscriptionId = await sm.createSubscription({ consumerAddress, txOptions })
     console.log(`\nCreated Functions billing subscription: ${subscriptionId}`)
+    createOrUpdateTempFile({ ["subId"]: subscriptionId })
 
     // Fund subscription
     if (linkAmount) {
@@ -52,5 +54,6 @@ task("functions-sub-create", "Creates a new billing subscription for Functions c
       subInfo.blockedBalance = ethers.utils.formatEther(subInfo.blockedBalance) + " LINK"
 
       console.log("\nSubscription Info: ", subInfo)
+      createOrUpdateTempFile({ ["subInfo"]: subInfo })
     }
   })

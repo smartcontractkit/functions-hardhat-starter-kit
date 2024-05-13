@@ -12,6 +12,7 @@
     - [Requirements](#requirements)
     - [Steps on live testnet](#steps-on-live-testnet)
     - [Steps on local testnet](#steps-on-local-testnet)
+    - [Quickstart task](#quickstart-hardhat-task)
   - [Environment Variable Management](#environment-variable-management)
     - [Using Remote Secrets (e.g. Github Gists)](#using-remote-secrets-eg-github-gists)
     - [Environment Variable Management Commands](#environment-variable-management-commands)
@@ -79,6 +80,12 @@ The above document will help you:
 ### Tutorials & examples
 
 For other detailed tutorials and examples, check out the [Chainlink Functions Tutorials](https://docs.chain.link/chainlink-functions/tutorials/) to get started.
+
+### Quickstart Hardhat Task
+
+A single Hardhat task is provided to run all 4 of the quickstart's steps. Run `npx hardhat functions-quickstart --amount [optional] --simulate [Optional, defaults to true] --network [testnet name or defaults to functionsLocalTestnet]`
+
+If you're using [Functions Local Testnet](#steps-on-local-testnet) then ensure that is running in a separate terminal window.
 
 ## Quickstart
 

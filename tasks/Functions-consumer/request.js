@@ -9,6 +9,8 @@ const {
   Location,
   FulfillmentCode,
 } = require("@chainlink/functions-toolkit")
+const { createOrUpdateTempFile } = require("../utils/createUpdateTempFile")
+
 const { networks } = require("../../networks")
 const utils = require("../utils")
 const chalk = require("chalk")
@@ -212,6 +214,8 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     spinner.start(
       `Functions request has been initiated in transaction ${requestTx.hash} with request ID ${requestTxReceipt.events[2].args.id}. Note the request ID may change if a re-org occurs, but the transaction hash will remain constant.\nWaiting for fulfillment from the Decentralized Oracle Network...\n`
     )
+
+    createOrUpdateTempFile({ ["requestId"]: requestTxReceipt.events[2].args.id })
 
     try {
       // Get response data
