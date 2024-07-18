@@ -37,6 +37,7 @@ task(
         })
         console.log(`Fetched commitment for request ID ${requestId}`)
         if (requestCommitment.timeoutTimestamp < BigInt(Math.round(Date.now() / 1000))) {
+          requestCommitment.adminFee = 0
           requestCommitments.push(requestCommitment)
         } else {
           console.log(`Request ID ${requestId} has not expired yet (skipping)`)
