@@ -56,6 +56,7 @@ module.exports = {
       arbitrumSepolia: networks.arbitrumSepolia.verifyApiKey,
       baseSepolia: networks.baseSepolia.verifyApiKey,
       optimismSepolia: networks.optimismSepolia.verifyApiKey,
+      calm: "UNNEEDED",
     },
     customChains: [
       {
@@ -88,6 +89,14 @@ module.exports = {
         urls: {
           apiURL: "https://api-amoy.polygonscan.com/api",
           browserURL: "https://amoy.polygonscan.com",
+        },
+      },
+      {
+        network: "calm",
+        chainId: 1337,
+        urls: {
+          apiURL: "https://chain-alpha-blockscout.shib.sandbox.enterprise.chain.link/api",
+          browserURL: "https://chain-alpha-blockscout.shib.sandbox.enterprise.chain.link",
         },
       },
     ],

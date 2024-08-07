@@ -185,6 +185,20 @@ const networks = {
       "https://02.functions-gateway.testnet.chain.link/",
     ],
   },
+  calm: {
+    url: "https://chain-alpha-rpc.shib.sandbox.enterprise.chain.link/",
+    gasPrice: 10000000000,
+    nonce: undefined,
+    accounts,
+    verifyApiKey: "UNNEEDED",
+    chainId: 1337,
+    confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
+    nativeCurrencySymbol: "ETH",
+    linkToken: "0x42699A7612A82f1d9C36148af9C77354759b210b",
+    linkPriceFeed: "0xE08fB6ACf0229AeD65e0e7bDA485b0960d2Cf5a6", // https://docs.chain.link/data-feeds/price-feeds/addresses?network=base&page=1
+    functionsRouter: "0x589D1988547E26d424A72A03e7cb141047a938bf",
+    donId: "fun-project-calm-1",
+  },
   optimismSepolia: {
     url: process.env.OPTIMISM_SEPOLIA_RPC_URL || "UNSET", // https://docs.optimism.io/chain/networks#op-sepolia
     gasPrice: undefined,
@@ -228,8 +242,8 @@ const networks = {
     accounts,
     confirmations: 1,
     nativeCurrencySymbol: "ETH",
-    linkToken: "0x94d3C68A91C972388d7863D25EDD2Be7e2F21F21",
-    functionsRouter: "0xCbfD616baE0F13EFE0528c446184C9C0EAa8040e",
+    linkToken: "0x61557a252572fA439D67a3f055B7Db933f061826",
+    functionsRouter: "0x4106961a86BB4D0117b79bBE0b61bc37334eEA3B",
     donId: "local-functions-testnet",
   },
 }

@@ -10,6 +10,7 @@ const BASE_URLS = {
   42161: "https://arbiscan.io/",
   84532: "https://sepolia.basescan.org/",
   11155420: "https://sepolia-optimistic.etherscan.io/",
+  1337: "https://chain-alpha-blockscout.shib.sandbox.enterprise.chain.link/api",
 }
 
 /**
