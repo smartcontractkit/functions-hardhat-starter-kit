@@ -14,7 +14,6 @@ const utils = require("../utils")
 const chalk = require("chalk")
 const path = require("path")
 const process = require("process")
-const { request } = require("http")
 
 task("functions-request", "Initiates an on-demand request from a Functions consumer contract")
   .addParam("contract", "Address of the consumer contract to call")
@@ -97,6 +96,8 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     }
 
     // Estimate the cost of the request fulfillment
+
+    // I am using a hardcoded gas price instead of the one suggested by Ethers here
     //const { gasPrice } = await hre.ethers.provider.getFeeData()
     //const gasPriceWei = BigInt(Math.ceil(hre.ethers.utils.formatUnits(gasPrice, "wei").toString()))
     const estimatedCostJuels = await subManager.estimateFunctionsRequestCost({
@@ -204,8 +205,6 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     if (network.name !== "localFunctionsTestnet") {
       spinner.info(`Transaction confirmed: ${requestTx.hash}`)
     }
-
-    console.log(requestTxReceipt.events[2])
 
     // Listen for fulfillment
     spinner.start(
