@@ -214,9 +214,13 @@ task("functions-request", "Initiates an on-demand request from a Functions consu
     )
 
     try {
+      // localFunctionsTestnet needs 0 or 1 confirmations to work correctly as it's local.
+      // If on live testnet or mainnet, setting to undefined then uses the functions-toolkit default of 2 confirmations.
+      const NUM_CONFIRMATIONS = network.name === "localFunctionsTestnet" ? 1 : undefined
+
       // Get response data
       const { requestId, totalCostInJuels, responseBytesHexstring, errorString, fulfillmentCode } =
-        await responseListener.listenForResponseFromTransaction(requestTx.hash)
+        await responseListener.listenForResponseFromTransaction(requestTx.hash, undefined, NUM_CONFIRMATIONS, undefined)
 
       switch (fulfillmentCode) {
         case FulfillmentCode.FULFILLED:
