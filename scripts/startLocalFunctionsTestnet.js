@@ -28,6 +28,7 @@ require("@chainlink/env-enc").config("../.env.enc")
 
   // Fund wallets with ETH and LINK
   const addressToFund = new Wallet(process.env["PRIVATE_KEY"]).address
+  if (!addressToFund) throw new Error("A PRIVATE_KEY environment variable must be set for local networks. Use env-enc to set this.\nSee README for more information on setting encrypted environment variables.")
   await localFunctionsTestnetInfo.getFunds(addressToFund, {
     weiAmount: utils.parseEther("100").toString(), // 100 ETH
     juelsAmount: utils.parseEther("100").toString(), // 100 LINK
