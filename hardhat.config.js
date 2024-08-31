@@ -49,7 +49,6 @@ module.exports = {
       avalanche: networks.avalanche.verifyApiKey,
       polygon: networks.polygon.verifyApiKey,
       sepolia: networks.ethereumSepolia.verifyApiKey,
-      polygonMumbai: networks.polygonMumbai.verifyApiKey,
       polygonAmoy: networks.polygonAmoy.verifyApiKey,
       avalancheFujiTestnet: networks.avalancheFuji.verifyApiKey,
       arbitrum: networks.arbitrum.verifyApiKey,
@@ -57,7 +56,7 @@ module.exports = {
       baseSepolia: networks.baseSepolia.verifyApiKey,
       optimismSepolia: networks.optimismSepolia.verifyApiKey,
       base: networks.base.verifyApiKey,
-      optimism: networks.optimism.verify,
+      optimism: networks.optimism.verifyApiKey,
     },
     customChains: [
       {
