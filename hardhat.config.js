@@ -49,13 +49,14 @@ module.exports = {
       avalanche: networks.avalanche.verifyApiKey,
       polygon: networks.polygon.verifyApiKey,
       sepolia: networks.ethereumSepolia.verifyApiKey,
-      polygonMumbai: networks.polygonMumbai.verifyApiKey,
       polygonAmoy: networks.polygonAmoy.verifyApiKey,
       avalancheFujiTestnet: networks.avalancheFuji.verifyApiKey,
       arbitrum: networks.arbitrum.verifyApiKey,
       arbitrumSepolia: networks.arbitrumSepolia.verifyApiKey,
       baseSepolia: networks.baseSepolia.verifyApiKey,
       optimismSepolia: networks.optimismSepolia.verifyApiKey,
+      base: networks.base.verifyApiKey,
+      optimism: networks.optimism.verifyApiKey,
     },
     customChains: [
       {
@@ -88,6 +89,22 @@ module.exports = {
         urls: {
           apiURL: "https://api-amoy.polygonscan.com/api",
           browserURL: "https://amoy.polygonscan.com",
+        },
+      },
+      {
+        network: "base",
+        chainId: 8453,
+        urls: {
+          apiURL: "https://api.basescan.org/api",
+          browserURL: "https://basescan.org",
+        },
+      },
+      {
+        network: "optimism",
+        chainId: 10,
+        urls: {
+          apiUrl: "https://api-optimistic.etherscan.io/api",
+          browserURL: "https://optimistic.etherscan.io/",
         },
       },
     ],
