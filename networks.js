@@ -234,6 +234,39 @@ const networks = {
     donId: "fun-optimism-mainnet-1",
     gatewayUrls: ["https://01.functions-gateway.chain.link/", "https://02.functions-gateway.chain.link/"],
   },
+  celoAlfajores: {
+    url: process.env.CELO_ALFAJORES_RPC_URL || "UNSET",
+    gasPrice: undefined,
+    nonce: undefined,
+    accounts,
+    verifyApiKey: process.env.CELOSCAN_API_KEY || "UNSET",
+    chainId: 44787,
+    confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
+    nativeCurrencySymbol: "ETH",
+    linkToken: "0x32e08557b14fad8908025619797221281d439071",
+    linkPriceFeed: "0xeA11fA4307B8BD6D6074Cf1c0caAc9790cf96857", // LINK/CELO
+    functionsRouter: "0x53BA5D8E5aab0cf9589aCE139666Be2b9Fd268e2",
+    donId: "fun-celo-alfajores-1",
+    gatewayUrls: [
+      "https://01.functions-gateway.testnet.chain.link/",
+      "https://02.functions-gateway.testnet.chain.link/",
+    ],
+  },
+  celo: {
+    url: process.env.CELO_RPC_URL || "UNSET",
+    gasPrice: undefined,
+    nonce: undefined,
+    accounts,
+    verifyApiKey: process.env.CELOSCAN_API_KEY || "UNSET",
+    chainId: 42220,
+    confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
+    nativeCurrencySymbol: "ETH",
+    linkToken: "0xd07294e6E917e07dfDcee882dd1e2565085C2ae0",
+    linkPriceFeed: "0xBa45f0a1a2fa3FB62a4D6dC135741E2aeb1b14e7", // LINK/CELO
+    functionsRouter: "0xd74646C75163f9dA0F3666C3BE8A9C42F4b3b261",
+    donId: "fun-celo-mainnet-1",
+    gatewayUrls: ["https://01.functions-gateway.chain.link/", "https://02.functions-gateway.chain.link/"],
+  },
   // localFunctionsTestnet is updated dynamically by scripts/startLocalFunctionsTestnet.js so it should not be modified here
   localFunctionsTestnet: {
     url: "http://localhost:8545/",

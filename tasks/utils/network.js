@@ -11,6 +11,8 @@ const BASE_URLS = {
   11155420: "https://sepolia-optimistic.etherscan.io/",
   8453: "https://basescan.org/",
   10: "https://optimistic.etherscan.io/",
+  44787: "https://alfajores.celoscan.io/",
+  42220: "https://celoscan.io/",
 }
 
 /**
