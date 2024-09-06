@@ -53,23 +53,22 @@ In order to set up your own project which uses Chainlink Functions, please refer
 
 ### Mainnets
 
-- Ethereum : `ETHEREUM_RPC_URL`, `--network ethereum`
-- Polygon : `POLYGON_RPC_URL`, `--network polygon`
-- Avalanche : `AVALANCHE_RPC_URL`, `--network avalanche`
-- Arbitrum : `ARBITRUM_RPC_URL`, `--network arbitrum`
-- Base : `BASE_RPC_URL`, `--network base`
-- Optimism : `OPTIMISM_RPC_URL`, `--network optimism`
-- Celo : `CELO_RPC_URL`, `--network celo`
+- Ethereum : `ETHEREUM_RPC_URL`, `--network ethereum`, `ETHERSCAN_API_KEY`
+- Polygon : `POLYGON_RPC_URL`, `--network polygon`, `POLYGONSCAN_API_KEY`
+- Avalanche : `AVALANCHE_RPC_URL`, `--network avalanche`, `SNOWTRACE_API_KEY`
+- Arbitrum : `ARBITRUM_RPC_URL`, `--network arbitrum`, `ARBISCAN_API_KEY`
+- Base : `BASE_RPC_URL`, `--network base`, `BASESCAN_API_KEY`
+- Celo : `CELO_RPC_URL`, `--network celo`, `CELOSCAN_API_KEY`
 
 ### Testnets
 
-- Ethereum Sepolia: `ETHEREUM_SEPOLIA_RPC_URL`, `--network ethereumSepolia`
-- Polygon Amoy: `POLYGON_AMOY_RPC_URL`, `--network polygonAmoy`
-- Avalanche Fuji: `AVALANCHE_FUJI_RPC_URL`, `--network avalancheFuji`
-- Arbitrum Sepolia: `ARBITRUM_SEPOLIA_RPC_URL`, `--network arbitrumSepolia`
-- Base Sepolia: `BASE_SEPOLIA_RPC_URL`, `--network baseSepolia`
-- Optimism Sepolia: `OPTIMISM_SEPOLIA_RPC_URL`, `--network optimismSepolia`
-- Celo Alfajores: `CELO_ALFAJORES_RPC_URL`, `--network celoAlfajores`
+- Ethereum Sepolia: `ETHEREUM_SEPOLIA_RPC_URL`, `--network ethereumSepolia`, `ETHERSCAN_API_KEY`
+- Polygon Amoy: `POLYGON_AMOY_RPC_URL`, `--network polygonAmoy`, `POLYGONSCAN_API_KEY`
+- Avalanche Fuji: `AVALANCHE_FUJI_RPC_URL`, `--network avalancheFuji`, `SNOWTRACE_API_KEY`
+- Arbitrum Sepolia: `ARBITRUM_SEPOLIA_RPC_URL`, `--network arbitrumSepolia`, `ARBISCAN_API_KEY`
+- Base Sepolia: `BASE_SEPOLIA_RPC_URL`, `--network baseSepolia`, `BASESCAN_API_KEY`
+- Optimism Sepolia: `OPTIMISM_SEPOLIA_RPC_URL`, `--network optimismSepolia`, `OP_ETHERSCAN_API_KEY`
+- Celo Alfajores: `CELO_ALFAJORES_RPC_URL`, `--network celoAlfajores`, `CELOSCAN_API_KEY`
 
 ## For Beginners
 
