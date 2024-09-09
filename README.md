@@ -10,7 +10,7 @@
     - [Tutorials \& examples](#tutorials--examples)
   - [Quickstart](#quickstart)
     - [Requirements](#requirements)
-    - [Steps on live testnet](#steps-on-live-testnet)
+  - [Steps on Live (Public) Testnets](#steps-on-live-public-testnets)
     - [Steps on local testnet](#steps-on-local-testnet)
   - [Environment Variable Management](#environment-variable-management)
     - [Using Remote Secrets (e.g. Github Gists)](#using-remote-secrets-eg-github-gists)
@@ -49,22 +49,26 @@ In order to set up your own project which uses Chainlink Functions, please refer
 ## Supported Networks
 
 > ⚠️⚠️⚠️
-> As at 13 April 2024, Mumbai (anchored to Goerli) stopped producing blocks. Mumbai's deprecation had been announced in favour of a new Amoy testnet, anchored to Sepolia.  
-> Amoy support is coming soon, and in the meanwhile we recommend you use the Ethereum Sepolia testnet or the Avalanche Fuji testnet for Functions related projects. Please refer to docs.chain.link to find the latest information on networks that support Chainlink services.
+> As at 13 April 2024, Mumbai (anchored to Goerli) stopped producing blocks. Mumbai's deprecation had been announced in favour of a new Amoy testnet, anchored to Sepolia.
 
 ### Mainnets
 
-- Ethereum : `ETHEREUM_RPC_URL`, `--network ethereum`
-- Polygon : `POLYGON_RPC_URL`, `--network polygon`
-- Avalanche : `AVALANCHE_RPC_URL`, `--network avalanche`
-- Arbitrum : `ARBITRUM_RPC_URL`, `--network arbitrum`
+- Ethereum : `ETHEREUM_RPC_URL`, `--network ethereum`, `ETHERSCAN_API_KEY`
+- Polygon : `POLYGON_RPC_URL`, `--network polygon`, `POLYGONSCAN_API_KEY`
+- Avalanche : `AVALANCHE_RPC_URL`, `--network avalanche`, `SNOWTRACE_API_KEY`
+- Arbitrum : `ARBITRUM_RPC_URL`, `--network arbitrum`, `ARBISCAN_API_KEY`
+- Base : `BASE_RPC_URL`, `--network base`, `BASESCAN_API_KEY`
+- Celo : `CELO_RPC_URL`, `--network celo`, `CELOSCAN_API_KEY`
 
 ### Testnets
 
-- Ethereum Sepolia: `ETHEREUM_SEPOLIA_RPC_URL`, `--network ethereumSepolia`
-- Polygon Mumbai: `POLYGON_MUMBAI_RPC_URL`, `--network polygonMumbai`
-- Avalanche Fuji: `AVALANCHE_FUJI_RPC_URL`, `--network avalancheFuji`
-- Arbitrum Sepolia: `ARBITRUM_SEPOLIA_RPC_URL`, `--network arbitrumSepolia`
+- Ethereum Sepolia: `ETHEREUM_SEPOLIA_RPC_URL`, `--network ethereumSepolia`, `ETHERSCAN_API_KEY`
+- Polygon Amoy: `POLYGON_AMOY_RPC_URL`, `--network polygonAmoy`, `POLYGONSCAN_API_KEY`
+- Avalanche Fuji: `AVALANCHE_FUJI_RPC_URL`, `--network avalancheFuji`, `SNOWTRACE_API_KEY`
+- Arbitrum Sepolia: `ARBITRUM_SEPOLIA_RPC_URL`, `--network arbitrumSepolia`, `ARBISCAN_API_KEY`
+- Base Sepolia: `BASE_SEPOLIA_RPC_URL`, `--network baseSepolia`, `BASESCAN_API_KEY`
+- Optimism Sepolia: `OPTIMISM_SEPOLIA_RPC_URL`, `--network optimismSepolia`, `OP_ETHERSCAN_API_KEY`
+- Celo Alfajores: `CELO_ALFAJORES_RPC_URL`, `--network celoAlfajores`, `CELOSCAN_API_KEY`
 
 ## For Beginners
 
@@ -94,7 +98,7 @@ Install **both** of the following:
 1. Clone this repository to your local machine<br><br>. Also ensure that the testnet your wanting to deploy on is [supported](https://docs.chain.link/chainlink-functions/supported-networks) by Chainlink Functions.
 2. Open this directory in your command line/terminal app, then run `npm install` to install all dependencies.<br><br>
 3. Obtain the values for following environment variables (examples only - please see `./env.enc.example` for env vars you may need):
-   - `PRIVATE_KEY` for your development wallet - `POLYGON_MUMBAI_RPC_URL`, `ETHEREUM_SEPOLIA_RPC_URL`, or `AVALANCHE_FUJI_RPC_URL`
+   - `PRIVATE_KEY` for your development wallet - `POLYGON_AMOY_RPC_URL`, `ETHEREUM_SEPOLIA_RPC_URL`, or `AVALANCHE_FUJI_RPC_URL`
    - `POLYGONSCAN_API_KEY`, `ETHERSCAN_API_KEY`, or `FUJI_SNOWTRACE_API_KEY` blockchain explore API keys depending on which network you're using
    - `COINMARKETCAP_API_KEY` (from [here](https://pro.coinmarketcap.com/))
      <br><br>

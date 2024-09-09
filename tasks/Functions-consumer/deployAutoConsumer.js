@@ -66,9 +66,7 @@ task("functions-deploy-auto-consumer", "Deploys the AutomatedFunctionsConsumer c
         }
       }
     } else if (verifyContract && network.name !== "localFunctionsTestnet") {
-      console.log(
-        "\nPOLYGONSCAN_API_KEY, ETHERSCAN_API_KEY or FUJI_SNOWTRACE_API_KEY is missing. Skipping contract verification..."
-      )
+      console.log("\nBlockchain explorer API key is missing. Skipping contract verification...")
     }
 
     console.log(`\nAutomatedFunctionsConsumer contract deployed to ${consumerAddress} on ${network.name}`)

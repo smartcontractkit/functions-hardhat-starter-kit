@@ -57,6 +57,8 @@ module.exports = {
       optimismSepolia: networks.optimismSepolia.verifyApiKey,
       base: networks.base.verifyApiKey,
       optimism: networks.optimism.verifyApiKey,
+      celoAlfajores: networks.celoAlfajores.verifyApiKey,
+      celo: networks.celo.verifyApiKey,
     },
     customChains: [
       {
@@ -105,6 +107,22 @@ module.exports = {
         urls: {
           apiUrl: "https://api-optimistic.etherscan.io/api",
           browserURL: "https://optimistic.etherscan.io/",
+        },
+      },
+      {
+        celoAlfajores: "celoAlfajores",
+        chainId: 44787,
+        urls: {
+          apiURL: "https://alfajores.celoscan.io/api",
+          browserURL: "https://alfajores.celoscan.io",
+        },
+      },
+      {
+        celoAlfajores: "celo",
+        chainId: 42220,
+        urls: {
+          apiURL: "https://celoscan.io/api",
+          browserURL: "https://celoscan.io",
         },
       },
     ],
