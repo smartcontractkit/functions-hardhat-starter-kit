@@ -6,6 +6,7 @@
 
 // Loads environment variables from .env.enc file (if it exists)
 require("@chainlink/env-enc").config()
+require("dotenv").config()
 
 const DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS = 2
 
