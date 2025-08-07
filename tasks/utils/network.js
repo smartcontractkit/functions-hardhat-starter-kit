@@ -13,6 +13,8 @@ const BASE_URLS = {
   10: "https://optimistic.etherscan.io/",
   44787: "https://alfajores.celoscan.io/",
   42220: "https://celoscan.io/",
+  1868: "https://soneium.blockscout.com/",
+  1946: "https://soneium-minato.blockscout.com/"
 }
 
 /**
