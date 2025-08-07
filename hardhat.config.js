@@ -133,6 +133,14 @@ module.exports = {
           browserURL: "https://soneium-minato.blockscout.com",
         },
       },
+      {
+        network: "soneium",
+        chainId: 1868,
+        urls: {
+          apiURL: "https://soneium.blockscout.com/api",
+          browserURL: "https://soneium.blockscout.com",
+        },
+      },
     ],
   },
   gasReporter: {
