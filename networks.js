@@ -267,6 +267,39 @@ const networks = {
     donId: "fun-celo-mainnet-1",
     gatewayUrls: ["https://01.functions-gateway.chain.link/", "https://02.functions-gateway.chain.link/"],
   },
+  soneiumMinato: {
+    url: process.env.SONEIUM_MINATO_RPC_URL || "UNSET",
+    gasPrice: undefined,
+    nonce: undefined,
+    accounts,
+    verifyApiKey: process.env.SONEIUM_API_KEY || "UNSET",
+    chainId: 1946,
+    confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
+    nativeCurrencySymbol: "ETH",
+    linkToken: "0x7ea13478Ea3961A0e8b538cb05a9DF0477c79Cd2",
+    linkPriceFeed: "0x0538646F40d4Bd4DdA8c3d4A0C013EAE7ACE4F92", // LINK/ETH
+    functionsRouter: "0x3704dc1eefCDCE04C58813836AEcfdBC8e7cB3D8",
+    donId: "fun-soneium-sepolia-1",
+    gatewayUrls: [
+      "https://01.functions-gateway.testnet.chain.link/",
+      "https://02.functions-gateway.testnet.chain.link/",
+    ],
+  },
+  soneium: {
+    url: process.env.SONEIUM_RPC_URL || "UNSET",
+    gasPrice: undefined,
+    nonce: undefined,
+    accounts,
+    verifyApiKey: process.env.SONEIUM_API_KEY || "UNSET",
+    chainId: 1868,
+    confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
+    nativeCurrencySymbol: "ETH",
+    linkToken: "0x32D8F819C8080ae44375F8d383Ffd39FC642f3Ec",
+    linkPriceFeed: "0x6D414dC3F9D8822D947B737CA8F75b1c4d6C8542", // LINK/ETH
+    functionsRouter: "0x20fef1B12FA78fAc8CFB8a7ac1bf032Bd8DcAdDa",
+    donId: "fun-soneium-mainnet-1",
+    gatewayUrls: ["https://01.functions-gateway.chain.link/", "https://02.functions-gateway.chain.link/"],
+  },
   // localFunctionsTestnet is updated dynamically by scripts/startLocalFunctionsTestnet.js so it should not be modified here
   localFunctionsTestnet: {
     url: "http://localhost:8545/",

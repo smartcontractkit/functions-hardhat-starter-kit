@@ -59,6 +59,7 @@ In order to set up your own project which uses Chainlink Functions, please refer
 - Arbitrum : `ARBITRUM_RPC_URL`, `--network arbitrum`, `ARBISCAN_API_KEY`
 - Base : `BASE_RPC_URL`, `--network base`, `BASESCAN_API_KEY`
 - Celo : `CELO_RPC_URL`, `--network celo`, `CELOSCAN_API_KEY`
+- Soneium : `SONEIUM_RPC_URL`, `--network soenium`, `SONEIUM_API_KEY`
 
 ### Testnets
 
@@ -69,6 +70,7 @@ In order to set up your own project which uses Chainlink Functions, please refer
 - Base Sepolia: `BASE_SEPOLIA_RPC_URL`, `--network baseSepolia`, `BASESCAN_API_KEY`
 - Optimism Sepolia: `OPTIMISM_SEPOLIA_RPC_URL`, `--network optimismSepolia`, `OP_ETHERSCAN_API_KEY`
 - Celo Alfajores: `CELO_ALFAJORES_RPC_URL`, `--network celoAlfajores`, `CELOSCAN_API_KEY`
+- Soneium Minato: `SONEIUM_MINATO_RPC_URL`, `--network soneiumMinato`, `SONEIUM_API_KEY`
 
 ## For Beginners
 
