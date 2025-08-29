@@ -1,0 +1,6 @@
+# CODEOWNERS Best Practices
+# 1. Per Github docs: "Order is important; the last matching pattern takes the most precedence."
+# Please define less specific codeowner paths before more specific codeowner paths in order for the more specific rule to have priority
+
+# Root
+* @smartcontractkit/dev-services
